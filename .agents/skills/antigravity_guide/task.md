@@ -1,0 +1,28 @@
+# Tâches d'implémentation - Artisanat Aschi
+
+- [x] Initialisation du projet Backend Spring Boot 3 & Java 21+
+    - [x] Configuration de `pom.xml` avec PostgreSQL uniquement (H2 supprimé)
+    - [x] Configuration de `application.yml` avec logs de sécurité
+    - [x] Fichier `docker-compose.yml` avec l'image `postgres:latest` et volume unique anti-conflit
+    - [x] Seeder de base de données complet (`DatabaseSeeder.java`)
+- [x] Développement du code source Backend (Architecture Propre sans Lombok)
+    - [x] Entités de domaine (JPA mappings complets)
+    - [x] Couche Repositories
+    - [x] Sécurité JWT (compatible JJWT 0.12.x) avec correction des patterns de requêtes (/public/** et /error)
+    - [x] Couche Services et DTOs
+    - [x] Contrôleurs REST (Publics & Administratifs) avec correction des context-paths
+- [x] Intégration et pages dynamiques Frontend Next.js 15/16
+    - [x] Architecture multi-page indépendante restaurée (`/atelier`, `/creations`, `/catalogue`, `/realisations`, `/contact`)
+    - [x] Client API (`lib/api.ts`) connecté sur le port `8081`
+    - [x] Section Actualités ajoutée sur la page d'accueil avec lien direct dans la Navbar
+    - [x] Section descriptif de la maison avec vidéo de démonstration de sculpture et onglets Historique / Savoir-Faire sur la page d'accueil
+- [x] Logique de Prix et Commandes Restreinte
+    - [x] Affichage du prix et bouton "Acheter" activés uniquement sur les pièces uniques et modèles reproductibles
+    - [x] Masquage des prix (remplacés par "Sur devis") et limitation aux demandes de devis sur le Catalogue d'inspiration
+- [x] Espace Administration Frontend
+    - [x] Page de connexion `/admin/login` avec JWT
+    - [x] Tableau de bord principal `/admin/dashboard` avec séparation des KPI créations disponibles et catalogue
+    - [x] Interfaces CRUD administratives (séparation produits et catalogue d'inspiration)
+- [x] Phase finale de vérification
+    - [x] Compilation réussie du Backend Spring Boot
+    - [x] Vérification du build de production Next.js
