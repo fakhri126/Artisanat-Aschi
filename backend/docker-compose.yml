@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: artisanat-aschi-db
+    restart: always
+    environment:
+      POSTGRES_DB: artisanat_aschi
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adminpassword
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - artisanat_aschi_db_unique_volume:/var/lib/postgresql/data
+
+volumes:
+  artisanat_aschi_db_unique_volume:
