@@ -6,16 +6,16 @@ import { ArrowDown } from 'lucide-react'
 import Image from 'next/image'
 
 const HERO_IMAGES = [
-  '/artisanat.jpg',
-  '/hero.png',
-  '/wood-selection.png',
-  '/carving.png',
-  '/painting.png',
-  '/finishing.png',
-  '/cat-door.png',
-  '/cat-buffet.png',
-  '/creation-unique.png',
-  '/project-villa.png'
+  '/porte.png',
+  '/herochaise1.png',
+  '/buffet.png',
+  '/miroir.png',
+  '/prod1.jpg',
+  '/prod2.jpg',
+  '/prod3.jpg',
+  '/prod4.jpg',
+  '/new1.jpg',
+  '/new2.jpg'
 ]
 
 export function Hero() {
