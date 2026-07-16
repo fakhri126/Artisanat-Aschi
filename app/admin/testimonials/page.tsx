@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { adminApi, Testimonial } from '@/lib/api'
 import { Plus, Edit2, Trash2, X, MessageSquare, Video, Quote } from 'lucide-react'
+import { ImageUploader } from '@/components/site/image-uploader'
 
 export default function AdminTestimonialsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
@@ -20,6 +21,7 @@ export default function AdminTestimonialsPage() {
   const [type, setType] = useState<'TEXT' | 'VIDEO'>('TEXT')
   const [videoUrl, setVideoUrl] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     loadTestimonials()
@@ -180,7 +182,7 @@ export default function AdminTestimonialsPage() {
       {/* Form Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="bg-background border border-border w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl">
+          <div className="bg-background border border-border w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
             <header className="p-6 border-b border-border flex items-center justify-between">
               <h2 className="font-heading text-xl font-medium text-foreground">
                 {editingTestimonial ? 'Modifier le témoignage' : 'Nouveau témoignage client'}
@@ -190,7 +192,7 @@ export default function AdminTestimonialsPage() {
               </button>
             </header>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Nom du Client</label>
@@ -215,7 +217,7 @@ export default function AdminTestimonialsPage() {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 sm:col-span-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Format du témoignage</label>
                   <select
                     value={type}
@@ -226,18 +228,18 @@ export default function AdminTestimonialsPage() {
                     <option value="VIDEO">Témoignage vidéo</option>
                   </select>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">URL de la photo de profil</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: /client-sonia.jpg"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
-                  />
-                </div>
               </div>
+
+              {/* Photo de profil via upload */}
+              <ImageUploader
+                label="Photo de profil du client"
+                imageUrl={imageUrl}
+                onUploaded={(url) => setImageUrl(url)}
+                onRemove={() => setImageUrl('')}
+                uploading={uploading}
+                setUploading={setUploading}
+                uploadFn={adminApi.uploadImage}
+              />
 
               {type === 'VIDEO' && (
                 <div className="space-y-2">

@@ -38,9 +38,9 @@ export function Footer() {
           <div>
             <p className="mb-5 text-xs uppercase tracking-[0.2em] text-[var(--gold)] font-semibold">Contact</p>
             <div className="flex flex-col gap-3 text-sm text-[var(--ivory)]/70">
-              <p>Route de Tunis, Sfax — Tunisie</p>
-              <p>+216 00 000 000</p>
-              <p>contact@artisanataschi.tn</p>
+              <p>9 avenue roosvelt la Goulette</p>
+              <p>+216 55743760</p>
+              <p>artisanat.aschi@gmail.com</p>
               <p>Lun — Sam · 8h30 — 18h00</p>
             </div>
           </div>

@@ -71,6 +71,8 @@ public class WebSecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 // All public API routes open to everyone
                 .requestMatchers("/public/**").permitAll()
+                // Allow public access to uploaded files
+                .requestMatchers("/uploads/**").permitAll()
                 // Admin routes require ROLE_ADMIN
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Anything else requires auth

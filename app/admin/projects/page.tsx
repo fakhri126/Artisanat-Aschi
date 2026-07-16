@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { adminApi, Project } from '@/lib/api'
 import { Plus, Edit2, Trash2, X, MapPin, Folder, Image as ImageIcon } from 'lucide-react'
+import { ImageUploader } from '@/components/site/image-uploader'
 
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -20,6 +21,7 @@ export default function AdminProjectsPage() {
   const [location, setLocation] = useState('')
   const [details, setDetails] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     loadProjects()
@@ -209,7 +211,7 @@ export default function AdminProjectsPage() {
                   </select>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 sm:col-span-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Localisation</label>
                   <input
                     type="text"
@@ -219,18 +221,17 @@ export default function AdminProjectsPage() {
                     className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">URL de l&apos;image</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: /project-1.jpg"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
-                  />
-                </div>
               </div>
+
+              <ImageUploader
+                label="Image principale de la réalisation"
+                imageUrl={imageUrl}
+                onUploaded={(url) => setImageUrl(url)}
+                onRemove={() => setImageUrl('')}
+                uploading={uploading}
+                setUploading={setUploading}
+                uploadFn={adminApi.uploadImage}
+              />
 
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Description courte</label>

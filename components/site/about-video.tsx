@@ -9,7 +9,7 @@ export function AboutVideo() {
     <section className="relative flex min-h-[45rem] w-full items-center justify-center overflow-hidden bg-zinc-950 py-24 md:py-36">
       {/* Background Video */}
       <video
-        src="/test-video.mp4"
+        src="/Video.mp4"
         autoPlay={true}
         loop={true}
         muted={true}

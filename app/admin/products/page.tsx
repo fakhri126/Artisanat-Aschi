@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react'
 import { adminApi, publicApi, Product, Category, ProductRequest } from '@/lib/api'
 import { Plus, Edit2, Trash2, Eye, Star, X, Image as ImageIcon } from 'lucide-react'
+import { MultiImageUploader } from '@/components/site/image-uploader'
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -25,7 +26,8 @@ export default function AdminProductsPage() {
   const [availability, setAvailability] = useState('Disponible')
   const [type, setType] = useState<'PIECE_UNIQUE' | 'REPRODUCTIBLE' | 'CATALOGUE'>('PIECE_UNIQUE')
   const [isFeatured, setIsFeatured] = useState(false)
-  const [imageUrlsText, setImageUrlsText] = useState('')
+  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -59,7 +61,7 @@ export default function AdminProductsPage() {
     setAvailability('Disponible')
     setType('PIECE_UNIQUE')
     setIsFeatured(false)
-    setImageUrlsText('')
+    setImageUrls([])
     setModalOpen(true)
   }
 
@@ -75,9 +77,11 @@ export default function AdminProductsPage() {
     setAvailability(product.availability || 'Disponible')
     setType(product.type)
     setIsFeatured(product.isFeatured)
-    setImageUrlsText(product.images.map(img => img.imageUrl).join(', '))
+    const urls = product.images.map(img => img.imageUrl)
+    setImageUrls(urls)
     setModalOpen(true)
   }
+
 
   const handleDelete = async (id: number) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) return
@@ -92,12 +96,6 @@ export default function AdminProductsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Parse image URLs from comma separated text
-    const imageUrls = imageUrlsText
-      .split(',')
-      .map(url => url.trim())
-      .filter(url => url !== '')
-      
     const payload: ProductRequest = {
       name,
       description,
@@ -383,17 +381,15 @@ export default function AdminProductsPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">URLs des images (séparées par des virgules)</label>
-                <input
-                  type="text"
-                  placeholder="Ex: /creation-unique.png, /cat-chest.png"
-                  value={imageUrlsText}
-                  onChange={(e) => setImageUrlsText(e.target.value)}
-                  className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
-                />
-                <p className="text-[10px] text-muted-foreground">La première URL servira d&apos;image principale (Primary).</p>
-              </div>
+              <MultiImageUploader
+                label="Images du produit"
+                imageUrls={imageUrls}
+                onAdd={(url) => setImageUrls(prev => [...prev, url])}
+                onRemove={(index) => setImageUrls(prev => prev.filter((_, i) => i !== index))}
+                uploading={uploading}
+                setUploading={setUploading}
+                uploadFn={adminApi.uploadProductImage}
+              />
 
               <div className="flex items-center gap-3">
                 <input

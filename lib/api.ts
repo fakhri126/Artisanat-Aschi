@@ -236,6 +236,24 @@ export const adminApi = {
     return fetchApi<any>('/admin/stats');
   },
 
+  uploadProductImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return fetchApi<{ url: string }>('/admin/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return fetchApi<{ url: string }>('/admin/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
   // Categories CRUD
   getCategories: () => fetchApi<Category[]>('/public/categories'),
   createCategory: (data: Omit<Category, 'id'>) => fetchApi<Category>('/admin/categories', {

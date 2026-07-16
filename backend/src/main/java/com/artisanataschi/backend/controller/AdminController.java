@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -78,6 +80,56 @@ public class AdminController {
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<java.util.Map<String, String>> uploadImage(
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request) {
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(java.util.Map.of("error", "Veuillez sélectionner un fichier."));
+            }
+
+            // Validate file type
+            String contentType = file.getContentType();
+            if (contentType == null || (!contentType.equals("image/jpeg") &&
+                                        !contentType.equals("image/png") &&
+                                        !contentType.equals("image/webp") &&
+                                        !contentType.equals("image/jpg"))) {
+                return ResponseEntity.badRequest().body(java.util.Map.of("error", "Format de fichier non supporté. Veuillez utiliser jpg, jpeg, png ou webp."));
+            }
+
+            // Create uploads directory if not exists
+            java.nio.file.Path uploadPath = java.nio.file.Paths.get("uploads");
+            if (!java.nio.file.Files.exists(uploadPath)) {
+                java.nio.file.Files.createDirectories(uploadPath);
+            }
+
+            // Generate unique filename
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String fileName = java.util.UUID.randomUUID().toString() + extension;
+            java.nio.file.Path filePath = uploadPath.resolve(fileName);
+
+            // Save file
+            java.nio.file.Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+            // Construct file URL
+            String scheme = request.getScheme();
+            String serverName = request.getServerName();
+            int serverPort = request.getServerPort();
+            String contextPath = request.getContextPath(); // /api
+            
+            String fileUrl = scheme + "://" + serverName + ":" + serverPort + contextPath + "/uploads/" + fileName;
+
+            return ResponseEntity.ok(java.util.Map.of("url", fileUrl));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(java.util.Map.of("error", "Erreur lors de l'enregistrement de l'image: " + e.getMessage()));
+        }
     }
 
     // --- Projects CRUD ---

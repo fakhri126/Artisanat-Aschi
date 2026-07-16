@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { adminApi, News } from '@/lib/api'
 import { Plus, Edit2, Trash2, X, Calendar, Image as ImageIcon } from 'lucide-react'
+import { ImageUploader } from '@/components/site/image-uploader'
 
 export default function AdminNewsPage() {
   const [news, setNews] = useState<News[]>([])
@@ -17,6 +18,7 @@ export default function AdminNewsPage() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     loadNews()
@@ -151,17 +153,17 @@ export default function AdminNewsPage() {
       {/* Form Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="bg-background border border-border w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl">
+          <div className="bg-background border border-border w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
             <header className="p-6 border-b border-border flex items-center justify-between">
               <h2 className="font-heading text-xl font-medium text-foreground">
-                {editingNews ? 'Modifier l\'actualité' : 'Publier une actualité'}
+                {editingNews ? "Modifier l'actualité" : 'Publier une actualité'}
               </h2>
               <button onClick={() => setModalOpen(false)} className="p-1.5 text-muted-foreground hover:text-foreground">
                 <X className="size-5" />
               </button>
             </header>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Titre de l&apos;actualité</label>
                 <input
@@ -174,16 +176,15 @@ export default function AdminNewsPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">URL de l&apos;image</label>
-                <input
-                  type="text"
-                  placeholder="Ex: /news-exposition.jpg"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
-                />
-              </div>
+              <ImageUploader
+                label="Image de l'actualité"
+                imageUrl={imageUrl}
+                onUploaded={(url) => setImageUrl(url)}
+                onRemove={() => setImageUrl('')}
+                uploading={uploading}
+                setUploading={setUploading}
+                uploadFn={adminApi.uploadImage}
+              />
 
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Contenu de l&apos;actualité</label>

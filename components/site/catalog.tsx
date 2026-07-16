@@ -39,9 +39,9 @@ const FILTERS_DIM = [
 const MOCK_MODELS = [
   {
     id: 5,
-    name: 'Buffet Carthage',
+    name: 'Buffet ',
     category: { name: 'Buffets' },
-    images: [{ imageUrl: '/cat-buffet.png' }],
+    images: [{ imageUrl: '/prod1.jpg' }],
     description: "Buffet en noyer massif aux portes finement sculptées de motifs arabesques. Une pièce maîtresse pour salle à manger d'exception.",
     materials: 'Noyer massif',
     dimensions: '180 x 50 x 85 cm',
@@ -49,9 +49,9 @@ const MOCK_MODELS = [
   },
   {
     id: 6,
-    name: 'Meuble TV Hammamet',
+    name: 'Meuble TV',
     category: { name: 'Meubles TV' },
-    images: [{ imageUrl: '/cat-tv.png' }],
+    images: [{ imageUrl: '/prod3.jpg' }],
     description: 'Meuble bas tout en élégance, alliant rangements discrets et sculptures traditionnelles. Disponible en plusieurs dimensions.',
     materials: 'Bois de frêne',
     dimensions: '160 x 40 x 55 cm',

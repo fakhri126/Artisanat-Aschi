@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { adminApi, publicApi, Product, Category, ProductRequest } from '@/lib/api'
 import { Plus, Edit2, Trash2, Eye, Bot, X, Image as ImageIcon } from 'lucide-react'
 import Link from 'next/link'
+import { MultiImageUploader } from '@/components/site/image-uploader'
 
 export default function AdminCataloguePage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -24,7 +25,8 @@ export default function AdminCataloguePage() {
   const [color, setColor] = useState('')
   const [price, setPrice] = useState('')
   const [availability, setAvailability] = useState('Disponible')
-  const [imageUrlsText, setImageUrlsText] = useState('')
+  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [uploading, setUploading] = useState(false)
   const [isAiGenerated, setIsAiGenerated] = useState(false)
 
   useEffect(() => { loadData() }, [])
@@ -50,7 +52,7 @@ export default function AdminCataloguePage() {
     setEditingProduct(null)
     setName(''); setDescription(''); setCategoryId(categories[0]?.id.toString() || '')
     setDimensions(''); setMaterials(''); setColor(''); setPrice('')
-    setAvailability('Disponible'); setImageUrlsText(''); setIsAiGenerated(false)
+    setAvailability('Disponible'); setImageUrls([]); setIsAiGenerated(false)
     setModalOpen(true)
   }
 
@@ -61,7 +63,7 @@ export default function AdminCataloguePage() {
     setMaterials(product.materials || ''); setColor(product.color || '')
     setPrice(product.price ? product.price.toString() : '')
     setAvailability(product.availability || 'Disponible')
-    setImageUrlsText(product.images.map(img => img.imageUrl).join(', '))
+    setImageUrls(product.images.map(img => img.imageUrl))
     setIsAiGenerated(false)
     setModalOpen(true)
   }
@@ -76,7 +78,6 @@ export default function AdminCataloguePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const imageUrls = imageUrlsText.split(',').map(u => u.trim()).filter(Boolean)
     const payload: ProductRequest = {
       name, description, categoryId: parseInt(categoryId), dimensions, materials,
       color, price: price === '' ? null : parseFloat(price), availability,
@@ -240,10 +241,15 @@ export default function AdminCataloguePage() {
                 <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Description</label>
                 <textarea rows={3} placeholder="Présentation du modèle..." value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none" />
               </div>
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">URLs des images (séparées par des virgules)</label>
-                <input type="text" placeholder="Ex: /cat-buffet.png, /creation-unique.png" value={imageUrlsText} onChange={e => setImageUrlsText(e.target.value)} className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none" />
-              </div>
+              <MultiImageUploader
+                label="Images du modèle"
+                imageUrls={imageUrls}
+                onAdd={(url) => setImageUrls(prev => [...prev, url])}
+                onRemove={(index) => setImageUrls(prev => prev.filter((_, i) => i !== index))}
+                uploading={uploading}
+                setUploading={setUploading}
+                uploadFn={adminApi.uploadProductImage}
+              />
               <div className="flex items-center gap-3 p-3 rounded-lg bg-gold/5 border border-gold/10">
                 <input type="checkbox" id="aiCheck" checked={isAiGenerated} onChange={e => setIsAiGenerated(e.target.checked)} className="size-4 rounded" />
                 <label htmlFor="aiCheck" className="text-xs text-foreground cursor-pointer flex items-center gap-2">
