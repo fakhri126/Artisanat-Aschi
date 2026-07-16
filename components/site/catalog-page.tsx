@@ -49,16 +49,33 @@ export function CatalogPage() {
   const [category, setCategory] = useState('Tout')
   const [color, setColor] = useState('Tout')
   const [dimension, setDimension] = useState('Tout')
-  const [products, setProducts] = useState<Product[]>(MOCK_MODELS)
+  const [dbProducts, setDbProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
   const [hoveredId, setHoveredId] = useState<number | null>(null)
 
-  // Client-side filtering on mock data (replace with API call when backend ready)
   useEffect(() => {
-    let filtered = MOCK_MODELS
+    async function loadProducts() {
+      try {
+        const data = await publicApi.getProducts({ type: 'CATALOGUE' })
+        setDbProducts(data)
+      } catch (err) {
+        console.error("Failed to load catalog products:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadProducts()
+  }, [])
+
+  // Client-side filtering on database products (fallback to MOCK_MODELS if DB is empty)
+  useEffect(() => {
+    const source = dbProducts.length > 0 ? dbProducts : (loading ? [] : MOCK_MODELS)
+    let filtered = source
 
     if (category !== 'Tout') {
-      filtered = filtered.filter(p => p.category.name === category)
+      filtered = filtered.filter(p => p.category?.name === category)
     }
     if (color !== 'Tout') {
       filtered = filtered.filter(p => p.color === color)
@@ -74,7 +91,7 @@ export function CatalogPage() {
     }
 
     setProducts(filtered)
-  }, [category, color, dimension])
+  }, [category, color, dimension, dbProducts, loading])
 
   const activeFilterCount = [
     category !== 'Tout',
@@ -240,7 +257,17 @@ export function CatalogPage() {
 
         {/* Product grid */}
         <AnimatePresence mode="wait">
-          {products.length === 0 ? (
+          {loading ? (
+            <motion.div
+              key="loading"
+              className="flex justify-center py-24"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="size-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+            </motion.div>
+          ) : products.length === 0 ? (
             <motion.div
               key="empty"
               initial={{ opacity: 0 }}
