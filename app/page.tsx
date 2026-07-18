@@ -1,5 +1,5 @@
 import { Navbar } from "@/components/site/navbar"
-import { Hero } from "@/components/site/hero"
+import { HeroSlider } from "@/components/site/hero-slider"
 import { AboutVideo } from "@/components/site/about-video"
 import { HomeTeaser } from "@/components/site/home-teaser"
 import { NewsSection } from "@/components/site/news-section"
@@ -18,7 +18,7 @@ export default function Page() {
   return (
     <main className="overflow-x-hidden">
       <Navbar />
-      <Hero />
+      <HeroSlider />
       <AboutVideo />
       <HomeTeaser />
       <NewsSection />

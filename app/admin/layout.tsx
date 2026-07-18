@@ -76,7 +76,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-secondary text-foreground flex">
+    <div className="min-h-screen bg-[#1a1512] text-ivory flex">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-walnut border-r border-gold/10 text-ivory shrink-0">
         <div className="h-20 flex items-center gap-2 px-6 border-b border-gold/10">

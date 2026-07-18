@@ -103,18 +103,19 @@ export default function AdminCataloguePage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="font-heading text-3xl font-light text-foreground text-left">Catalogue d&apos;Inspiration</h1>
-          <p className="mt-1 text-sm text-muted-foreground text-left">
-            Modèles passés utilisés comme source d&apos;inspiration. Apparaissent sur la page <strong>/catalogue</strong>.
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+          <h1 className="font-heading text-3xl font-light text-ivory text-left">Catalogue d&apos;Inspiration</h1>
+          <p className="mt-1 text-sm text-ivory/60 text-left">
+            Modèles passés utilisés comme source d&apos;inspiration. Apparaissent sur la page <strong className="text-gold font-medium">/catalogue</strong>.
           </p>
-        </div>
-        <button
+        </motion.div>
+        <motion.button
+          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
           onClick={openCreateModal}
-          className="flex items-center gap-2 self-start rounded-full bg-gold hover:bg-gold/90 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all shadow"
+          className="flex items-center gap-2 self-start rounded-full bg-gold hover:bg-gold/90 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all shadow-[0_0_15px_rgba(201,168,76,0.3)]"
         >
           <Plus className="size-4" /> Ajouter au catalogue
-        </button>
+        </motion.button>
       </div>
 
       {/* AI notice */}
@@ -135,7 +136,7 @@ export default function AdminCataloguePage() {
         variants={{ visible: { transition: { staggerChildren: 0.07 } }, hidden: {} }}
       >
         {products.length === 0 ? (
-          <div className="col-span-3 flex flex-col items-center justify-center py-16 bg-background border border-border rounded-2xl text-muted-foreground">
+          <div className="col-span-3 flex flex-col items-center justify-center py-16 bg-walnut/50 backdrop-blur-md border border-gold/10 rounded-2xl text-ivory/40">
             <Bot className="size-10 mb-3 opacity-20" />
             <p>Aucun modèle dans le catalogue d&apos;inspiration.</p>
           </div>
@@ -149,41 +150,41 @@ export default function AdminCataloguePage() {
                   hidden: { opacity: 0, y: 20 },
                   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
                 }}
-                className="group bg-background border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                className="group bg-walnut/50 backdrop-blur-md border border-gold/10 rounded-2xl overflow-hidden shadow-lg hover:shadow-gold/5 transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="relative h-48 overflow-hidden bg-secondary">
+                <div className="relative h-48 overflow-hidden bg-black/40">
                   <img src={image} alt={product.name} className="size-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-black/50 px-2.5 py-1 backdrop-blur-sm">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a1512] via-transparent to-transparent opacity-80" />
+                  <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-black/50 border border-gold/20 px-2.5 py-1 backdrop-blur-md shadow-inner">
                     <Bot className="size-3 text-gold" />
                     <span className="text-[10px] uppercase tracking-wider text-gold font-medium">Catalogue</span>
                   </div>
                 </div>
                 <div className="p-5">
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-heading text-lg font-medium text-foreground leading-tight">{product.name}</h3>
-                    <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <h3 className="font-heading text-lg font-medium text-ivory leading-tight">{product.name}</h3>
+                    <span className="shrink-0 rounded-full border border-gold/20 bg-gold/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-gold">
                       {product.category?.name}
                     </span>
                   </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2">{product.description}</p>
-                  <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+                  <p className="mt-2 text-xs text-ivory/60 line-clamp-2">{product.description}</p>
+                  <div className="mt-4 flex items-center gap-3 text-xs text-ivory/50 font-medium">
                     {product.color && (
-                      <span className="flex items-center gap-1">
-                        <span className="size-3 rounded-full border border-border" style={{ backgroundColor: product.color.toLowerCase() === 'noyer' ? '#5C3317' : product.color.toLowerCase() === 'or' ? '#C9A84C' : product.color.toLowerCase() === 'bleu' ? '#2D5F8A' : '#C4A882' }} />
+                      <span className="flex items-center gap-1.5">
+                        <span className="size-2.5 rounded-full shadow-inner" style={{ backgroundColor: product.color.toLowerCase() === 'noyer' ? '#5C3317' : product.color.toLowerCase() === 'or' ? '#C9A84C' : product.color.toLowerCase() === 'bleu' ? '#2D5F8A' : '#C4A882' }} />
                         {product.color}
                       </span>
                     )}
                     {product.dimensions && <span>{product.dimensions}</span>}
                   </div>
-                  <div className="mt-4 flex items-center justify-end gap-2 border-t border-border pt-4">
-                    <Link href={`/produits/${product.id}`} target="_blank" className="p-1.5 text-muted-foreground hover:text-foreground transition-colors" title="Voir sur le site">
+                  <div className="mt-5 flex items-center justify-end gap-2 border-t border-gold/10 pt-4 opacity-70 group-hover:opacity-100 transition-opacity">
+                    <Link href={`/produits/${product.id}`} target="_blank" className="p-1.5 text-ivory/60 hover:text-ivory hover:bg-white/5 rounded-md transition-colors" title="Voir sur le site">
                       <Eye className="size-4" />
                     </Link>
-                    <button onClick={() => openEditModal(product)} className="p-1.5 text-muted-foreground hover:text-gold transition-colors" title="Modifier">
+                    <button onClick={() => openEditModal(product)} className="p-1.5 text-ivory/60 hover:text-gold hover:bg-gold/10 rounded-md transition-colors" title="Modifier">
                       <Edit2 className="size-4" />
                     </button>
-                    <button onClick={() => handleDelete(product.id)} className="p-1.5 text-muted-foreground hover:text-red-500 transition-colors" title="Supprimer">
+                    <button onClick={() => handleDelete(product.id)} className="p-1.5 text-ivory/60 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-colors" title="Supprimer">
                       <Trash2 className="size-4" />
                     </button>
                   </div>
@@ -196,13 +197,17 @@ export default function AdminCataloguePage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="bg-background border border-border w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
-            <header className="p-6 border-b border-border flex items-center justify-between">
-              <h2 className="font-heading text-xl font-medium text-foreground">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-walnut border border-gold/20 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
+          >
+            <header className="p-6 border-b border-gold/10 flex items-center justify-between">
+              <h2 className="font-heading text-xl font-medium text-ivory">
                 {editingProduct ? 'Modifier le modèle' : 'Ajouter au catalogue'}
               </h2>
-              <button onClick={() => setModalOpen(false)} className="p-1.5 text-muted-foreground hover:text-foreground">
+              <button onClick={() => setModalOpen(false)} className="p-1.5 text-ivory/50 hover:text-ivory rounded-md transition-colors hover:bg-white/5">
                 <X className="size-5" />
               </button>
             </header>
@@ -266,7 +271,7 @@ export default function AdminCataloguePage() {
                 </button>
               </footer>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>

@@ -1,11 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Calendar, ArrowRight, Newspaper } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Calendar, ArrowRight, Newspaper, Clock, Sparkles } from 'lucide-react'
 import { Reveal } from './reveal'
 import { publicApi, News } from '@/lib/api'
 import Link from 'next/link'
+
+// Helper pour temps de lecture (env. 200 mots/minute)
+const getReadTime = (text: string) => {
+  const words = text.trim().split(/\s+/).length
+  const minutes = Math.max(1, Math.ceil(words / 200))
+  return `${minutes} min`
+}
+
+// Helper pour savoir si l'article est récent (< 7 jours)
+const isRecent = (dateStr: string) => {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  return diff < 7 * 24 * 60 * 60 * 1000
+}
 
 export function NewsSection() {
   const [news, setNews] = useState<News[]>([])
@@ -79,25 +92,51 @@ export function NewsSection() {
 
             return (
               <Reveal key={item.id} delay={i * 150}>
-                <article className="group flex flex-col sm:flex-row gap-6 bg-card border border-border rounded-2xl p-5 transition-shadow duration-300 hover:shadow-lg h-full">
+                <motion.article 
+                  whileHover={{ y: -8 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="group flex flex-col sm:flex-row gap-6 bg-white/50 backdrop-blur-sm border border-gold/20 rounded-2xl p-5 transition-all duration-500 hover:shadow-[0_15px_40px_rgba(201,168,76,0.15)] hover:border-gold/40 h-full relative overflow-hidden"
+                >
+                  {/* Subtle hover gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
                   {/* Image container */}
-                  <div className="relative w-full sm:w-44 aspect-[4/3] sm:aspect-square overflow-hidden rounded-xl bg-zinc-900 shrink-0">
-                    <img
+                  <div className="relative w-full sm:w-48 aspect-[4/3] sm:aspect-square overflow-hidden rounded-xl bg-zinc-900 shrink-0 shadow-inner">
+                    <motion.img
+                      whileHover={{ scale: 1.08 }}
+                      transition={{ duration: 0.7 }}
                       src={item.imageUrl || '/placeholder.png'}
                       alt={item.title}
-                      className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      onError={(e) => {
+                      className="size-full object-cover"
+                      onError={(e: any) => {
                         e.currentTarget.src = '/creation-unique.png'
                       }}
                     />
+                    {/* Overlay Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+                    
+                    {/* Badges */}
+                    {isRecent(item.createdDate) && (
+                      <div className="absolute top-3 right-3">
+                        <span className="bg-gold text-walnut text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                          <Sparkles className="size-2.5" /> Nouveau
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Content */}
-                  <div className="flex flex-col justify-between py-1 text-left">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Calendar className="size-3.5 text-gold" />
-                        <span className="font-medium">{dateStr}</span>
+                  <div className="flex flex-col justify-between py-1 text-left relative z-10">
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground/80 font-medium">
+                        <span className="flex items-center gap-1.5 bg-secondary px-2.5 py-1 rounded-full border border-border">
+                          <Calendar className="size-3 text-gold" />
+                          {dateStr}
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-secondary px-2.5 py-1 rounded-full border border-border">
+                          <Clock className="size-3 text-gold" />
+                          {getReadTime(item.content)}
+                        </span>
                       </div>
                       <h3 className="font-heading text-xl font-medium text-foreground group-hover:text-gold transition-colors leading-tight">
                         {item.title}
@@ -107,14 +146,23 @@ export function NewsSection() {
                       </p>
                     </div>
 
-                    <Link
-                      href="/contact?subject=actualite"
-                      className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gold hover:text-bronze transition-colors"
-                    >
-                      En savoir plus <ArrowRight className="size-3.5" />
-                    </Link>
+                    <div className="mt-5 pt-4 border-t border-border/50 flex items-center justify-between">
+                      <Link
+                        href="/contact?subject=actualite"
+                        className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gold hover:text-bronze transition-colors group/link"
+                      >
+                        En savoir plus 
+                        <motion.span
+                          initial={{ x: 0 }}
+                          whileHover={{ x: 4 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ArrowRight className="size-3.5" />
+                        </motion.span>
+                      </Link>
+                    </div>
                   </div>
-                </article>
+                </motion.article>
               </Reveal>
             )
           })}

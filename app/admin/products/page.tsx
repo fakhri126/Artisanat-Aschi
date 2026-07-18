@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link';
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { adminApi, publicApi, Product, Category, ProductRequest } from '@/lib/api'
 import { Plus, Edit2, Trash2, Eye, Star, X, Image as ImageIcon } from 'lucide-react'
 import { MultiImageUploader } from '@/components/site/image-uploader'
@@ -134,140 +135,175 @@ export default function AdminProductsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="font-heading text-3xl font-light text-foreground text-left">Gestion des Produits</h1>
-          <p className="mt-1 text-sm text-muted-foreground text-left">Gérez l&apos;ensemble du catalogue d&apos;inspiration et des pièces uniques.</p>
-        </div>
-        <button
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="font-heading text-3xl font-light text-ivory text-left">Gestion des Produits</h1>
+          <p className="mt-1 text-sm text-ivory/60 text-left">Gérez l&apos;ensemble du catalogue d&apos;inspiration et des pièces uniques.</p>
+        </motion.div>
+        <motion.button
+          initial={{ opacity: 0, x: 20 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 0.5, delay: 0.1 }}
           onClick={openCreateModal}
-          className="flex items-center gap-2 self-start rounded-full bg-gold hover:bg-gold/95 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all shadow"
+          className="flex items-center gap-2 self-start rounded-full bg-gold hover:bg-gold/90 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all shadow-[0_0_15px_rgba(201,168,76,0.3)]"
         >
           <Plus className="size-4" /> Nouveau Produit
-        </button>
+        </motion.button>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-950/20 border border-red-500/25 text-red-400 text-sm">
+        <div className="p-4 rounded-xl bg-red-950/40 border border-red-500/20 text-red-400 text-sm backdrop-blur-md">
           {error}
         </div>
       )}
 
       {/* Products list table */}
-      <div className="bg-background border border-border rounded-2xl overflow-hidden shadow-sm">
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0, y: 20 },
+          visible: { opacity: 1, y: 0, transition: { duration: 0.5, staggerChildren: 0.05 } }
+        }}
+        className="bg-walnut/50 backdrop-blur-md border border-gold/10 rounded-2xl overflow-hidden shadow-2xl"
+      >
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-secondary/50 border-b border-border text-xs uppercase tracking-wider text-muted-foreground">
-                <th className="p-4 pl-6">Produit</th>
-                <th className="p-4">Catégorie</th>
-                <th className="p-4">Type</th>
-                <th className="p-4">Disponibilité</th>
-                <th className="p-4">Prix</th>
-                <th className="p-4 text-center">En vedette</th>
-                <th className="p-4 pr-6 text-right">Actions</th>
+              <tr className="bg-white/5 border-b border-gold/10 text-xs uppercase tracking-wider text-ivory/50">
+                <th className="p-4 pl-6 font-medium">Produit</th>
+                <th className="p-4 font-medium">Catégorie</th>
+                <th className="p-4 font-medium">Type</th>
+                <th className="p-4 font-medium">Disponibilité</th>
+                <th className="p-4 font-medium">Prix</th>
+                <th className="p-4 text-center font-medium">En vedette</th>
+                <th className="p-4 pr-6 text-right font-medium">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border text-sm">
+            <tbody className="divide-y divide-gold/5 text-sm">
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-muted-foreground">Aucun produit dans le catalogue.</td>
+                  <td colSpan={7} className="p-8 text-center text-ivory/40">Aucun produit dans le catalogue.</td>
                 </tr>
               ) : (
                 products.map((product) => (
-                  <tr key={product.id} className="hover:bg-secondary/20 transition-colors">
+                  <motion.tr 
+                    key={product.id} 
+                    variants={{
+                      hidden: { opacity: 0, x: -10 },
+                      visible: { opacity: 1, x: 0 }
+                    }}
+                    className="hover:bg-white/[0.03] transition-colors group"
+                  >
                     <td className="p-4 pl-6">
                       <div className="flex items-center gap-3">
-                        <div className="size-12 rounded-lg bg-secondary border border-border overflow-hidden shrink-0 flex items-center justify-center">
+                        <div className="size-12 rounded-lg bg-black/40 border border-gold/10 overflow-hidden shrink-0 flex items-center justify-center shadow-inner">
                           {product.images[0]?.imageUrl ? (
                             <img 
                               src={product.images[0].imageUrl} 
                               alt={product.name} 
-                              className="size-full object-cover"
+                              className="size-full object-cover transition-transform duration-500 group-hover:scale-110"
                               onError={(e) => {
-                                // Fallback
                                 (e.target as HTMLImageElement).src = '/placeholder.png'
                               }}
                             />
                           ) : (
-                            <ImageIcon className="size-5 text-muted-foreground" />
+                            <ImageIcon className="size-5 text-ivory/20" />
                           )}
                         </div>
                         <div>
-                          <p className="font-semibold text-foreground">{product.name}</p>
-                          <p className="text-xs text-muted-foreground line-clamp-1">{product.materials || 'Sans matériel défini'}</p>
+                          <p className="font-heading font-medium text-ivory text-base">{product.name}</p>
+                          <p className="text-xs text-ivory/50 line-clamp-1">{product.materials || 'Sans matériel défini'}</p>
                         </div>
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className="px-2.5 py-0.5 rounded-full bg-secondary border border-border text-xs font-medium text-foreground">
+                      <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-wider font-medium text-ivory/80">
                         {product.category?.name}
                       </span>
                     </td>
                     <td className="p-4">
-                      <span className={`text-xs font-semibold ${
-                        product.type === 'PIECE_UNIQUE' ? 'text-indigo-400' :
-                        product.type === 'REPRODUCTIBLE' ? 'text-amber-400' : 'text-zinc-400'
-                      }`}>
-                        {product.type === 'PIECE_UNIQUE' ? 'Pièce unique' :
-                         product.type === 'REPRODUCTIBLE' ? 'Reproductible' : 'Catalogue'}
-                      </span>
+                      {product.type === 'PIECE_UNIQUE' ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gold/10 border border-gold/20 text-xs font-semibold text-gold">
+                          Pièce unique
+                        </span>
+                      ) : product.type === 'REPRODUCTIBLE' ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-ivory">
+                          Reproductible
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-white/5 text-xs font-medium text-ivory/50">
+                          Catalogue
+                        </span>
+                      )}
                     </td>
                     <td className="p-4">
-                      <span className={`inline-flex items-center gap-1 text-xs font-semibold ${
-                        product.availability === 'Disponible' ? 'text-emerald-500' :
-                        product.availability === 'Sur commande' ? 'text-amber-500' : 'text-red-400'
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${
+                        product.availability === 'Disponible' ? 'text-emerald-400' :
+                        product.availability === 'Sur commande' ? 'text-gold' : 'text-red-400'
                       }`}>
+                        <span className={`size-1.5 rounded-full ${
+                          product.availability === 'Disponible' ? 'bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.5)]' :
+                          product.availability === 'Sur commande' ? 'bg-gold shadow-[0_0_5px_rgba(201,168,76,0.5)]' : 'bg-red-400'
+                        }`} />
                         {product.availability}
                       </span>
                     </td>
-                    <td className="p-4 font-mono font-medium">
-                      {product.price ? `${product.price.toLocaleString('fr-FR')} DT` : 'Sur demande'}
+                    <td className="p-4 font-mono font-medium text-ivory/90">
+                      {product.price ? `${product.price.toLocaleString('fr-FR')} DT` : <span className="text-ivory/40 italic">Sur demande</span>}
                     </td>
                     <td className="p-4 text-center">
                       {product.isFeatured ? (
-                        <Star className="size-4 text-gold fill-gold mx-auto" />
+                        <Star className="size-4 text-gold fill-gold mx-auto drop-shadow-[0_0_8px_rgba(201,168,76,0.5)]" />
                       ) : (
-                        <span className="text-muted-foreground/30">—</span>
+                        <span className="text-ivory/10">—</span>
                       )}
                     </td>
                     <td className="p-4 pr-6 text-right">
-                      <div className="flex items-center justify-end gap-2.5">
-                        <Link href={`/produits/${product.id}`} target="_blank" className="p-1.5 text-muted-foreground hover:text-foreground transition-colors" title="Voir sur le site">
+                      <div className="flex items-center justify-end gap-2.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <Link href={`/produits/${product.id}`} target="_blank" className="p-1.5 text-ivory/60 hover:text-ivory hover:bg-white/5 rounded-md transition-all" title="Voir sur le site">
                           <Eye className="size-4" />
                         </Link>
                         <button 
                           onClick={() => openEditModal(product)} 
-                          className="p-1.5 text-muted-foreground hover:text-gold transition-colors"
+                          className="p-1.5 text-ivory/60 hover:text-gold hover:bg-gold/10 rounded-md transition-all"
                           title="Modifier"
                         >
                           <Edit2 className="size-4" />
                         </button>
                         <button 
                           onClick={() => handleDelete(product.id)} 
-                          className="p-1.5 text-muted-foreground hover:text-red-500 transition-colors"
+                          className="p-1.5 text-ivory/60 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-all"
                           title="Supprimer"
                         >
                           <Trash2 className="size-4" />
                         </button>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </motion.div>
 
       {/* Modal Dialog */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="bg-background border border-border w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
-            <header className="p-6 border-b border-border flex items-center justify-between">
-              <h2 className="font-heading text-xl font-medium text-foreground">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-walnut border border-gold/20 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
+          >
+            <header className="p-6 border-b border-gold/10 flex items-center justify-between">
+              <h2 className="font-heading text-xl font-medium text-ivory">
                 {editingProduct ? 'Modifier le produit' : 'Créer un nouveau produit'}
               </h2>
-              <button onClick={() => setModalOpen(false)} className="p-1.5 text-muted-foreground hover:text-foreground">
+              <button onClick={() => setModalOpen(false)} className="p-1.5 text-ivory/50 hover:text-ivory rounded-md transition-colors hover:bg-white/5">
                 <X className="size-5" />
               </button>
             </header>
@@ -420,7 +456,7 @@ export default function AdminProductsPage() {
                 </button>
               </footer>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>
