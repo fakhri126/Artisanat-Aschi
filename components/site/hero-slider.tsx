@@ -5,6 +5,7 @@ import { ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 
 const SLIDES = [
   {
@@ -46,9 +47,11 @@ const SLIDES = [
 ]
 
 export function HeroSlider() {
+  const router = useRouter()
   const [current, setCurrent] = useState(0)
   const [direction, setDirection] = useState(0)
   const [offset, setOffset] = useState(0)
+  const [clickedKnob, setClickedKnob] = useState<string | null>(null)
 
   useEffect(() => {
     const onScroll = () => setOffset(window.scrollY)
@@ -64,6 +67,16 @@ export function HeroSlider() {
     }, 6000)
     return () => clearInterval(timer)
   }, [current])
+
+  const handleKnobClick = (href: string) => {
+    if (clickedKnob) return
+    setClickedKnob(href)
+    setTimeout(() => {
+      router.push(href)
+      // Reset after a delay so it's ready if they navigate back
+      setTimeout(() => setClickedKnob(null), 1000)
+    }, 600)
+  }
 
   const paginate = (newDirection: number) => {
     setDirection(newDirection)
@@ -156,13 +169,37 @@ export function HeroSlider() {
               {SLIDES[current].description}
             </p>
 
-            <div className="mt-10">
-              <Link
-                href={SLIDES[current].href}
-                className="inline-block rounded-full bg-gold px-10 py-4 text-xs font-medium uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:bg-white hover:scale-105 shadow-xl hover:shadow-2xl"
+            <div className="mt-10 flex flex-col items-center">
+              <div 
+                onClick={() => handleKnobClick(SLIDES[current].href)}
+                className="relative group/knob cursor-pointer flex flex-col items-center"
               >
-                {SLIDES[current].cta}
-              </Link>
+                {/* Glow ring behind knob */}
+                <div className="absolute w-28 h-28 rounded-full bg-[#d4af37]/15 blur-lg group-hover/knob:bg-[#d4af37]/25 transition-all duration-500" />
+                
+                {/* The Knob */}
+                <motion.div
+                  animate={clickedKnob === SLIDES[current].href ? { rotate: [0, -35, 10, 0] } : {}}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                  className="relative w-24 h-24 rounded-full border-[3px] border-[#d4af37]/75 bg-stone-900 shadow-[0_10px_20px_rgba(0,0,0,0.6),inset_0_4px_8px_rgba(255,255,255,0.2)] overflow-hidden"
+                  whileHover={{ rotate: 15, scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Image
+                    src="/handle-knob.png"
+                    alt="Poignée de porte"
+                    fill
+                    className="object-cover rounded-full"
+                  />
+                  {/* Highlight overlay */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-black/30 via-transparent to-white/15 pointer-events-none" />
+                </motion.div>
+                
+                {/* Text prompt to click */}
+                <span className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#d4af37] font-semibold bg-black/40 px-4 py-1.5 rounded-full border border-[#d4af37]/20 backdrop-blur-sm shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-all group-hover/knob:bg-gold group-hover/knob:text-walnut group-hover/knob:border-gold duration-300 select-none">
+                  {SLIDES[current].cta}
+                </span>
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>
