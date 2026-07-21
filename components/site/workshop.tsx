@@ -4,13 +4,13 @@ const STEPS = [
   {
     num: '01',
     title: 'La sélection du bois',
-    image: '/wood-selection.png',
+    image: '/bois.jpg',
     text: "Tout commence par le choix du noyer. L'artisan lit le grain, devine la veine, écoute la matière. Seules les pièces les plus nobles méritent d'être travaillées.",
   },
   {
     num: '02',
     title: 'La sculpture à la main',
-    image: '/carving.png',
+    image: '/sculture.png',
     text: "Le ciseau danse sur le bois. Arabesques, motifs floraux, géométries ancestrales : chaque entaille est guidée par une main sûre et des décennies de mémoire.",
   },
   {
@@ -22,7 +22,7 @@ const STEPS = [
   {
     num: '04',
     title: 'La finition',
-    image: '/finishing.png',
+    image: '/finiton.jpg',
     text: "Huilé, poli, caressé : le bois prend vie une dernière fois. La pièce achevée porte en elle la chaleur de la main qui l'a façonnée.",
   },
 ]

@@ -12,7 +12,7 @@ const SECTIONS = [
     tag: 'Notre histoire',
     title: "L'Atelier",
     description: 'Soixante ans de passion, de transmission et de savoir-faire artisanal au cœur de la Tunisie.',
-    image: '/story-founder.png',
+    image: '/ancien.png',
     color: 'from-amber-900/60 to-walnut/90',
   },
   {
@@ -21,7 +21,7 @@ const SECTIONS = [
     tag: 'Disponible',
     title: 'Créations',
     description: 'Pièces uniques et modèles reproductibles prêts à rejoindre votre demeure d\'exception.',
-    image: '/creation-unique.png',
+    image: '/prod4.jpg',
     color: 'from-stone-900/60 to-walnut/90',
   },
   {
@@ -30,7 +30,7 @@ const SECTIONS = [
     tag: 'Inspiration',
     title: 'Catalogue',
     description: 'Parcourez nos réalisations passées et trouvez l\'inspiration pour votre projet sur-mesure.',
-    image: '/cat-buffet.png',
+    image: '/prod1.jpg',
     color: 'from-zinc-900/60 to-walnut/90',
   },
   {

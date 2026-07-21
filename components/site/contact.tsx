@@ -57,21 +57,23 @@ export function Contact() {
                 <MapPin className="mt-1 h-5 w-5 shrink-0 text-[var(--gold)]" />
                 <div>
                   <p className="font-medium">Atelier &amp; Showroom</p>
-                  <p className="text-sm text-[var(--ivory)]/60">Route de Tunis, Sfax — Tunisie</p>
+                  <p className="text-sm text-[var(--ivory)]/60">9 avenue roosvelt la Goulette
+
+</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <Phone className="mt-1 h-5 w-5 shrink-0 text-[var(--gold)]" />
                 <div>
                   <p className="font-medium">Téléphone</p>
-                  <p className="text-sm text-[var(--ivory)]/60">+216 00 000 000</p>
+                  <p className="text-sm text-[var(--ivory)]/60">+216 55743760</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <Mail className="mt-1 h-5 w-5 shrink-0 text-[var(--gold)]" />
                 <div>
                   <p className="font-medium">Email</p>
-                  <p className="text-sm text-[var(--ivory)]/60">contact@artisanataschi.tn</p>
+                  <p className="text-sm text-[var(--ivory)]/60">artisanat.aschi@gmail.com</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
