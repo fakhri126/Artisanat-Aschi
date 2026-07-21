@@ -9,6 +9,15 @@ import { useRouter } from 'next/navigation'
 
 const SLIDES = [
   {
+    id: 'bijoux-porte',
+    title: 'Les Bijoux de Porte',
+    subtitle: 'Boutons & Céramiques d\'Art',
+    description: 'Sublimez vos portes et mobilier avec nos poignées en céramique d\'art peintes à la main. Des détails d\'exception pour des demeures uniques.',
+    image: '/bijoux-de-porte.jpg',
+    cta: 'Découvrir la collection',
+    href: '/bijoux-de-porte',
+  },
+  {
     id: 'catalogue',
     title: 'Catalogue',
     subtitle: 'Luminaire et Artisanat Aschi',
@@ -52,6 +61,7 @@ export function HeroSlider() {
   const [direction, setDirection] = useState(0)
   const [offset, setOffset] = useState(0)
   const [clickedKnob, setClickedKnob] = useState<string | null>(null)
+  const [showGuide, setShowGuide] = useState(true)
 
   useEffect(() => {
     const onScroll = () => setOffset(window.scrollY)
@@ -71,6 +81,7 @@ export function HeroSlider() {
   const handleKnobClick = (href: string) => {
     if (clickedKnob) return
     setClickedKnob(href)
+    setShowGuide(false)
     setTimeout(() => {
       router.push(href)
       // Reset after a delay so it's ready if they navigate back
@@ -172,8 +183,22 @@ export function HeroSlider() {
             <div className="mt-10 flex flex-col items-center">
               <div 
                 onClick={() => handleKnobClick(SLIDES[current].href)}
+                onMouseEnter={() => setShowGuide(false)}
                 className="relative group/knob cursor-pointer flex flex-col items-center"
               >
+                {/* Click Guide Tooltip */}
+                <AnimatePresence>
+                  {showGuide && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                      className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 pointer-events-none whitespace-nowrap bg-gold/95 text-walnut text-[9px] font-bold tracking-widest uppercase px-3 py-1 rounded-full shadow-[0_4px_12px_rgba(212,175,55,0.3)] border border-gold/30 animate-pulse"
+                    >
+                      Tournez la poignée
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 {/* Glow ring behind knob */}
                 <div className="absolute w-28 h-28 rounded-full bg-[#d4af37]/15 blur-lg group-hover/knob:bg-[#d4af37]/25 transition-all duration-500" />
                 

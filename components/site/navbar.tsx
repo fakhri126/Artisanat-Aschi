@@ -12,9 +12,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 const LINKS = [
   { label: "L'Atelier", href: '/atelier' },
   { label: 'Créations', href: '/creations' },
+  { label: 'Bijoux de Porte', href: '/bijoux-de-porte' },
   { label: 'Nos Services', isDropdown: true },
   { label: 'Réalisations', href: '/realisations' },
-  { label: 'Actualités', href: '/#actualites' },
   { label: 'Contact', href: '/contact' },
 ]
 
@@ -27,11 +27,18 @@ const SERVICES = [
     cta: 'Voir le catalogue'
   },
   {
-    title: 'Service Rebooking / Relooking',
+    title: 'Relooking & Restauration',
     description: 'Offrez une nouvelle vie à vos meubles anciens grâce à notre expertise.',
     image: '/relooking_service.jpg',
     href: '/relooking',
     cta: 'Découvrir le relooking'
+  },
+  {
+    title: 'Espaces d\'Exception',
+    description: 'Conception complète pour Hôtels, Maisons d\'Hôtes, Restaurants et Bureaux.',
+    image: '/project-hotel.png',
+    href: '/espaces-d-exception',
+    cta: 'Découvrir nos espaces'
   }
 ]
 
@@ -42,6 +49,23 @@ export function Navbar() {
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
   const pathname = usePathname()
   const { cartCount, setIsCartOpen } = useCart()
+
+  const [rotateX, setRotateX] = useState(0)
+  const [rotateY, setRotateY] = useState(0)
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = e.currentTarget
+    const rect = el.getBoundingClientRect()
+    const x = e.clientX - rect.left - rect.width / 2
+    const y = e.clientY - rect.top - rect.height / 2
+    setRotateX(-y / (rect.height / 2) * 15)
+    setRotateY(x / (rect.width / 2) * 15)
+  }
+
+  const handleMouseLeave = () => {
+    setRotateX(0)
+    setRotateY(0)
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -62,20 +86,51 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group relative z-50">
-          <div className="relative size-11 overflow-hidden rounded-full border border-gold/30 bg-white shrink-0 transition-transform duration-300 group-hover:scale-105">
-            <Image
-              src="/logo.png2.png"
-              alt="Artisanat Aschi Logo"
-              fill
-              className="object-contain p-0.5"
-              priority
-            />
+          {/* Mobile Logo: Clean Gold Monogram */}
+          <div className="block sm:hidden shrink-0">
+            <svg viewBox="0 0 100 100" className="size-11 text-gold fill-none stroke-current stroke-[2.5] shrink-0 drop-shadow-[0_2px_8px_rgba(212,175,55,0.3)]">
+              <circle cx="50" cy="50" r="43" className="stroke-gold/20" />
+              <path d="M50 22 L32 78 M50 22 L68 78 M38 60 L62 60" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="50" cy="22" r="4.5" className="fill-stone-900 stroke-gold stroke-[2.5]" />
+              <path d="M26 73 L74 37" strokeLinecap="round" className="stroke-gold/40 stroke-[2]" />
+            </svg>
+          </div>
+
+          {/* Desktop Logo: Realistic 3D Plaque */}
+          <div
+            style={{ perspective: 500 }}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            className="hidden sm:block shrink-0 drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] hover:drop-shadow-[0_14px_28px_rgba(0,0,0,0.8)] transition-all duration-300"
+          >
+            <motion.div
+              animate={{ rotateX, rotateY }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              style={{ transformStyle: 'preserve-3d' }}
+              className="relative h-32 w-18 shrink-0 overflow-hidden transition-all duration-300"
+            >
+              <Image
+                src="/logo-carved-nobg.svg"
+                alt="Artisanat Aschi Logo"
+                fill
+                className="object-contain"
+                priority
+              />
+              
+              {/* Metallic Shine Overlay */}
+              <motion.div
+                className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: '100%' }}
+                transition={{ duration: 0.8, ease: 'easeInOut' }}
+              />
+            </motion.div>
           </div>
           <div className="flex flex-col leading-none">
-            <span className="font-heading text-xl font-semibold tracking-wide text-walnut-foreground">
+            <span className="font-heading text-2xl font-bold tracking-wide text-walnut-foreground">
               Artisanat Aschi
             </span>
-            <span className="mt-0.5 text-[0.58rem] uppercase tracking-luxury text-gold">
+            <span className="mt-1 text-[0.68rem] uppercase tracking-luxury text-gold">
               Maison fondée en 1960
             </span>
           </div>

@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 530" width="100%" height="100%">
+  <defs>
+    <!-- Light Wood Gradient (replacing yellow/gold) -->
+    <linearGradient id="lightWoodGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#CD853F" /> <!-- Peru Brown -->
+      <stop offset="50%" stop-color="#A0522D" /> <!-- Sienna -->
+      <stop offset="100%" stop-color="#8B4513" /> <!-- Saddle Brown -->
+    </linearGradient>
+    
+    <!-- Dark Wood Gradient (for compass legs/text) -->
+    <linearGradient id="darkWoodGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5C4033" /> <!-- Walnut -->
+      <stop offset="50%" stop-color="#3D2314" /> <!-- Espresso -->
+      <stop offset="100%" stop-color="#1A0D07" /> <!-- Deep Charcoal Brown -->
+    </linearGradient>
+
+    <!-- Deep 3D Shadow Filter -->
+    <filter id="shadowFilter" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="3" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.6" />
+    </filter>
+  </defs>
+
+  <!-- ==================== 3D SHADOW LAYER (Extruded silhouette) ==================== -->
+  <g transform="translate(3, 4)" opacity="0.5" filter="url(#shadowFilter)">
+    <!-- Horizontal guide rod shadow -->
+    <line x1="110" y1="205" x2="225" y2="205" stroke="#000" stroke-width="7" stroke-linecap="round" />
+    <circle cx="210" cy="205" r="9" fill="#000" />
+    <!-- Compass Legs shadow -->
+    <polygon points="142,115 158,115 76,480 62,480" fill="#000" />
+    <polygon points="142,115 158,115 224,480 238,480" fill="#000" />
+    <!-- Compass Head shadow -->
+    <circle cx="150" cy="72" r="28" stroke="#000" stroke-width="13" fill="none" />
+    <rect x="141" y="94" width="18" height="20" fill="#000" />
+    <circle cx="150" cy="112" r="16" fill="#000" />
+    <path d="M 150,44 L 150,34" stroke="#000" stroke-width="8" />
+    <!-- Chisel shadow -->
+    <path d="M 12,418 C 18,410 26,392 63,372 C 100,352 110,344 115,350 C 117,354 102,374 72,398 C 42,422 18,430 12,418 Z" fill="#000" />
+    <path d="M 116,346 L 265,246" stroke="#000" stroke-width="13" stroke-linecap="round" />
+    <polygon points="263,247 274,239 284,252 271,260" fill="#000" />
+    <!-- Curving text shadow -->
+    <g transform="translate(94, 300) rotate(-78)">
+      <text x="0" y="0" fill="#000" font-family="'Cormorant Garamond', 'Playfair Display', 'Georgia', serif" font-size="36" font-weight="900" letter-spacing="3">artisanat</text>
+    </g>
+    <!-- Text aschi shadow -->
+    <g stroke="#000" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M 96,408 L 96,478 C 96,483 99,485 102,485 M 96,432 C 84,432 80,442 80,457 C 80,472 88,482 96,474" />
+      <path d="M 132,418 C 132,410 120,410 118,422 C 115,434 133,440 131,455 C 129,470 116,472 113,463" />
+      <path d="M 160,422 C 156,412 144,412 144,444 C 144,474 156,474 160,464" />
+      <path d="M 174,385 L 174,480 M 174,435 C 180,425 192,425 192,442 L 192,480" />
+      <path d="M 206,418 L 206,480 M 206,396 A 2.2,2.2 0 1,1 206,401" />
+    </g>
+  </g>
+
+  <!-- ==================== FRONT 3D OBJECT LAYER ==================== -->
+  <!-- Horizontal guide rod -->
+  <g>
+    <line x1="110" y1="205" x2="225" y2="205" stroke="url(#darkWoodGradient)" stroke-width="7" stroke-linecap="round" />
+    <circle cx="210" cy="205" r="9" fill="url(#lightWoodGradient)" stroke="url(#darkWoodGradient)" stroke-width="1.8" />
+  </g>
+
+  <!-- Central Carpenter's Compass legs forming "A" -->
+  <!-- Left Leg (Thicker / Bold) -->
+  <polygon points="142,115 158,115 78,480 62,480" fill="url(#darkWoodGradient)" />
+  <!-- Right Leg (Thicker / Bold) -->
+  <polygon points="142,115 158,115 222,480 238,480" fill="url(#darkWoodGradient)" />
+
+  <!-- Compass Top Head (Loop) -->
+  <g>
+    <!-- Outer loop (Thicker / Bold) -->
+    <circle cx="150" cy="72" r="28" stroke="url(#lightWoodGradient)" stroke-width="13" fill="none" />
+    <!-- Inner neck block -->
+    <rect x="141" y="94" width="18" height="20" fill="url(#lightWoodGradient)" />
+    <!-- Hinge Pin -->
+    <circle cx="150" cy="112" r="16" fill="url(#lightWoodGradient)" />
+    <circle cx="150" cy="112" r="6" fill="url(#darkWoodGradient)" />
+    <!-- Top hanger tip -->
+    <path d="M 150,44 L 150,34" stroke="url(#lightWoodGradient)" stroke-width="8" stroke-linecap="round" />
+  </g>
+
+  <!-- Sculptor's Chisel (Ciseau à bois) crossing diagonally -->
+  <g>
+    <!-- Chisel Handle (Wooden grip in warm light wood - Thicker / Bold) -->
+    <path d="M 12,418 C 18,410 26,392 63,372 C 100,352 110,344 115,350 C 117,354 102,374 72,398 C 42,422 18,430 12,418 Z" fill="url(#lightWoodGradient)" />
+    <!-- Highlight on handle -->
+    <path d="M 22,410 C 35,396 65,376 96,360" stroke="#FFF" stroke-width="1.8" fill="none" opacity="0.35" stroke-linecap="round" />
+    
+    <!-- Brass/Dark Ferrule -->
+    <polygon points="110,346 117,340 124,348 117,354" fill="url(#darkWoodGradient)" />
+    
+    <!-- Steel Shaft (Thicker / Bold) -->
+    <path d="M 116,346 L 265,246" stroke="url(#darkWoodGradient)" stroke-width="13" stroke-linecap="round" />
+    <!-- Shaft highlight -->
+    <path d="M 120,344 L 261,248" stroke="#fff" stroke-width="2" opacity="0.35" stroke-linecap="round" />
+    
+    <!-- Chisel Blade / Bevel -->
+    <polygon points="263,247 274,239 284,252 271,260" fill="url(#lightWoodGradient)" />
+  </g>
+
+  <!-- Curving text "artisanat" on the left (Bolder / Larger) -->
+  <g transform="translate(94, 300) rotate(-78)">
+    <text x="0" y="0" fill="url(#lightWoodGradient)" font-family="'Cormorant Garamond', 'Playfair Display', 'Georgia', serif" font-size="36" font-weight="900" letter-spacing="3">artisanat</text>
+  </g>
+
+  <!-- Dynamic calligraphic text "aschi" at the bottom (Bolder) -->
+  <g fill="url(#darkWoodGradient)">
+    <!-- Letter 'a' -->
+    <path d="M 96,408 L 96,478 C 96,483 99,485 102,485 M 96,432 C 84,432 80,442 80,457 C 80,472 88,482 96,474" stroke="url(#darkWoodGradient)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    
+    <!-- Letter 's' -->
+    <path d="M 132,418 C 132,410 120,410 118,422 C 115,434 133,440 131,455 C 129,470 116,472 113,463" stroke="url(#darkWoodGradient)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    
+    <!-- Letter 'c' -->
+    <path d="M 160,422 C 156,412 144,412 144,444 C 144,474 156,474 160,464" stroke="url(#darkWoodGradient)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    
+    <!-- Letter 'h' -->
+    <path d="M 174,385 L 174,480 M 174,435 C 180,425 192,425 192,442 L 192,480" stroke="url(#darkWoodGradient)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    
+    <!-- Letter 'i' -->
+    <path d="M 206,418 L 206,480 M 206,396 A 2.2,2.2 0 1,1 206,401" stroke="url(#darkWoodGradient)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  </g>
+</svg>

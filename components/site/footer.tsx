@@ -9,8 +9,13 @@ export function Footer() {
           {/* Brand */}
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="relative size-12 overflow-hidden rounded-full border border-gold/30 bg-white shrink-0">
-                <Image src="/logo.png" alt="Artisanat Aschi Logo" fill className="object-contain p-0.5" />
+              <div className="relative h-44 w-24 shrink-0 overflow-hidden drop-shadow-[0_8px_16px_rgba(0,0,0,0.5)]">
+                <Image 
+                  src="/logo-carved-nobg.svg" 
+                  alt="Artisanat Aschi Logo" 
+                  fill 
+                  className="object-contain" 
+                />
               </div>
               <div>
                 <p className="font-heading text-xl tracking-wide">Artisanat Aschi</p>
