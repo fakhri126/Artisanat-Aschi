@@ -48,8 +48,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         return pi;
     }
 
-    private Product product(String name, String desc, String dims, String mats, String color,
-                            String price, String avail, String type, boolean featured, Category category) {
+    private Product productWithImage(String name, String desc, String dims, String mats, String color,
+                                     String price, String avail, String type, boolean featured, Category category, String imageUrl) {
         Product p = new Product();
         p.setName(name);
         p.setDescription(desc);
@@ -61,6 +61,15 @@ public class DatabaseSeeder implements CommandLineRunner {
         p.setType(type);
         p.setIsFeatured(featured);
         p.setCategory(category);
+
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            ProductImage pi = new ProductImage();
+            pi.setProduct(p);
+            pi.setImageUrl(imageUrl);
+            pi.setIsPrimary(true);
+            p.getImages().add(pi);
+        }
+
         return p;
     }
 
@@ -123,89 +132,112 @@ public class DatabaseSeeder implements CommandLineRunner {
             Category deco    = categoryRepository.findByName("Décoration").orElse(null);
 
             // PIÈCES UNIQUES
-            Product p1 = product("Cabinet « Médina »",
+            Product p1 = productWithImage("Cabinet « Médina »",
                 "Cabinet d'exception sculpté à la main, inspiré des palais beylicaux. Noyer massif avec ferrures en bronze ciselé.",
-                "120 x 45 x 160 cm", "Noyer massif & Bronze", "Noyer", "6200", "Disponible", "PIECE_UNIQUE", true, buffets);
-            productRepository.save(p1);
-            p1.setImages(Collections.singletonList(img(p1, "/creation-unique.png", true)));
+                "120 x 45 x 160 cm", "Noyer massif & Bronze", "Noyer", "6200", "Disponible", "PIECE_UNIQUE", true, buffets, "/creation-unique.png");
 
-            Product p2 = product("Coffre « Kairouan »",
+            Product p2 = productWithImage("Coffre « Kairouan »",
                 "Coffre traditionnel en cèdre sculpté et clouté de laiton doré. Idéal comme table basse d'exception.",
-                "90 x 50 x 55 cm", "Cèdre & Laiton", "Or et Brun", "2100", "Disponible", "PIECE_UNIQUE", true, chests);
-            productRepository.save(p2);
-            p2.setImages(Collections.singletonList(img(p2, "/cat-chest.png", true)));
+                "90 x 50 x 55 cm", "Cèdre & Laiton", "Or et Brun", "2100", "Disponible", "PIECE_UNIQUE", true, chests, "/cat-chest.png");
 
-            Product p3 = product("Porte d'apparat « Dar »",
+            Product p3 = productWithImage("Porte d'apparat « Dar »",
                 "Porte monumentale en chêne massif sculptée de motifs géométriques traditionnels et rosaces beylicales.",
-                "220 x 140 cm", "Chêne & Fer forgé", "Brun foncé", null, "Disponible", "PIECE_UNIQUE", false, doors);
-            productRepository.save(p3);
-            p3.setImages(Collections.singletonList(img(p3, "/cat-door.png", true)));
+                "220 x 140 cm", "Chêne & Fer forgé", "Brun foncé", null, "Disponible", "PIECE_UNIQUE", false, doors, "/cat-door.png");
 
             // REPRODUCTIBLES
-            Product r1 = product("Miroir « Sidi Bou »",
+            Product r1 = productWithImage("Miroir « Sidi Bou »",
                 "Miroir élégant au cadre sculpté, rehaussé de touches dorées à la feuille d'or.",
-                "80 x 120 cm", "Bois d'olivier & Feuille d'or", "Or", "1900", "Sur commande", "REPRODUCTIBLE", true, mirrors);
-            productRepository.save(r1);
-            r1.setImages(Collections.singletonList(img(r1, "/creation-model.png", true)));
+                "80 x 120 cm", "Bois d'olivier & Feuille d'or", "Or", "1900", "Sur commande", "REPRODUCTIBLE", true, mirrors, "/creation-model.png");
 
-            Product r2 = product("Buffet « Carthage »",
+            Product r2 = productWithImage("Buffet « Carthage »",
                 "Buffet bas en noyer avec portes sculptées de motifs moucharabieh arabesques.",
-                "180 x 50 x 85 cm", "Noyer", "Noyer naturel", "4200", "Sur commande", "REPRODUCTIBLE", true, buffets);
-            productRepository.save(r2);
-            r2.setImages(Collections.singletonList(img(r2, "/cat-buffet.png", true)));
+                "180 x 50 x 85 cm", "Noyer", "Noyer naturel", "4200", "Sur commande", "REPRODUCTIBLE", true, buffets, "/cat-buffet.png");
 
-            Product r3 = product("Meuble TV « Hammamet »",
+            Product r3 = productWithImage("Meuble TV « Hammamet »",
                 "Meuble TV alliant esthétique traditionnelle et fonctionnalités modernes.",
-                "160 x 40 x 55 cm", "Bois de frêne", "Blanc Cérusé", "2600", "Sur commande", "REPRODUCTIBLE", false, tvUnits);
-            productRepository.save(r3);
-            r3.setImages(Collections.singletonList(img(r3, "/cat-tv.png", true)));
+                "160 x 40 x 55 cm", "Bois de frêne", "Blanc Cérusé", "2600", "Sur commande", "REPRODUCTIBLE", false, tvUnits, "/cat-tv.png");
 
             // CATALOGUE
-            Product c1 = product("Miroir Jasmin",
+            Product c1 = productWithImage("Miroir Jasmin",
                 "Miroir orné de fleurs sculptées à la main dans le bois de citronnier.",
-                "70 x 70 cm", "Citronnier", "Naturel", null, "Sur commande", "CATALOGUE", false, mirrors);
-            productRepository.save(c1);
-            c1.setImages(Collections.singletonList(img(c1, "/creation-model.png", true)));
+                "70 x 70 cm", "Citronnier", "Naturel", null, "Sur commande", "CATALOGUE", false, mirrors, "/creation-model.png");
 
-            Product c2 = product("Panneau Médina",
+            Product c2 = productWithImage("Panneau Médina",
                 "Panneau mural décoratif sculpté représentant des arabesques géométriques complexes.",
-                "100 x 200 cm", "Chêne", "Bleu Sidi Bou", null, "Sur commande", "CATALOGUE", false, deco);
-            productRepository.save(c2);
-            c2.setImages(Collections.singletonList(img(c2, "/cat-deco.png", true)));
+                "100 x 200 cm", "Chêne", "Bleu Sidi Bou", null, "Sur commande", "CATALOGUE", false, deco, "/cat-deco.png");
 
             productRepository.saveAll(Arrays.asList(p1, p2, p3, r1, r2, r3, c1, c2));
-            System.out.println("✅ Products seeded.");
+            System.out.println("✅ Furniture products seeded.");
         }
 
-        // Ensure handle products (available products list) are seeded
-        if (productRepository.findAll().stream().noneMatch(p -> p.getName().equals("Bouton Riad Bleu"))) {
-            Category gr = categoryRepository.findByName("Grands Ronds").orElse(null);
-            Category ov = categoryRepository.findByName("Ovales").orElse(null);
-            Category pp = categoryRepository.findByName("Petites Poignées").orElse(null);
+        // Ensure handle products (available products list) are seeded with exact frontend names
+        Category gr = categoryRepository.findByName("Grands Ronds").orElse(null);
+        Category ov = categoryRepository.findByName("Ovales").orElse(null);
+        Category pp = categoryRepository.findByName("Petites Poignées").orElse(null);
 
-            Product hp1 = product("Bouton Riad Bleu",
-                "Majolique traditionnelle peinte à la main, motifs d'arabesques bleu de cobalt et traits de terre d'ombre. Idéal pour les grands tiroirs, les grandes portes et les espaces peu chargés.",
-                "Diamètre 6-7 cm", "Céramique de majolique", "Bleu cobalt", "28", "Disponible", "REPRODUCTIBLE", true, gr);
-            productRepository.save(hp1);
-            hp1.setImages(Collections.singletonList(img(hp1, "/handle-knob.png", true)));
-            productRepository.save(hp1);
+        // 1. Grands Ronds (6 models) - 28 TND
+        String[][] grandModels = {
+            {"Grand Rond \"Riad Bleu & Ombre\"", "Céramique de majolique traditionnelle avec touches bleu cobalt et terre d'ombre."},
+            {"Grand Rond \"Jasmin et Feuillage\"", "Motifs floraux ton sur ton peints à la main sur émail naturel ivoire."},
+            {"Grand Rond \"Lignes Ocre & Cobalt\"", "Décor géométrique aux nuances d'ocre chaud et ruban bleu méditerranéen."},
+            {"Grand Rond \"Géométrie Andalouse\"", "Tracés bleus cobalt géométriques évoquant l'architecture des palais."},
+            {"Grand Rond \"Graphisme Ocre & Noir\"", "Composition contemporaine contrastée sur fond terre cuite émaillée."},
+            {"Grand Rond \"Rameaux d'Olivier\"", "Feuillages verts et dorés stylisés inspirés de la nature méditerranéenne."}
+        };
 
-            Product hp2 = product("Bouton Soleil d'Or",
-                "Bouton ovale aux courbes généreuses, peint de rayons chauds ocre-jaune et lignes cobalt. Idéal pour les dressings, les bahuts, les éléments de cuisine.",
-                "7 cm x 4 cm", "Céramique de majolique", "Ocre-jaune", "32", "Disponible", "REPRODUCTIBLE", true, ov);
-            productRepository.save(hp2);
-            hp2.setImages(Collections.singletonList(img(hp2, "/handle-knob.png", true)));
-            productRepository.save(hp2);
-
-            Product hp3 = product("Bouton Jasmin Sauvage",
-                "Miniature délicate peinte de rameaux d'olivier et fleurs de jasmin vert et bleu sur émail ivoire. Idéal pour les armoires, les éléments de cuisine, les tables de nuit.",
-                "Diamètre 3-4 cm", "Céramique de majolique", "Ivoire, vert, bleu", "18", "Disponible", "REPRODUCTIBLE", true, pp);
-            productRepository.save(hp3);
-            hp3.setImages(Collections.singletonList(img(hp3, "/handle-knob.png", true)));
-            productRepository.save(hp3);
-
-            System.out.println("✅ Handle products seeded.");
+        for (int i = 0; i < grandModels.length; i++) {
+            String name = grandModels[i][0];
+            String desc = grandModels[i][1];
+            String imgUrl = "/poignees/grand_rond_" + (i + 1) + ".png";
+            if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(name))) {
+                Product hp = productWithImage(
+                    name, desc, "Diamètre 6.5 cm", "Céramique de majolique", "Multicolore", "28", "Disponible", "REPRODUCTIBLE", true, gr, imgUrl
+                );
+                productRepository.save(hp);
+            }
         }
+
+        // 2. Ovales (7 models) - 32 TND
+        String[][] ovaleModels = {
+            {"Bouton Ovale \"Arabesque Cobalt\"", "Forme galbée ovale avec volutes bleues sur céramique ivoire émaillée."},
+            {"Bouton Ovale \"Soleil d'Or\"", "Rayons dorés et touches cobalt, courbes élégantes adaptées aux meubles de caractère."},
+            {"Bouton Ovale \"Frise Zellige\"", "Frise géométrique répétitive rappelant les carreaux traditionnels de Tunis."},
+            {"Bouton Ovale \"Bouquet Rose & Vert\"", "Motifs floraux délicats peints aux pigments naturels de rose et vert."},
+            {"Bouton Ovale \"Émail Sablé & Ombre\"", "Finition artisanale sablée douce aux nuances neutres et naturelles."},
+            {"Bouton Ovale \"Dunes Dorées\"", "Lignes diagonales ocre et bleu intense pour une touche d'originalité."},
+            {"Bouton Ovale \"Bleu Océan\"", "Gouttes et motifs marins peints à la main en dégradé de bleu."}
+        };
+
+        for (int i = 0; i < ovaleModels.length; i++) {
+            String name = ovaleModels[i][0];
+            String desc = ovaleModels[i][1];
+            String imgUrl = "/poignees/ovale_" + (i + 1) + ".png";
+            if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(name))) {
+                Product hp = productWithImage(
+                    name, desc, "7 cm x 4 cm", "Céramique de majolique", "Multicolore", "32", "Disponible", "REPRODUCTIBLE", true, ov, imgUrl
+                );
+                productRepository.save(hp);
+            }
+        }
+
+        // 3. Petites Poignées (27 models) - 18 TND
+        int count = 1;
+        for (int r = 1; r <= 3; r++) {
+            for (int c = 1; c <= 9; c++) {
+                String name = "Petite Poignée \"Modèle Artisan N°" + count + "\"";
+                String desc = "Miniature céramique peinte à la main. Pièce d'artisanat unique N°" + count + ".";
+                String imgUrl = "/poignees/petite_" + r + "_" + c + ".png";
+                if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(name))) {
+                    Product hp = productWithImage(
+                        name, desc, "Diamètre 3.5 cm", "Céramique de majolique", "Multicolore", "18", "Disponible", "REPRODUCTIBLE", true, pp, imgUrl
+                    );
+                    productRepository.save(hp);
+                }
+                count++;
+            }
+        }
+
+        System.out.println("✅ All 40 handle products with images properly persisted in backend.");
 
         // ── 4. Seed Projects ─────────────────────────────────────────────────
         if (projectRepository.count() == 0) {
