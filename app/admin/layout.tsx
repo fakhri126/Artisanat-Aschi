@@ -25,7 +25,7 @@ import { cn } from '@/lib/utils'
 const SIDEBAR_ITEMS = [
   { href: '/admin/dashboard', label: 'Statistiques', icon: LayoutDashboard },
   { href: '/admin/commandes', label: 'Commandes Accessoires', icon: ShoppingBag },
-  { href: '/admin/quotes', label: 'Demandes de devis', icon: MessageSquareCode },
+  { href: '/admin/quotes', label: 'Devis (Sur-mesure & Relooking)', icon: MessageSquareCode },
   { href: '/admin/bijoux-de-porte', label: 'Bijoux de Porte', icon: Sparkles },
   { href: '/admin/espaces-d-exception', label: 'Espaces d\'Exception', icon: Briefcase },
   { href: '/admin/products', label: 'Produits disponibles', icon: Package },

@@ -1,46 +1,92 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Play, X, Quote } from 'lucide-react'
-import { Reveal } from './reveal'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ChevronLeft, ChevronRight, Play, X, Star } from 'lucide-react'
 import { publicApi, Testimonial } from '@/lib/api'
 
-const MOCK_VIDEOS = [
+const MOCK_TESTIMONIALS = [
   {
-    name: 'Leïla Ben Ammar',
-    role: 'Propriétaire de villa · Gammarth',
-    image: '/testimonial-1.png',
-    quote:
-      "Chaque pièce qu'ils ont créée raconte une histoire. Notre maison a désormais une âme.",
+    id: 1,
+    clientName: 'Leïla Ben Ammar',
+    clientRole: 'Propriétaire de villa',
+    location: 'Gammarth, Tunis',
+    content: "Chaque pièce qu'ils ont créée raconte une histoire. Notre maison a désormais une âme qu'aucun catalogue ne pourrait offrir. C'est de l'artisanat vivant.",
+    imageUrl: '/testimonial-1.png',
+    type: 'TEXT' as const,
+    videoUrl: null,
+    rating: 5,
   },
   {
-    name: 'Karim Trabelsi',
-    role: "Directeur d'hôtel · Tunis",
-    image: '/testimonial-2.png',
-    quote:
-      "Un savoir-faire rare. Nos clients s'émerveillent devant les boiseries dès l'entrée.",
+    id: 2,
+    clientName: 'Karim Trabelsi',
+    clientRole: "Directeur d'établissement",
+    location: 'Centre-ville, Tunis',
+    content: "Un savoir-faire rare et une précision remarquable. Nos clients s'émerveillent devant les boiseries dès l'entrée. Aschi, c'est de l'art au service du quotidien.",
+    imageUrl: '/testimonial-2.png',
+    type: 'TEXT' as const,
+    videoUrl: null,
+    rating: 5,
   },
   {
-    name: 'Famille Mansour',
-    role: 'Restaurateurs · Sidi Bou Saïd',
-    image: '/testimonial-3.png',
-    quote:
-      "Travailler avec Aschi, c'est confier son rêve à des mains expertes et passionnées.",
+    id: 3,
+    clientName: 'Famille Mansour',
+    clientRole: 'Restaurateurs',
+    location: 'Sidi Bou Saïd',
+    content: "Travailler avec Aschi, c'est confier son rêve à des mains expertes et passionnées. Le résultat dépasse toujours les espérances. Une collaboration que je recommande les yeux fermés.",
+    imageUrl: '/testimonial-3.png',
+    type: 'TEXT' as const,
+    videoUrl: null,
+    rating: 5,
+  },
+  {
+    id: 4,
+    clientName: 'Nadia Gharbi',
+    clientRole: 'Architecte d\'intérieur',
+    location: 'La Marsa',
+    content: "Je collabore avec l'atelier Aschi sur tous mes projets haut de gamme. Leur capacité à interpréter mes plans et à les sublimer en bois est tout simplement exceptionnelle.",
+    imageUrl: '/testimonial-1.png',
+    type: 'TEXT' as const,
+    videoUrl: null,
+    rating: 5,
   },
 ]
 
+function StarRating({ rating = 5 }: { rating?: number }) {
+  return (
+    <div className="flex items-center gap-1">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className={`size-4 ${i < rating ? 'fill-gold text-gold' : 'fill-transparent text-gold/30'}`}
+        />
+      ))}
+    </div>
+  )
+}
+
 export function Testimonials() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
-  const [playing, setPlaying] = useState<number | null>(null)
+  const [testimonials, setTestimonials] = useState<any[]>([])
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [playing, setPlaying] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
+  const autoRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     async function loadTestimonials() {
       try {
         const data = await publicApi.getTestimonials()
-        setTestimonials(data)
-      } catch (err) {
-        console.error('Error fetching testimonials from API, using fallback data:', err)
+        if (data && data.length > 0) {
+          setTestimonials(data.map((t: Testimonial) => ({
+            ...t,
+            location: t.clientRole,
+            rating: 5,
+          })))
+        } else {
+          setTestimonials(MOCK_TESTIMONIALS)
+        }
+      } catch {
+        setTestimonials(MOCK_TESTIMONIALS)
       } finally {
         setLoading(false)
       }
@@ -48,97 +94,221 @@ export function Testimonials() {
     loadTestimonials()
   }, [])
 
-  const displayTestimonials = testimonials.length > 0
-    ? testimonials.map(t => ({
-        name: t.clientName,
-        role: t.clientRole,
-        image: t.imageUrl,
-        quote: t.content,
-        videoUrl: t.videoUrl
-      }))
-    : MOCK_VIDEOS
+  const startAuto = useCallback(() => {
+    if (autoRef.current) clearInterval(autoRef.current)
+    autoRef.current = setInterval(() => {
+      setActiveIndex(prev => (prev + 1) % testimonials.length)
+    }, 5500)
+  }, [testimonials.length])
+
+  useEffect(() => {
+    if (testimonials.length > 1) startAuto()
+    return () => { if (autoRef.current) clearInterval(autoRef.current) }
+  }, [testimonials.length, startAuto])
+
+  const goTo = (idx: number) => {
+    setActiveIndex(idx)
+    startAuto()
+  }
+
+  const prev = () => goTo((activeIndex - 1 + testimonials.length) % testimonials.length)
+  const next = () => goTo((activeIndex + 1) % testimonials.length)
+
+  if (loading || testimonials.length === 0) return null
+
+  const active = testimonials[activeIndex]
 
   return (
-    <section className="bg-walnut py-24 text-walnut-foreground md:py-36">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <Reveal className="text-center">
-          <p className="text-xs uppercase tracking-luxury text-gold">Témoignages</p>
-          <h2 className="mx-auto mt-5 max-w-2xl text-balance font-heading text-4xl font-light leading-tight sm:text-5xl md:text-6xl text-ivory">
-            La parole à ceux qui nous ont fait confiance
-          </h2>
-        </Reveal>
+    <section className="relative overflow-hidden bg-[#1a1109] py-24 md:py-36">
+      {/* Decorative gold lines */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-gold/20 to-transparent" />
+        <div className="absolute right-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-gold/20 to-transparent" />
+        <div className="absolute -left-40 top-1/4 size-96 rounded-full bg-gold/5 blur-3xl" />
+        <div className="absolute -right-40 bottom-1/4 size-96 rounded-full bg-gold/5 blur-3xl" />
+      </div>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-3 md:gap-8">
-          {displayTestimonials.map((v, i) => (
-            <Reveal key={v.name} delay={i * 120}>
-              <article className="group relative overflow-hidden">
-                <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-zinc-950/20 border border-gold/5">
-                  <img
-                    src={v.image || '/placeholder.svg'}
-                    alt={v.name}
-                    className="size-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-walnut/90 via-walnut/20 to-transparent" />
-                  <button
-                    type="button"
-                    onClick={() => setPlaying(i)}
-                    aria-label={`Lire le témoignage de ${v.name}`}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <span className="flex size-16 items-center justify-center rounded-full bg-gold/90 text-walnut transition-all duration-300 group-hover:scale-110 group-hover:bg-gold">
-                      <Play className="ml-0.5 size-6 fill-current" />
-                    </span>
-                  </button>
-                  <div className="absolute inset-x-0 bottom-0 p-6 text-left">
-                    <Quote className="size-6 text-gold" />
-                    <p className="mt-3 font-heading text-lg font-light italic leading-snug text-ivory">
-                      {v.quote}
-                    </p>
-                    <p className="mt-4 text-sm font-medium text-ivory">{v.name}</p>
-                    <p className="text-xs text-ivory/60">{v.role}</p>
+      <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
+        {/* Section Header */}
+        <div className="mb-16 text-center">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-gold font-semibold mb-4">
+            ✦ Témoignages ✦
+          </p>
+          <h2 className="font-heading text-4xl font-light text-ivory sm:text-5xl md:text-6xl leading-tight">
+            La parole à ceux qui<br className="hidden sm:block" />
+            <span className="italic text-gold">nous ont fait confiance</span>
+          </h2>
+          <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+        </div>
+
+        {/* Main Carousel */}
+        <div className="relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeIndex}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -24 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="grid gap-10 md:grid-cols-[1fr_2fr] md:gap-16 items-center"
+            >
+              {/* Left: Portrait */}
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative">
+                  {/* Gold ring */}
+                  <div className="absolute -inset-1.5 rounded-full bg-gradient-to-br from-gold/60 via-gold/20 to-transparent" />
+                  <div className="relative size-40 md:size-52 overflow-hidden rounded-full border-2 border-gold/30 bg-stone-900">
+                    <img
+                      src={active.imageUrl || '/client-placeholder.png'}
+                      alt={active.clientName}
+                      className="size-full object-cover"
+                    />
                   </div>
+                  {/* Play button for videos */}
+                  {active.type === 'VIDEO' && active.videoUrl && (
+                    <button
+                      onClick={() => setPlaying(active)}
+                      className="absolute inset-0 flex items-center justify-center rounded-full bg-walnut/60 backdrop-blur-sm transition-all hover:bg-walnut/80"
+                    >
+                      <span className="flex size-14 items-center justify-center rounded-full bg-gold text-walnut">
+                        <Play className="ml-0.5 size-6 fill-current" />
+                      </span>
+                    </button>
+                  )}
                 </div>
-              </article>
-            </Reveal>
-          ))}
+
+                {/* Stars + Name */}
+                <div className="text-center">
+                  <StarRating rating={active.rating || 5} />
+                  <p className="mt-3 font-heading text-xl font-medium text-ivory">{active.clientName}</p>
+                  <p className="text-xs text-gold/80 font-medium uppercase tracking-wider mt-1">{active.clientRole}</p>
+                  {active.location && active.location !== active.clientRole && (
+                    <p className="text-[11px] text-ivory/40 mt-0.5 italic">{active.location}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Right: Quote */}
+              <div className="relative">
+                {/* Big decorative quote */}
+                <span className="absolute -top-6 -left-4 font-heading text-[120px] leading-none text-gold/10 select-none">
+                  "
+                </span>
+                <blockquote className="relative z-10">
+                  <p className="font-heading text-2xl md:text-3xl font-light leading-relaxed text-ivory/90 italic">
+                    "{active.content}"
+                  </p>
+                  <div className="mt-8 h-px w-16 bg-gradient-to-r from-gold/60 to-transparent" />
+                </blockquote>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation Arrows */}
+          {testimonials.length > 1 && (
+            <div className="mt-12 flex items-center justify-center gap-6">
+              <button
+                onClick={prev}
+                className="flex size-11 items-center justify-center rounded-full border border-gold/20 bg-white/5 text-ivory/60 transition-all hover:border-gold hover:bg-gold/10 hover:text-gold"
+                aria-label="Témoignage précédent"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+
+              {/* Dots */}
+              <div className="flex items-center gap-2">
+                {testimonials.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goTo(i)}
+                    aria-label={`Aller au témoignage ${i + 1}`}
+                    className={`transition-all duration-300 rounded-full ${
+                      i === activeIndex
+                        ? 'w-8 h-2 bg-gold'
+                        : 'w-2 h-2 bg-gold/25 hover:bg-gold/50'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={next}
+                className="flex size-11 items-center justify-center rounded-full border border-gold/20 bg-white/5 text-ivory/60 transition-all hover:border-gold hover:bg-gold/10 hover:text-gold"
+                aria-label="Témoignage suivant"
+              >
+                <ChevronRight className="size-5" />
+              </button>
+            </div>
+          )}
+
+          {/* Thumbnails strip */}
+          {testimonials.length > 1 && (
+            <div className="mt-10 flex justify-center gap-3 overflow-x-auto pb-2">
+              {testimonials.map((t, i) => (
+                <button
+                  key={t.id}
+                  onClick={() => goTo(i)}
+                  className={`shrink-0 transition-all duration-300 rounded-full overflow-hidden border-2 ${
+                    i === activeIndex ? 'border-gold scale-110' : 'border-transparent opacity-40 hover:opacity-70 hover:scale-105'
+                  }`}
+                  aria-label={t.clientName}
+                >
+                  <img
+                    src={t.imageUrl || '/client-placeholder.png'}
+                    alt={t.clientName}
+                    className="size-12 object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {playing !== null && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-walnut/90 p-4 backdrop-blur-sm"
-          onClick={() => setPlaying(null)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <button
-            type="button"
-            aria-label="Fermer"
+      {/* Video Modal */}
+      <AnimatePresence>
+        {playing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
             onClick={() => setPlaying(null)}
-            className="absolute right-6 top-6 rounded-full bg-walnut/60 p-2 text-ivory hover:bg-bronze"
           >
-            <X className="size-6" />
-          </button>
-          <div
-            className="flex aspect-video w-full max-w-3xl flex-col items-center justify-center bg-walnut text-center ring-1 ring-gold/20"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Play className="size-12 text-gold" />
-            <p className="mt-4 font-heading text-2xl font-light text-ivory">
-              Témoignage de {displayTestimonials[playing].name}
-            </p>
-            {displayTestimonials[playing].videoUrl ? (
-              <p className="mt-2 text-sm text-gold/80 underline font-mono">
-                Lien vidéo : {displayTestimonials[playing].videoUrl}
-              </p>
-            ) : (
-              <p className="mt-2 text-sm text-ivory/60">
-                La vidéo sera bientôt disponible.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
+            <button
+              onClick={() => setPlaying(null)}
+              className="absolute right-6 top-6 rounded-full bg-white/10 p-2.5 text-white hover:bg-gold/40 transition-colors"
+              aria-label="Fermer"
+            >
+              <X className="size-5" />
+            </button>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-3xl"
+              onClick={e => e.stopPropagation()}
+            >
+              {playing.videoUrl ? (
+                <iframe
+                  src={playing.videoUrl.replace('watch?v=', 'embed/')}
+                  className="aspect-video w-full rounded-xl border border-gold/20"
+                  allowFullScreen
+                  title={`Témoignage de ${playing.clientName}`}
+                />
+              ) : (
+                <div className="aspect-video w-full flex flex-col items-center justify-center rounded-xl border border-gold/20 bg-stone-950 text-center p-8">
+                  <Play className="size-12 text-gold mb-4" />
+                  <p className="font-heading text-2xl font-light text-ivory">
+                    Témoignage de {playing.clientName}
+                  </p>
+                  <p className="mt-2 text-sm text-ivory/50">La vidéo sera bientôt disponible.</p>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }

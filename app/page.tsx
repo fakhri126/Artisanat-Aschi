@@ -5,6 +5,7 @@ import { AboutVideo } from "@/components/site/about-video"
 import { HomeTeaser } from "@/components/site/home-teaser"
 import { NewsSection } from "@/components/site/news-section"
 import { Testimonials } from "@/components/site/testimonials"
+import { VideoReel } from "@/components/site/video-reel"
 import { Gallery } from "@/components/site/gallery"
 import { Footer } from "@/components/site/footer"
 import type { Metadata } from "next"
@@ -25,6 +26,7 @@ export default function Page() {
       <HomeTeaser />
       <NewsSection />
       <Testimonials />
+      <VideoReel />
       <Gallery />
       <Footer />
     </main>
