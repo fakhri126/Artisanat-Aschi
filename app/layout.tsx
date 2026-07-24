@@ -35,6 +35,7 @@ export const viewport: Viewport = {
 
 import { CartProvider } from '@/lib/cart-context'
 import { CartSheet } from '@/components/site/cart-sheet'
+import { Toaster } from 'sonner'
 
 export default function RootLayout({
   children,
@@ -53,6 +54,13 @@ export default function RootLayout({
           </PageTransitionWrapper>
           <CartSheet />
         </CartProvider>
+        <Toaster position="bottom-right" theme="dark" toastOptions={{
+          style: {
+            background: 'var(--color-walnut)',
+            border: '1px solid var(--color-gold)',
+            color: 'var(--color-ivory)',
+          }
+        }} />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

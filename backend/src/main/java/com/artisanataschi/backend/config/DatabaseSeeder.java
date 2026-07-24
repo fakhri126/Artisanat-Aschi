@@ -32,6 +32,14 @@ public class DatabaseSeeder implements CommandLineRunner {
         return c;
     }
 
+    private Category cat(String name, String type, Category parent) {
+        Category c = new Category();
+        c.setName(name);
+        c.setType(type);
+        c.setParentCategory(parent);
+        return c;
+    }
+
     private ProductImage img(Product p, String url, boolean primary) {
         ProductImage pi = new ProductImage();
         pi.setProduct(p);
@@ -83,6 +91,27 @@ public class DatabaseSeeder implements CommandLineRunner {
             ));
             System.out.println("✅ Categories seeded.");
         }
+
+        // Ensure "Bijoux de Porte" and its subcategories are seeded
+        Category bijouxDePorte = categoryRepository.findByName("Bijoux de Porte").orElseGet(() -> {
+            Category c = cat("Bijoux de Porte", "ACCESSOIRES");
+            return categoryRepository.save(c);
+        });
+
+        Category grandsRonds = categoryRepository.findByName("Grands Ronds").orElseGet(() -> {
+            Category c = cat("Grands Ronds", "BIJOUX_DE_PORTE", bijouxDePorte);
+            return categoryRepository.save(c);
+        });
+
+        Category ovales = categoryRepository.findByName("Ovales").orElseGet(() -> {
+            Category c = cat("Ovales", "BIJOUX_DE_PORTE", bijouxDePorte);
+            return categoryRepository.save(c);
+        });
+
+        Category petitesPoignees = categoryRepository.findByName("Petites Poignées").orElseGet(() -> {
+            Category c = cat("Petites Poignées", "BIJOUX_DE_PORTE", bijouxDePorte);
+            return categoryRepository.save(c);
+        });
 
         // ── 3. Seed Products ─────────────────────────────────────────────────
         if (productRepository.count() == 0) {
@@ -146,6 +175,36 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             productRepository.saveAll(Arrays.asList(p1, p2, p3, r1, r2, r3, c1, c2));
             System.out.println("✅ Products seeded.");
+        }
+
+        // Ensure handle products (available products list) are seeded
+        if (productRepository.findAll().stream().noneMatch(p -> p.getName().equals("Bouton Riad Bleu"))) {
+            Category gr = categoryRepository.findByName("Grands Ronds").orElse(null);
+            Category ov = categoryRepository.findByName("Ovales").orElse(null);
+            Category pp = categoryRepository.findByName("Petites Poignées").orElse(null);
+
+            Product hp1 = product("Bouton Riad Bleu",
+                "Majolique traditionnelle peinte à la main, motifs d'arabesques bleu de cobalt et traits de terre d'ombre. Idéal pour les grands tiroirs, les grandes portes et les espaces peu chargés.",
+                "Diamètre 6-7 cm", "Céramique de majolique", "Bleu cobalt", "28", "Disponible", "REPRODUCTIBLE", true, gr);
+            productRepository.save(hp1);
+            hp1.setImages(Collections.singletonList(img(hp1, "/handle-knob.png", true)));
+            productRepository.save(hp1);
+
+            Product hp2 = product("Bouton Soleil d'Or",
+                "Bouton ovale aux courbes généreuses, peint de rayons chauds ocre-jaune et lignes cobalt. Idéal pour les dressings, les bahuts, les éléments de cuisine.",
+                "7 cm x 4 cm", "Céramique de majolique", "Ocre-jaune", "32", "Disponible", "REPRODUCTIBLE", true, ov);
+            productRepository.save(hp2);
+            hp2.setImages(Collections.singletonList(img(hp2, "/handle-knob.png", true)));
+            productRepository.save(hp2);
+
+            Product hp3 = product("Bouton Jasmin Sauvage",
+                "Miniature délicate peinte de rameaux d'olivier et fleurs de jasmin vert et bleu sur émail ivoire. Idéal pour les armoires, les éléments de cuisine, les tables de nuit.",
+                "Diamètre 3-4 cm", "Céramique de majolique", "Ivoire, vert, bleu", "18", "Disponible", "REPRODUCTIBLE", true, pp);
+            productRepository.save(hp3);
+            hp3.setImages(Collections.singletonList(img(hp3, "/handle-knob.png", true)));
+            productRepository.save(hp3);
+
+            System.out.println("✅ Handle products seeded.");
         }
 
         // ── 4. Seed Projects ─────────────────────────────────────────────────

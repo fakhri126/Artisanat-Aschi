@@ -1,26 +1,55 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    @media (prefers-color-scheme: light) {
-      .background { fill: black; }
-      .foreground { fill: white; }
-    }
-    @media (prefers-color-scheme: dark) {
-      .background { fill: white; }
-      .foreground { fill: black; }
-    }
-  </style>
-  <g clip-path="url(#clip0_7960_43945)">
-    <rect class="background" width="180" height="180" rx="37" />
-    <g style="transform: scale(95%); transform-origin: center">
-      <path class="foreground"
-        d="M101.141 53H136.632C151.023 53 162.689 64.6662 162.689 79.0573V112.904H148.112V79.0573C148.112 78.7105 148.098 78.3662 148.072 78.0251L112.581 112.898C112.701 112.902 112.821 112.904 112.941 112.904H148.112V126.672H112.941C98.5504 126.672 86.5638 114.891 86.5638 100.5V66.7434H101.141V100.5C101.141 101.15 101.191 101.792 101.289 102.422L137.56 66.7816C137.255 66.7563 136.945 66.7434 136.632 66.7434H101.141V53Z" />
-      <path class="foreground"
-        d="M65.2926 124.136L14 66.7372H34.6355L64.7495 100.436V66.7372H80.1365V118.47C80.1365 126.278 70.4953 129.958 65.2926 124.136Z" />
-    </g>
-  </g>
   <defs>
-    <clipPath id="clip0_7960_43945">
-      <rect width="180" height="180" fill="white" />
-    </clipPath>
+    <!-- Light Wood Gradient (replacing yellow/gold) -->
+    <linearGradient id="lightWoodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#CD853F" /> <!-- Peru Brown -->
+      <stop offset="50%" stop-color="#A0522D" /> <!-- Sienna -->
+      <stop offset="100%" stop-color="#8B4513" /> <!-- Saddle Brown -->
+    </linearGradient>
+
+    <!-- Deep 3D Shadow Filter -->
+    <filter id="iconShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity="0.6" />
+    </filter>
   </defs>
+
+  <!-- Shadow Layer -->
+  <g transform="translate(2, 2)" opacity="0.4" filter="url(#iconShadow)">
+    <line x1="68" y1="92" x2="112" y2="92" stroke="#000" stroke-width="6.5" />
+    <circle cx="106" cy="92" r="5.5" fill="#000" />
+    <polygon points="86,60 94,60 54,162 46,162" fill="#000" />
+    <polygon points="86,60 94,60 126,162 134,162" fill="#000" />
+    <circle cx="90" cy="38" r="16" stroke="#000" stroke-width="9" fill="none" />
+    <rect x="85" y="50" width="10" height="13" fill="#000" />
+    <circle cx="90" cy="60" r="10" fill="#000" />
+    <line x1="90" y1="22" x2="90" y2="16" stroke="#000" stroke-width="5" />
+    <path d="M 18,138 C 22,132 28,122 48,110 C 68,98 74,94 77,98 C 79,101 70,111 52,125 C 34,139 21,146 18,138 Z" fill="#000" />
+    <path d="M 78,94 L 148,46" stroke="#000" stroke-width="9.5" />
+    <polygon points="146,47 152,43 158,49 152,53" fill="#000" />
+  </g>
+
+  <!-- Front Objects -->
+  <!-- Horizontal guide rod -->
+  <line x1="68" y1="92" x2="112" y2="92" stroke="#2e2118" stroke-width="6" stroke-linecap="round" />
+  <circle cx="106" cy="92" r="5" fill="url(#lightWoodGrad)" stroke="#2e2118" stroke-width="1.2" />
+
+  <!-- Compass Legs forming "A" -->
+  <polygon points="86,60 94,60 54,162 46,162" fill="#2e2118" />
+  <polygon points="86,60 94,60 126,162 134,162" fill="#2e2118" />
+
+  <!-- Compass Head -->
+  <circle cx="90" cy="38" r="16" stroke="url(#lightWoodGrad)" stroke-width="9" fill="none" />
+  <rect x="85" y="50" width="10" height="13" fill="url(#lightWoodGrad)" />
+  <circle cx="90" cy="60" r="10" fill="url(#lightWoodGrad)" />
+  <circle cx="90" cy="60" r="3.5" fill="#2e2118" />
+  <line x1="90" y1="22" x2="90" y2="16" stroke="url(#lightWoodGrad)" stroke-width="5" stroke-linecap="round" />
+
+  <!-- Chisel crossing -->
+  <!-- Handle -->
+  <path d="M 18,138 C 22,132 28,122 48,110 C 68,98 74,94 77,98 C 79,101 70,111 52,125 C 34,139 21,146 18,138 Z" fill="url(#lightWoodGrad)" />
+  <polygon points="74,94 78,91 82,95 78,98" fill="#2e2118" />
+  <!-- Shaft -->
+  <path d="M 78,94 L 148,46" stroke="#2e2118" stroke-width="9.5" stroke-linecap="round" />
+  <!-- Bevel -->
+  <polygon points="146,47 152,43 158,49 152,53" fill="url(#lightWoodGrad)" />
 </svg>

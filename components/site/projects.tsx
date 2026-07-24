@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowUpRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowUpRight, X } from 'lucide-react'
 import { Reveal } from './reveal'
 import { publicApi, Project } from '@/lib/api'
 
@@ -39,6 +40,7 @@ const MOCK_PROJECTS = [
 export function Projects() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedProject, setSelectedProject] = useState<any | null>(null)
 
   useEffect(() => {
     async function loadProjects() {
@@ -92,33 +94,108 @@ export function Projects() {
               <Reveal
                 key={title}
                 delay={(i % 2) * 120}
-                className={`group relative overflow-hidden ${span}`}
+                className={`group relative overflow-hidden ${span} cursor-pointer`}
               >
-                <img
-                  src={image || '/placeholder.svg'}
-                  alt={title}
-                  className="size-full object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-walnut/90 via-walnut/20 to-transparent" />
-                <div className="absolute inset-0 flex flex-col justify-end p-6 text-ivory text-left">
-                  <span className="text-[0.65rem] uppercase tracking-[0.18em] text-gold font-semibold">
-                    {category}
+                <div 
+                  className="w-full h-full"
+                  onClick={() => setSelectedProject(p)}
+                >
+                  {image?.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                    <video
+                      src={image}
+                      muted
+                      autoPlay
+                      loop
+                      playsInline
+                      className="size-full object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-110"
+                    />
+                  ) : (
+                    <img
+                      src={image || '/placeholder.svg'}
+                      alt={title}
+                      className="size-full object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-110"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-walnut/90 via-walnut/20 to-transparent" />
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 text-ivory text-left">
+                    <span className="text-[0.65rem] uppercase tracking-[0.18em] text-gold font-semibold">
+                      {category}
+                    </span>
+                    <h3 className="mt-1 font-heading text-2xl font-medium leading-tight md:text-3xl">
+                      {title}
+                    </h3>
+                    <p className="mt-2 max-w-xs text-sm font-light text-ivory/0 transition-all duration-500 group-hover:text-ivory/80">
+                      {desc}
+                    </p>
+                  </div>
+                  <span className="absolute right-5 top-5 flex size-10 items-center justify-center rounded-full border border-ivory/40 text-ivory opacity-0 transition-all duration-500 group-hover:opacity-100">
+                    <ArrowUpRight className="size-5" />
                   </span>
-                  <h3 className="mt-1 font-heading text-2xl font-medium leading-tight md:text-3xl">
-                    {title}
-                  </h3>
-                  <p className="mt-2 max-w-xs text-sm font-light text-ivory/0 transition-all duration-500 group-hover:text-ivory/80">
-                    {desc}
-                  </p>
                 </div>
-                <span className="absolute right-5 top-5 flex size-10 items-center justify-center rounded-full border border-ivory/40 text-ivory opacity-0 transition-all duration-500 group-hover:opacity-100">
-                  <ArrowUpRight className="size-5" />
-                </span>
               </Reveal>
             )
           })}
         </div>
       </div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {selectedProject && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-6xl max-h-[90vh] bg-stone-950 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row border border-stone-800"
+            >
+              <button
+                onClick={() => setSelectedProject(null)}
+                className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 text-white/70 hover:text-white hover:bg-black/80 transition-colors"
+              >
+                <X className="size-6" />
+              </button>
+
+              <div className="w-full md:w-2/3 h-[40vh] md:h-auto bg-stone-900 relative">
+                {(() => {
+                  const image = 'imageUrl' in selectedProject ? selectedProject.imageUrl : selectedProject.imageUrl;
+                  if (image?.match(/\.(mp4|webm|ogg|mov)$/i)) {
+                    return (
+                      <video
+                        src={image}
+                        controls
+                        autoPlay
+                        className="w-full h-full object-contain"
+                      />
+                    );
+                  }
+                  return (
+                    <img
+                      src={image || '/placeholder.svg'}
+                      alt={selectedProject.title}
+                      className="w-full h-full object-contain"
+                    />
+                  );
+                })()}
+              </div>
+              
+              <div className="w-full md:w-1/3 p-8 flex flex-col justify-center bg-stone-950 border-l border-stone-800 overflow-y-auto">
+                <span className="text-xs uppercase tracking-[0.2em] text-gold mb-2 block font-semibold">
+                  {'category' in selectedProject ? selectedProject.category : selectedProject.category}
+                </span>
+                <h2 className="font-heading text-3xl text-white mb-6">
+                  {selectedProject.title}
+                </h2>
+                <p className="text-stone-400 font-light leading-relaxed">
+                  {selectedProject.description}
+                </p>
+                <div className="mt-8 pt-8 border-t border-stone-800">
+                  <p className="text-xs text-stone-500 uppercase tracking-widest text-center">Artisanat Aschi</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }

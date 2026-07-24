@@ -47,6 +47,23 @@ export interface News {
   createdDate: string;
 }
 
+export interface Relooking {
+  id: number;
+  title: string;
+  description: string;
+  imageAvantUrl: string;
+  imageApresUrl: string;
+  createdDate: string;
+}
+
+export interface Delivery {
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  deliveryDate: string;
+}
+
 export interface Reference {
   id: number;
   name: string;
@@ -184,6 +201,10 @@ export const publicApi = {
     return fetchApi<Product>(`/public/products/${id}`);
   },
   
+  getLatestProducts: () => {
+    return fetchApi<Product[]>('/public/products/latest');
+  },
+  
   getCategories: () => {
     return fetchApi<Category[]>('/public/categories');
   },
@@ -195,7 +216,11 @@ export const publicApi = {
   getNews: () => {
     return fetchApi<News[]>('/public/news');
   },
-  
+
+  getRelookings: () => {
+    return fetchApi<Relooking[]>('/public/relookings');
+  },
+
   getReferences: () => {
     return fetchApi<Reference[]>('/public/references');
   },
@@ -216,6 +241,10 @@ export const publicApi = {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  },
+
+  getDeliveries: () => {
+    return fetchApi<Delivery[]>('/public/deliveries');
   },
 };
 
@@ -310,6 +339,20 @@ export const adminApi = {
     method: 'DELETE',
   }),
 
+  // --- Relookings ---
+  getRelookings: () => fetchApi<Relooking[]>('/public/relookings'),
+  createRelooking: (data: Omit<Relooking, 'id' | 'createdDate'>) => fetchApi<Relooking>('/admin/relookings', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  updateRelooking: (id: number, data: Omit<Relooking, 'id' | 'createdDate'>) => fetchApi<Relooking>(`/admin/relookings/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+  deleteRelooking: (id: number) => fetchApi<void>(`/admin/relookings/${id}`, {
+    method: 'DELETE',
+  }),
+
   // References CRUD
   getReferences: () => fetchApi<Reference[]>('/public/references'),
   createReference: (data: Omit<Reference, 'id'>) => fetchApi<Reference>('/admin/references', {
@@ -344,6 +387,20 @@ export const adminApi = {
     method: 'PATCH',
   }),
   deleteQuoteRequest: (id: number) => fetchApi<void>(`/admin/quotes/${id}`, {
+    method: 'DELETE',
+  }),
+
+  // --- Deliveries ---
+  getDeliveries: () => fetchApi<Delivery[]>('/public/deliveries'),
+  createDelivery: (data: Omit<Delivery, 'id'>) => fetchApi<Delivery>('/admin/deliveries', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  updateDelivery: (id: number, data: Omit<Delivery, 'id'>) => fetchApi<Delivery>(`/admin/deliveries/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+  deleteDelivery: (id: number) => fetchApi<void>(`/admin/deliveries/${id}`, {
     method: 'DELETE',
   }),
 };

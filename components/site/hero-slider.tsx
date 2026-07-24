@@ -4,10 +4,23 @@ import { useEffect, useState } from 'react'
 import { ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import { HeroSplit } from './hero-split'
+import { HeroEvent } from './hero-event'
+import { HeroRelooking } from './hero-relooking'
+import { HeroDelivery } from './hero-delivery'
 
 const SLIDES = [
+  {
+    id: 'bijoux-porte',
+    title: 'Les Bijoux de Porte',
+    subtitle: 'Boutons & Céramiques d\'Art',
+    description: 'Sublimez vos portes et mobilier avec nos poignées en céramique d\'art peintes à la main. Des détails d\'exception pour des demeures uniques.',
+    image: '/bijoux-de-porte.jpg',
+    cta: 'Découvrir la collection',
+    href: '/bijoux-de-porte',
+  },
   {
     id: 'catalogue',
     title: 'Catalogue',
@@ -26,23 +39,33 @@ const SLIDES = [
     cta: 'Découvrir le service',
     href: '/relooking',
   },
-  {
-    id: 'evenements',
-    title: 'Événements',
-    subtitle: 'Prestations Événementielles',
-    description: 'Créez une atmosphère inoubliable pour vos réceptions avec notre mobilier et décoration artisanale de luxe.',
-    image: '/event_service.jpg',
-    cta: 'En savoir plus',
-    href: '/contact',
-  },
+
   {
     id: 'nouveautes',
-    title: 'Nouveaux Produits',
-    subtitle: 'Dernières Créations',
-    description: 'Découvrez les toutes dernières pièces conçues dans notre atelier, alliant tradition et modernité.',
-    image: '/new1.jpg',
+    image: '/placeholder.jpg',
+    subtitle: 'Créations Récentes',
+    title: 'Nouveautés',
+    description: 'Découvrez les dernières pièces sorties de notre atelier.',
     cta: 'Voir les nouveautés',
-    href: '/creations',
+    href: '#nouveautes'
+  },
+  {
+    id: 'evenement',
+    image: '/placeholder.jpg', // Fetched dynamically
+    subtitle: 'Événement',
+    title: 'Actualité',
+    description: 'Dernier événement en date',
+    cta: 'Voir l\'événement',
+    href: '#news'
+  },
+  {
+    id: 'livraison',
+    image: '/placeholder.jpg', // Fetched dynamically
+    subtitle: 'Livraison de la semaine',
+    title: 'Réalisation Client',
+    description: 'Découvrez notre dernière livraison chez nos clients',
+    cta: 'Découvrir',
+    href: '#livraison'
   }
 ]
 
@@ -52,6 +75,8 @@ export function HeroSlider() {
   const [direction, setDirection] = useState(0)
   const [offset, setOffset] = useState(0)
   const [clickedKnob, setClickedKnob] = useState<string | null>(null)
+  const [showGuide, setShowGuide] = useState(true)
+  const [isHovered, setIsHovered] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setOffset(window.scrollY)
@@ -61,16 +86,20 @@ export function HeroSlider() {
 
   // Auto-play
   useEffect(() => {
+    // Pause auto-play if hovered (so Modals or interactive slides stay visible)
+    if (isHovered) return
+
     const timer = setInterval(() => {
       setDirection(1)
       setCurrent((prev) => (prev + 1) % SLIDES.length)
     }, 6000)
     return () => clearInterval(timer)
-  }, [current])
+  }, [current, isHovered])
 
   const handleKnobClick = (href: string) => {
     if (clickedKnob) return
     setClickedKnob(href)
+    setShowGuide(false)
     setTimeout(() => {
       router.push(href)
       // Reset after a delay so it's ready if they navigate back
@@ -113,97 +142,192 @@ export function HeroSlider() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut', delay: 0.3 } }
   }
 
+  // Safe bounds check to prevent crash during hot reload
+  const slide = SLIDES[current] || SLIDES[0]
+
   return (
     <section id="top" className="relative h-screen min-h-[40rem] w-full overflow-hidden grain">
       {/* Slideshow */}
       <AnimatePresence initial={false} custom={direction}>
-        <motion.div
-          key={current}
-          custom={direction}
-          variants={variants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{
-            x: { type: "spring", stiffness: 300, damping: 30 },
-            opacity: { duration: 0.8 }
-          }}
-          className="absolute inset-0"
-        >
-          <div
-            className="absolute inset-0 scale-105"
-            style={{ transform: `translateY(${offset * 0.3}px)` }}
+        {slide.id === 'nouveautes' ? (
+          <motion.div
+            key="nouveautes-split"
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.8 }
+            }}
+            className="absolute inset-0 z-20"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
           >
-            <Image
-              src={SLIDES[current].image}
-              alt={SLIDES[current].title}
-              fill
-              priority
-              className="object-cover"
-            />
-          </div>
-          
-          {/* Much lighter overlays for a brighter, cleaner look */}
-          <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Content */}
-      <div className="relative z-20 mx-auto flex h-full max-w-6xl flex-col items-center justify-center px-6 text-center">
-        <AnimatePresence mode="wait">
+            <HeroSplit />
+          </motion.div>
+        ) : slide.id === 'evenement' ? (
+          <motion.div
+            key="evenement-slide"
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.8 }
+            }}
+            className="absolute inset-0 z-20"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <HeroEvent />
+          </motion.div>
+        ) : slide.id === 'relooking' ? (
+          <motion.div
+            key="relooking-slide"
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.8 }
+            }}
+            className="absolute inset-0 z-20"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <HeroRelooking />
+          </motion.div>
+        ) : slide.id === 'livraison' ? (
+          <motion.div
+            key="livraison-slide"
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.8 }
+            }}
+            className="absolute inset-0 z-20"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <HeroDelivery />
+          </motion.div>
+        ) : (
           <motion.div
             key={current}
-            initial="hidden"
-            animate="visible"
-            exit={{ opacity: 0, y: -20, transition: { duration: 0.3 } }}
-            variants={textVariants}
-            className="flex flex-col items-center"
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.8 }
+            }}
+            className="absolute inset-0"
           >
-            <p className="mb-4 text-xs uppercase tracking-luxury text-gold sm:text-sm drop-shadow-md">
-              {SLIDES[current].subtitle}
-            </p>
-            <h1 className="font-heading text-5xl font-medium leading-[1] text-white text-shadow-cinematic sm:text-6xl md:text-7xl lg:text-[7rem]">
-              {SLIDES[current].title}
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg font-light leading-relaxed text-white/95 drop-shadow-md sm:text-xl">
-              {SLIDES[current].description}
-            </p>
+            <div
+              className="absolute inset-0 scale-105"
+              style={{ transform: `translateY(${offset * 0.3}px)` }}
+            >
+              <Image
+                src={slide.image}
+                alt={slide.title}
+                fill
+                priority
+                className="object-cover"
+              />
+            </div>
+            
+            {/* Much lighter overlays for a brighter, cleaner look */}
+            <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            <div className="mt-10 flex flex-col items-center">
-              <div 
-                onClick={() => handleKnobClick(SLIDES[current].href)}
-                className="relative group/knob cursor-pointer flex flex-col items-center"
-              >
-                {/* Glow ring behind knob */}
-                <div className="absolute w-28 h-28 rounded-full bg-[#d4af37]/15 blur-lg group-hover/knob:bg-[#d4af37]/25 transition-all duration-500" />
-                
-                {/* The Knob */}
-                <motion.div
-                  animate={clickedKnob === SLIDES[current].href ? { rotate: [0, -35, 10, 0] } : {}}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                  className="relative w-24 h-24 rounded-full border-[3px] border-[#d4af37]/75 bg-stone-900 shadow-[0_10px_20px_rgba(0,0,0,0.6),inset_0_4px_8px_rgba(255,255,255,0.2)] overflow-hidden"
-                  whileHover={{ rotate: 15, scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Image
-                    src="/handle-knob.png"
-                    alt="Poignée de porte"
-                    fill
-                    className="object-cover rounded-full"
-                  />
-                  {/* Highlight overlay */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-black/30 via-transparent to-white/15 pointer-events-none" />
-                </motion.div>
-                
-                {/* Text prompt to click */}
-                <span className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#d4af37] font-semibold bg-black/40 px-4 py-1.5 rounded-full border border-[#d4af37]/20 backdrop-blur-sm shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-all group-hover/knob:bg-gold group-hover/knob:text-walnut group-hover/knob:border-gold duration-300 select-none">
-                  {SLIDES[current].cta}
+      {/* Content for standard slides */}
+      {(slide.id !== 'nouveautes' && slide.id !== 'evenement' && slide.id !== 'relooking' && slide.id !== 'livraison') && (
+        <div className="relative z-20 mx-auto flex h-full max-w-6xl flex-col items-center justify-center px-6 text-center">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={textVariants}
+              className="max-w-3xl"
+            >
+              <div className="flex justify-center mb-6">
+                <span className="text-gold text-xs font-bold tracking-[0.3em] uppercase bg-stone-900/40 px-4 py-2 border border-gold/20">
+                  {slide.subtitle}
                 </span>
               </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
+              <h1 className="font-heading text-5xl md:text-7xl text-ivory mb-6 text-shadow-lg leading-tight">
+                {slide.title}
+              </h1>
+              <p className="text-lg md:text-xl font-light text-white/90 mb-10 text-shadow max-w-2xl mx-auto leading-relaxed">
+                {slide.description}
+              </p>
+              
+              <div className="flex flex-col items-center gap-6">
+                <div 
+                  onClick={() => handleKnobClick(slide.href)}
+                  onMouseEnter={() => setShowGuide(false)}
+                  className="relative group/knob cursor-pointer flex flex-col items-center"
+                >
+                  {/* Click Guide Tooltip */}
+                  <AnimatePresence>
+                    {showGuide && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                        className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 pointer-events-none whitespace-nowrap bg-gold/95 text-walnut text-[9px] font-bold tracking-widest uppercase px-3 py-1 rounded-full shadow-[0_4px_12px_rgba(212,175,55,0.3)] border border-gold/30 animate-pulse"
+                      >
+                        Tournez la poignée
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  {/* Glow ring behind knob */}
+                  <div className="absolute w-28 h-28 rounded-full bg-[#d4af37]/15 blur-lg group-hover/knob:bg-[#d4af37]/25 transition-all duration-500" />
+                  
+                  {/* The Knob */}
+                  <motion.div
+                    animate={clickedKnob === SLIDES[current].href ? { rotate: [0, -35, 10, 0] } : {}}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    className="relative w-24 h-24 rounded-full border-[3px] border-[#d4af37]/75 bg-stone-900 shadow-[0_10px_20px_rgba(0,0,0,0.6),inset_0_4px_8px_rgba(255,255,255,0.2)] overflow-hidden"
+                    whileHover={{ rotate: 15, scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Image
+                      src="/handle-knob.png"
+                      alt="Poignée de porte"
+                      fill
+                      className="object-cover rounded-full"
+                    />
+                    {/* Highlight overlay */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-black/30 via-transparent to-white/15 pointer-events-none" />
+                  </motion.div>
+                  
+                  {/* Text prompt to click */}
+                  <span className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#d4af37] font-semibold bg-black/40 px-4 py-1.5 rounded-full border border-[#d4af37]/20 backdrop-blur-sm shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-all group-hover/knob:bg-gold group-hover/knob:text-walnut group-hover/knob:border-gold duration-300 select-none">
+                    {SLIDES[current].cta}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      )}
 
       {/* Slider Controls */}
       <div className="absolute top-1/2 left-4 sm:left-8 z-30 -translate-y-1/2">

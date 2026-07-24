@@ -1,10 +1,20 @@
 package com.artisanataschi.backend.domain;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "product_images")
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductImage {
 
     @Id
@@ -20,25 +30,4 @@ public class ProductImage {
     private String imageUrl;
 
     private Boolean isPrimary = false;
-
-    public ProductImage() {}
-
-    public ProductImage(Long id, Product product, String imageUrl, Boolean isPrimary) {
-        this.id = id;
-        this.product = product;
-        this.imageUrl = imageUrl;
-        this.isPrimary = isPrimary;
-    }
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public Product getProduct() { return product; }
-    public void setProduct(Product product) { this.product = product; }
-
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-
-    public Boolean getIsPrimary() { return isPrimary; }
-    public void setIsPrimary(Boolean isPrimary) { this.isPrimary = isPrimary; }
 }

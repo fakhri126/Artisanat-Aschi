@@ -42,6 +42,10 @@ public class ProductService {
         return productRepository.findTop6ByIsFeaturedTrue();
     }
 
+    public List<Product> getLatestProducts() {
+        return productRepository.findTop3ByOrderByIdDesc();
+    }
+
     public List<Product> getProductsByType(String type) {
         return productRepository.findByType(type);
     }

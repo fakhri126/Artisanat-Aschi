@@ -17,6 +17,8 @@ interface ImageUploaderProps {
   setUploading: (v: boolean) => void
   /** Upload function: receives a File and returns { url: string } */
   uploadFn: (file: File) => Promise<{ url: string }>
+  /** If true, accepts videos as well */
+  acceptVideo?: boolean
 }
 
 /**
@@ -32,6 +34,7 @@ export function ImageUploader({
   uploading,
   setUploading,
   uploadFn,
+  acceptVideo = false,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -60,14 +63,25 @@ export function ImageUploader({
         {/* Preview thumbnail */}
         {imageUrl && (
           <div className="relative size-24 rounded-xl border border-border bg-secondary/50 overflow-hidden group shrink-0">
-            <img
-              src={imageUrl}
-              alt="Aperçu"
-              className="size-full object-cover"
-              onError={(e) => {
-                ;(e.target as HTMLImageElement).src = '/placeholder.png'
-              }}
-            />
+            {imageUrl.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+              <video
+                src={imageUrl}
+                className="size-full object-cover"
+                muted
+                autoPlay
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                src={imageUrl}
+                alt="Aperçu"
+                className="size-full object-cover"
+                onError={(e) => {
+                  ;(e.target as HTMLImageElement).src = '/placeholder.png'
+                }}
+              />
+            )}
             {onRemove && (
               <button
                 type="button"
@@ -97,7 +111,7 @@ export function ImageUploader({
             <input
               ref={inputRef}
               type="file"
-              accept="image/jpeg,image/jpg,image/png,image/webp"
+              accept={`image/jpeg,image/jpg,image/png,image/webp${acceptVideo ? ',video/mp4,video/webm,video/ogg,video/quicktime' : ''}`}
               onChange={handleFile}
               disabled={uploading}
               className="hidden"
@@ -121,7 +135,7 @@ export function ImageUploader({
             <input
               ref={inputRef}
               type="file"
-              accept="image/jpeg,image/jpg,image/png,image/webp"
+              accept={`image/jpeg,image/jpg,image/png,image/webp${acceptVideo ? ',video/mp4,video/webm,video/ogg,video/quicktime' : ''}`}
               onChange={handleFile}
               disabled={uploading}
               className="hidden"
@@ -144,6 +158,7 @@ interface MultiImageUploaderProps {
   setUploading: (v: boolean) => void
   uploadFn: (file: File) => Promise<{ url: string }>
   label?: string
+  acceptVideo?: boolean
 }
 
 export function MultiImageUploader({
@@ -154,6 +169,7 @@ export function MultiImageUploader({
   setUploading,
   uploadFn,
   label = 'Images du produit',
+  acceptVideo = false,
 }: MultiImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -224,7 +240,7 @@ export function MultiImageUploader({
           <input
             ref={inputRef}
             type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp"
+            accept={`image/jpeg,image/jpg,image/png,image/webp${acceptVideo ? ',video/mp4,video/webm,video/ogg,video/quicktime' : ''}`}
             onChange={handleFile}
             disabled={uploading}
             className="hidden"

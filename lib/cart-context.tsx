@@ -19,6 +19,7 @@ interface CartContextType {
   hasPriceItems: boolean
   isCartOpen: boolean
   setIsCartOpen: (open: boolean) => void
+  isMounted: boolean
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -108,6 +109,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         hasPriceItems,
         isCartOpen,
         setIsCartOpen,
+        isMounted,
       }}
     >
       {children}

@@ -42,6 +42,12 @@ public class AdminController {
     @Autowired
     private QuoteRequestService quoteRequestService;
 
+    @Autowired
+    private RelookingService relookingService;
+
+    @Autowired
+    private DeliveryService deliveryService;
+
     // --- Statistics ---
     @GetMapping("/stats")
     public ResponseEntity<DashboardStats> getDashboardStats() {
@@ -82,51 +88,35 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    // --- Relooking CRUD ---
+    @PostMapping("/relookings")
+    public ResponseEntity<Relooking> createRelooking(@Valid @RequestBody Relooking relooking) {
+        return ResponseEntity.ok(relookingService.createRelooking(relooking));
+    }
+
+    @PutMapping("/relookings/{id}")
+    public ResponseEntity<Relooking> updateRelooking(@PathVariable Long id, @Valid @RequestBody Relooking relooking) {
+        return ResponseEntity.ok(relookingService.updateRelooking(id, relooking));
+    }
+
+    @DeleteMapping("/relookings/{id}")
+    public ResponseEntity<Void> deleteRelooking(@PathVariable Long id) {
+        relookingService.deleteRelooking(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @Autowired
+    private FileStorageService fileStorageService;
+
     @PostMapping("/upload")
     public ResponseEntity<java.util.Map<String, String>> uploadImage(
             @RequestParam("file") MultipartFile file,
             HttpServletRequest request) {
         try {
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().body(java.util.Map.of("error", "Veuillez sélectionner un fichier."));
-            }
-
-            // Validate file type
-            String contentType = file.getContentType();
-            if (contentType == null || (!contentType.equals("image/jpeg") &&
-                                        !contentType.equals("image/png") &&
-                                        !contentType.equals("image/webp") &&
-                                        !contentType.equals("image/jpg"))) {
-                return ResponseEntity.badRequest().body(java.util.Map.of("error", "Format de fichier non supporté. Veuillez utiliser jpg, jpeg, png ou webp."));
-            }
-
-            // Create uploads directory if not exists
-            java.nio.file.Path uploadPath = java.nio.file.Paths.get("uploads");
-            if (!java.nio.file.Files.exists(uploadPath)) {
-                java.nio.file.Files.createDirectories(uploadPath);
-            }
-
-            // Generate unique filename
-            String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String fileName = java.util.UUID.randomUUID().toString() + extension;
-            java.nio.file.Path filePath = uploadPath.resolve(fileName);
-
-            // Save file
-            java.nio.file.Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-
-            // Construct file URL
-            String scheme = request.getScheme();
-            String serverName = request.getServerName();
-            int serverPort = request.getServerPort();
-            String contextPath = request.getContextPath(); // /api
-            
-            String fileUrl = scheme + "://" + serverName + ":" + serverPort + contextPath + "/uploads/" + fileName;
-
+            String fileUrl = fileStorageService.storeFile(file, request);
             return ResponseEntity.ok(java.util.Map.of("url", fileUrl));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(java.util.Map.of("error", "Erreur lors de l'enregistrement de l'image: " + e.getMessage()));
         }
@@ -163,6 +153,23 @@ public class AdminController {
     @DeleteMapping("/news/{id}")
     public ResponseEntity<Void> deleteNews(@PathVariable Long id) {
         newsService.deleteNews(id);
+        return ResponseEntity.ok().build();
+    }
+
+    // --- Delivery CRUD ---
+    @PostMapping("/deliveries")
+    public ResponseEntity<Delivery> createDelivery(@Valid @RequestBody Delivery delivery) {
+        return ResponseEntity.ok(deliveryService.saveDelivery(delivery));
+    }
+
+    @PutMapping("/deliveries/{id}")
+    public ResponseEntity<Delivery> updateDelivery(@PathVariable Long id, @Valid @RequestBody Delivery delivery) {
+        return ResponseEntity.ok(deliveryService.updateDelivery(id, delivery));
+    }
+
+    @DeleteMapping("/deliveries/{id}")
+    public ResponseEntity<Void> deleteDelivery(@PathVariable Long id) {
+        deliveryService.deleteDelivery(id);
         return ResponseEntity.ok().build();
     }
 

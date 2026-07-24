@@ -82,7 +82,7 @@ export function NewsSection() {
           </p>
         </Reveal>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
+        <div className="flex flex-col gap-10 divide-y divide-gold/20">
           {news.map((item, i) => {
             const dateStr = new Date(item.createdDate).toLocaleDateString('fr-FR', {
               day: 'numeric',
@@ -93,17 +93,12 @@ export function NewsSection() {
             return (
               <Reveal key={item.id} delay={i * 150}>
                 <motion.article 
-                  whileHover={{ y: -8 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="group flex flex-col sm:flex-row gap-6 bg-white/50 backdrop-blur-sm border border-gold/20 rounded-2xl p-5 transition-all duration-500 hover:shadow-[0_15px_40px_rgba(201,168,76,0.15)] hover:border-gold/40 h-full relative overflow-hidden"
+                  className="group flex flex-col md:flex-row gap-8 pt-10 first:pt-0 pb-2 text-left relative overflow-hidden"
                 >
-                  {/* Subtle hover gradient background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
                   {/* Image container */}
-                  <div className="relative w-full sm:w-48 aspect-[4/3] sm:aspect-square overflow-hidden rounded-xl bg-zinc-900 shrink-0 shadow-inner">
+                  <div className="relative w-full md:w-64 aspect-[16/10] overflow-hidden rounded-xl bg-stone-900 shrink-0 border border-gold/15 shadow-md">
                     <motion.img
-                      whileHover={{ scale: 1.08 }}
+                      whileHover={{ scale: 1.05 }}
                       transition={{ duration: 0.7 }}
                       src={item.imageUrl || '/placeholder.png'}
                       alt={item.title}
@@ -112,8 +107,6 @@ export function NewsSection() {
                         e.currentTarget.src = '/creation-unique.png'
                       }}
                     />
-                    {/* Overlay Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
                     
                     {/* Badges */}
                     {isRecent(item.createdDate) && (
@@ -126,39 +119,36 @@ export function NewsSection() {
                   </div>
 
                   {/* Content */}
-                  <div className="flex flex-col justify-between py-1 text-left relative z-10">
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground/80 font-medium">
-                        <span className="flex items-center gap-1.5 bg-secondary px-2.5 py-1 rounded-full border border-border">
-                          <Calendar className="size-3 text-gold" />
+                  <div className="flex flex-col justify-between py-1 flex-1">
+                    <div className="space-y-4">
+                      <div className="flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-gold font-semibold">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="size-3.5 text-gold" />
                           {dateStr}
                         </span>
-                        <span className="flex items-center gap-1.5 bg-secondary px-2.5 py-1 rounded-full border border-border">
-                          <Clock className="size-3 text-gold" />
+                        <span className="text-gold/30">•</span>
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="size-3.5 text-gold" />
                           {getReadTime(item.content)}
                         </span>
                       </div>
-                      <h3 className="font-heading text-xl font-medium text-foreground group-hover:text-gold transition-colors leading-tight">
+                      
+                      <h3 className="font-heading text-2xl sm:text-3xl font-light text-foreground group-hover:text-gold transition-colors duration-300 leading-tight text-balance">
                         {item.title}
                       </h3>
-                      <p className="text-sm font-light leading-relaxed text-muted-foreground line-clamp-3">
+                      
+                      <p className="text-sm font-light leading-relaxed text-muted-foreground max-w-3xl text-pretty">
                         {item.content}
                       </p>
                     </div>
 
-                    <div className="mt-5 pt-4 border-t border-border/50 flex items-center justify-between">
+                    <div className="mt-6">
                       <Link
                         href="/contact?subject=actualite"
-                        className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gold hover:text-bronze transition-colors group/link"
+                        className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gold hover:text-bronze transition-colors group/link"
                       >
                         En savoir plus 
-                        <motion.span
-                          initial={{ x: 0 }}
-                          whileHover={{ x: 4 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ArrowRight className="size-3.5" />
-                        </motion.span>
+                        <ArrowRight className="size-3.5 transition-transform group-hover/link:translate-x-1" />
                       </Link>
                     </div>
                   </div>

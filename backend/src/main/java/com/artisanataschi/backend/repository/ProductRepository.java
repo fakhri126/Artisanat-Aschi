@@ -9,4 +9,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     List<Product> findByType(String type);
     List<Product> findByIsFeaturedTrue();
     List<Product> findTop6ByIsFeaturedTrue();
+    List<Product> findTop3ByOrderByIdDesc();
 }

@@ -6,6 +6,7 @@ import { X, Trash2, Plus, Minus, ShoppingBag, Send } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
 import { publicApi } from '@/lib/api'
 import Image from 'next/image'
+import { toast } from 'sonner'
 
 export function CartSheet() {
   const {
@@ -27,7 +28,6 @@ export function CartSheet() {
     email: '',
     message: '',
   })
-  const [error, setError] = useState('')
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -37,12 +37,11 @@ export function CartSheet() {
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.fullName || !formData.phoneNumber || !formData.email) {
-      setError('Veuillez remplir tous les champs obligatoires.')
+      toast.error('Veuillez remplir tous les champs obligatoires.')
       return
     }
 
     setLoading(true)
-    setError('')
 
     try {
       // Build a detailed message listing all products in the cart
@@ -74,9 +73,10 @@ export function CartSheet() {
 
       setCheckoutStep('success')
       clearCart()
+      toast.success('Demande envoyée avec succès !')
     } catch (err) {
       console.error(err)
-      setError("Une erreur est survenue lors de la validation. Veuillez réessayer.")
+      toast.error("Une erreur est survenue lors de la validation. Veuillez réessayer.")
     } finally {
       setLoading(false)
     }
@@ -211,12 +211,6 @@ export function CartSheet() {
                   <h3 className="font-heading text-lg text-gold font-light tracking-wide mb-3">
                     Informations de Devis & Commande
                   </h3>
-
-                  {error && (
-                    <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-400">
-                      {error}
-                    </div>
-                  )}
 
                   <div className="space-y-1">
                     <label className="text-xs uppercase tracking-wider text-ivory/60">Nom Complet *</label>

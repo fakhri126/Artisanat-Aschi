@@ -14,7 +14,8 @@ import {
   Menu, 
   X, 
   Gem,
-  BookImage
+  BookImage,
+  ArrowLeftRight
 } from 'lucide-react'
 import { isLoggedIn, removeAuthToken } from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -25,6 +26,8 @@ const SIDEBAR_ITEMS = [
   { href: '/admin/catalogue', label: 'Catalogue inspiration', icon: BookImage },
   { href: '/admin/quotes', label: 'Demandes de devis', icon: MessageSquareCode },
   { href: '/admin/news', label: 'Actualités', icon: Newspaper },
+  { href: '/admin/relooking', label: 'Relookings', icon: ArrowLeftRight },
+  { href: '/admin/deliveries', label: 'Livraisons', icon: Package },
   { href: '/admin/projects', label: 'Réalisations', icon: FolderGit },
   { href: '/admin/testimonials', label: 'Témoignages', icon: MessageSquare },
 ]

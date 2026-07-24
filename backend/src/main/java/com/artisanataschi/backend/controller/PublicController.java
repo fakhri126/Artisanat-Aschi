@@ -34,7 +34,13 @@ public class PublicController {
     private TestimonialService testimonialService;
 
     @Autowired
+    private RelookingService relookingService;
+
+    @Autowired
     private QuoteRequestService quoteRequestService;
+
+    @Autowired
+    private DeliveryService deliveryService;
 
     // --- Products ---
     @GetMapping("/products")
@@ -50,6 +56,11 @@ public class PublicController {
     @GetMapping("/products/featured")
     public ResponseEntity<List<Product>> getFeaturedProducts() {
         return ResponseEntity.ok(productService.getFeaturedProducts());
+    }
+
+    @GetMapping("/products/latest")
+    public ResponseEntity<List<Product>> getLatestProducts() {
+        return ResponseEntity.ok(productService.getLatestProducts());
     }
 
     @GetMapping("/products/type/{type}")
@@ -116,8 +127,20 @@ public class PublicController {
 
     // --- Submit Quote Request ---
     @PostMapping("/quotes")
-    public ResponseEntity<QuoteRequest> submitQuoteRequest(@Valid @RequestBody QuoteRequestDto dto) {
+    public ResponseEntity<QuoteRequest> submitQuoteRequest(@Valid @RequestBody com.artisanataschi.backend.dto.QuoteRequestDto dto) {
         QuoteRequest request = quoteRequestService.createQuoteRequest(dto);
         return ResponseEntity.ok(request);
+    }
+
+    // --- Relooking ---
+    @GetMapping("/relookings")
+    public ResponseEntity<List<Relooking>> getAllRelookings() {
+        return ResponseEntity.ok(relookingService.getAllRelookings());
+    }
+
+    // --- Delivery ---
+    @GetMapping("/deliveries")
+    public ResponseEntity<List<Delivery>> getAllDeliveries() {
+        return ResponseEntity.ok(deliveryService.getAllDeliveries());
     }
 }

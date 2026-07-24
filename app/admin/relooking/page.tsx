@@ -1,0 +1,298 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { adminApi, Relooking } from '@/lib/api'
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, ArrowLeftRight } from 'lucide-react'
+import { ImageUploader } from '@/components/site/image-uploader'
+
+export default function AdminRelookingPage() {
+  const [relookings, setRelookings] = useState<Relooking[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
+  // Modal states
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editingRelooking, setEditingRelooking] = useState<Relooking | null>(null)
+  
+  // Form fields
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [imageAvantUrl, setImageAvantUrl] = useState('')
+  const [imageApresUrl, setImageApresUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
+
+  useEffect(() => {
+    loadRelookings()
+  }, [])
+
+  const loadRelookings = async () => {
+    try {
+      setLoading(true)
+      const data = await adminApi.getRelookings()
+      setRelookings(data)
+    } catch (err: any) {
+      console.warn("Backend inaccessible, utilisation de données fictives (mock) pour les relookings.", err)
+      setRelookings([
+        {
+          id: 1,
+          title: "Commode Louis XV",
+          description: "Restauration complète d'une commode très abîmée.",
+          imageAvantUrl: "/placeholder.jpg",
+          imageApresUrl: "/relooking_service.jpg",
+          createdDate: new Date().toISOString()
+        }
+      ])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const openModal = (relooking?: Relooking) => {
+    if (relooking) {
+      setEditingRelooking(relooking)
+      setTitle(relooking.title)
+      setDescription(relooking.description)
+      setImageAvantUrl(relooking.imageAvantUrl)
+      setImageApresUrl(relooking.imageApresUrl)
+    } else {
+      setEditingRelooking(null)
+      setTitle('')
+      setDescription('')
+      setImageAvantUrl('')
+      setImageApresUrl('')
+    }
+    setError(null)
+    setModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setModalOpen(false)
+    setEditingRelooking(null)
+  }
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!title || !description || !imageAvantUrl || !imageApresUrl) {
+      setError("Tous les champs sont requis, y compris les deux images.")
+      return
+    }
+
+    try {
+      setUploading(true)
+      const data = { title, description, imageAvantUrl, imageApresUrl }
+
+      if (editingRelooking) {
+        await adminApi.updateRelooking(editingRelooking.id, data)
+      } else {
+        await adminApi.createRelooking(data)
+      }
+
+      await loadRelookings()
+      closeModal()
+    } catch (err: any) {
+      setError(err.message || "Une erreur est survenue")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette restauration ?")) return
+
+    try {
+      await adminApi.deleteRelooking(id)
+      await loadRelookings()
+    } catch (err: any) {
+      console.error(err)
+      alert("Erreur lors de la suppression")
+    }
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-heading text-stone-800">Gestion des Relookings</h1>
+          <p className="text-stone-500 mt-1">Ajoutez vos projets Avant / Après</p>
+        </div>
+        <button
+          onClick={() => openModal()}
+          className="flex items-center gap-2 bg-stone-900 text-white px-4 py-2 rounded-md hover:bg-stone-800 transition-colors"
+        >
+          <Plus className="size-4" />
+          Nouveau Relooking
+        </button>
+      </div>
+
+      {/* List */}
+      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+        {loading ? (
+          <div className="p-8 text-center text-stone-500">Chargement...</div>
+        ) : relookings.length === 0 ? (
+          <div className="p-8 text-center text-stone-500">Aucun relooking trouvé.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-stone-50 border-b">
+                  <th className="p-4 font-medium text-stone-600 w-24">Avant</th>
+                  <th className="p-4 font-medium text-stone-600 w-24">Après</th>
+                  <th className="p-4 font-medium text-stone-600">Titre</th>
+                  <th className="p-4 font-medium text-stone-600 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {relookings.map((r) => (
+                  <tr key={r.id} className="border-b hover:bg-stone-50/50 transition-colors">
+                    <td className="p-4">
+                      <div className="w-16 h-16 rounded-md overflow-hidden bg-stone-100 relative border border-stone-200">
+                        {r.imageAvantUrl ? (
+                          <img src={r.imageAvantUrl} alt="Avant" className="w-full h-full object-cover" />
+                        ) : (
+                          <ImageIcon className="absolute inset-0 m-auto text-stone-400 size-6" />
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[8px] text-center font-bold">AVANT</div>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="w-16 h-16 rounded-md overflow-hidden bg-stone-100 relative border border-gold/30">
+                        {r.imageApresUrl ? (
+                          <img src={r.imageApresUrl} alt="Après" className="w-full h-full object-cover" />
+                        ) : (
+                          <ImageIcon className="absolute inset-0 m-auto text-stone-400 size-6" />
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 bg-gold text-black text-[8px] text-center font-bold">APRÈS</div>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="font-medium text-stone-800">{r.title}</div>
+                      <div className="text-sm text-stone-500 mt-1 line-clamp-1">{r.description}</div>
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => openModal(r)}
+                          className="p-2 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-md transition-colors"
+                        >
+                          <Edit2 className="size-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(r.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-walnut border border-gold/20 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
+          >
+            <div className="p-6 border-b border-gold/10 flex justify-between items-center">
+              <h2 className="text-xl font-heading text-ivory flex items-center gap-2">
+                <ArrowLeftRight className="size-5 text-gold" />
+                {editingRelooking ? "Modifier le relooking" : 'Ajouter un relooking'}
+              </h2>
+              <button onClick={closeModal} className="text-ivory/50 hover:text-ivory">
+                <X className="size-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSave} className="p-6 space-y-6 overflow-y-auto">
+              {error && (
+                <div className="p-3 text-sm text-red-400 bg-red-950/40 border border-red-500/20 rounded-md">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-ivory/60 font-semibold mb-1">Titre de la restauration</label>
+                  <input
+                    type="text"
+                    required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full bg-black/20 border border-gold/10 focus:border-gold/50 rounded-lg p-3 text-sm text-ivory outline-none shadow-inner transition-colors"
+                    placeholder="Ex: Restauration d'une commode d'époque"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-ivory/60 font-semibold mb-1">Description</label>
+                  <textarea
+                    required
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={4}
+                    className="w-full bg-black/20 border border-gold/10 focus:border-gold/50 rounded-lg p-3 text-sm text-ivory outline-none resize-none shadow-inner transition-colors"
+                    placeholder="Détails du travail effectué..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gold/10">
+                  <div className="bg-black/10 p-4 rounded-xl border border-gold/5">
+                    <label className="block text-sm font-bold text-stone-700 mb-2">Photo AVANT (État d'origine)</label>
+                    <ImageUploader
+                      label="Image Avant"
+                      imageUrl={imageAvantUrl}
+                      onUploaded={setImageAvantUrl}
+                      onRemove={() => setImageAvantUrl('')}
+                      uploading={uploading}
+                      setUploading={setUploading}
+                      uploadFn={adminApi.uploadImage}
+                    />
+                  </div>
+                  <div className="bg-black/10 p-4 rounded-xl border border-gold/5">
+                    <label className="block text-xs uppercase tracking-wider text-gold font-semibold mb-2">Photo APRÈS (Restauré)</label>
+                    <ImageUploader
+                      label="Image Après"
+                      imageUrl={imageApresUrl}
+                      onUploaded={setImageApresUrl}
+                      onRemove={() => setImageApresUrl('')}
+                      uploading={uploading}
+                      setUploading={setUploading}
+                      uploadFn={adminApi.uploadImage}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-6 border-t border-gold/10 mt-6">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="rounded-full border border-gold/20 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-ivory hover:bg-white/5 transition-all"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={uploading}
+                  className="rounded-full bg-gold hover:bg-gold/90 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-walnut transition-all shadow-[0_0_10px_rgba(201,168,76,0.2)] disabled:opacity-50"
+                >
+                  {uploading ? 'Enregistrement...' : 'Enregistrer'}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+    </div>
+  )
+}
