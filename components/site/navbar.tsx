@@ -77,10 +77,10 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-all duration-500',
+        'fixed inset-x-0 top-0 z-50 transition-all duration-500 bg-transparent',
         scrolled || servicesOpen
-          ? 'bg-walnut/90 backdrop-blur-md py-3 shadow-[0_8px_40px_rgba(0,0,0,0.25)]'
-          : 'bg-transparent py-4',
+          ? 'py-3'
+          : 'py-4',
       )}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-8">
@@ -127,7 +127,7 @@ export function Navbar() {
             </motion.div>
           </div>
           <div className="flex flex-col leading-none">
-            <span className="font-heading text-2xl font-bold tracking-wide text-walnut-foreground">
+            <span className="font-heading text-2xl font-bold tracking-wide text-gold">
               Artisanat Aschi
             </span>
             <span className="mt-1 text-[0.68rem] uppercase tracking-luxury text-gold">
@@ -150,8 +150,8 @@ export function Navbar() {
                 >
                   <button
                     className={cn(
-                      'group flex items-center gap-1 text-sm font-light uppercase tracking-[0.15em] transition-colors py-4',
-                      isActive || servicesOpen ? 'text-gold' : 'text-walnut-foreground/80 hover:text-gold',
+                      'group flex items-center gap-1 text-sm font-light uppercase tracking-[0.15em] transition-colors py-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]',
+                      isActive || servicesOpen ? 'text-gold' : 'text-walnut-foreground/90 hover:text-gold',
                     )}
                   >
                     {link.label}
@@ -173,8 +173,8 @@ export function Navbar() {
                 <Link
                   href={link.href!}
                   className={cn(
-                    'group relative text-sm font-light uppercase tracking-[0.15em] transition-colors py-4',
-                    isActive ? 'text-gold' : 'text-walnut-foreground/80 hover:text-gold',
+                    'group relative text-sm font-light uppercase tracking-[0.15em] transition-colors py-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]',
+                    isActive ? 'text-gold' : 'text-walnut-foreground/90 hover:text-gold',
                   )}
                 >
                   {link.label}
@@ -190,7 +190,7 @@ export function Navbar() {
           })}
         </ul>
 
-        <div className="flex items-center gap-4 relative z-50">
+        <div className="flex items-center gap-4 relative z-50 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
           {/* Cart Icon Desktop/Mobile */}
           <button
             type="button"
