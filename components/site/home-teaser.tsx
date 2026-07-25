@@ -44,12 +44,12 @@ const SECTIONS = [
   },
 ]
 
-const containerVariants = {
+const containerVariants: any = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12 } },
 }
 
-const cardVariants = {
+const cardVariants: any = {
   hidden: { opacity: 0, y: 36, scale: 0.97 },
   visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
 }

@@ -41,7 +41,24 @@ export default function AdminProductsPage() {
         adminApi.getProducts(),
         publicApi.getCategories()
       ])
-      setProducts(prodData)
+
+      const isHandleProduct = (p: Product) => {
+        const catName = p.category?.name?.toLowerCase() || ''
+        const mat = p.materials?.toLowerCase() || ''
+        const name = p.name?.toLowerCase() || ''
+        return (
+          catName.includes("porte") || 
+          catName.includes("ronds") || 
+          catName.includes("ovales") || 
+          catName.includes("poignée") ||
+          mat.includes("céramique") || 
+          mat.includes("majolique") ||
+          name.includes("bouton") || 
+          name.includes("poignée")
+        )
+      }
+
+      setProducts(prodData.filter(p => !isHandleProduct(p)))
       setCategories(catData)
     } catch (err: any) {
       setError(err.message || 'Erreur lors du chargement des produits.')

@@ -51,12 +51,23 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
 
               {/* Image Section */}
               <div className="relative w-full md:w-1/2 h-[40vh] md:h-[70vh]">
-                <Image
-                  src={image}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
+                {image.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                  <video
+                    src={image}
+                    muted
+                    autoPlay
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={image}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent md:bg-gradient-to-r" />
               </div>
 

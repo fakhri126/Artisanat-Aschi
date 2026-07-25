@@ -18,13 +18,31 @@ export function HeroSplit() {
 
   useEffect(() => {
     setIsMounted(true)
-    publicApi.getLatestProducts()
+    publicApi.getProducts()
       .then(products => {
-        // Keep exactly the 3 latest products.
-        // Backend now sorts by ID DESC, so [0] is the absolute newest.
-        // We will display them as 3 cards: [0] in center, [1] left, [2] right?
-        // Or just normal order [0], [1], [2] from left to right.
-        setLatestProducts(products.slice(0, 3))
+        const isHandleProduct = (p: Product) => {
+          const catName = p.category?.name?.toLowerCase() || ''
+          const mat = p.materials?.toLowerCase() || ''
+          const name = p.name?.toLowerCase() || ''
+          return (
+            catName.includes("porte") || 
+            catName.includes("ronds") || 
+            catName.includes("ovales") || 
+            catName.includes("poignée") ||
+            mat.includes("céramique") || 
+            mat.includes("majolique") ||
+            name.includes("bouton") || 
+            name.includes("poignée")
+          )
+        }
+        
+        // Exclude Bijoux de Porte from the "Nouveautés" slide
+        const filtered = products.filter(p => !isHandleProduct(p))
+        
+        // Sort by ID descending to get the latest
+        const sorted = filtered.sort((a, b) => b.id - a.id)
+        
+        setLatestProducts(sorted.slice(0, 3))
       })
       .catch(console.error)
   }, [])
@@ -41,7 +59,7 @@ export function HeroSplit() {
     )
   }
 
-  const containerVariants = {
+  const containerVariants: any = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -49,7 +67,7 @@ export function HeroSplit() {
     }
   }
 
-  const itemVariants = {
+  const itemVariants: any = {
     hidden: { opacity: 0, y: 40 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 20 } }
   }
@@ -93,13 +111,24 @@ export function HeroSplit() {
               className="group relative aspect-[3/4] rounded-sm overflow-hidden shadow-2xl shadow-black/50 border border-white/5 bg-stone-900"
             >
               {/* Product Image */}
-              <Image
-                src={image}
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-110"
-              />
+              {image.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                <video
+                  src={image}
+                  muted
+                  autoPlay
+                  loop
+                  playsInline
+                  className="object-cover w-full h-full transition-transform duration-[2s] ease-out group-hover:scale-110"
+                />
+              ) : (
+                <Image
+                  src={image}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-110"
+                />
+              )}
 
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />

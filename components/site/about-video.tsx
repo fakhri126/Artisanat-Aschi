@@ -10,9 +10,9 @@ export function AboutVideo() {
       {/* Background Video */}
       <video
         src="/Video.mp4"
-        autoPlay={true}
-        loop={true}
-        muted={true}
+        autoPlay
+        muted
+        loop
         playsInline={true}
         className="absolute inset-0 size-full object-cover"
       />

@@ -350,10 +350,11 @@ export default function TurnkeyProjectsPage() {
                       <video
                         ref={videoRef}
                         src={selectedProject.video}
-                        loop
                         muted
+                        autoPlay
+                        loop
                         playsInline
-                        className="size-full object-cover"
+                        className="w-full h-full object-cover opacity-80"
                       />
                       {/* Play/Pause custom overlay */}
                       <div 

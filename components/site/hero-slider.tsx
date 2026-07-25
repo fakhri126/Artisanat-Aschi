@@ -10,8 +10,18 @@ import { HeroSplit } from './hero-split'
 import { HeroEvent } from './hero-event'
 import { HeroRelooking } from './hero-relooking'
 import { HeroDelivery } from './hero-delivery'
+import { HeroBijoux } from './hero-bijoux'
 
 const SLIDES = [
+  {
+    id: 'livraison',
+    image: '/placeholder.jpg',
+    subtitle: 'Livraison de la semaine',
+    title: 'Réalisation Client',
+    description: 'Découvrez notre dernière livraison chez nos clients',
+    cta: 'Découvrir',
+    href: '#livraison'
+  },
   {
     id: 'bijoux-porte',
     title: 'Les Bijoux de Porte',
@@ -39,7 +49,6 @@ const SLIDES = [
     cta: 'Découvrir le service',
     href: '/relooking',
   },
-
   {
     id: 'nouveautes',
     image: '/placeholder.jpg',
@@ -51,21 +60,12 @@ const SLIDES = [
   },
   {
     id: 'evenement',
-    image: '/placeholder.jpg', // Fetched dynamically
+    image: '/placeholder.jpg',
     subtitle: 'Événement',
     title: 'Actualité',
     description: 'Dernier événement en date',
     cta: 'Voir l\'événement',
     href: '#news'
-  },
-  {
-    id: 'livraison',
-    image: '/placeholder.jpg', // Fetched dynamically
-    subtitle: 'Livraison de la semaine',
-    title: 'Réalisation Client',
-    description: 'Découvrez notre dernière livraison chez nos clients',
-    cta: 'Découvrir',
-    href: '#livraison'
   }
 ]
 
@@ -116,7 +116,7 @@ export function HeroSlider() {
     }
   }
 
-  const variants = {
+  const variants: any = {
     enter: (direction: number) => {
       return {
         x: direction > 0 ? 1000 : -1000,
@@ -137,7 +137,7 @@ export function HeroSlider() {
     }
   };
 
-  const textVariants = {
+  const textVariants: any = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut', delay: 0.3 } }
   }
@@ -166,6 +166,24 @@ export function HeroSlider() {
             onMouseLeave={() => setIsHovered(false)}
           >
             <HeroSplit />
+          </motion.div>
+        ) : slide.id === 'bijoux-porte' ? (
+          <motion.div
+            key="bijoux-slide"
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.8 }
+            }}
+            className="absolute inset-0 z-20"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <HeroBijoux />
           </motion.div>
         ) : slide.id === 'evenement' ? (
           <motion.div
@@ -255,7 +273,7 @@ export function HeroSlider() {
       </AnimatePresence>
 
       {/* Content for standard slides */}
-      {(slide.id !== 'nouveautes' && slide.id !== 'evenement' && slide.id !== 'relooking' && slide.id !== 'livraison') && (
+      {(slide.id !== 'nouveautes' && slide.id !== 'evenement' && slide.id !== 'relooking' && slide.id !== 'livraison' && slide.id !== 'bijoux-porte') && (
         <div className="relative z-20 mx-auto flex h-full max-w-6xl flex-col items-center justify-center px-6 text-center">
           <AnimatePresence mode="wait">
             <motion.div

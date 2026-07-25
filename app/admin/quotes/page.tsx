@@ -20,7 +20,14 @@ export default function AdminQuotesPage() {
     try {
       setLoading(true)
       const data = await adminApi.getQuotes()
-      setQuotes(data)
+      // Filter out accessory orders (which have their own dedicated /admin/commandes page)
+      const customQuotes = data.filter(item => 
+        !item.message?.includes("BIJOUX DE PORTE") && 
+        !item.message?.includes("Bouton Riad") &&
+        !item.message?.includes("Bouton Soleil") &&
+        !item.message?.includes("Bouton Jasmin")
+      )
+      setQuotes(customQuotes)
     } catch (err: any) {
       setError(err.message || 'Erreur lors du chargement des devis.')
     } finally {

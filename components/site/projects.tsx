@@ -162,8 +162,9 @@ export function Projects() {
                     return (
                       <video
                         src={image}
-                        controls
+                        muted
                         autoPlay
+                        loop
                         className="w-full h-full object-contain"
                       />
                     );

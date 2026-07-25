@@ -52,7 +52,6 @@ export function Workshop() {
               className="grid items-center gap-8 md:grid-cols-2 md:gap-16"
             >
               <Reveal
-                slow
                 className={i % 2 === 1 ? 'md:order-2' : ''}
               >
                 <div className="relative overflow-hidden">

@@ -18,9 +18,7 @@ export function HeroDelivery() {
     publicApi.getDeliveries()
       .then(deliveries => {
         if (deliveries && deliveries.length > 0) {
-          // Assuming the last one is the latest or they are sorted by date
-          // If not sorted, we can just take the last element or sort them here
-          const sorted = deliveries.sort((a, b) => new Date(b.deliveryDate).getTime() - new Date(a.deliveryDate).getTime())
+          const sorted = deliveries.sort((a, b) => b.id - a.id)
           setLatestDelivery(sorted[0])
         }
       })
@@ -89,9 +87,11 @@ export function HeroDelivery() {
 
         {/* The "Box" / Unveiling area */}
         <div 
-          className="relative w-full max-w-4xl aspect-[4/3] md:aspect-[21/9] perspective-1000 cursor-pointer group"
+          className="relative w-full max-w-7xl h-[40vh] md:h-[65vh] perspective-1000 cursor-pointer group"
           onMouseEnter={() => setIsUnveiled(true)}
-          onClick={() => setModalOpen(true)}
+          onClick={() => {
+            document.getElementById('livraison-semaine')?.scrollIntoView({ behavior: 'smooth' })
+          }}
         >
           {/* Unveiled Content (The Product) */}
           <motion.div
@@ -247,8 +247,9 @@ export function HeroDelivery() {
                 {image.match(/\.(mp4|webm|ogg|mov)$/i) ? (
                   <video
                     src={image}
-                    controls
                     autoPlay
+                    muted
+                    loop
                     className="w-full h-full object-contain"
                   />
                 ) : (
@@ -264,10 +265,8 @@ export function HeroDelivery() {
                 <span className="text-xs uppercase tracking-[0.2em] text-gold mb-2 block font-semibold">
                   Installation Client Récente
                 </span>
-                <h2 className="font-heading text-3xl text-white mb-6">
-                  {latestDelivery.title}
-                </h2>
-                <p className="text-stone-400 font-light leading-relaxed mb-6">
+                <h3 className="text-3xl md:text-5xl font-heading text-white mb-4">{latestDelivery.title}</h3>
+                <p className="text-stone-400 mb-6 text-sm md:text-base leading-relaxed line-clamp-3">
                   {latestDelivery.description}
                 </p>
                 <div className="flex flex-col gap-3 text-xs font-semibold tracking-wider text-gold uppercase mt-6 pt-6 border-t border-stone-800">

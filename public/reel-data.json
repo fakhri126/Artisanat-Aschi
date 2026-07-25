@@ -1,0 +1,38 @@
+{
+  "videoUrl": "/Video.mp4",
+  "reviews": [
+    {
+      "id": 1,
+      "platform": "instagram",
+      "name": "Fakhri kaddour",
+      "avatar": "S",
+      "rating": 5,
+      "text": "Un travail  ! Les portes sculptées sont une véritable œuvre d'art. ⭐⭐⭐⭐⭐",
+      "time": 3,
+      "duration": 4,
+      "position": "left"
+    },
+    {
+      "id": 2,
+      "platform": "facebook",
+      "name": "Boutaba Ahmed",
+      "avatar": "K",
+      "rating": 5,
+      "text": "❤️ 47 personnes aiment ça · « Atelier incroyable, résultat au-delà de mes attentes ! »",
+      "time": 9,
+      "duration": 4,
+      "position": "right"
+    },
+    {
+      "id": 3,
+      "platform": "google",
+      "name": "ZAMBALA",
+      "avatar": "F",
+      "rating": 5,
+      "text": "Service professionnel, livraison à temps. Notre salon est transformé !",
+      "time": 16,
+      "duration": 4,
+      "position": "left"
+    }
+  ]
+}

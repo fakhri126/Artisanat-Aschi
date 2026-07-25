@@ -59,7 +59,22 @@ export function CatalogPage() {
     async function loadProducts() {
       try {
         const data = await publicApi.getProducts({ type: 'CATALOGUE' })
-        setDbProducts(data)
+        const isHandleProduct = (p: Product) => {
+          const catName = p.category?.name?.toLowerCase() || ''
+          const mat = p.materials?.toLowerCase() || ''
+          const name = p.name?.toLowerCase() || ''
+          return (
+            catName.includes("porte") || 
+            catName.includes("ronds") || 
+            catName.includes("ovales") || 
+            catName.includes("poignée") ||
+            mat.includes("céramique") || 
+            mat.includes("majolique") ||
+            name.includes("bouton") || 
+            name.includes("poignée")
+          )
+        }
+        setDbProducts(data.filter(p => !isHandleProduct(p)))
       } catch (err) {
         console.error("Failed to load catalog products:", err)
       } finally {
