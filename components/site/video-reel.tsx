@@ -177,14 +177,11 @@ export function VideoReel() {
           <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
         </div>
 
-        {/* Video Player */}
-        <div className="relative mx-auto max-w-4xl">
-          {/* Glow effect */}
-          <div className="absolute -inset-4 rounded-3xl bg-gold/10 blur-xl" />
-
-          <div className="relative rounded-2xl overflow-hidden border border-gold/20 bg-black shadow-2xl shadow-black/60">
+        {/* Video Player - Full Width Cinematic */}
+        <div className="relative mx-auto w-full group">
+          <div className="relative overflow-hidden border-y border-gold/20 bg-black shadow-2xl shadow-black">
             {/* Video Element */}
-            <div className="relative aspect-video">
+            <div className="relative w-full h-[70vh] md:h-[90vh]">
               <video
                 ref={videoRef}
                 src={videoUrl}
@@ -199,7 +196,7 @@ export function VideoReel() {
               />
 
               {/* Overlay gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
 
               {/* Review overlays */}
               <AnimatePresence>
@@ -210,38 +207,40 @@ export function VideoReel() {
 
               {/* Watermark */}
               {hasStarted && (
-                <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 pointer-events-none">
-                  <div className="size-4 rounded-full bg-gold flex items-center justify-center">
-                    <span className="text-[7px] font-black text-walnut">A</span>
+                <div className="absolute top-6 right-6 md:top-8 md:right-8 flex items-center gap-1.5 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 pointer-events-none border border-white/10">
+                  <div className="size-5 rounded-full bg-gold flex items-center justify-center">
+                    <span className="text-[9px] font-black text-walnut">A</span>
                   </div>
-                  <span className="text-[10px] text-ivory/80 font-medium tracking-wider uppercase">Aschi</span>
+                  <span className="text-xs text-ivory/90 font-medium tracking-widest uppercase">Aschi</span>
                 </div>
               )}
             </div>
 
-            {/* Custom Controls */}
-            <div className="bg-black/90 px-4 py-3 flex items-center gap-3">
+            {/* Custom Controls - Positioned over the video at the bottom */}
+            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-16 pb-4 md:pb-6 px-4 md:px-8 flex items-center gap-3 md:gap-4 transition-opacity opacity-0 group-hover:opacity-100 focus-within:opacity-100">
               {/* Play/Pause */}
               <button
                 onClick={togglePlay}
-                className="text-ivory/80 hover:text-gold transition-colors shrink-0"
+                className="text-ivory/90 hover:text-gold transition-colors shrink-0"
                 aria-label={isPlaying ? 'Pause' : 'Lecture'}
               >
-                {isPlaying ? <Pause className="size-5" /> : <Play className="size-5 fill-current" />}
+                {isPlaying ? <Pause className="size-6 md:size-7" /> : <Play className="size-6 md:size-7 fill-current" />}
               </button>
 
               {/* Time */}
-              <span className="text-[10px] text-ivory/40 font-mono shrink-0">
+              <span className="text-xs md:text-sm text-ivory/60 font-mono shrink-0">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
 
               {/* Progress Bar */}
-              <div className="relative flex-1 group">
-                <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+              <div className="relative flex-1 group/progress cursor-pointer h-8 flex items-center">
+                <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden transition-all group-hover/progress:h-2.5">
                   <div
-                    className="h-full bg-gradient-to-r from-gold/80 to-gold rounded-full transition-all"
+                    className="h-full bg-gradient-to-r from-gold/80 to-gold rounded-full transition-all relative"
                     style={{ width: `${progressPercent}%` }}
-                  />
+                  >
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 size-3 bg-white rounded-full shadow opacity-0 group-hover/progress:opacity-100 translate-x-1/2" />
+                  </div>
                 </div>
                 <input
                   type="range"
@@ -258,18 +257,35 @@ export function VideoReel() {
               {/* Mute */}
               <button
                 onClick={toggleMute}
-                className="text-ivory/80 hover:text-gold transition-colors shrink-0"
+                className="text-ivory/90 hover:text-gold transition-colors shrink-0"
                 aria-label={isMuted ? 'Activer le son' : 'Couper le son'}
               >
-                {isMuted ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
+                {isMuted ? <VolumeX className="size-5 md:size-6" /> : <Volume2 className="size-5 md:size-6" />}
+              </button>
+
+              {/* Fullscreen Toggle */}
+              <button
+                onClick={() => {
+                  if (!document.fullscreenElement && videoRef.current) {
+                    videoRef.current.requestFullscreen().catch(err => console.error(err))
+                  } else {
+                    document.exitFullscreen()
+                  }
+                }}
+                className="text-ivory/90 hover:text-gold transition-colors shrink-0 hidden md:block"
+                aria-label="Plein écran"
+              >
+                <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
               </button>
 
               {/* Platform badges */}
-              <div className="hidden md:flex items-center gap-1.5 shrink-0 border-l border-white/10 pl-3">
-                <span className="text-[9px] text-ivory/30 uppercase tracking-wider mr-1">Avis sur</span>
-                <span className="size-5 rounded-full bg-white flex items-center justify-center text-[10px] font-black text-gray-700">G</span>
-                <span className="size-5 rounded-full bg-[#1877f2] flex items-center justify-center text-[10px] font-black text-white">f</span>
-                <span className="size-5 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-amber-400 flex items-center justify-center text-[10px] font-black text-white">◎</span>
+              <div className="hidden lg:flex items-center gap-1.5 shrink-0 border-l border-white/20 pl-4 ml-2">
+                <span className="text-[10px] text-ivory/50 uppercase tracking-widest mr-2">Avis vérifiés sur</span>
+                <span className="size-6 rounded-full bg-white flex items-center justify-center text-[11px] font-black text-gray-700 shadow">G</span>
+                <span className="size-6 rounded-full bg-[#1877f2] flex items-center justify-center text-[11px] font-black text-white shadow">f</span>
+                <span className="size-6 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-amber-400 flex items-center justify-center text-[11px] font-black text-white shadow">◎</span>
               </div>
             </div>
           </div>
