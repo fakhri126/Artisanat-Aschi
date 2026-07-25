@@ -61,13 +61,13 @@ export function HeroEvent() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 w-[90%] max-w-5xl h-[75%] max-h-[800px] flex flex-col md:flex-row items-center border border-white/10 bg-black/20 backdrop-blur-md"
+          className="relative z-10 w-[90%] max-w-5xl h-[75%] max-h-[800px] flex flex-col md:flex-row items-center border border-white/10 bg-white/20 backdrop-blur-md"
         >
           {/* Golden Accents for the frame */}
-          <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-gold/50 -translate-x-1 -translate-y-1" />
-          <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-gold/50 translate-x-1 -translate-y-1" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-gold/50 -translate-x-1 translate-y-1" />
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-gold/50 translate-x-1 translate-y-1" />
+          <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-[#E8DCCB]/50 -translate-x-1 -translate-y-1" />
+          <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#E8DCCB]/50 translate-x-1 -translate-y-1" />
+          <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#E8DCCB]/50 -translate-x-1 translate-y-1" />
+          <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-[#E8DCCB]/50 translate-x-1 translate-y-1" />
 
           {/* Left Side: Image inside Frame */}
           <div className="w-full md:w-1/2 h-[40%] md:h-full relative p-6 md:p-12">
@@ -91,12 +91,12 @@ export function HeroEvent() {
           {/* Right Side: Content */}
           <div className="w-full md:w-1/2 p-6 md:p-16 flex flex-col justify-center items-center md:items-start text-center md:text-left relative">
             
-            <p className="text-gold text-[10px] font-bold tracking-[0.4em] uppercase mb-6 flex items-center gap-4">
-              <span className="w-8 h-[1px] bg-gold/50 hidden md:block" />
+            <p className="text-[#C17D59] text-[10px] font-bold tracking-[0.4em] uppercase mb-6 flex items-center gap-4">
+              <span className="w-8 h-[1px] bg-[#E8DCCB]/50 hidden md:block" />
               Événement & Foire
             </p>
 
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl text-ivory leading-tight mb-8">
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl text-[#3A2A21] leading-tight mb-8">
               {latestEvent.title}
             </h1>
 
@@ -111,7 +111,7 @@ export function HeroEvent() {
               onMouseLeave={() => setIsHovered(false)}
               onClick={() => setIsModalOpen(true)}
             >
-              <div className="relative size-16 md:size-20 rounded-full border border-gold/30 flex items-center justify-center bg-black/40 backdrop-blur-md shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-shadow hover:shadow-[0_0_40px_rgba(212,175,55,0.3)]">
+              <div className="relative size-16 md:size-20 rounded-full border border-[#E8DCCB]/30 flex items-center justify-center bg-white/40 backdrop-blur-md shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-shadow hover:shadow-[0_0_40px_rgba(212,175,55,0.3)]">
                 <motion.div animate={controls}>
                   <Image 
                     src="/handle-knob.png" 
@@ -123,7 +123,7 @@ export function HeroEvent() {
                 </motion.div>
                 
                 {/* Ping animation effect behind the knob */}
-                <div className="absolute inset-0 rounded-full bg-gold/10 animate-ping opacity-20 pointer-events-none" />
+                <div className="absolute inset-0 rounded-full bg-[#E8DCCB]/10 animate-ping opacity-20 pointer-events-none" />
               </div>
               
               <span className="text-[10px] text-white/50 tracking-[0.3em] uppercase">

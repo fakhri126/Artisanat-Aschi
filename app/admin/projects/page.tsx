@@ -98,7 +98,7 @@ export default function AdminProjectsPage() {
   if (loading && projects.length === 0) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gold border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#E8DCCB] border-t-transparent"></div>
       </div>
     )
   }
@@ -112,7 +112,7 @@ export default function AdminProjectsPage() {
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 rounded-full bg-gold hover:bg-gold/95 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all shadow"
+          className="flex items-center gap-2 rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all shadow"
         >
           <Plus className="size-4" /> Nouvelle Réalisation
         </button>
@@ -138,12 +138,12 @@ export default function AdminProjectsPage() {
                   ) : (
                     <div className="size-full flex items-center justify-center text-muted-foreground"><ImageIcon className="size-10" /></div>
                   )}
-                  <span className="absolute top-4 left-4 bg-walnut text-gold text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-gold/20">
+                  <span className="absolute top-4 left-4 bg-[#FAF7F2] text-[#C17D59] text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-[#E8DCCB]/20">
                     <Folder className="size-3" /> {proj.category}
                   </span>
                 </div>
                 <div className="p-6 space-y-3">
-                  <div className="flex items-center gap-1 text-xs text-gold font-medium">
+                  <div className="flex items-center gap-1 text-xs text-[#C17D59] font-medium">
                     <MapPin className="size-3.5" /> {proj.location || 'Tunisie'}
                   </div>
                   <h3 className="font-heading text-2xl font-light text-foreground text-left">{proj.title}</h3>
@@ -153,7 +153,7 @@ export default function AdminProjectsPage() {
               <div className="p-6 pt-0 border-t border-border mt-4 flex items-center justify-end gap-2.5">
                 <button
                   onClick={() => openEditModal(proj)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 border border-border hover:border-gold rounded-full text-xs font-semibold uppercase tracking-wider text-foreground hover:text-gold transition-colors"
+                  className="flex items-center gap-1.5 px-3.5 py-2 border border-border hover:border-[#E8DCCB] rounded-full text-xs font-semibold uppercase tracking-wider text-foreground hover:text-[#C17D59] transition-colors"
                 >
                   <Edit2 className="size-3.5" /> Modifier
                 </button>
@@ -171,7 +171,7 @@ export default function AdminProjectsPage() {
 
       {/* Form Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 p-4 backdrop-blur-sm">
           <div className="bg-background border border-border w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
             <header className="p-6 border-b border-border flex items-center justify-between">
               <h2 className="font-heading text-xl font-medium text-foreground">
@@ -192,7 +192,7 @@ export default function AdminProjectsPage() {
                     placeholder="Ex: Villa Didon"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                    className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                   />
                 </div>
 
@@ -201,7 +201,7 @@ export default function AdminProjectsPage() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                    className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                   >
                     <option value="Villas">Villas</option>
                     <option value="Hôtels">Hôtels</option>
@@ -218,7 +218,7 @@ export default function AdminProjectsPage() {
                     placeholder="Ex: Carthage, Hammamet, Djerba"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                    className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                   />
                 </div>
               </div>
@@ -241,7 +241,7 @@ export default function AdminProjectsPage() {
                   placeholder="Bref résumé de la réalisation..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                  className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                 />
               </div>
 
@@ -252,7 +252,7 @@ export default function AdminProjectsPage() {
                   placeholder="Ex: Mobilier en noyer massif, portes cloutées traditionnelles..."
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
-                  className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                  className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                 />
               </div>
 
@@ -266,7 +266,7 @@ export default function AdminProjectsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-full bg-gold hover:bg-gold/95 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all"
+                  className="rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all"
                 >
                   Enregistrer
                 </button>

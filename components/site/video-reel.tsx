@@ -158,20 +158,20 @@ export function VideoReel() {
     <section className="relative bg-[#0d0a06] py-24 md:py-32 overflow-hidden">
       {/* Ambient decorations */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/4 top-1/4 size-80 rounded-full bg-gold/5 blur-3xl" />
-        <div className="absolute right-1/4 bottom-1/4 size-80 rounded-full bg-gold/5 blur-3xl" />
+        <div className="absolute left-1/4 top-1/4 size-80 rounded-full bg-[#E8DCCB]/5 blur-3xl" />
+        <div className="absolute right-1/4 bottom-1/4 size-80 rounded-full bg-[#E8DCCB]/5 blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-gold font-semibold mb-4">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-[#C17D59] font-semibold mb-4">
             ✦ Ils nous font confiance ✦
           </p>
-          <h2 className="font-heading text-4xl font-light text-ivory sm:text-5xl leading-tight">
+          <h2 className="font-heading text-4xl font-light text-[#3A2A21] sm:text-5xl leading-tight">
             Ce que disent nos clients
           </h2>
-          <p className="mt-4 text-ivory/50 text-sm max-w-lg mx-auto">
+          <p className="mt-4 text-[#3A2A21]/50 text-sm max-w-lg mx-auto">
             Des centaines d'avis sur Google, Facebook et Instagram. Découvrez leur expérience avec l'Atelier Aschi.
           </p>
           <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
@@ -179,7 +179,7 @@ export function VideoReel() {
 
         {/* Video Player - Full Width Cinematic */}
         <div className="relative mx-auto w-full group">
-          <div className="relative overflow-hidden border-y border-gold/20 bg-black shadow-2xl shadow-black">
+          <div className="relative overflow-hidden border-y border-[#E8DCCB]/20 bg-white shadow-2xl shadow-black">
             {/* Video Element */}
             <div className="relative w-full h-[70vh] md:h-[90vh]">
               <video
@@ -207,11 +207,11 @@ export function VideoReel() {
 
               {/* Watermark */}
               {hasStarted && (
-                <div className="absolute top-6 right-6 md:top-8 md:right-8 flex items-center gap-1.5 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 pointer-events-none border border-white/10">
-                  <div className="size-5 rounded-full bg-gold flex items-center justify-center">
+                <div className="absolute top-6 right-6 md:top-8 md:right-8 flex items-center gap-1.5 bg-white/40 backdrop-blur-md rounded-full px-4 py-2 pointer-events-none border border-white/10">
+                  <div className="size-5 rounded-full bg-[#E8DCCB] flex items-center justify-center">
                     <span className="text-[9px] font-black text-walnut">A</span>
                   </div>
-                  <span className="text-xs text-ivory/90 font-medium tracking-widest uppercase">Aschi</span>
+                  <span className="text-xs text-[#3A2A21]/90 font-medium tracking-widest uppercase">Aschi</span>
                 </div>
               )}
             </div>
@@ -221,14 +221,14 @@ export function VideoReel() {
               {/* Play/Pause */}
               <button
                 onClick={togglePlay}
-                className="text-ivory/90 hover:text-gold transition-colors shrink-0"
+                className="text-[#3A2A21]/90 hover:text-[#C17D59] transition-colors shrink-0"
                 aria-label={isPlaying ? 'Pause' : 'Lecture'}
               >
                 {isPlaying ? <Pause className="size-6 md:size-7" /> : <Play className="size-6 md:size-7 fill-current" />}
               </button>
 
               {/* Time */}
-              <span className="text-xs md:text-sm text-ivory/60 font-mono shrink-0">
+              <span className="text-xs md:text-sm text-[#3A2A21]/60 font-mono shrink-0">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
 
@@ -257,7 +257,7 @@ export function VideoReel() {
               {/* Mute */}
               <button
                 onClick={toggleMute}
-                className="text-ivory/90 hover:text-gold transition-colors shrink-0"
+                className="text-[#3A2A21]/90 hover:text-[#C17D59] transition-colors shrink-0"
                 aria-label={isMuted ? 'Activer le son' : 'Couper le son'}
               >
                 {isMuted ? <VolumeX className="size-5 md:size-6" /> : <Volume2 className="size-5 md:size-6" />}
@@ -272,7 +272,7 @@ export function VideoReel() {
                     document.exitFullscreen()
                   }
                 }}
-                className="text-ivory/90 hover:text-gold transition-colors shrink-0 hidden md:block"
+                className="text-[#3A2A21]/90 hover:text-[#C17D59] transition-colors shrink-0 hidden md:block"
                 aria-label="Plein écran"
               >
                 <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -282,7 +282,7 @@ export function VideoReel() {
 
               {/* Platform badges */}
               <div className="hidden lg:flex items-center gap-1.5 shrink-0 border-l border-white/20 pl-4 ml-2">
-                <span className="text-[10px] text-ivory/50 uppercase tracking-widest mr-2">Avis vérifiés sur</span>
+                <span className="text-[10px] text-[#3A2A21]/50 uppercase tracking-widest mr-2">Avis vérifiés sur</span>
                 <span className="size-6 rounded-full bg-white flex items-center justify-center text-[11px] font-black text-gray-700 shadow">G</span>
                 <span className="size-6 rounded-full bg-[#1877f2] flex items-center justify-center text-[11px] font-black text-white shadow">f</span>
                 <span className="size-6 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-amber-400 flex items-center justify-center text-[11px] font-black text-white shadow">◎</span>
@@ -298,9 +298,9 @@ export function VideoReel() {
               { label: 'Années d\'expérience', value: '50+', sub: 'Depuis 1976' },
             ].map(stat => (
               <div key={stat.label} className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <p className="font-heading text-2xl text-gold font-light">{stat.value}</p>
-                <p className="text-[10px] uppercase tracking-wider text-ivory/60 mt-1">{stat.label}</p>
-                <p className="text-[10px] text-ivory/30 mt-0.5">{stat.sub}</p>
+                <p className="font-heading text-2xl text-[#C17D59] font-light">{stat.value}</p>
+                <p className="text-[10px] uppercase tracking-wider text-[#3A2A21]/60 mt-1">{stat.label}</p>
+                <p className="text-[10px] text-[#3A2A21]/30 mt-0.5">{stat.sub}</p>
               </div>
             ))}
           </div>

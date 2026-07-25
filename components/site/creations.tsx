@@ -76,7 +76,7 @@ export function Creations() {
                   className={cn(
                     'rounded-full px-5 py-2 text-xs font-medium uppercase tracking-[0.14em] transition-all duration-300 border',
                     selectedCategory === cat
-                      ? 'bg-walnut text-walnut-foreground border-walnut shadow-md'
+                      ? 'bg-[#FAF7F2] text-[#5A453A] border-walnut shadow-md'
                       : 'bg-background/50 border-border text-muted-foreground hover:text-foreground hover:border-muted'
                   )}
                 >
@@ -90,7 +90,7 @@ export function Creations() {
         <div className="mt-16">
           {loading ? (
             <div className="flex justify-center py-20">
-              <div className="size-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+              <div className="size-8 animate-spin rounded-full border-2 border-[#E8DCCB] border-t-transparent" />
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
@@ -143,12 +143,12 @@ export function Creations() {
                         )}
                       </div>
                       
-                      <div className="absolute inset-x-0 bottom-0 p-6 text-ivory text-left">
-                        <span className="text-[10px] uppercase tracking-widest text-gold/80 block mb-1">
+                      <div className="absolute inset-x-0 bottom-0 p-6 text-[#3A2A21] text-left">
+                        <span className="text-[10px] uppercase tracking-widest text-[#C17D59]/80 block mb-1">
                           {item.category?.name || 'Création'}
                         </span>
                         <h3 className="font-heading text-2xl font-medium">{name}</h3>
-                        <p className="mt-1 text-sm font-light text-ivory/75">{meta}</p>
+                        <p className="mt-1 text-sm font-light text-[#3A2A21]/75">{meta}</p>
                         
                         {isUnique && (
                           <p className="text-[10px] text-orange-400 font-bold uppercase tracking-wider mt-2.5 flex items-center gap-1.5 bg-gradient-to-r from-orange-900/40 to-red-900/20 px-2 py-1.5 rounded border border-orange-500/30 shadow-[0_0_10px_rgba(249,115,22,0.15)] group-hover:shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all">
@@ -157,11 +157,11 @@ export function Creations() {
                           </p>
                         )}
                         <div className="mt-4 flex items-center justify-between border-t border-ivory/20 pt-4">
-                          <span className="text-sm tracking-wide text-gold">{price}</span>
+                          <span className="text-sm tracking-wide text-[#C17D59]">{price}</span>
                           <div className="flex items-center gap-3">
                             <Link
                               href={link}
-                              className="text-xs uppercase tracking-[0.16em] text-ivory underline-offset-4 transition-colors hover:text-gold hover:underline font-semibold"
+                              className="text-xs uppercase tracking-[0.16em] text-[#3A2A21] underline-offset-4 transition-colors hover:text-[#C17D59] hover:underline font-semibold"
                             >
                               Détails
                             </Link>
@@ -172,7 +172,7 @@ export function Creations() {
                                 e.stopPropagation()
                                 addToCart(item)
                               }}
-                              className="rounded-full bg-gold/10 hover:bg-gold border border-gold/30 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-gold hover:text-walnut transition-all flex items-center gap-1.5"
+                              className="rounded-full bg-[#E8DCCB]/10 hover:bg-[#E8DCCB] border border-[#E8DCCB]/30 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#C17D59] hover:text-walnut transition-all flex items-center gap-1.5"
                             >
                               <ShoppingCart className="size-3" /> Acheter
                             </button>

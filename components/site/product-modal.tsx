@@ -29,7 +29,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-50 bg-white/80 backdrop-blur-md"
           />
 
           {/* Modal Container */}
@@ -39,12 +39,12 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-5xl bg-stone-900 border border-gold/20 shadow-2xl overflow-hidden rounded-md pointer-events-auto flex flex-col md:flex-row max-h-[90vh]"
+              className="relative w-full max-w-5xl bg-stone-900 border border-[#E8DCCB]/20 shadow-2xl overflow-hidden rounded-md pointer-events-auto flex flex-col md:flex-row max-h-[90vh]"
             >
               {/* Close button */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 z-20 p-2 text-white/50 hover:text-gold transition-colors bg-black/20 rounded-full backdrop-blur-sm"
+                className="absolute top-4 right-4 z-20 p-2 text-white/50 hover:text-[#C17D59] transition-colors bg-white/20 rounded-full backdrop-blur-sm"
               >
                 <X className="size-6" />
               </button>
@@ -73,10 +73,10 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
 
               {/* Content Section */}
               <div className="flex-1 p-8 md:p-12 overflow-y-auto custom-scrollbar flex flex-col justify-center">
-                <p className="text-gold text-xs font-semibold tracking-[0.3em] uppercase mb-4">
+                <p className="text-[#C17D59] text-xs font-semibold tracking-[0.3em] uppercase mb-4">
                   {product.category?.name || "Pièce d'exception"}
                 </p>
-                <h2 className="font-heading text-4xl md:text-5xl text-ivory mb-6 leading-tight text-shadow-cinematic">
+                <h2 className="font-heading text-4xl md:text-5xl text-[#3A2A21] mb-6 leading-tight text-shadow-cinematic">
                   {product.name}
                 </h2>
                 
@@ -86,26 +86,26 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                   <div className="grid grid-cols-2 gap-4 text-sm pt-6 border-t border-white/10">
                     {product.materials && (
                       <div>
-                        <span className="block text-gold text-xs tracking-widest uppercase mb-1">Matériaux</span>
+                        <span className="block text-[#C17D59] text-xs tracking-widest uppercase mb-1">Matériaux</span>
                         <span>{product.materials}</span>
                       </div>
                     )}
                     {product.dimensions && (
                       <div>
-                        <span className="block text-gold text-xs tracking-widest uppercase mb-1">Dimensions</span>
+                        <span className="block text-[#C17D59] text-xs tracking-widest uppercase mb-1">Dimensions</span>
                         <span>{product.dimensions}</span>
                       </div>
                     )}
                     {product.type && (
                       <div>
-                        <span className="block text-gold text-xs tracking-widest uppercase mb-1">Type</span>
+                        <span className="block text-[#C17D59] text-xs tracking-widest uppercase mb-1">Type</span>
                         <span>{product.type}</span>
                       </div>
                     )}
                     {product.price && (
                       <div>
-                        <span className="block text-gold text-xs tracking-widest uppercase mb-1">Prix</span>
-                        <span className="text-lg font-medium text-ivory">{product.price} DT</span>
+                        <span className="block text-[#C17D59] text-xs tracking-widest uppercase mb-1">Prix</span>
+                        <span className="text-lg font-medium text-[#3A2A21]">{product.price} DT</span>
                       </div>
                     )}
                   </div>
@@ -117,7 +117,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                       addToCart(product)
                       onClose()
                     }}
-                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-gold text-stone-950 font-medium uppercase tracking-[0.2em] text-xs transition-all hover:bg-ivory hover:scale-[1.02] shadow-lg shadow-gold/20"
+                    className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-[#E8DCCB] text-stone-950 font-medium uppercase tracking-[0.2em] text-xs transition-all hover:bg-ivory hover:scale-[1.02] shadow-lg shadow-gold/20"
                   >
                     <ShoppingCart className="size-4" />
                     Ajouter au panier

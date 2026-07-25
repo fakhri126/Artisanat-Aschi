@@ -79,17 +79,17 @@ export function Story() {
   const prev = () => setIndex((prev) => (prev - 1 + MILESTONES.length) % MILESTONES.length)
 
   return (
-    <section id="histoire" className="relative bg-walnut py-24 flex items-center justify-center overflow-hidden grain border-y border-gold/10">
+    <section id="histoire" className="relative bg-[#FAF7F2] py-24 flex items-center justify-center overflow-hidden grain border-y border-[#E8DCCB]/10">
       <div className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay bg-[url('/wood-bg.jpg')] bg-cover bg-center" />
       
       <div className="mx-auto max-w-5xl px-6 relative z-10 w-full">
         
         {/* Adorable Chic Card */}
-        <div className="bg-walnut-deep/80 backdrop-blur-md rounded-3xl p-6 md:p-12 shadow-2xl border border-gold/20 flex flex-col md:flex-row items-center gap-10 md:gap-16">
+        <div className="bg-white/80 backdrop-blur-md rounded-3xl p-6 md:p-12 shadow-2xl border border-[#E8DCCB]/20 flex flex-col md:flex-row items-center gap-10 md:gap-16">
           
           {/* Left: Arch Image */}
           <div className="w-full md:w-1/2 flex justify-center">
-            <div className="relative w-64 h-[22rem] md:w-80 md:h-[450px] overflow-hidden rounded-t-[1000px] rounded-b-3xl border-[4px] border-gold/20 shadow-[0_0_30px_rgba(197,168,128,0.15)] bg-stone-900 group">
+            <div className="relative w-64 h-[22rem] md:w-80 md:h-[450px] overflow-hidden rounded-t-[1000px] rounded-b-3xl border-[4px] border-[#E8DCCB]/20 shadow-[0_0_30px_rgba(197,168,128,0.15)] bg-stone-900 group">
               <AnimatePresence mode="wait">
                 <motion.img
                   key={activeMilestone.id}
@@ -102,9 +102,9 @@ export function Story() {
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 />
               </AnimatePresence>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-walnut-deep/60 backdrop-blur-sm px-4 py-1.5 rounded-full border border-gold/30 flex items-center gap-2">
-                <MapPin className="w-3 h-3 text-gold" />
-                <span className="text-[10px] text-ivory tracking-widest uppercase whitespace-nowrap">{activeMilestone.location}</span>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/60 backdrop-blur-sm px-4 py-1.5 rounded-full border border-[#E8DCCB]/30 flex items-center gap-2">
+                <MapPin className="w-3 h-3 text-[#C17D59]" />
+                <span className="text-[10px] text-[#3A2A21] tracking-widest uppercase whitespace-nowrap">{activeMilestone.location}</span>
               </div>
             </div>
           </div>
@@ -120,11 +120,11 @@ export function Story() {
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="flex flex-col"
               >
-                <span className="text-gold text-[11px] font-sans tracking-[0.2em] uppercase mb-3">
+                <span className="text-[#C17D59] text-[11px] font-sans tracking-[0.2em] uppercase mb-3">
                   {activeMilestone.badge}
                 </span>
                 
-                <h3 className="font-heading text-5xl md:text-6xl text-ivory font-light mb-2 italic tracking-tight">
+                <h3 className="font-heading text-5xl md:text-6xl text-[#3A2A21] font-light mb-2 italic tracking-tight">
                   {activeMilestone.year}
                 </h3>
                 
@@ -136,8 +136,8 @@ export function Story() {
                   {activeMilestone.text}
                 </p>
 
-                <div className="bg-gold/5 border border-gold/10 rounded-2xl p-5 relative mt-auto">
-                  <Quote className="w-5 h-5 text-gold/30 absolute top-4 right-4" />
+                <div className="bg-[#E8DCCB]/5 border border-[#E8DCCB]/10 rounded-2xl p-5 relative mt-auto">
+                  <Quote className="w-5 h-5 text-[#C17D59]/30 absolute top-4 right-4" />
                   <p className="text-xs text-white/60 italic leading-relaxed pr-6">
                     {activeMilestone.details.anecdote}
                   </p>
@@ -149,7 +149,7 @@ export function Story() {
             <div className="flex items-center gap-4 mt-8 md:mt-10">
               <button 
                 onClick={prev}
-                className="w-10 h-10 rounded-full border border-gold/30 flex items-center justify-center text-gold hover:bg-gold hover:text-walnut-deep transition-colors"
+                className="w-10 h-10 rounded-full border border-[#E8DCCB]/30 flex items-center justify-center text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut-deep transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -159,14 +159,14 @@ export function Story() {
                     key={i} 
                     className={cn(
                       "h-1.5 rounded-full transition-all duration-300", 
-                      i === index ? "w-6 bg-gold" : "w-1.5 bg-gold/20"
+                      i === index ? "w-6 bg-[#E8DCCB]" : "w-1.5 bg-[#E8DCCB]/20"
                     )} 
                   />
                 ))}
               </div>
               <button 
                 onClick={next}
-                className="w-10 h-10 rounded-full border border-gold/30 flex items-center justify-center text-gold hover:bg-gold hover:text-walnut-deep transition-colors"
+                className="w-10 h-10 rounded-full border border-[#E8DCCB]/30 flex items-center justify-center text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut-deep transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

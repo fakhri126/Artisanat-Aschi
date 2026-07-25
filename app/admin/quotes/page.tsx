@@ -63,7 +63,7 @@ export default function AdminQuotesPage() {
   if (loading && quotes.length === 0) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gold border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#E8DCCB] border-t-transparent"></div>
       </div>
     )
   }
@@ -118,9 +118,9 @@ export default function AdminQuotesPage() {
                     <td className="p-4">
                       {quote.product ? (
                         <div>
-                          <p className="font-medium text-gold">{quote.product.name}</p>
+                          <p className="font-medium text-[#C17D59]">{quote.product.name}</p>
                           {quote.personalizationDetails && (
-                            <span className="text-[10px] bg-gold/10 text-gold border border-gold/20 px-1.5 py-0.5 rounded uppercase font-mono font-medium">Personnalisé</span>
+                            <span className="text-[10px] bg-[#E8DCCB]/10 text-[#C17D59] border border-[#E8DCCB]/20 px-1.5 py-0.5 rounded uppercase font-mono font-medium">Personnalisé</span>
                           )}
                         </div>
                       ) : (
@@ -151,7 +151,7 @@ export default function AdminQuotesPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button 
                           onClick={() => setSelectedQuote(quote)}
-                          className="flex items-center gap-1 px-3 py-1.5 border border-border hover:border-gold rounded-full text-xs font-semibold uppercase tracking-wider text-foreground hover:text-gold transition-colors"
+                          className="flex items-center gap-1 px-3 py-1.5 border border-border hover:border-[#E8DCCB] rounded-full text-xs font-semibold uppercase tracking-wider text-foreground hover:text-[#C17D59] transition-colors"
                         >
                           Détails <ChevronRight className="size-3.5" />
                         </button>
@@ -174,7 +174,7 @@ export default function AdminQuotesPage() {
 
       {/* Quote Details Drawer/Modal */}
       {selectedQuote && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 p-4 backdrop-blur-sm">
           <div className="bg-background border border-border w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <header className="p-6 border-b border-border flex items-center justify-between">
               <div>
@@ -193,15 +193,15 @@ export default function AdminQuotesPage() {
                 <div className="text-sm">
                   <p className="font-semibold text-foreground text-base">{selectedQuote.fullName}</p>
                   <div className="mt-2 space-y-1 text-muted-foreground">
-                    <p className="flex items-center gap-2"><Mail className="size-4 text-gold" /> {selectedQuote.email}</p>
-                    <p className="flex items-center gap-2"><Phone className="size-4 text-gold" /> {selectedQuote.phoneNumber}</p>
+                    <p className="flex items-center gap-2"><Mail className="size-4 text-[#C17D59]" /> {selectedQuote.email}</p>
+                    <p className="flex items-center gap-2"><Phone className="size-4 text-[#C17D59]" /> {selectedQuote.phoneNumber}</p>
                   </div>
                 </div>
               </div>
 
               {/* Product Reference */}
               {selectedQuote.product && (
-                <div className="p-4 border border-gold/15 bg-gold/5 rounded-xl flex items-center gap-4">
+                <div className="p-4 border border-[#E8DCCB]/15 bg-[#E8DCCB]/5 rounded-xl flex items-center gap-4">
                   <div className="size-16 rounded-lg bg-zinc-900 overflow-hidden shrink-0 border border-border">
                     <img 
                       src={selectedQuote.product.images[0]?.imageUrl || '/placeholder.png'} 
@@ -210,7 +210,7 @@ export default function AdminQuotesPage() {
                     />
                   </div>
                   <div>
-                    <span className="text-[9px] uppercase tracking-wider font-bold text-gold">Produit Référencé</span>
+                    <span className="text-[9px] uppercase tracking-wider font-bold text-[#C17D59]">Produit Référencé</span>
                     <h4 className="font-heading text-lg font-medium text-foreground">{selectedQuote.product.name}</h4>
                     <p className="text-xs text-muted-foreground">{selectedQuote.product.materials} · {selectedQuote.product.dimensions}</p>
                   </div>
@@ -221,7 +221,7 @@ export default function AdminQuotesPage() {
               {selectedQuote.personalizationDetails && (
                 <div className="space-y-2">
                   <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
-                    <AlertCircle className="size-4 text-gold" /> Demande de personnalisation
+                    <AlertCircle className="size-4 text-[#C17D59]" /> Demande de personnalisation
                   </h3>
                   <div className="p-4 border border-border bg-secondary/20 rounded-xl text-sm font-light leading-relaxed text-foreground whitespace-pre-line">
                     {selectedQuote.personalizationDetails}
@@ -278,7 +278,7 @@ export default function AdminQuotesPage() {
             <footer className="p-6 border-t border-border flex items-center justify-end bg-secondary/20">
               <button
                 onClick={() => setSelectedQuote(null)}
-                className="rounded-full bg-walnut text-ivory hover:bg-bronze px-6 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all"
+                className="rounded-full bg-[#FAF7F2] text-[#3A2A21] hover:bg-bronze px-6 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all"
               >
                 Fermer
               </button>

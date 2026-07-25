@@ -77,7 +77,7 @@ export function WeeklyDelivery() {
                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     )}
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
+                    <div className="absolute inset-0 bg-white/10 group-hover:bg-white/0 transition-colors duration-500" />
                   </div>
                   
                   {/* Floating Date Badge */}
@@ -101,7 +101,7 @@ export function WeeklyDelivery() {
                     {delivery.title}
                   </h3>
                   
-                  <div className="w-12 h-1 bg-gold/50 mb-8 rounded-full" />
+                  <div className="w-12 h-1 bg-[#E8DCCB]/50 mb-8 rounded-full" />
                   
                   <p className="text-stone-600 font-light text-lg leading-relaxed mb-8">
                     {delivery.description}
@@ -109,11 +109,11 @@ export function WeeklyDelivery() {
 
                   <div className="flex flex-col gap-4 text-stone-500 text-sm font-medium tracking-wide">
                     <div className="flex items-center gap-3">
-                      <MapPin className="w-5 h-5 text-gold" />
+                      <MapPin className="w-5 h-5 text-[#C17D59]" />
                       <span>Livraison VIP - Installation sur mesure</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Calendar className="w-5 h-5 text-gold" />
+                      <Calendar className="w-5 h-5 text-[#C17D59]" />
                       <span>{new Date(delivery.deliveryDate).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     </div>
                   </div>

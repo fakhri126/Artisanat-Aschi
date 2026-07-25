@@ -91,15 +91,15 @@ export function HomeTeaser() {
                 </div>
 
                 {/* Content */}
-                <div className="relative z-10 flex h-full flex-col justify-end p-6 text-ivory">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-gold font-semibold mb-2">
+                <div className="relative z-10 flex h-full flex-col justify-end p-6 text-[#3A2A21]">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#C17D59] font-semibold mb-2">
                     {s.tag}
                   </p>
                   <h3 className="font-heading text-3xl font-medium">{s.title}</h3>
-                  <p className="mt-2 text-sm font-light leading-relaxed text-ivory/70 line-clamp-3">
+                  <p className="mt-2 text-sm font-light leading-relaxed text-[#3A2A21]/70 line-clamp-3">
                     {s.description}
                   </p>
-                  <div className="mt-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gold transition-all group-hover:gap-3">
+                  <div className="mt-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#C17D59] transition-all group-hover:gap-3">
                     Découvrir <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                   </div>
                 </div>
@@ -113,7 +113,7 @@ export function HomeTeaser() {
           <p className="text-muted-foreground text-sm mb-5">Vous avez un projet en tête ?</p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-3 rounded-full bg-walnut px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-walnut-foreground transition-all duration-300 hover:bg-walnut/80 hover:gap-4"
+            className="inline-flex items-center gap-3 rounded-full bg-[#FAF7F2] px-8 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#5A453A] transition-all duration-300 hover:bg-[#FAF7F2]/80 hover:gap-4"
           >
             <Phone className="size-4" />
             Demander un devis gratuit

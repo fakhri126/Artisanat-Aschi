@@ -86,7 +86,7 @@ export function ImageUploader({
               <button
                 type="button"
                 onClick={onRemove}
-                className="absolute top-1 right-1 p-1 rounded-full bg-black/70 text-white hover:bg-red-500 transition-colors"
+                className="absolute top-1 right-1 p-1 rounded-full bg-white/70 text-white hover:bg-red-500 transition-colors"
                 title="Supprimer l'image"
               >
                 <X className="size-3" />
@@ -97,13 +97,13 @@ export function ImageUploader({
 
         {/* Upload box */}
         {!imageUrl && (
-          <label className="relative size-24 rounded-xl border-2 border-dashed border-border hover:border-gold/60 bg-secondary/30 hover:bg-secondary/50 transition-all flex flex-col items-center justify-center cursor-pointer group">
+          <label className="relative size-24 rounded-xl border-2 border-dashed border-border hover:border-[#E8DCCB]/60 bg-secondary/30 hover:bg-secondary/50 transition-all flex flex-col items-center justify-center cursor-pointer group">
             {uploading ? (
-              <div className="size-5 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+              <div className="size-5 animate-spin rounded-full border-2 border-[#E8DCCB] border-t-transparent" />
             ) : (
               <>
-                <Plus className="size-6 text-muted-foreground group-hover:text-gold transition-colors" />
-                <span className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground group-hover:text-gold transition-colors">
+                <Plus className="size-6 text-muted-foreground group-hover:text-[#C17D59] transition-colors" />
+                <span className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground group-hover:text-[#C17D59] transition-colors">
                   Ajouter
                 </span>
               </>
@@ -121,13 +121,13 @@ export function ImageUploader({
 
         {/* Re-upload button (shown after image is set) */}
         {imageUrl && (
-          <label className="relative size-16 rounded-xl border-2 border-dashed border-border hover:border-gold/60 bg-secondary/30 hover:bg-secondary/50 transition-all flex flex-col items-center justify-center cursor-pointer group">
+          <label className="relative size-16 rounded-xl border-2 border-dashed border-border hover:border-[#E8DCCB]/60 bg-secondary/30 hover:bg-secondary/50 transition-all flex flex-col items-center justify-center cursor-pointer group">
             {uploading ? (
-              <div className="size-4 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+              <div className="size-4 animate-spin rounded-full border-2 border-[#E8DCCB] border-t-transparent" />
             ) : (
               <>
-                <Plus className="size-5 text-muted-foreground group-hover:text-gold transition-colors" />
-                <span className="mt-0.5 text-[9px] uppercase tracking-wider text-muted-foreground group-hover:text-gold transition-colors">
+                <Plus className="size-5 text-muted-foreground group-hover:text-[#C17D59] transition-colors" />
+                <span className="mt-0.5 text-[9px] uppercase tracking-wider text-muted-foreground group-hover:text-[#C17D59] transition-colors">
                   Changer
                 </span>
               </>
@@ -212,13 +212,13 @@ export function MultiImageUploader({
             <button
               type="button"
               onClick={() => onRemove(index)}
-              className="absolute top-1 right-1 p-1 rounded-full bg-black/70 text-white hover:bg-red-500 transition-colors"
+              className="absolute top-1 right-1 p-1 rounded-full bg-white/70 text-white hover:bg-red-500 transition-colors"
               title="Supprimer cette image"
             >
               <X className="size-3" />
             </button>
             {index === 0 && (
-              <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] bg-gold text-walnut font-bold uppercase tracking-wider">
+              <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] bg-[#E8DCCB] text-walnut font-bold uppercase tracking-wider">
                 Principal
               </span>
             )}
@@ -226,13 +226,13 @@ export function MultiImageUploader({
         ))}
 
         {/* Add button */}
-        <label className="relative size-24 rounded-xl border-2 border-dashed border-border hover:border-gold/60 bg-secondary/30 hover:bg-secondary/50 transition-all flex flex-col items-center justify-center cursor-pointer group">
+        <label className="relative size-24 rounded-xl border-2 border-dashed border-border hover:border-[#E8DCCB]/60 bg-secondary/30 hover:bg-secondary/50 transition-all flex flex-col items-center justify-center cursor-pointer group">
           {uploading ? (
-            <div className="size-5 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+            <div className="size-5 animate-spin rounded-full border-2 border-[#E8DCCB] border-t-transparent" />
           ) : (
             <>
-              <Plus className="size-6 text-muted-foreground group-hover:text-gold transition-colors" />
-              <span className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground group-hover:text-gold transition-colors">
+              <Plus className="size-6 text-muted-foreground group-hover:text-[#C17D59] transition-colors" />
+              <span className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground group-hover:text-[#C17D59] transition-colors">
                 Ajouter
               </span>
             </>

@@ -73,7 +73,7 @@ export function HeroDelivery() {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="mb-6 md:mb-10 text-center"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-bold uppercase tracking-[0.2em] mb-4 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/20 text-[#C17D59] text-xs font-bold uppercase tracking-[0.2em] mb-4 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
             <Truck className="size-4 animate-bounce" />
             Nouvelle Livraison Client
           </div>
@@ -98,7 +98,7 @@ export function HeroDelivery() {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: isUnveiled ? 1 : 0.9, opacity: isUnveiled ? 1 : 0 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-0 rounded-2xl overflow-hidden border border-gold/40 shadow-[0_0_80px_rgba(212,175,55,0.4)]"
+            className="absolute inset-0 rounded-2xl overflow-hidden border border-[#E8DCCB]/40 shadow-[0_0_80px_rgba(212,175,55,0.4)]"
           >
             {image.match(/\.(mp4|webm|ogg|mov)$/i) ? (
               <video
@@ -126,18 +126,18 @@ export function HeroDelivery() {
                 animate={{ opacity: isUnveiled ? 1 : 0, x: isUnveiled ? 0 : -20 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
               >
-                <h3 className="font-heading text-3xl md:text-4xl text-ivory mb-3 leading-tight">
+                <h3 className="font-heading text-3xl md:text-4xl text-[#3A2A21] mb-3 leading-tight">
                   {latestDelivery.title}
                 </h3>
-                <p className="text-ivory/80 text-sm md:text-base font-light mb-6 line-clamp-3 text-pretty">
+                <p className="text-[#3A2A21]/80 text-sm md:text-base font-light mb-6 line-clamp-3 text-pretty">
                   {latestDelivery.description}
                 </p>
-                <div className="flex items-center gap-4 text-xs font-semibold tracking-wider text-gold uppercase">
+                <div className="flex items-center gap-4 text-xs font-semibold tracking-wider text-[#C17D59] uppercase">
                   <span className="flex items-center gap-1.5">
                     <Calendar className="size-4" />
                     {new Date(latestDelivery.deliveryDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-gold/50" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E8DCCB]/50" />
                   <span className="flex items-center gap-1.5">
                     <Star className="size-4" />
                     Pièce Unique
@@ -152,7 +152,7 @@ export function HeroDelivery() {
             initial={{ x: 0 }}
             animate={{ x: isUnveiled ? '-100%' : 0 }}
             transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-y-0 left-0 w-1/2 bg-stone-900 border-r-2 border-gold/50 shadow-[20px_0_50px_rgba(0,0,0,0.8)] origin-left flex items-center justify-end overflow-hidden z-20"
+            className="absolute inset-y-0 left-0 w-1/2 bg-stone-900 border-r-2 border-[#E8DCCB]/50 shadow-[20px_0_50px_rgba(0,0,0,0.8)] origin-left flex items-center justify-end overflow-hidden z-20"
           >
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]" />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/60" />
@@ -166,7 +166,7 @@ export function HeroDelivery() {
             initial={{ x: 0 }}
             animate={{ x: isUnveiled ? '100%' : 0 }}
             transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-y-0 right-0 w-1/2 bg-stone-900 border-l-2 border-gold/50 shadow-[-20px_0_50px_rgba(0,0,0,0.8)] origin-right flex items-center justify-start overflow-hidden z-20"
+            className="absolute inset-y-0 right-0 w-1/2 bg-stone-900 border-l-2 border-[#E8DCCB]/50 shadow-[-20px_0_50px_rgba(0,0,0,0.8)] origin-right flex items-center justify-start overflow-hidden z-20"
           >
              <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]" />
              <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/60" />
@@ -179,11 +179,11 @@ export function HeroDelivery() {
                   transition={{ duration: 0.8 }}
                   className="absolute -left-16 flex flex-col items-center gap-4 z-30 pointer-events-none"
                 >
-                  <div className="relative size-32 rounded-full bg-gold/10 border-2 border-gold/40 backdrop-blur-md flex items-center justify-center animate-pulse shadow-[0_0_60px_rgba(212,175,55,0.4)]">
-                    <PackageOpen className="size-10 text-gold drop-shadow-lg" />
-                    <div className="absolute inset-0 rounded-full border border-gold/20 animate-ping" style={{ animationDuration: '3s' }} />
+                  <div className="relative size-32 rounded-full bg-[#E8DCCB]/10 border-2 border-[#E8DCCB]/40 backdrop-blur-md flex items-center justify-center animate-pulse shadow-[0_0_60px_rgba(212,175,55,0.4)]">
+                    <PackageOpen className="size-10 text-[#C17D59] drop-shadow-lg" />
+                    <div className="absolute inset-0 rounded-full border border-[#E8DCCB]/20 animate-ping" style={{ animationDuration: '3s' }} />
                   </div>
-                  <span className="text-gold text-xs uppercase tracking-[0.4em] font-bold drop-shadow-md">
+                  <span className="text-[#C17D59] text-xs uppercase tracking-[0.4em] font-bold drop-shadow-md">
                     Dévoiler
                   </span>
                 </motion.div>
@@ -218,10 +218,10 @@ export function HeroDelivery() {
         >
           <Link
             href="/contact?subject=Commande%20sur%20mesure"
-            className="inline-flex items-center gap-2 text-sm font-semibold tracking-[0.2em] uppercase text-white/70 hover:text-gold transition-colors relative group"
+            className="inline-flex items-center gap-2 text-sm font-semibold tracking-[0.2em] uppercase text-white/70 hover:text-[#C17D59] transition-colors relative group"
           >
             Commandez votre chef-d'œuvre
-            <span className="absolute -bottom-2 left-0 w-0 h-px bg-gold transition-all duration-300 group-hover:w-full" />
+            <span className="absolute -bottom-2 left-0 w-0 h-px bg-[#E8DCCB] transition-all duration-300 group-hover:w-full" />
           </Link>
         </motion.div>
       </div>
@@ -229,7 +229,7 @@ export function HeroDelivery() {
       {/* Modal */}
       <AnimatePresence>
         {modalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/95 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-white/95 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -238,7 +238,7 @@ export function HeroDelivery() {
             >
               <button
                 onClick={() => setModalOpen(false)}
-                className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 text-white/70 hover:text-white hover:bg-black/80 transition-colors"
+                className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/50 text-white/70 hover:text-white hover:bg-white/80 transition-colors"
               >
                 <X className="size-6" />
               </button>
@@ -262,14 +262,14 @@ export function HeroDelivery() {
               </div>
               
               <div className="w-full md:w-1/3 p-8 flex flex-col justify-center bg-stone-950 border-t md:border-t-0 md:border-l border-stone-800 overflow-y-auto">
-                <span className="text-xs uppercase tracking-[0.2em] text-gold mb-2 block font-semibold">
+                <span className="text-xs uppercase tracking-[0.2em] text-[#C17D59] mb-2 block font-semibold">
                   Installation Client Récente
                 </span>
                 <h3 className="text-3xl md:text-5xl font-heading text-white mb-4">{latestDelivery.title}</h3>
                 <p className="text-stone-400 mb-6 text-sm md:text-base leading-relaxed line-clamp-3">
                   {latestDelivery.description}
                 </p>
-                <div className="flex flex-col gap-3 text-xs font-semibold tracking-wider text-gold uppercase mt-6 pt-6 border-t border-stone-800">
+                <div className="flex flex-col gap-3 text-xs font-semibold tracking-wider text-[#C17D59] uppercase mt-6 pt-6 border-t border-stone-800">
                   <span className="flex items-center gap-2">
                     <Calendar className="size-4" />
                     Date : {new Date(latestDelivery.deliveryDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}

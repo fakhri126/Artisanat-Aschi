@@ -21,42 +21,42 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
             className="transition-transform hover:scale-110"
             aria-label={`${i + 1} étoile${i > 0 ? 's' : ''}`}
           >
-            <Star className={`size-6 transition-colors ${filled ? 'fill-gold text-gold' : 'fill-transparent text-gold/30 hover:text-gold/60'}`} />
+            <Star className={`size-6 transition-colors ${filled ? 'fill-gold text-[#C17D59]' : 'fill-transparent text-[#C17D59]/30 hover:text-[#C17D59]/60'}`} />
           </button>
         )
       })}
-      <span className="ml-2 text-xs text-ivory/50">{value}/5</span>
+      <span className="ml-2 text-xs text-[#3A2A21]/50">{value}/5</span>
     </div>
   )
 }
 
 function TestimonialPreview({ name, role, content, imageUrl, rating }: { name: string; role: string; content: string; imageUrl: string; rating: number }) {
   return (
-    <div className="rounded-xl bg-[#1a1109] border border-gold/20 p-5 space-y-4">
-      <p className="text-[9px] uppercase tracking-[0.3em] text-gold font-semibold text-center">Aperçu public</p>
+    <div className="rounded-xl bg-[#1a1109] border border-[#E8DCCB]/20 p-5 space-y-4">
+      <p className="text-[9px] uppercase tracking-[0.3em] text-[#C17D59] font-semibold text-center">Aperçu public</p>
       <div className="flex flex-col items-center gap-3 text-center">
         <div className="relative">
           <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold/50 via-gold/10 to-transparent" />
-          <div className="relative size-16 overflow-hidden rounded-full border border-gold/30 bg-stone-900">
+          <div className="relative size-16 overflow-hidden rounded-full border border-[#E8DCCB]/30 bg-stone-900">
             {imageUrl
               ? <img src={imageUrl} alt={name} className="size-full object-cover" />
-              : <div className="size-full bg-stone-800 flex items-center justify-center text-ivory/20 text-2xl font-heading">{name?.[0] || '?'}</div>
+              : <div className="size-full bg-stone-800 flex items-center justify-center text-[#3A2A21]/20 text-2xl font-heading">{name?.[0] || '?'}</div>
             }
           </div>
         </div>
         <div>
           <div className="flex justify-center mb-1">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className={`size-3 ${i < rating ? 'fill-gold text-gold' : 'fill-transparent text-gold/20'}`} />
+              <Star key={i} className={`size-3 ${i < rating ? 'fill-gold text-[#C17D59]' : 'fill-transparent text-[#C17D59]/20'}`} />
             ))}
           </div>
-          <p className="font-heading text-sm font-medium text-ivory">{name || 'Nom du client'}</p>
-          <p className="text-[10px] text-gold/70 uppercase tracking-wider">{role || 'Rôle / Localité'}</p>
+          <p className="font-heading text-sm font-medium text-[#3A2A21]">{name || 'Nom du client'}</p>
+          <p className="text-[10px] text-[#C17D59]/70 uppercase tracking-wider">{role || 'Rôle / Localité'}</p>
         </div>
       </div>
-      <div className="relative border-t border-gold/10 pt-3">
-        <span className="absolute -top-4 left-1 font-heading text-4xl text-gold/10 leading-none">"</span>
-        <p className="text-xs font-light italic text-ivory/70 leading-relaxed line-clamp-4">
+      <div className="relative border-t border-[#E8DCCB]/10 pt-3">
+        <span className="absolute -top-4 left-1 font-heading text-4xl text-[#C17D59]/10 leading-none">"</span>
+        <p className="text-xs font-light italic text-[#3A2A21]/70 leading-relaxed line-clamp-4">
           {content ? `"${content}"` : 'Le contenu du témoignage apparaîtra ici...'}
         </p>
       </div>
@@ -199,7 +199,7 @@ export default function AdminTestimonialsPage() {
   if (loading && testimonials.length === 0) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gold border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#E8DCCB] border-t-transparent"></div>
       </div>
     )
   }
@@ -207,9 +207,9 @@ export default function AdminTestimonialsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b border-gold/10 pb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b border-[#E8DCCB]/10 pb-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/25 text-gold text-xs uppercase tracking-widest mb-2 font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-widest mb-2 font-semibold">
             <Star className="size-3.5 fill-gold" /> Témoignages & Avis
           </div>
           <h1 className="font-heading text-3xl font-light text-foreground text-left">Gestion de la Réputation</h1>
@@ -220,7 +220,7 @@ export default function AdminTestimonialsPage() {
         {activeTab === 'testimonials' && (
           <button
             onClick={openCreateModal}
-            className="inline-flex items-center gap-2 rounded-full bg-gold hover:bg-gold/95 px-5 py-3 text-xs font-bold uppercase tracking-wider text-walnut transition-all shadow self-start md:self-auto"
+            className="inline-flex items-center gap-2 rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 px-5 py-3 text-xs font-bold uppercase tracking-wider text-walnut transition-all shadow self-start md:self-auto"
           >
             <Plus className="size-4" /> Nouveau Témoignage
           </button>
@@ -232,7 +232,7 @@ export default function AdminTestimonialsPage() {
         <button
           onClick={() => setActiveTab('testimonials')}
           className={`px-6 py-3 text-sm font-semibold uppercase tracking-wider transition-colors border-b-2 ${
-            activeTab === 'testimonials' ? 'border-gold text-gold' : 'border-transparent text-muted-foreground hover:text-foreground'
+            activeTab === 'testimonials' ? 'border-[#E8DCCB] text-[#C17D59]' : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           Témoignages (Site)
@@ -240,7 +240,7 @@ export default function AdminTestimonialsPage() {
         <button
           onClick={() => setActiveTab('reel')}
           className={`px-6 py-3 text-sm font-semibold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-2 ${
-            activeTab === 'reel' ? 'border-gold text-gold' : 'border-transparent text-muted-foreground hover:text-foreground'
+            activeTab === 'reel' ? 'border-[#E8DCCB] text-[#C17D59]' : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
           <Video className="size-4" /> Reel Vidéo (Réseaux)
@@ -260,9 +260,9 @@ export default function AdminTestimonialsPage() {
           { label: 'Écrits', value: testimonials.filter(t => t.type === 'TEXT').length },
           { label: 'Vidéos', value: testimonials.filter(t => t.type === 'VIDEO').length },
         ].map(stat => (
-          <div key={stat.label} className="bg-walnut border border-gold/10 rounded-xl p-4 text-center">
-            <p className="font-heading text-3xl font-light text-gold">{stat.value}</p>
-            <p className="text-[10px] uppercase tracking-widest text-ivory/50 mt-1">{stat.label}</p>
+          <div key={stat.label} className="bg-[#FAF7F2] border border-[#E8DCCB]/10 rounded-xl p-4 text-center">
+            <p className="font-heading text-3xl font-light text-[#C17D59]">{stat.value}</p>
+            <p className="text-[10px] uppercase tracking-widest text-[#3A2A21]/50 mt-1">{stat.label}</p>
           </div>
         ))}
       </div>
@@ -271,14 +271,14 @@ export default function AdminTestimonialsPage() {
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {testimonials.length === 0 ? (
           <div className="col-span-full text-center py-16 bg-background border border-border rounded-2xl text-muted-foreground">
-            <Star className="size-10 text-gold/20 mx-auto mb-3" />
+            <Star className="size-10 text-[#C17D59]/20 mx-auto mb-3" />
             <p>Aucun témoignage disponible. Ajoutez le premier !</p>
           </div>
         ) : (
           testimonials.map((t) => (
             <article
               key={t.id}
-              className="group bg-background border border-border rounded-2xl overflow-hidden shadow-sm hover:border-gold/30 transition-all flex flex-col"
+              className="group bg-background border border-border rounded-2xl overflow-hidden shadow-sm hover:border-[#E8DCCB]/30 transition-all flex flex-col"
             >
               {/* Top bar with type badge */}
               <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-secondary/30">
@@ -292,7 +292,7 @@ export default function AdminTestimonialsPage() {
                 </span>
                 <div className="flex items-center gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="size-3 fill-gold text-gold" />
+                    <Star key={i} className="size-3 fill-gold text-[#C17D59]" />
                   ))}
                 </div>
               </div>
@@ -300,7 +300,7 @@ export default function AdminTestimonialsPage() {
               {/* Content */}
               <div className="flex-1 p-5 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="relative size-12 rounded-full overflow-hidden border-2 border-gold/20 bg-stone-900 shrink-0">
+                  <div className="relative size-12 rounded-full overflow-hidden border-2 border-[#E8DCCB]/20 bg-stone-900 shrink-0">
                     <img
                       src={t.imageUrl || '/client-placeholder.png'}
                       alt={t.clientName}
@@ -326,7 +326,7 @@ export default function AdminTestimonialsPage() {
               <div className="px-5 py-4 border-t border-border flex items-center justify-end gap-2">
                 <button
                   onClick={() => openEditModal(t)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-border hover:border-gold rounded-full text-xs font-semibold uppercase tracking-wider text-foreground hover:text-gold transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-border hover:border-[#E8DCCB] rounded-full text-xs font-semibold uppercase tracking-wider text-foreground hover:text-[#C17D59] transition-colors"
                 >
                   <Edit2 className="size-3" /> Modifier
                 </button>
@@ -344,7 +344,7 @@ export default function AdminTestimonialsPage() {
 
       {/* Form Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 p-4 backdrop-blur-sm">
           <div className="bg-background border border-border w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[92vh] flex flex-col">
             {/* Modal Header */}
             <header className="p-5 border-b border-border flex items-center justify-between bg-secondary/20">
@@ -356,7 +356,7 @@ export default function AdminTestimonialsPage() {
                   type="button"
                   onClick={() => setShowPreview(!showPreview)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                    showPreview ? 'bg-gold/10 border-gold/30 text-gold' : 'border-border text-muted-foreground hover:text-foreground'
+                    showPreview ? 'bg-[#E8DCCB]/10 border-[#E8DCCB]/30 text-[#C17D59]' : 'border-border text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <Eye className="size-3.5" /> Aperçu
@@ -373,38 +373,38 @@ export default function AdminTestimonialsPage() {
                 <form id="testimonial-form" onSubmit={handleSubmit} className="p-6 space-y-5">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Nom du Client *</label>
+                      <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Nom du Client *</label>
                       <input
                         type="text"
                         required
                         placeholder="Ex: Sonia Ben Miled"
                         value={clientName}
                         onChange={(e) => setClientName(e.target.value)}
-                        className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                        className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Qualité / Localité</label>
+                      <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Qualité / Localité</label>
                       <input
                         type="text"
                         placeholder="Ex: Propriétaire de Villa · La Marsa"
                         value={clientRole}
                         onChange={(e) => setClientRole(e.target.value)}
-                        className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                        className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                       />
                     </div>
                   </div>
 
                   {/* Rating Picker */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Note accordée</label>
+                    <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Note accordée</label>
                     <StarPicker value={rating} onChange={setRating} />
                   </div>
 
                   {/* Type Selector */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Format du témoignage</label>
+                    <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Format du témoignage</label>
                     <div className="flex gap-3">
                       {(['TEXT', 'VIDEO'] as const).map(t => (
                         <button
@@ -413,8 +413,8 @@ export default function AdminTestimonialsPage() {
                           onClick={() => setType(t)}
                           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border text-xs font-semibold uppercase tracking-wider transition-colors ${
                             type === t
-                              ? 'bg-gold/10 border-gold/40 text-gold'
-                              : 'border-border text-muted-foreground hover:border-gold/20'
+                              ? 'bg-[#E8DCCB]/10 border-[#E8DCCB]/40 text-[#C17D59]'
+                              : 'border-border text-muted-foreground hover:border-[#E8DCCB]/20'
                           }`}
                         >
                           {t === 'VIDEO' ? <Video className="size-3.5" /> : <MessageSquare className="size-3.5" />}
@@ -437,27 +437,27 @@ export default function AdminTestimonialsPage() {
 
                   {type === 'VIDEO' && (
                     <div className="space-y-1.5">
-                      <label className="text-[10px] uppercase tracking-widest text-gold font-bold">URL de la vidéo *</label>
+                      <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">URL de la vidéo *</label>
                       <input
                         type="url"
                         required={type === 'VIDEO'}
                         placeholder="https://www.youtube.com/watch?v=..."
                         value={videoUrl}
                         onChange={(e) => setVideoUrl(e.target.value)}
-                        className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none font-mono"
+                        className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none font-mono"
                       />
                     </div>
                   )}
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Contenu du témoignage *</label>
+                    <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Contenu du témoignage *</label>
                     <textarea
                       required
                       rows={4}
                       placeholder="Texte du témoignage laissé par le client..."
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
-                      className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none resize-none"
+                      className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none resize-none"
                     />
                   </div>
                 </form>
@@ -489,7 +489,7 @@ export default function AdminTestimonialsPage() {
               <button
                 type="submit"
                 form="testimonial-form"
-                className="rounded-full bg-gold hover:bg-gold/95 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-walnut transition-all shadow"
+                className="rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-walnut transition-all shadow"
               >
                 {editingTestimonial ? 'Enregistrer les modifications' : 'Publier le témoignage'}
               </button>
@@ -506,24 +506,24 @@ export default function AdminTestimonialsPage() {
             <h2 className="font-heading text-xl text-foreground mb-4">Paramètres de la vidéo globale</h2>
             <div className="space-y-4 max-w-md">
               <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Fichier Vidéo Actuel</label>
+                <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Fichier Vidéo Actuel</label>
                 
                 {/* Video Preview / Upload area */}
                 <div className="mt-2 border-2 border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center gap-3 bg-secondary/10 relative overflow-hidden group">
                   {uploadingVideo && (
                     <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
-                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent mb-2"></div>
-                      <span className="text-xs text-gold font-semibold uppercase tracking-wider">Upload en cours...</span>
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#E8DCCB] border-t-transparent mb-2"></div>
+                      <span className="text-xs text-[#C17D59] font-semibold uppercase tracking-wider">Upload en cours...</span>
                     </div>
                   )}
                   
                   {reelData.videoUrl ? (
-                    <div className="w-full relative rounded-lg overflow-hidden border border-border bg-black aspect-video flex items-center justify-center group-hover:border-gold transition-colors">
+                    <div className="w-full relative rounded-lg overflow-hidden border border-border bg-white aspect-video flex items-center justify-center group-hover:border-[#E8DCCB] transition-colors">
                       <video src={reelData.videoUrl} muted autoPlay loop className="w-full h-full object-cover opacity-50" />
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <Play className="size-8 text-white/50 group-hover:text-gold transition-colors" />
+                        <Play className="size-8 text-white/50 group-hover:text-[#C17D59] transition-colors" />
                       </div>
-                      <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-sm text-[10px] text-white/80 p-1.5 rounded truncate">
+                      <div className="absolute bottom-2 left-2 right-2 bg-white/60 backdrop-blur-sm text-[10px] text-white/80 p-1.5 rounded truncate">
                         {reelData.videoUrl.split('/').pop()}
                       </div>
                     </div>
@@ -534,7 +534,7 @@ export default function AdminTestimonialsPage() {
                   )}
 
                   <div className="flex gap-2 w-full mt-2">
-                    <label className="flex-1 rounded-lg border border-border hover:border-gold bg-background hover:bg-secondary/50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-foreground transition-all cursor-pointer text-center flex items-center justify-center gap-2">
+                    <label className="flex-1 rounded-lg border border-border hover:border-[#E8DCCB] bg-background hover:bg-secondary/50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-foreground transition-all cursor-pointer text-center flex items-center justify-center gap-2">
                       <Plus className="size-4" /> {reelData.videoUrl ? 'Remplacer la vidéo' : 'Importer une vidéo'}
                       <input 
                         type="file" 
@@ -597,7 +597,7 @@ export default function AdminTestimonialsPage() {
                   }
                   setReelData({ ...reelData, reviews: [...reelData.reviews, newReview] })
                 }}
-                className="flex items-center gap-1.5 rounded-full border border-border hover:border-gold px-4 py-2 text-xs font-semibold uppercase tracking-wider text-foreground hover:text-gold transition-colors"
+                className="flex items-center gap-1.5 rounded-full border border-border hover:border-[#E8DCCB] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-foreground hover:text-[#C17D59] transition-colors"
               >
                 <Plus className="size-3" /> Ajouter un avis
               </button>
@@ -628,7 +628,7 @@ export default function AdminTestimonialsPage() {
                           newReviews[index].platform = e.target.value
                           setReelData({ ...reelData, reviews: newReviews })
                         }}
-                        className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-md p-2 text-xs text-foreground outline-none"
+                        className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-md p-2 text-xs text-foreground outline-none"
                       >
                         <option value="google">Google</option>
                         <option value="facebook">Facebook</option>
@@ -646,7 +646,7 @@ export default function AdminTestimonialsPage() {
                           newReviews[index].name = e.target.value
                           setReelData({ ...reelData, reviews: newReviews })
                         }}
-                        className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-md p-2 text-xs text-foreground outline-none"
+                        className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-md p-2 text-xs text-foreground outline-none"
                       />
                     </div>
 
@@ -660,7 +660,7 @@ export default function AdminTestimonialsPage() {
                           newReviews[index].text = e.target.value
                           setReelData({ ...reelData, reviews: newReviews })
                         }}
-                        className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-md p-2 text-xs text-foreground outline-none resize-none"
+                        className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-md p-2 text-xs text-foreground outline-none resize-none"
                       />
                     </div>
 
@@ -676,7 +676,7 @@ export default function AdminTestimonialsPage() {
                               newReviews[index].time = Number(e.target.value)
                               setReelData({ ...reelData, reviews: newReviews })
                             }}
-                            className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-md p-2 text-xs text-foreground outline-none"
+                            className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-md p-2 text-xs text-foreground outline-none"
                           />
                           <span className="text-xs text-muted-foreground">sec</span>
                         </div>
@@ -690,7 +690,7 @@ export default function AdminTestimonialsPage() {
                             newReviews[index].position = e.target.value as 'left' | 'right'
                             setReelData({ ...reelData, reviews: newReviews })
                           }}
-                          className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-md p-2 text-xs text-foreground outline-none"
+                          className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-md p-2 text-xs text-foreground outline-none"
                         >
                           <option value="left">Gauche</option>
                           <option value="right">Droite</option>
@@ -707,7 +707,7 @@ export default function AdminTestimonialsPage() {
                 <button
                   onClick={() => saveReelData(reelData)}
                   disabled={savingReel}
-                  className="rounded-full bg-gold hover:bg-gold/95 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-walnut transition-all shadow"
+                  className="rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-walnut transition-all shadow"
                 >
                   {savingReel ? 'Sauvegarde...' : 'Sauvegarder les avis'}
                 </button>

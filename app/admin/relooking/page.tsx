@@ -154,17 +154,17 @@ export default function AdminRelookingPage() {
                         ) : (
                           <ImageIcon className="absolute inset-0 m-auto text-stone-400 size-6" />
                         )}
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[8px] text-center font-bold">AVANT</div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-white/50 text-white text-[8px] text-center font-bold">AVANT</div>
                       </div>
                     </td>
                     <td className="p-4">
-                      <div className="w-16 h-16 rounded-md overflow-hidden bg-stone-100 relative border border-gold/30">
+                      <div className="w-16 h-16 rounded-md overflow-hidden bg-stone-100 relative border border-[#E8DCCB]/30">
                         {r.imageApresUrl ? (
                           <img src={r.imageApresUrl} alt="Après" className="w-full h-full object-cover" />
                         ) : (
                           <ImageIcon className="absolute inset-0 m-auto text-stone-400 size-6" />
                         )}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gold text-black text-[8px] text-center font-bold">APRÈS</div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-[#E8DCCB] text-black text-[8px] text-center font-bold">APRÈS</div>
                       </div>
                     </td>
                     <td className="p-4">
@@ -197,18 +197,18 @@ export default function AdminRelookingPage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/80 backdrop-blur-md">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-walnut border border-gold/20 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
+            className="bg-[#FAF7F2] border border-[#E8DCCB]/20 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
           >
-            <div className="p-6 border-b border-gold/10 flex justify-between items-center">
-              <h2 className="text-xl font-heading text-ivory flex items-center gap-2">
-                <ArrowLeftRight className="size-5 text-gold" />
+            <div className="p-6 border-b border-[#E8DCCB]/10 flex justify-between items-center">
+              <h2 className="text-xl font-heading text-[#3A2A21] flex items-center gap-2">
+                <ArrowLeftRight className="size-5 text-[#C17D59]" />
                 {editingRelooking ? "Modifier le relooking" : 'Ajouter un relooking'}
               </h2>
-              <button onClick={closeModal} className="text-ivory/50 hover:text-ivory">
+              <button onClick={closeModal} className="text-[#3A2A21]/50 hover:text-[#3A2A21]">
                 <X className="size-6" />
               </button>
             </div>
@@ -222,31 +222,31 @@ export default function AdminRelookingPage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-ivory/60 font-semibold mb-1">Titre de la restauration</label>
+                  <label className="block text-xs uppercase tracking-wider text-[#3A2A21]/60 font-semibold mb-1">Titre de la restauration</label>
                   <input
                     type="text"
                     required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-black/20 border border-gold/10 focus:border-gold/50 rounded-lg p-3 text-sm text-ivory outline-none shadow-inner transition-colors"
+                    className="w-full bg-white/20 border border-[#E8DCCB]/10 focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-[#3A2A21] outline-none shadow-inner transition-colors"
                     placeholder="Ex: Restauration d'une commode d'époque"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-ivory/60 font-semibold mb-1">Description</label>
+                  <label className="block text-xs uppercase tracking-wider text-[#3A2A21]/60 font-semibold mb-1">Description</label>
                   <textarea
                     required
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={4}
-                    className="w-full bg-black/20 border border-gold/10 focus:border-gold/50 rounded-lg p-3 text-sm text-ivory outline-none resize-none shadow-inner transition-colors"
+                    className="w-full bg-white/20 border border-[#E8DCCB]/10 focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-[#3A2A21] outline-none resize-none shadow-inner transition-colors"
                     placeholder="Détails du travail effectué..."
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gold/10">
-                  <div className="bg-black/10 p-4 rounded-xl border border-gold/5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[#E8DCCB]/10">
+                  <div className="bg-white/10 p-4 rounded-xl border border-[#E8DCCB]/5">
                     <label className="block text-sm font-bold text-stone-700 mb-2">Photo AVANT (État d'origine)</label>
                     <ImageUploader
                       label="Image Avant"
@@ -258,8 +258,8 @@ export default function AdminRelookingPage() {
                       uploadFn={adminApi.uploadImage}
                     />
                   </div>
-                  <div className="bg-black/10 p-4 rounded-xl border border-gold/5">
-                    <label className="block text-xs uppercase tracking-wider text-gold font-semibold mb-2">Photo APRÈS (Restauré)</label>
+                  <div className="bg-white/10 p-4 rounded-xl border border-[#E8DCCB]/5">
+                    <label className="block text-xs uppercase tracking-wider text-[#C17D59] font-semibold mb-2">Photo APRÈS (Restauré)</label>
                     <ImageUploader
                       label="Image Après"
                       imageUrl={imageApresUrl}
@@ -273,18 +273,18 @@ export default function AdminRelookingPage() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-6 border-t border-gold/10 mt-6">
+              <div className="flex justify-end gap-3 pt-6 border-t border-[#E8DCCB]/10 mt-6">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="rounded-full border border-gold/20 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-ivory hover:bg-white/5 transition-all"
+                  className="rounded-full border border-[#E8DCCB]/20 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-[#3A2A21] hover:bg-white/5 transition-all"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="rounded-full bg-gold hover:bg-gold/90 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-walnut transition-all shadow-[0_0_10px_rgba(201,168,76,0.2)] disabled:opacity-50"
+                  className="rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/90 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-walnut transition-all shadow-[0_0_10px_rgba(201,168,76,0.2)] disabled:opacity-50"
                 >
                   {uploading ? 'Enregistrement...' : 'Enregistrer'}
                 </button>

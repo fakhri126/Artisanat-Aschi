@@ -84,7 +84,7 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
   }, [isDragging])
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center bg-stone-950/20 rounded-3xl p-6 md:p-8 border border-gold/10 hover:border-gold/20 transition-all duration-300">
+    <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center bg-stone-950/20 rounded-3xl p-6 md:p-8 border border-[#E8DCCB]/10 hover:border-[#E8DCCB]/20 transition-all duration-300">
       {/* Draggable Slider Area */}
       <div
         ref={containerRef}
@@ -92,7 +92,7 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
         onTouchMove={handleTouchMove}
         onMouseDown={() => setIsDragging(true)}
         onTouchStart={() => setIsDragging(true)}
-        className="relative w-full lg:w-[50%] aspect-[16/10] rounded-2xl overflow-hidden shadow-xl select-none cursor-ew-resize border border-gold/15 shrink-0"
+        className="relative w-full lg:w-[50%] aspect-[16/10] rounded-2xl overflow-hidden shadow-xl select-none cursor-ew-resize border border-[#E8DCCB]/15 shrink-0"
       >
         {/* BEFORE image (Left/Background) */}
         <Image
@@ -123,16 +123,16 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
           />
         </div>
         
-        <div className="absolute top-3 right-3 z-20 bg-stone-900/80 backdrop-blur-md border border-gold/35 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-gold">
+        <div className="absolute top-3 right-3 z-20 bg-stone-900/80 backdrop-blur-md border border-[#E8DCCB]/35 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#C17D59]">
           Après
         </div>
 
         {/* Slider Divider Line */}
         <div
-          className="absolute top-0 bottom-0 z-30 w-[2.5px] bg-gold cursor-ew-resize flex items-center justify-center"
+          className="absolute top-0 bottom-0 z-30 w-[2.5px] bg-[#E8DCCB] cursor-ew-resize flex items-center justify-center"
           style={{ left: `${sliderPosition}%` }}
         >
-          <div className="w-8 h-8 rounded-full bg-gold text-walnut shadow-lg border-2 border-walnut flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-[#E8DCCB] text-walnut shadow-lg border-2 border-walnut flex items-center justify-center">
             <ArrowRightLeft className="size-3.5 text-walnut" />
           </div>
         </div>
@@ -141,7 +141,7 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
       {/* Description Area */}
       <div className="flex flex-col justify-between items-start text-left flex-1 py-1">
         <div className="space-y-4">
-          <span className="text-[10px] uppercase tracking-widest text-gold/80 font-semibold bg-gold/10 px-3 py-1 rounded-full border border-gold/15">
+          <span className="text-[10px] uppercase tracking-widest text-[#C17D59]/80 font-semibold bg-[#E8DCCB]/10 px-3 py-1 rounded-full border border-[#E8DCCB]/15">
             {FILTER_CATEGORIES.find(c => c.id === item.category)?.label || item.category}
           </span>
           
@@ -149,7 +149,7 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
             {item.title}
           </h3>
           
-          <p className="text-sm font-light leading-relaxed text-ivory/70 text-pretty">
+          <p className="text-sm font-light leading-relaxed text-[#3A2A21]/70 text-pretty">
             {item.description}
           </p>
         </div>
@@ -161,7 +161,7 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
             {item.steps.map((step, idx) => (
               <span
                 key={idx}
-                className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider text-ivory/80 font-medium"
+                className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider text-[#3A2A21]/80 font-medium"
               >
                 {step}
               </span>
@@ -181,26 +181,26 @@ export default function RelookingPage() {
     : ITEMS.filter(item => item.category === filter)
 
   return (
-    <main className="min-h-screen flex flex-col bg-walnut text-ivory">
+    <main className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#3A2A21]">
       <Navbar />
       
       <div className="flex-1 flex flex-col items-center justify-center px-6 pt-32 pb-24 max-w-6xl mx-auto w-full">
         {/* Page Header */}
         <div className="text-center mb-16 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/25 text-gold text-xs uppercase tracking-[0.2em] mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4">
             <Sparkles className="size-3.5" /> Restauration d&apos;Art
           </div>
           <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl text-white mb-6">
             Relooking &amp; Restauration
           </h1>
-          <p className="text-ivory/70 text-base sm:text-lg leading-relaxed text-pretty font-light">
+          <p className="text-[#3A2A21]/70 text-base sm:text-lg leading-relaxed text-pretty font-light">
             À l&apos;Atelier Aschi, nous croyons que chaque meuble ancien possède une âme. Nos ébénistes et sculpteurs restaurent, relaquent et subliment vos pièces de famille pour les adapter aux intérieurs contemporains les plus raffinés.
           </p>
         </div>
 
         {/* Filter Bar */}
         <Reveal delay={100} className="w-full flex justify-center mb-12 overflow-x-auto pb-3 scrollbar-thin">
-          <div className="flex gap-2 p-1.5 rounded-full bg-stone-950/40 border border-gold/15 backdrop-blur-sm shrink-0">
+          <div className="flex gap-2 p-1.5 rounded-full bg-stone-950/40 border border-[#E8DCCB]/15 backdrop-blur-sm shrink-0">
             {FILTER_CATEGORIES.map((cat) => {
               const isActive = filter === cat.id
               return (
@@ -209,8 +209,8 @@ export default function RelookingPage() {
                   onClick={() => setFilter(cat.id)}
                   className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs uppercase tracking-wider font-semibold transition-all duration-300 ${
                     isActive
-                      ? 'bg-gold text-walnut shadow-md'
-                      : 'text-ivory/60 hover:text-white hover:bg-white/5'
+                      ? 'bg-[#E8DCCB] text-walnut shadow-md'
+                      : 'text-[#3A2A21]/60 hover:text-white hover:bg-white/5'
                   }`}
                 >
                   {cat.label}
@@ -229,7 +229,7 @@ export default function RelookingPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center py-16 text-ivory/50"
+                className="text-center py-16 text-[#3A2A21]/50"
               >
                 Aucun projet de restauration trouvé pour cette catégorie.
               </motion.div>
@@ -254,12 +254,12 @@ export default function RelookingPage() {
 
         {/* Contact CTA Section */}
         <Reveal delay={200} className="w-full">
-          <div className="w-full bg-gradient-to-b from-stone-950 to-stone-950/60 border border-gold/25 rounded-3xl p-8 md:p-12 text-center shadow-2xl relative overflow-hidden flex flex-col items-center">
+          <div className="w-full bg-gradient-to-b from-stone-950 to-stone-950/60 border border-[#E8DCCB]/25 rounded-3xl p-8 md:p-12 text-center shadow-2xl relative overflow-hidden flex flex-col items-center">
             {/* Design accents */}
-            <div className="absolute -left-1/4 -top-1/2 w-1/2 h-full bg-gold/5 blur-[120px] pointer-events-none" />
-            <div className="absolute -right-1/4 -bottom-1/2 w-1/2 h-full bg-gold/5 blur-[120px] pointer-events-none" />
+            <div className="absolute -left-1/4 -top-1/2 w-1/2 h-full bg-[#E8DCCB]/5 blur-[120px] pointer-events-none" />
+            <div className="absolute -right-1/4 -bottom-1/2 w-1/2 h-full bg-[#E8DCCB]/5 blur-[120px] pointer-events-none" />
 
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs uppercase tracking-[0.2em] mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/20 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-6">
               <Hammer className="size-3.5" /> Donner vie à vos objets
             </div>
             
@@ -267,14 +267,14 @@ export default function RelookingPage() {
               Faites restaurer votre pièce de famille
             </h2>
             
-            <p className="text-ivory/60 text-sm max-w-xl mb-8 leading-relaxed font-light text-pretty">
+            <p className="text-[#3A2A21]/60 text-sm max-w-xl mb-8 leading-relaxed font-light text-pretty">
               Qu&apos;il s&apos;agisse de restaurer à l&apos;identique ou de relooker pour intégrer dans un décor moderne, nos artisans étudient vos pièces sur photo ou en atelier.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 href="/contact?subject=relooking"
-                className="inline-flex items-center gap-2.5 rounded-full bg-gold px-7 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:scale-[1.03] shadow-[0_4px_15px_rgba(212,175,55,0.2)]"
+                className="inline-flex items-center gap-2.5 rounded-full bg-[#E8DCCB] px-7 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:scale-[1.03] shadow-[0_4px_15px_rgba(212,175,55,0.2)]"
               >
                 <Mail className="size-3.5" />
                 Demander une étude
@@ -284,7 +284,7 @@ export default function RelookingPage() {
                 href="tel:+21655743760"
                 className="inline-flex items-center gap-2.5 rounded-full bg-white/5 border border-white/10 px-7 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:bg-white/10"
               >
-                <Phone className="size-3.5 text-gold" />
+                <Phone className="size-3.5 text-[#C17D59]" />
                 +216 55 743 760
               </a>
             </div>

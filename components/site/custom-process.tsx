@@ -75,7 +75,7 @@ export function CustomProcess() {
         <Reveal delay={200} className="mt-16 text-center">
           <a
             href="#contact"
-            className="inline-block rounded-full bg-walnut px-10 py-4 text-xs font-medium uppercase tracking-[0.18em] text-walnut-foreground transition-colors hover:bg-bronze"
+            className="inline-block rounded-full bg-[#FAF7F2] px-10 py-4 text-xs font-medium uppercase tracking-[0.18em] text-[#5A453A] transition-colors hover:bg-bronze"
           >
             Démarrer mon projet sur-mesure
           </a>

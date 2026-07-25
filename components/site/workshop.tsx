@@ -60,7 +60,7 @@ export function Workshop() {
                     alt={step.title}
                     className="aspect-[5/4] w-full object-cover transition-transform duration-[1.4s] hover:scale-105"
                   />
-                  <span className="pointer-events-none absolute bottom-4 left-5 font-heading text-6xl font-light text-ivory/85 text-shadow-cinematic">
+                  <span className="pointer-events-none absolute bottom-4 left-5 font-heading text-6xl font-light text-[#3A2A21]/85 text-shadow-cinematic">
                     {step.num}
                   </span>
                 </div>

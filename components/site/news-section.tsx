@@ -67,7 +67,7 @@ export function NewsSection() {
   if (loading) {
     return (
       <section id="actualites" className="bg-[#1a1512] py-20 text-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent mx-auto"></div>
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#E8DCCB] border-t-transparent mx-auto"></div>
       </section>
     )
   }
@@ -77,20 +77,20 @@ export function NewsSection() {
   }
 
   return (
-    <section id="actualites" className="bg-[#1a1512] py-24 md:py-36 border-t border-gold/15 relative overflow-hidden text-ivory">
+    <section id="actualites" className="bg-[#1a1512] py-24 md:py-36 border-t border-[#E8DCCB]/15 relative overflow-hidden text-[#3A2A21]">
       {/* Background ambient gold lighting */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 bg-gold/5 blur-[150px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 bg-[#E8DCCB]/5 blur-[150px] pointer-events-none rounded-full" />
 
       <div className="mx-auto max-w-7xl px-5 sm:px-8 relative z-10">
         {/* Section Title */}
         <Reveal className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold/10 border border-gold/25 text-gold text-xs uppercase tracking-[0.2em] mb-4 font-semibold shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4 font-semibold shadow-sm">
             <Feather className="size-3.5" /> Actualités &amp; Événements
           </div>
           <h2 className="font-heading text-4xl font-light leading-tight sm:text-5xl md:text-6xl text-white text-balance max-w-3xl mx-auto">
             La vie de notre maison d&apos;art
           </h2>
-          <p className="mx-auto mt-6 max-w-xl text-pretty text-base font-light leading-relaxed text-ivory/70">
+          <p className="mx-auto mt-6 max-w-xl text-pretty text-base font-light leading-relaxed text-[#3A2A21]/70">
             Suivez les temps forts de l&apos;atelier : expositions nationales, vie des artisans, nouvelles collections et projets d&apos;exception.
           </p>
         </Reveal>
@@ -115,7 +115,7 @@ export function NewsSection() {
                   {/* Photo thumbnail */}
                   <div 
                     onClick={() => setSelectedNews(isExpanded ? null : item)}
-                    className="relative w-full md:w-72 aspect-[16/10] overflow-hidden rounded-2xl bg-stone-950 shrink-0 border border-gold/25 shadow-xl group cursor-pointer"
+                    className="relative w-full md:w-72 aspect-[16/10] overflow-hidden rounded-2xl bg-stone-950 shrink-0 border border-[#E8DCCB]/25 shadow-xl group cursor-pointer"
                   >
                     <motion.img
                       whileHover={{ scale: 1.08 }}
@@ -130,7 +130,7 @@ export function NewsSection() {
                     
                     {isRecent(item.createdDate) && (
                       <div className="absolute top-3 right-3">
-                        <span className="bg-gold text-walnut text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                        <span className="bg-[#E8DCCB] text-walnut text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg">
                           <Sparkles className="size-2.5" /> Nouveau
                         </span>
                       </div>
@@ -140,21 +140,21 @@ export function NewsSection() {
                   {/* Summary & Expanded content */}
                   <div className="flex flex-col justify-between py-1 flex-1 space-y-4">
                     <div className="space-y-3">
-                      <div className="flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-gold font-semibold">
+                      <div className="flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-[0.18em] text-[#C17D59] font-semibold">
                         <span className="flex items-center gap-1.5">
-                          <Calendar className="size-3.5 text-gold" />
+                          <Calendar className="size-3.5 text-[#C17D59]" />
                           {dateStr}
                         </span>
-                        <span className="text-gold/40">•</span>
+                        <span className="text-[#C17D59]/40">•</span>
                         <span className="flex items-center gap-1.5">
-                          <Clock className="size-3.5 text-gold" />
+                          <Clock className="size-3.5 text-[#C17D59]" />
                           {getReadTime(item.content)}
                         </span>
                       </div>
 
                       <h3 
                         onClick={() => setSelectedNews(isExpanded ? null : item)}
-                        className="font-heading text-2xl sm:text-3xl font-light text-white group-hover:text-gold transition-colors duration-300 leading-tight text-balance cursor-pointer"
+                        className="font-heading text-2xl sm:text-3xl font-light text-white group-hover:text-[#C17D59] transition-colors duration-300 leading-tight text-balance cursor-pointer"
                       >
                         {item.title}
                       </h3>
@@ -167,7 +167,7 @@ export function NewsSection() {
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.3 }}
-                            className="text-sm font-light leading-relaxed text-ivory/70 max-w-3xl text-pretty line-clamp-3"
+                            className="text-sm font-light leading-relaxed text-[#3A2A21]/70 max-w-3xl text-pretty line-clamp-3"
                           >
                             {item.content}
                           </motion.p>
@@ -219,7 +219,7 @@ export function NewsSection() {
                     <div className="mt-4">
                       <button
                         onClick={() => setSelectedNews(isExpanded ? null : item)}
-                        className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-gold hover:text-white bg-gold/10 hover:bg-gold/20 border border-gold/30 px-5 py-2.5 rounded-full transition-all shadow-md group/btn cursor-pointer"
+                        className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#C17D59] hover:text-white bg-[#E8DCCB]/10 hover:bg-[#E8DCCB]/20 border border-[#E8DCCB]/30 px-5 py-2.5 rounded-full transition-all shadow-md group/btn cursor-pointer"
                       >
                         {isExpanded ? (
                           <>

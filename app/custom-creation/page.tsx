@@ -11,19 +11,19 @@ export const metadata = {
 
 export default function CustomCreationPage() {
   return (
-    <main className="min-h-screen bg-walnut text-ivory">
+    <main className="min-h-screen bg-[#FAF7F2] text-[#3A2A21]">
       <Navbar />
       
       {/* Intro & Wizard Form */}
       <div className="pt-32 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center">
         <div className="text-center mb-12 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/25 text-gold text-xs uppercase tracking-[0.2em] mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4">
             <Sparkles className="size-3.5" /> Service sur Mesure
           </div>
           <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl text-white mb-6">
             Votre création unique
           </h1>
-          <p className="text-ivory/70 text-base sm:text-lg leading-relaxed">
+          <p className="text-[#3A2A21]/70 text-base sm:text-lg leading-relaxed">
             De l&apos;esquisse initiale à la finition ciselée à la main, nous façonnons la pièce qui s&apos;intégrera parfaitement dans votre espace de vie. Suivez notre configurateur de projet pour exprimer votre besoin.
           </p>
         </div>
@@ -32,12 +32,12 @@ export default function CustomCreationPage() {
       </div>
 
       {/* Catalog / Inspiration Section */}
-      <div className="bg-stone-950/40 border-t border-gold/10 py-20">
+      <div className="bg-stone-950/40 border-t border-[#E8DCCB]/10 py-20">
         <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
           <h2 className="font-heading text-3xl sm:text-4xl text-white mb-4">
             Galerie d&apos;Inspiration
           </h2>
-          <p className="text-ivory/60 text-sm max-w-xl mx-auto font-light">
+          <p className="text-[#3A2A21]/60 text-sm max-w-xl mx-auto font-light">
             Découvrez quelques-uns de nos modèles passés. Toute pièce peut être reproduite ou servir de base d&apos;inspiration pour votre propre création.
           </p>
         </div>

@@ -115,16 +115,16 @@ export function CatalogPage() {
   ].filter(Boolean).length
 
   return (
-    <section className="min-h-screen bg-walnut py-16 text-walnut-foreground md:py-24">
+    <section className="min-h-screen bg-[#FAF7F2] py-16 text-[#5A453A] md:py-24">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
 
         {/* Header */}
         <FadeIn className="text-center mb-14">
-          <p className="text-xs uppercase tracking-luxury text-gold">Catalogue d&apos;inspiration</p>
-          <h1 className="mx-auto mt-5 max-w-3xl text-balance font-heading text-5xl font-light leading-tight sm:text-6xl md:text-7xl text-ivory">
+          <p className="text-xs uppercase tracking-luxury text-[#C17D59]">Catalogue d&apos;inspiration</p>
+          <h1 className="mx-auto mt-5 max-w-3xl text-balance font-heading text-5xl font-light leading-tight sm:text-6xl md:text-7xl text-[#3A2A21]">
             Nos créations passées, sources d&apos;inspiration
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-base font-light leading-relaxed text-walnut-foreground/65">
+          <p className="mx-auto mt-5 max-w-xl text-base font-light leading-relaxed text-[#5A453A]/65">
             Parcourez les modèles déjà réalisés. Choisissez-en un tel quel, ou
             laissez-le inspirer votre propre création sur-mesure.
           </p>
@@ -132,10 +132,10 @@ export function CatalogPage() {
 
         {/* IA Disclaimer banner */}
         <FadeIn delay={0.1}>
-          <div className="mb-10 flex items-start gap-3 rounded-2xl border border-gold/20 bg-gold/5 px-5 py-4 text-sm text-walnut-foreground/70 backdrop-blur-sm">
-            <Bot className="mt-0.5 size-5 shrink-0 text-gold" />
+          <div className="mb-10 flex items-start gap-3 rounded-2xl border border-[#E8DCCB]/20 bg-[#E8DCCB]/5 px-5 py-4 text-sm text-[#5A453A]/70 backdrop-blur-sm">
+            <Bot className="mt-0.5 size-5 shrink-0 text-[#C17D59]" />
             <div>
-              <span className="font-semibold text-gold">Note IA — </span>
+              <span className="font-semibold text-[#C17D59]">Note IA — </span>
               Certains modèles de ce catalogue sont générés ou améliorés par intelligence artificielle à des fins d&apos;illustration. Ils peuvent ne pas correspondre à des réalisations physiques existantes. Contactez-nous pour vérifier la disponibilité d&apos;un modèle spécifique.
             </div>
           </div>
@@ -143,7 +143,7 @@ export function CatalogPage() {
 
         {/* Filter panel */}
         <FadeIn delay={0.15}>
-          <div className="mb-10 rounded-3xl border border-gold/15 bg-zinc-950/20 backdrop-blur-sm overflow-hidden">
+          <div className="mb-10 rounded-3xl border border-[#E8DCCB]/15 bg-zinc-950/20 backdrop-blur-sm overflow-hidden">
             {/* Filter header — toggle on mobile */}
             <button
               type="button"
@@ -151,28 +151,28 @@ export function CatalogPage() {
               className="flex w-full items-center justify-between px-6 py-4 text-left md:cursor-default"
             >
               <div className="flex items-center gap-2.5">
-                <SlidersHorizontal className="size-4 text-gold" />
-                <span className="text-sm font-semibold uppercase tracking-wider text-gold">Filtrer les modèles</span>
+                <SlidersHorizontal className="size-4 text-[#C17D59]" />
+                <span className="text-sm font-semibold uppercase tracking-wider text-[#C17D59]">Filtrer les modèles</span>
                 {activeFilterCount > 0 && (
-                  <span className="flex size-5 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-walnut">
+                  <span className="flex size-5 items-center justify-center rounded-full bg-[#E8DCCB] text-[10px] font-bold text-walnut">
                     {activeFilterCount}
                   </span>
                 )}
               </div>
-              <span className="text-xs text-walnut-foreground/40 md:hidden">
+              <span className="text-xs text-[#5A453A]/40 md:hidden">
                 {showFilters ? 'Masquer' : 'Afficher'}
               </span>
             </button>
 
             <div className={cn(
-              'border-t border-gold/10 px-6 py-6 space-y-7 transition-all duration-300',
+              'border-t border-[#E8DCCB]/10 px-6 py-6 space-y-7 transition-all duration-300',
               'md:block',
               showFilters ? 'block' : 'hidden md:block'
             )}>
 
               {/* Category pills */}
               <div>
-                <p className="mb-3 text-xs uppercase tracking-wider text-gold/70 font-semibold">Catégorie</p>
+                <p className="mb-3 text-xs uppercase tracking-wider text-[#C17D59]/70 font-semibold">Catégorie</p>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map(cat => (
                     <button
@@ -182,8 +182,8 @@ export function CatalogPage() {
                       className={cn(
                         'rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-[0.12em] transition-all duration-200',
                         category === cat
-                          ? 'bg-gold text-walnut shadow-md'
-                          : 'border border-gold/20 text-walnut-foreground/60 hover:border-gold/50 hover:text-ivory'
+                          ? 'bg-[#E8DCCB] text-walnut shadow-md'
+                          : 'border border-[#E8DCCB]/20 text-[#5A453A]/60 hover:border-[#E8DCCB]/50 hover:text-[#3A2A21]'
                       )}
                     >
                       {cat}
@@ -194,7 +194,7 @@ export function CatalogPage() {
 
               {/* Color swatches */}
               <div>
-                <p className="mb-3 text-xs uppercase tracking-wider text-gold/70 font-semibold">Couleur du bois</p>
+                <p className="mb-3 text-xs uppercase tracking-wider text-[#C17D59]/70 font-semibold">Couleur du bois</p>
                 <div className="flex flex-wrap gap-3">
                   {COLORS.map(c => (
                     <button
@@ -210,13 +210,13 @@ export function CatalogPage() {
                           color === c.label
                             ? 'scale-110 ring-2 ring-gold ring-offset-2 ring-offset-walnut'
                             : 'group-hover:scale-105',
-                          c.hex ? c.border : 'border-gold/40'
+                          c.hex ? c.border : 'border-[#E8DCCB]/40'
                         )}
                         style={c.hex ? { backgroundColor: c.hex } : { background: 'conic-gradient(red, yellow, green, cyan, blue, magenta, red)' }}
                       />
                       <span className={cn(
                         'text-[10px] font-medium transition-colors',
-                        color === c.label ? 'text-gold' : 'text-walnut-foreground/50 group-hover:text-ivory'
+                        color === c.label ? 'text-[#C17D59]' : 'text-[#5A453A]/50 group-hover:text-[#3A2A21]'
                       )}>
                         {c.label === 'Tout' ? 'Toutes' : c.label}
                       </span>
@@ -227,7 +227,7 @@ export function CatalogPage() {
 
               {/* Dimension pills */}
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                <p className="text-xs uppercase tracking-wider text-gold/70 font-semibold">Dimensions</p>
+                <p className="text-xs uppercase tracking-wider text-[#C17D59]/70 font-semibold">Dimensions</p>
                 <div className="flex flex-wrap gap-2">
                   {DIMENSIONS.map(d => (
                     <button
@@ -237,8 +237,8 @@ export function CatalogPage() {
                       className={cn(
                         'rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200',
                         dimension === d
-                          ? 'bg-gold/20 border border-gold text-gold'
-                          : 'border border-gold/15 text-walnut-foreground/50 hover:border-gold/40 hover:text-ivory'
+                          ? 'bg-[#E8DCCB]/20 border border-[#E8DCCB] text-[#C17D59]'
+                          : 'border border-[#E8DCCB]/15 text-[#5A453A]/50 hover:border-[#E8DCCB]/40 hover:text-[#3A2A21]'
                       )}
                     >
                       {d}
@@ -264,8 +264,8 @@ export function CatalogPage() {
         {/* Results count */}
         <FadeIn delay={0.2}>
           <div className="mb-6 flex items-center justify-between">
-            <p className="text-sm text-walnut-foreground/50">
-              <span className="text-ivory font-semibold">{products.length}</span> modèle{products.length !== 1 ? 's' : ''} trouvé{products.length !== 1 ? 's' : ''}
+            <p className="text-sm text-[#5A453A]/50">
+              <span className="text-[#3A2A21] font-semibold">{products.length}</span> modèle{products.length !== 1 ? 's' : ''} trouvé{products.length !== 1 ? 's' : ''}
             </p>
           </div>
         </FadeIn>
@@ -280,7 +280,7 @@ export function CatalogPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <div className="size-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+              <div className="size-8 animate-spin rounded-full border-2 border-[#E8DCCB] border-t-transparent" />
             </motion.div>
           ) : products.length === 0 ? (
             <motion.div
@@ -290,8 +290,8 @@ export function CatalogPage() {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center py-24 text-center"
             >
-              <p className="font-heading text-2xl text-ivory/40">Aucun modèle trouvé</p>
-              <p className="mt-2 text-sm text-walnut-foreground/30">Essayez d&apos;autres critères de filtrage.</p>
+              <p className="font-heading text-2xl text-[#3A2A21]/40">Aucun modèle trouvé</p>
+              <p className="mt-2 text-sm text-[#5A453A]/30">Essayez d&apos;autres critères de filtrage.</p>
             </motion.div>
           ) : (
             <motion.div
@@ -315,7 +315,7 @@ export function CatalogPage() {
                     }}
                     onHoverStart={() => setHoveredId(model.id)}
                     onHoverEnd={() => setHoveredId(null)}
-                    className="group relative overflow-hidden rounded-2xl border border-gold/10"
+                    className="group relative overflow-hidden rounded-2xl border border-[#E8DCCB]/10"
                   >
                     {/* Image */}
                     <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900">
@@ -329,16 +329,16 @@ export function CatalogPage() {
 
                       {/* Dark overlay on hover */}
                       <motion.div
-                        className="absolute inset-0 bg-walnut/65 backdrop-blur-[2px]"
+                        className="absolute inset-0 bg-[#FAF7F2]/65 backdrop-blur-[2px]"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: isHovered ? 1 : 0 }}
                         transition={{ duration: 0.35 }}
                       />
 
                       {/* AI badge */}
-                      <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 backdrop-blur-sm">
-                        <Bot className="size-3 text-gold" />
-                        <span className="text-[9px] uppercase tracking-wider text-gold/80 font-medium">IA</span>
+                      <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-white/50 px-2 py-1 backdrop-blur-sm">
+                        <Bot className="size-3 text-[#C17D59]" />
+                        <span className="text-[9px] uppercase tracking-wider text-[#C17D59]/80 font-medium">IA</span>
                       </div>
 
                       {/* Color swatch badge */}
@@ -366,19 +366,19 @@ export function CatalogPage() {
                       >
                         <Link
                           href={link}
-                          className="flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-walnut transition-colors hover:bg-ivory"
+                          className="flex w-full items-center justify-center gap-2 rounded-full bg-[#E8DCCB] py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-walnut transition-colors hover:bg-ivory"
                         >
                           <Eye className="size-3.5" /> Voir les détails
                         </Link>
                         <Link
                           href={`${link}?action=devis`}
-                          className="flex w-full items-center justify-center gap-2 rounded-full border border-ivory/60 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ivory transition-colors hover:border-gold hover:text-gold"
+                          className="flex w-full items-center justify-center gap-2 rounded-full border border-ivory/60 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#3A2A21] transition-colors hover:border-[#E8DCCB] hover:text-[#C17D59]"
                         >
                           <MessageCircle className="size-3.5" /> Demander ce modèle
                         </Link>
                         <Link
                           href={`${link}?action=personnaliser`}
-                          className="flex w-full items-center justify-center gap-2 rounded-full border border-ivory/60 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ivory transition-colors hover:border-gold hover:text-gold"
+                          className="flex w-full items-center justify-center gap-2 rounded-full border border-ivory/60 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#3A2A21] transition-colors hover:border-[#E8DCCB] hover:text-[#C17D59]"
                         >
                           <Sparkles className="size-3.5" /> Personnaliser
                         </Link>
@@ -389,18 +389,18 @@ export function CatalogPage() {
                     <div className="bg-zinc-950/30 p-4">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="font-heading text-lg font-medium leading-tight text-ivory">
+                          <h3 className="font-heading text-lg font-medium leading-tight text-[#3A2A21]">
                             {model.name}
                           </h3>
-                          <p className="mt-0.5 text-xs text-walnut-foreground/50">{model.materials}</p>
+                          <p className="mt-0.5 text-xs text-[#5A453A]/50">{model.materials}</p>
                         </div>
-                        <span className="shrink-0 rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-gold font-medium">
+                        <span className="shrink-0 rounded-full border border-[#E8DCCB]/30 bg-[#E8DCCB]/10 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-[#C17D59] font-medium">
                           {model.category?.name}
                         </span>
                       </div>
-                      <div className="mt-3 flex items-center justify-between border-t border-gold/10 pt-3">
-                        <span className="text-xs text-walnut-foreground/40">{model.dimensions}</span>
-                        <span className="text-xs font-semibold text-gold">
+                      <div className="mt-3 flex items-center justify-between border-t border-[#E8DCCB]/10 pt-3">
+                        <span className="text-xs text-[#5A453A]/40">{model.dimensions}</span>
+                        <span className="text-xs font-semibold text-[#C17D59]">
                           Sur devis
                         </span>
                       </div>

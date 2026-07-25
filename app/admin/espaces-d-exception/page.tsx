@@ -152,35 +152,35 @@ export default function AdminEspacesDExceptionPage() {
   })
 
   return (
-    <div className="p-6 md:p-10 space-y-8 text-left text-ivory">
+    <div className="p-6 md:p-10 space-y-8 text-left text-[#3A2A21]">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gold/10 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E8DCCB]/10 pb-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/25 text-gold text-xs uppercase tracking-widest mb-2 font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-widest mb-2 font-semibold">
             <Briefcase className="size-3.5" /> Aménagements de Prestige
           </div>
           <h1 className="font-heading text-3xl md:text-4xl text-white font-medium">Espaces d&apos;Exception</h1>
-          <p className="text-sm text-ivory/60 mt-1 font-light">Gérez les projets clés en main pour Hôtels, Maisons d&apos;Hôtes, Restaurants et Entreprises.</p>
+          <p className="text-sm text-[#3A2A21]/60 mt-1 font-light">Gérez les projets clés en main pour Hôtels, Maisons d&apos;Hôtes, Restaurants et Entreprises.</p>
         </div>
 
         <button
           onClick={() => handleOpenModal()}
-          className="inline-flex items-center gap-2 bg-gold text-walnut px-5 py-3 rounded-full text-xs font-bold uppercase tracking-wider hover:scale-105 transition-all shadow-md self-start md:self-auto"
+          className="inline-flex items-center gap-2 bg-[#E8DCCB] text-walnut px-5 py-3 rounded-full text-xs font-bold uppercase tracking-wider hover:scale-105 transition-all shadow-md self-start md:self-auto"
         >
           <Plus className="size-4" /> Nouveau Projet
         </button>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-walnut p-4 rounded-xl border border-gold/10">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-[#FAF7F2] p-4 rounded-xl border border-[#E8DCCB]/10">
         <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-ivory/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#3A2A21]/40" />
           <input
             type="text"
             placeholder="Rechercher par titre ou lieu..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-stone-900 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-xs text-white placeholder:text-ivory/30 outline-none focus:border-gold"
+            className="w-full bg-stone-900 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-xs text-white placeholder:text-[#3A2A21]/30 outline-none focus:border-[#E8DCCB]"
           />
         </div>
 
@@ -197,8 +197,8 @@ export default function AdminEspacesDExceptionPage() {
               onClick={() => setCategoryFilter(cat.id)}
               className={`px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider font-semibold transition-colors shrink-0 ${
                 categoryFilter === cat.id 
-                  ? 'bg-gold text-walnut' 
-                  : 'bg-stone-900 text-ivory/60 hover:text-white border border-white/5'
+                  ? 'bg-[#E8DCCB] text-walnut' 
+                  : 'bg-stone-900 text-[#3A2A21]/60 hover:text-white border border-white/5'
               }`}
             >
               {cat.label}
@@ -209,11 +209,11 @@ export default function AdminEspacesDExceptionPage() {
 
       {/* Grid of Projects */}
       {loading ? (
-        <div className="py-20 text-center text-ivory/50 flex justify-center">
-          <RefreshCw className="size-6 animate-spin text-gold" />
+        <div className="py-20 text-center text-[#3A2A21]/50 flex justify-center">
+          <RefreshCw className="size-6 animate-spin text-[#C17D59]" />
         </div>
       ) : filteredProjects.length === 0 ? (
-        <div className="py-16 text-center text-ivory/40 bg-stone-900/40 rounded-xl border border-white/5">
+        <div className="py-16 text-center text-[#3A2A21]/40 bg-stone-900/40 rounded-xl border border-white/5">
           Aucun projet trouvé. Cliquez sur &quot;Nouveau Projet&quot; pour en ajouter un.
         </div>
       ) : (
@@ -221,35 +221,35 @@ export default function AdminEspacesDExceptionPage() {
           {filteredProjects.map((project) => (
             <div 
               key={project.id}
-              className="bg-walnut rounded-2xl border border-gold/10 overflow-hidden hover:border-gold/30 transition-all flex flex-col justify-between"
+              className="bg-[#FAF7F2] rounded-2xl border border-[#E8DCCB]/10 overflow-hidden hover:border-[#E8DCCB]/30 transition-all flex flex-col justify-between"
             >
-              <div className="relative aspect-[16/9] w-full bg-stone-900 border-b border-gold/10">
+              <div className="relative aspect-[16/9] w-full bg-stone-900 border-b border-[#E8DCCB]/10">
                 <Image
                   src={project.imageUrl || '/project-hotel.png'}
                   alt={project.title}
                   fill
                   className="object-cover"
                 />
-                <div className="absolute top-3 left-3 bg-stone-950/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-gold border border-gold/20">
+                <div className="absolute top-3 left-3 bg-stone-950/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#C17D59] border border-[#E8DCCB]/20">
                   {project.category}
                 </div>
               </div>
 
               <div className="p-5 space-y-3 flex-1">
-                <div className="flex items-center gap-1.5 text-xs text-gold/80 font-semibold">
+                <div className="flex items-center gap-1.5 text-xs text-[#C17D59]/80 font-semibold">
                   <MapPin className="size-3.5" /> {project.location || 'Tunis'}
                 </div>
 
                 <h3 className="font-heading text-2xl text-white font-medium">{project.title}</h3>
                 
-                <p className="text-xs text-ivory/70 font-light leading-relaxed line-clamp-3">
+                <p className="text-xs text-[#3A2A21]/70 font-light leading-relaxed line-clamp-3">
                   {project.description}
                 </p>
 
                 {project.details && (
                   <div className="flex flex-wrap gap-1.5 pt-2">
                     {project.details.split(',').map((tag, idx) => (
-                      <span key={idx} className="bg-white/5 border border-white/5 px-2.5 py-0.5 rounded text-[9px] text-ivory/60">
+                      <span key={idx} className="bg-white/5 border border-white/5 px-2.5 py-0.5 rounded text-[9px] text-[#3A2A21]/60">
                         {tag.trim()}
                       </span>
                     ))}
@@ -260,7 +260,7 @@ export default function AdminEspacesDExceptionPage() {
               <div className="px-5 py-3.5 bg-stone-950/60 border-t border-white/5 flex items-center justify-end gap-2">
                 <button
                   onClick={() => handleOpenModal(project)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 text-gold hover:bg-gold hover:text-walnut text-xs font-semibold transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut text-xs font-semibold transition-colors"
                 >
                   <Edit className="size-3.5" /> Modifier
                 </button>
@@ -278,11 +278,11 @@ export default function AdminEspacesDExceptionPage() {
 
       {/* Editor Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-stone-900 border border-gold/30 rounded-2xl max-w-lg w-full p-6 md:p-8 space-y-6 shadow-2xl relative text-left">
+        <div className="fixed inset-0 z-50 bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-stone-900 border border-[#E8DCCB]/30 rounded-2xl max-w-lg w-full p-6 md:p-8 space-y-6 shadow-2xl relative text-left">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-ivory/40 hover:text-white"
+              className="absolute top-4 right-4 text-[#3A2A21]/40 hover:text-white"
             >
               <X className="size-5" />
             </button>
@@ -295,24 +295,24 @@ export default function AdminEspacesDExceptionPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Titre du Projet *</label>
+                <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Titre du Projet *</label>
                 <input
                   type="text"
                   required
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Ex: Hôtel Dar El Jeld"
-                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 outline-none focus:border-gold transition-colors text-white text-xs"
+                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 outline-none focus:border-[#E8DCCB] transition-colors text-white text-xs"
                 />
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Type d&apos;Établissement *</label>
+                  <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Type d&apos;Établissement *</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="rounded-lg border border-white/10 bg-stone-950 px-4 py-2.5 outline-none focus:border-gold transition-colors text-white text-xs"
+                    className="rounded-lg border border-white/10 bg-stone-950 px-4 py-2.5 outline-none focus:border-[#E8DCCB] transition-colors text-white text-xs"
                   >
                     <option value="hotel">Hôtel de luxe</option>
                     <option value="guesthouse">Maison d&apos;Hôtes</option>
@@ -322,32 +322,32 @@ export default function AdminEspacesDExceptionPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Localisation *</label>
+                  <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Localisation *</label>
                   <input
                     type="text"
                     required
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     placeholder="Ex: Médina de Tunis"
-                    className="rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 outline-none focus:border-gold transition-colors text-white text-xs"
+                    className="rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 outline-none focus:border-[#E8DCCB] transition-colors text-white text-xs"
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Détails &amp; Tags (Séparés par des virgules)</label>
+                <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Détails &amp; Tags (Séparés par des virgules)</label>
                 <input
                   type="text"
                   value={formData.details}
                   onChange={(e) => setFormData({ ...formData, details: e.target.value })}
                   placeholder="Portes monumentales, Boiseries d'art, Salons"
-                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 outline-none focus:border-gold transition-colors text-white text-xs"
+                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 outline-none focus:border-[#E8DCCB] transition-colors text-white text-xs"
                 />
               </div>
 
               {/* Photo Upload / URL */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Photo de couverture *</label>
+                <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Photo de couverture *</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -355,9 +355,9 @@ export default function AdminEspacesDExceptionPage() {
                     value={formData.imageUrl}
                     onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                     placeholder="/project-hotel.png ou URL"
-                    className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-xs outline-none focus:border-gold text-white"
+                    className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-xs outline-none focus:border-[#E8DCCB] text-white"
                   />
-                  <label className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-gold hover:text-walnut px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
+                  <label className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-[#E8DCCB] hover:text-walnut px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
                     <Upload className="size-3.5" />
                     {uploading ? '...' : 'Fichier'}
                     <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
@@ -366,19 +366,19 @@ export default function AdminEspacesDExceptionPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] uppercase tracking-widest text-gold font-bold">Description du Projet</label>
+                <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Description du Projet</label>
                 <textarea
                   rows={4}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Décrivez l'intervention de l'atelier, l'ébénisterie et la sculpture..."
-                  className="resize-none rounded-lg border border-white/10 bg-white/5 px-4 py-2 outline-none focus:border-gold text-xs text-white"
+                  className="resize-none rounded-lg border border-white/10 bg-white/5 px-4 py-2 outline-none focus:border-[#E8DCCB] text-xs text-white"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-gold text-walnut py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:scale-[1.02] transition-transform mt-4 shadow-lg"
+                className="w-full bg-[#E8DCCB] text-walnut py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:scale-[1.02] transition-transform mt-4 shadow-lg"
               >
                 {editingProject ? 'Enregistrer les modifications' : 'Créer le projet'}
               </button>

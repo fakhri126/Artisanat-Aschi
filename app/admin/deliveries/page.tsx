@@ -185,7 +185,7 @@ export default function AdminDeliveriesPage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/80 backdrop-blur-md">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -193,7 +193,7 @@ export default function AdminDeliveriesPage() {
           >
             <div className="flex items-center justify-between p-6 border-b border-stone-800">
               <h2 className="text-2xl font-heading text-white flex items-center gap-2">
-                <Truck className="size-5 text-gold" />
+                <Truck className="size-5 text-[#C17D59]" />
                 {editingDelivery ? 'Modifier la livraison' : 'Nouvelle livraison'}
               </h2>
               <button 
@@ -214,8 +214,8 @@ export default function AdminDeliveriesPage() {
               <form id="delivery-form" onSubmit={handleSave} className="space-y-6">
                 
                 {/* Images Upload Section */}
-                <div className="bg-stone-950/50 p-6 rounded-xl border border-gold/10">
-                  <h3 className="text-sm font-bold text-gold mb-4 uppercase tracking-wider">Photo de la livraison</h3>
+                <div className="bg-stone-950/50 p-6 rounded-xl border border-[#E8DCCB]/10">
+                  <h3 className="text-sm font-bold text-[#C17D59] mb-4 uppercase tracking-wider">Photo de la livraison</h3>
                   
                   <div>
                     <ImageUploader
@@ -239,7 +239,7 @@ export default function AdminDeliveriesPage() {
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="Ex: Livraison d'une table basse à Carthage"
-                      className="w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all"
+                      className="w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#E8DCCB]/50 focus:ring-1 focus:ring-gold/50 transition-all"
                     />
                   </div>
 
@@ -249,7 +249,7 @@ export default function AdminDeliveriesPage() {
                       type="date"
                       value={deliveryDate}
                       onChange={(e) => setDeliveryDate(e.target.value)}
-                      className="w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all"
+                      className="w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#E8DCCB]/50 focus:ring-1 focus:ring-gold/50 transition-all"
                     />
                   </div>
                   
@@ -260,7 +260,7 @@ export default function AdminDeliveriesPage() {
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Décrivez l'objet livré, l'installation chez le client..."
                       rows={4}
-                      className="w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all resize-none"
+                      className="w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#E8DCCB]/50 focus:ring-1 focus:ring-gold/50 transition-all resize-none"
                     />
                   </div>
                 </div>
@@ -281,7 +281,7 @@ export default function AdminDeliveriesPage() {
                 form="delivery-form"
                 type="submit"
                 disabled={uploading}
-                className="px-6 py-2.5 rounded-lg bg-gold text-stone-900 font-semibold hover:bg-yellow-500 transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2.5 rounded-lg bg-[#E8DCCB] text-stone-900 font-semibold hover:bg-yellow-500 transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 {uploading ? (
                   <>Patientez...</>

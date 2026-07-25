@@ -102,10 +102,10 @@ export default function ProductDetailPage({ params }: PageProps) {
     return (
       <>
         <Navbar />
-        <div className="flex h-screen items-center justify-center bg-walnut text-ivory">
+        <div className="flex h-screen items-center justify-center bg-[#FAF7F2] text-[#3A2A21]">
           <div className="text-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-gold border-t-transparent mx-auto"></div>
-            <p className="mt-4 text-xs uppercase tracking-[0.2em] text-gold font-light">Chargement de la création...</p>
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#E8DCCB] border-t-transparent mx-auto"></div>
+            <p className="mt-4 text-xs uppercase tracking-[0.2em] text-[#C17D59] font-light">Chargement de la création...</p>
           </div>
         </div>
         <Footer />
@@ -121,7 +121,7 @@ export default function ProductDetailPage({ params }: PageProps) {
           <AlertCircle className="size-16 text-red-500 mb-4" />
           <h1 className="font-heading text-3xl font-light text-foreground">Création introuvable</h1>
           <p className="mt-3 text-muted-foreground max-w-md">{error || "Le produit recherché n'existe pas ou a été retiré."}</p>
-          <Link href="/#catalogue" className="mt-8 rounded-full bg-walnut text-ivory hover:bg-bronze px-6 py-3 text-xs font-semibold uppercase tracking-wider transition-all">
+          <Link href="/#catalogue" className="mt-8 rounded-full bg-[#FAF7F2] text-[#3A2A21] hover:bg-bronze px-6 py-3 text-xs font-semibold uppercase tracking-wider transition-all">
             Retourner au catalogue
           </Link>
         </div>
@@ -139,7 +139,7 @@ export default function ProductDetailPage({ params }: PageProps) {
           {/* Back button */}
           <Link 
             href="/#catalogue" 
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground hover:text-gold transition-colors mb-10"
+            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground hover:text-[#C17D59] transition-colors mb-10"
           >
             <ArrowLeft className="size-4" /> Retourner au catalogue
           </Link>
@@ -148,7 +148,7 @@ export default function ProductDetailPage({ params }: PageProps) {
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
             {/* Gallery Section */}
             <div className="space-y-4">
-              <div className="relative aspect-[4/5] bg-walnut/10 border border-border overflow-hidden rounded-lg">
+              <div className="relative aspect-[4/5] bg-[#FAF7F2]/10 border border-border overflow-hidden rounded-lg">
                 <img 
                   src={activeImage || '/placeholder.png'} 
                   alt={product.name} 
@@ -156,7 +156,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 />
                 
                 {product.type === 'PIECE_UNIQUE' && (
-                  <span className="absolute left-6 top-6 rounded-full bg-gold px-4 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-walnut">
+                  <span className="absolute left-6 top-6 rounded-full bg-[#E8DCCB] px-4 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-walnut">
                     Pièce unique
                   </span>
                 )}
@@ -170,7 +170,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                       key={img.id}
                       onClick={() => setActiveImage(img.imageUrl)}
                       className={`relative size-20 border rounded-lg overflow-hidden shrink-0 transition-all ${
-                        activeImage === img.imageUrl ? 'border-gold ring-1 ring-gold' : 'border-border opacity-70 hover:opacity-100'
+                        activeImage === img.imageUrl ? 'border-[#E8DCCB] ring-1 ring-gold' : 'border-border opacity-70 hover:opacity-100'
                       }`}
                     >
                       <img src={img.imageUrl} alt="" className="size-full object-cover" />
@@ -182,7 +182,7 @@ export default function ProductDetailPage({ params }: PageProps) {
 
             {/* Info Section */}
             <div className="flex flex-col justify-center text-left">
-              <span className="text-xs uppercase tracking-[0.2em] text-gold font-semibold">
+              <span className="text-xs uppercase tracking-[0.2em] text-[#C17D59] font-semibold">
                 {product.category?.name}
               </span>
               <h1 className="mt-3 font-heading text-4xl font-light text-foreground sm:text-5xl leading-tight">
@@ -190,7 +190,7 @@ export default function ProductDetailPage({ params }: PageProps) {
               </h1>
               
               <div className="mt-6 flex items-center gap-4 border-y border-border py-4">
-                <p className="font-mono text-xl text-gold font-medium">
+                <p className="font-mono text-xl text-[#C17D59] font-medium">
                   {product.type !== 'CATALOGUE' 
                     ? (product.price ? `${product.price.toLocaleString('fr-FR')} DT` : 'Prix sur demande')
                     : 'Prix sur devis'}
@@ -211,13 +211,13 @@ export default function ProductDetailPage({ params }: PageProps) {
               {/* Specs */}
               <div className="mt-8 space-y-4 border-b border-border pb-6">
                 <div className="flex items-center gap-3 text-sm">
-                  <Ruler className="size-5 text-gold shrink-0" />
+                  <Ruler className="size-5 text-[#C17D59] shrink-0" />
                   <p className="font-light text-muted-foreground">
                     <strong className="font-semibold text-foreground">Dimensions :</strong> {product.dimensions || 'Sur-mesure'}
                   </p>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <Hammer className="size-5 text-gold shrink-0" />
+                  <Hammer className="size-5 text-[#C17D59] shrink-0" />
                   <p className="font-light text-muted-foreground">
                     <strong className="font-semibold text-foreground">Matériaux :</strong> {product.materials || 'Bois noble'}
                   </p>
@@ -229,7 +229,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 {product.type !== 'CATALOGUE' && (
                   <button
                     onClick={() => addToCart(product)}
-                    className="w-full flex items-center justify-center gap-2 rounded-full bg-gold hover:bg-gold/95 py-4 text-xs font-bold uppercase tracking-[0.16em] text-walnut transition-all shadow"
+                    className="w-full flex items-center justify-center gap-2 rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 py-4 text-xs font-bold uppercase tracking-[0.16em] text-walnut transition-all shadow"
                   >
                     <ShoppingCart className="size-4" /> Acheter ce produit (Ajouter au panier)
                   </button>
@@ -241,17 +241,17 @@ export default function ProductDetailPage({ params }: PageProps) {
                     className={cn(
                       "flex-1 flex items-center justify-center gap-2 rounded-full py-4 text-xs font-semibold uppercase tracking-wider transition-all",
                       product.type === 'CATALOGUE'
-                        ? "bg-gold hover:bg-gold/95 text-walnut shadow"
-                        : "border border-border hover:border-gold text-foreground hover:text-gold"
+                        ? "bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 text-walnut shadow"
+                        : "border border-border hover:border-[#E8DCCB] text-foreground hover:text-[#C17D59]"
                     )}
                   >
                     <MessageCircle className="size-4" /> Demander un devis
                   </button>
                   <button
                     onClick={() => openQuoteModal(true)}
-                    className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border hover:border-gold py-4 text-xs font-semibold uppercase tracking-wider text-foreground hover:text-gold transition-all"
+                    className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border hover:border-[#E8DCCB] py-4 text-xs font-semibold uppercase tracking-wider text-foreground hover:text-[#C17D59] transition-all"
                   >
-                    <Sparkles className="size-4 text-gold" /> Personnaliser ce modèle
+                    <Sparkles className="size-4 text-[#C17D59]" /> Personnaliser ce modèle
                   </button>
                 </div>
               </div>
@@ -273,8 +273,8 @@ export default function ProductDetailPage({ params }: PageProps) {
                       />
                     </div>
                     <div className="flex justify-between items-baseline">
-                      <h4 className="font-heading text-lg font-medium text-foreground group-hover:text-gold transition-colors">{p.name}</h4>
-                      <span className="text-xs uppercase tracking-wider text-gold">{p.category?.name}</span>
+                      <h4 className="font-heading text-lg font-medium text-foreground group-hover:text-[#C17D59] transition-colors">{p.name}</h4>
+                      <span className="text-xs uppercase tracking-wider text-[#C17D59]">{p.category?.name}</span>
                     </div>
                   </Link>
                 ))}
@@ -286,14 +286,14 @@ export default function ProductDetailPage({ params }: PageProps) {
 
       {/* Quote Request Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 p-4 backdrop-blur-sm">
           <div className="bg-background border border-border w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <header className="p-6 border-b border-border flex items-center justify-between">
               <div className="text-left">
                 <h2 className="font-heading text-xl font-medium text-foreground">
                   {isPersonalizing ? 'Demande de Personnalisation' : 'Demander un Devis'}
                 </h2>
-                <p className="text-xs text-gold font-medium">Pour : {product.name}</p>
+                <p className="text-xs text-[#C17D59] font-medium">Pour : {product.name}</p>
               </div>
               <button onClick={() => setModalOpen(false)} className="p-1.5 text-muted-foreground hover:text-foreground">
                 <X className="size-5" />
@@ -311,7 +311,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 </p>
                 <button
                   onClick={() => setModalOpen(false)}
-                  className="mt-6 rounded-full bg-walnut text-ivory hover:bg-bronze px-6 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all"
+                  className="mt-6 rounded-full bg-[#FAF7F2] text-[#3A2A21] hover:bg-bronze px-6 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all"
                 >
                   Fermer
                 </button>
@@ -333,7 +333,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                     placeholder="Ex: Sonia Ben Miled"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                    className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                   />
                 </div>
 
@@ -346,7 +346,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                       placeholder="Ex: sonia@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                      className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -357,7 +357,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                       placeholder="Ex: +216 22 222 222"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                      className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                     />
                   </div>
                 </div>
@@ -371,7 +371,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                       placeholder="Indiquez les dimensions souhaitées, l'essence de bois ou la patine de finition..."
                       value={personalizationDetails}
                       onChange={(e) => setPersonalizationDetails(e.target.value)}
-                      className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                      className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                     />
                   </div>
                 )}
@@ -383,7 +383,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                     rows={4}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border focus:border-gold/50 rounded-lg p-3 text-sm text-foreground outline-none"
+                    className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                   />
                 </div>
 
@@ -398,7 +398,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                   <button
                     type="submit"
                     disabled={submittingQuote}
-                    className="rounded-full bg-gold hover:bg-gold/95 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all disabled:opacity-50"
+                    className="rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all disabled:opacity-50"
                   >
                     {submittingQuote ? 'Envoi en cours...' : 'Envoyer la demande'}
                   </button>

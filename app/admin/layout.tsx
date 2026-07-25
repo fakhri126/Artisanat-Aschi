@@ -74,23 +74,23 @@ export default function AdminLayout({
 
   if (authenticated === null) {
     return (
-      <div className="flex h-screen items-center justify-center bg-walnut text-ivory">
+      <div className="flex h-screen items-center justify-center bg-[#FAF7F2] text-[#3A2A21]">
         <div className="text-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gold border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-xs uppercase tracking-[0.2em] text-gold font-light">Chargement de l&apos;administration...</p>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#E8DCCB] border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-xs uppercase tracking-[0.2em] text-[#C17D59] font-light">Chargement de l&apos;administration...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1512] text-ivory flex">
+    <div className="min-h-screen bg-[#1a1512] text-[#3A2A21] flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-walnut border-r border-gold/10 text-ivory shrink-0">
-        <div className="h-20 flex items-center gap-2 px-6 border-b border-gold/10">
-          <Gem className="size-6 text-gold" />
+      <aside className="hidden md:flex flex-col w-64 bg-[#FAF7F2] border-r border-[#E8DCCB]/10 text-[#3A2A21] shrink-0">
+        <div className="h-20 flex items-center gap-2 px-6 border-b border-[#E8DCCB]/10">
+          <Gem className="size-6 text-[#C17D59]" />
           <span className="font-heading text-lg font-semibold tracking-wide">Artisanat Aschi</span>
-          <span className="text-[10px] bg-gold/20 text-gold px-1.5 py-0.5 rounded font-mono uppercase">Admin</span>
+          <span className="text-[10px] bg-[#E8DCCB]/20 text-[#C17D59] px-1.5 py-0.5 rounded font-mono uppercase">Admin</span>
         </div>
         <nav className="flex-1 p-4 space-y-1">
           {SIDEBAR_ITEMS.map((item) => {
@@ -102,8 +102,8 @@ export default function AdminLayout({
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                   isActive 
-                    ? "bg-gold text-walnut shadow-md" 
-                    : "text-ivory/70 hover:bg-white/5 hover:text-ivory"
+                    ? "bg-[#E8DCCB] text-walnut shadow-md" 
+                    : "text-[#3A2A21]/70 hover:bg-white/5 hover:text-[#3A2A21]"
                 )}
               >
                 <item.icon className="size-4" />
@@ -112,7 +112,7 @@ export default function AdminLayout({
             )
           })}
         </nav>
-        <div className="p-4 border-t border-gold/10">
+        <div className="p-4 border-t border-[#E8DCCB]/10">
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
@@ -126,23 +126,23 @@ export default function AdminLayout({
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black/60 md:hidden backdrop-blur-sm"
+          className="fixed inset-0 z-40 bg-white/60 md:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Mobile Sidebar Drawer */}
       <aside className={cn(
-        "fixed top-0 bottom-0 left-0 z-50 w-64 bg-walnut border-r border-gold/10 text-ivory flex flex-col transition-transform duration-300 md:hidden",
+        "fixed top-0 bottom-0 left-0 z-50 w-64 bg-[#FAF7F2] border-r border-[#E8DCCB]/10 text-[#3A2A21] flex flex-col transition-transform duration-300 md:hidden",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="h-20 flex items-center justify-between px-6 border-b border-gold/10">
+        <div className="h-20 flex items-center justify-between px-6 border-b border-[#E8DCCB]/10">
           <div className="flex items-center gap-2">
-            <Gem className="size-6 text-gold" />
+            <Gem className="size-6 text-[#C17D59]" />
             <span className="font-heading text-lg font-semibold tracking-wide">Aschi Admin</span>
           </div>
           <button onClick={() => setSidebarOpen(false)} aria-label="Close menu">
-            <X className="size-5 text-gold" />
+            <X className="size-5 text-[#C17D59]" />
           </button>
         </div>
         <nav className="flex-1 p-4 space-y-1">
@@ -156,8 +156,8 @@ export default function AdminLayout({
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                   isActive 
-                    ? "bg-gold text-walnut shadow-md" 
-                    : "text-ivory/70 hover:bg-white/5 hover:text-ivory"
+                    ? "bg-[#E8DCCB] text-walnut shadow-md" 
+                    : "text-[#3A2A21]/70 hover:bg-white/5 hover:text-[#3A2A21]"
                 )}
               >
                 <item.icon className="size-4" />
@@ -166,7 +166,7 @@ export default function AdminLayout({
             )
           })}
         </nav>
-        <div className="p-4 border-t border-gold/10">
+        <div className="p-4 border-t border-[#E8DCCB]/10">
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
@@ -180,13 +180,13 @@ export default function AdminLayout({
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header Banner */}
-        <header className="h-20 bg-walnut text-ivory border-b border-gold/10 flex items-center justify-between px-6 md:hidden">
+        <header className="h-20 bg-[#FAF7F2] text-[#3A2A21] border-b border-[#E8DCCB]/10 flex items-center justify-between px-6 md:hidden">
           <div className="flex items-center gap-2">
-            <Gem className="size-6 text-gold" />
+            <Gem className="size-6 text-[#C17D59]" />
             <span className="font-heading text-lg font-semibold">Aschi Admin</span>
           </div>
-          <button onClick={() => setSidebarOpen(true)} className="p-2 border border-gold/20 rounded" aria-label="Open menu">
-            <Menu className="size-6 text-gold" />
+          <button onClick={() => setSidebarOpen(true)} className="p-2 border border-[#E8DCCB]/20 rounded" aria-label="Open menu">
+            <Menu className="size-6 text-[#C17D59]" />
           </button>
         </header>
 

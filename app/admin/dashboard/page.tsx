@@ -123,7 +123,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gold border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#E8DCCB] border-t-transparent"></div>
       </div>
     )
   }
@@ -182,7 +182,7 @@ export default function DashboardPage() {
       animate="show"
     >
       {/* Hero Banner */}
-      <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl bg-walnut border border-gold/20 shadow-2xl">
+      <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl bg-[#FAF7F2] border border-[#E8DCCB]/20 shadow-2xl">
         <div className="absolute inset-0">
           <Image 
             src="/herochaise1.png" 
@@ -195,11 +195,11 @@ export default function DashboardPage() {
         
         <div className="relative z-10 p-8 md:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
-            <p className="text-gold text-xs uppercase tracking-[0.2em] font-medium mb-2">{dateStr}</p>
-            <h1 className="font-heading text-3xl md:text-5xl font-light text-ivory">
+            <p className="text-[#C17D59] text-xs uppercase tracking-[0.2em] font-medium mb-2">{dateStr}</p>
+            <h1 className="font-heading text-3xl md:text-5xl font-light text-[#3A2A21]">
               Bonjour, <span className="font-medium text-white">Artisanat Aschi</span>
             </h1>
-            <p className="mt-4 text-sm md:text-base text-ivory/70 max-w-xl leading-relaxed">
+            <p className="mt-4 text-sm md:text-base text-[#3A2A21]/70 max-w-xl leading-relaxed">
               Voici le résumé de l'activité de votre atelier aujourd'hui. 
               {stats?.pendingQuotes ? ` Vous avez ${stats.pendingQuotes} devis en attente de traitement.` : " Vous n'avez aucun devis en attente."}
             </p>
@@ -207,11 +207,11 @@ export default function DashboardPage() {
           
           <div className="flex shrink-0">
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center gap-4">
-               <div className="bg-gold/20 p-3 rounded-full">
-                 <TrendingUp className="size-6 text-gold" />
+               <div className="bg-[#E8DCCB]/20 p-3 rounded-full">
+                 <TrendingUp className="size-6 text-[#C17D59]" />
                </div>
                <div>
-                 <p className="text-xs text-ivory/60 uppercase tracking-wider">Activité Hebdo</p>
+                 <p className="text-xs text-[#3A2A21]/60 uppercase tracking-wider">Activité Hebdo</p>
                  <p className="text-xl font-medium text-white">+12% vs last week</p>
                </div>
             </div>
@@ -225,17 +225,17 @@ export default function DashboardPage() {
           <Link 
             key={i}
             href={card.link}
-            className="group relative overflow-hidden bg-walnut border border-gold/10 hover:border-gold/40 p-6 rounded-2xl shadow-sm transition-all duration-500 hover:shadow-[0_0_30px_rgba(212,175,55,0.1)] hover:-translate-y-1"
+            className="group relative overflow-hidden bg-[#FAF7F2] border border-[#E8DCCB]/10 hover:border-[#E8DCCB]/40 p-6 rounded-2xl shadow-sm transition-all duration-500 hover:shadow-[0_0_30px_rgba(212,175,55,0.1)] hover:-translate-y-1"
           >
             {/* Subtle glow effect behind the card */}
             <div className="absolute -inset-1 bg-gradient-to-r from-gold/0 via-gold/5 to-gold/0 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
             
             <div className="relative z-10 flex items-start justify-between">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-ivory/50 font-medium">{card.title}</p>
-                <p className="mt-3 font-heading text-4xl font-light text-ivory group-hover:text-gold transition-colors">{card.value}</p>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-[#3A2A21]/50 font-medium">{card.title}</p>
+                <p className="mt-3 font-heading text-4xl font-light text-[#3A2A21] group-hover:text-[#C17D59] transition-colors">{card.value}</p>
               </div>
-              <div className="p-3 bg-white/5 border border-white/5 rounded-xl text-gold group-hover:scale-110 transition-transform duration-500">
+              <div className="p-3 bg-white/5 border border-white/5 rounded-xl text-[#C17D59] group-hover:scale-110 transition-transform duration-500">
                 <card.icon className="size-5" />
               </div>
             </div>
@@ -250,7 +250,7 @@ export default function DashboardPage() {
               </div>
             )}
             
-            <div className="relative z-10 mt-6 flex items-center gap-1.5 text-xs font-medium text-ivory/40 group-hover:text-gold transition-colors pt-4 border-t border-white/5">
+            <div className="relative z-10 mt-6 flex items-center gap-1.5 text-xs font-medium text-[#3A2A21]/40 group-hover:text-[#C17D59] transition-colors pt-4 border-t border-white/5">
               Gérer la section <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </div>
           </Link>
@@ -259,11 +259,11 @@ export default function DashboardPage() {
 
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Activity Chart */}
-        <motion.div variants={itemVariants} className="lg:col-span-2 bg-walnut border border-gold/10 p-6 md:p-8 rounded-3xl shadow-sm flex flex-col">
+        <motion.div variants={itemVariants} className="lg:col-span-2 bg-[#FAF7F2] border border-[#E8DCCB]/10 p-6 md:p-8 rounded-3xl shadow-sm flex flex-col">
           <div className="flex items-center justify-between pb-6">
             <div>
-              <h2 className="font-heading text-xl font-medium text-ivory">Évolution des demandes</h2>
-              <p className="text-xs text-ivory/50 mt-1">Nombre de devis reçus sur les 7 derniers jours</p>
+              <h2 className="font-heading text-xl font-medium text-[#3A2A21]">Évolution des demandes</h2>
+              <p className="text-xs text-[#3A2A21]/50 mt-1">Nombre de devis reçus sur les 7 derniers jours</p>
             </div>
           </div>
           <div className="flex-1 min-h-[300px] w-full">
@@ -306,29 +306,29 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Recent Quotes Timeline */}
-        <motion.div variants={itemVariants} className="bg-walnut border border-gold/10 p-6 md:p-8 rounded-3xl shadow-sm flex flex-col justify-between">
+        <motion.div variants={itemVariants} className="bg-[#FAF7F2] border border-[#E8DCCB]/10 p-6 md:p-8 rounded-3xl shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-6">
-              <h2 className="font-heading text-xl font-medium text-ivory">Derniers devis</h2>
-              <Link href="/admin/quotes" className="text-xs font-medium text-gold hover:text-white transition-colors">Voir tout</Link>
+              <h2 className="font-heading text-xl font-medium text-[#3A2A21]">Derniers devis</h2>
+              <Link href="/admin/quotes" className="text-xs font-medium text-[#C17D59] hover:text-white transition-colors">Voir tout</Link>
             </div>
             
             <div className="relative mt-2">
               {/* Timeline line */}
-              <div className="absolute left-4 top-2 bottom-2 w-px bg-gold/10" />
+              <div className="absolute left-4 top-2 bottom-2 w-px bg-[#E8DCCB]/10" />
 
               <div className="space-y-6 relative">
                 {recentQuotes.length === 0 ? (
-                  <p className="text-sm text-ivory/50 text-center py-6">Aucune demande de devis reçue.</p>
+                  <p className="text-sm text-[#3A2A21]/50 text-center py-6">Aucune demande de devis reçue.</p>
                 ) : (
                   recentQuotes.map((quote) => (
                     <div key={quote.id} className="relative pl-12 group">
                       {/* Timeline dot */}
-                      <div className="absolute left-[11px] top-1.5 h-2.5 w-2.5 rounded-full bg-walnut border border-gold z-10 group-hover:bg-gold transition-colors" />
+                      <div className="absolute left-[11px] top-1.5 h-2.5 w-2.5 rounded-full bg-[#FAF7F2] border border-[#E8DCCB] z-10 group-hover:bg-[#E8DCCB] transition-colors" />
                       
-                      <div className="bg-white/5 border border-gold/5 rounded-xl p-4 transition-all duration-300 hover:border-gold/30 hover:bg-white/10 hover:-translate-y-1">
+                      <div className="bg-white/5 border border-[#E8DCCB]/5 rounded-xl p-4 transition-all duration-300 hover:border-[#E8DCCB]/30 hover:bg-white/10 hover:-translate-y-1">
                         <div className="flex justify-between items-start mb-2">
-                          <p className="text-sm font-semibold text-ivory">{quote.fullName}</p>
+                          <p className="text-sm font-semibold text-[#3A2A21]">{quote.fullName}</p>
                           <span className={`inline-flex items-center text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                             quote.status === 'PENDING' ? 'bg-red-500/20 text-red-400' :
                             quote.status === 'CONTACTED' ? 'bg-amber-500/20 text-amber-400' :
@@ -341,10 +341,10 @@ export default function DashboardPage() {
                         </div>
                         
                         {quote.product && (
-                          <p className="text-xs text-gold font-medium mb-3">Concerne : {quote.product.name}</p>
+                          <p className="text-xs text-[#C17D59] font-medium mb-3">Concerne : {quote.product.name}</p>
                         )}
                         
-                        <div className="flex items-center gap-4 text-[10px] text-ivory/50">
+                        <div className="flex items-center gap-4 text-[10px] text-[#3A2A21]/50">
                           <div className="flex items-center gap-1.5">
                             <Mail className="size-3" />
                             <span className="truncate max-w-[100px]">{quote.email}</span>

@@ -117,18 +117,18 @@ export function Projects() {
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-walnut/90 via-walnut/20 to-transparent" />
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 text-ivory text-left">
-                    <span className="text-[0.65rem] uppercase tracking-[0.18em] text-gold font-semibold">
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 text-[#3A2A21] text-left">
+                    <span className="text-[0.65rem] uppercase tracking-[0.18em] text-[#C17D59] font-semibold">
                       {category}
                     </span>
                     <h3 className="mt-1 font-heading text-2xl font-medium leading-tight md:text-3xl">
                       {title}
                     </h3>
-                    <p className="mt-2 max-w-xs text-sm font-light text-ivory/0 transition-all duration-500 group-hover:text-ivory/80">
+                    <p className="mt-2 max-w-xs text-sm font-light text-[#3A2A21]/0 transition-all duration-500 group-hover:text-[#3A2A21]/80">
                       {desc}
                     </p>
                   </div>
-                  <span className="absolute right-5 top-5 flex size-10 items-center justify-center rounded-full border border-ivory/40 text-ivory opacity-0 transition-all duration-500 group-hover:opacity-100">
+                  <span className="absolute right-5 top-5 flex size-10 items-center justify-center rounded-full border border-ivory/40 text-[#3A2A21] opacity-0 transition-all duration-500 group-hover:opacity-100">
                     <ArrowUpRight className="size-5" />
                   </span>
                 </div>
@@ -141,7 +141,7 @@ export function Projects() {
       {/* Modal */}
       <AnimatePresence>
         {selectedProject && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-white/90 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -150,7 +150,7 @@ export function Projects() {
             >
               <button
                 onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 text-white/70 hover:text-white hover:bg-black/80 transition-colors"
+                className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/50 text-white/70 hover:text-white hover:bg-white/80 transition-colors"
               >
                 <X className="size-6" />
               </button>
@@ -180,7 +180,7 @@ export function Projects() {
               </div>
               
               <div className="w-full md:w-1/3 p-8 flex flex-col justify-center bg-stone-950 border-l border-stone-800 overflow-y-auto">
-                <span className="text-xs uppercase tracking-[0.2em] text-gold mb-2 block font-semibold">
+                <span className="text-xs uppercase tracking-[0.2em] text-[#C17D59] mb-2 block font-semibold">
                   {'category' in selectedProject ? selectedProject.category : selectedProject.category}
                 </span>
                 <h2 className="font-heading text-3xl text-white mb-6">

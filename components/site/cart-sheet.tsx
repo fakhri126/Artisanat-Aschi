@@ -92,7 +92,7 @@ export function CartSheet() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsCartOpen(false)}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-white/60 backdrop-blur-sm"
           />
 
           {/* Cart Drawer */}
@@ -101,12 +101,12 @@ export function CartSheet() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-y-0 right-0 z-50 flex h-full w-full max-w-md flex-col border-l border-gold/10 bg-walnut-deep text-ivory shadow-2xl"
+            className="fixed inset-y-0 right-0 z-50 flex h-full w-full max-w-md flex-col border-l border-[#E8DCCB]/10 bg-white text-[#3A2A21] shadow-2xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gold/10 px-6 py-5">
+            <div className="flex items-center justify-between border-b border-[#E8DCCB]/10 px-6 py-5">
               <div className="flex items-center gap-2">
-                <ShoppingBag className="size-5 text-gold" />
+                <ShoppingBag className="size-5 text-[#C17D59]" />
                 <h2 className="font-heading text-2xl font-light tracking-wide">Votre Panier</h2>
               </div>
               <button
@@ -115,7 +115,7 @@ export function CartSheet() {
                   // Reset steps when closing
                   setTimeout(() => setCheckoutStep('cart'), 300)
                 }}
-                className="rounded-full p-1 text-ivory/70 transition-colors hover:bg-gold/10 hover:text-gold"
+                className="rounded-full p-1 text-[#3A2A21]/70 transition-colors hover:bg-[#E8DCCB]/10 hover:text-[#C17D59]"
               >
                 <X className="size-5" />
               </button>
@@ -127,14 +127,14 @@ export function CartSheet() {
                 <>
                   {cartItems.length === 0 ? (
                     <div className="flex h-full flex-col items-center justify-center text-center">
-                      <ShoppingBag className="mb-4 size-12 text-ivory/20" />
-                      <p className="text-lg font-light text-ivory/60">Votre panier est vide</p>
-                      <p className="mt-2 text-sm text-ivory/40">
+                      <ShoppingBag className="mb-4 size-12 text-[#3A2A21]/20" />
+                      <p className="text-lg font-light text-[#3A2A21]/60">Votre panier est vide</p>
+                      <p className="mt-2 text-sm text-[#3A2A21]/40">
                         Parcourez nos créations disponibles pour ajouter des pièces uniques à votre panier.
                       </p>
                       <button
                         onClick={() => setIsCartOpen(false)}
-                        className="mt-6 rounded-full bg-gold px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-walnut transition-all hover:bg-gold/90"
+                        className="mt-6 rounded-full bg-[#E8DCCB] px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-walnut transition-all hover:bg-[#E8DCCB]/90"
                       >
                         Voir les créations
                       </button>
@@ -150,9 +150,9 @@ export function CartSheet() {
                         return (
                           <div
                             key={item.product.id}
-                            className="flex gap-4 rounded-xl border border-gold/10 bg-black/20 p-3"
+                            className="flex gap-4 rounded-xl border border-[#E8DCCB]/10 bg-white/20 p-3"
                           >
-                            <div className="relative size-16 overflow-hidden rounded-lg border border-gold/10 bg-stone-900 shrink-0">
+                            <div className="relative size-16 overflow-hidden rounded-lg border border-[#E8DCCB]/10 bg-stone-900 shrink-0">
                               <Image
                                 src={primaryImg}
                                 alt={item.product.name}
@@ -162,10 +162,10 @@ export function CartSheet() {
                             </div>
                             <div className="flex flex-1 flex-col justify-between">
                               <div>
-                                <h3 className="text-sm font-medium leading-snug text-ivory">
+                                <h3 className="text-sm font-medium leading-snug text-[#3A2A21]">
                                   {item.product.name}
                                 </h3>
-                                <p className="text-[10px] text-gold uppercase tracking-[0.12em] mt-0.5">
+                                <p className="text-[10px] text-[#C17D59] uppercase tracking-[0.12em] mt-0.5">
                                   {item.product.category?.name}
                                 </p>
                               </div>
@@ -173,19 +173,19 @@ export function CartSheet() {
                                 <div className="flex items-center gap-2 rounded-md bg-stone-900 px-2 py-1">
                                   <button
                                     onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                                    className="text-ivory/70 hover:text-gold"
+                                    className="text-[#3A2A21]/70 hover:text-[#C17D59]"
                                   >
                                     <Minus className="size-3" />
                                   </button>
                                   <span className="text-xs w-4 text-center">{item.quantity}</span>
                                   <button
                                     onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                                    className="text-ivory/70 hover:text-gold"
+                                    className="text-[#3A2A21]/70 hover:text-[#C17D59]"
                                   >
                                     <Plus className="size-3" />
                                   </button>
                                 </div>
-                                <span className="text-sm font-heading font-semibold text-gold">
+                                <span className="text-sm font-heading font-semibold text-[#C17D59]">
                                   {item.product.price
                                     ? `${(item.product.price * item.quantity).toLocaleString()} DT`
                                     : 'Sur demande'}
@@ -194,7 +194,7 @@ export function CartSheet() {
                             </div>
                             <button
                               onClick={() => removeFromCart(item.product.id)}
-                              className="text-ivory/30 hover:text-red-400 self-start p-1"
+                              className="text-[#3A2A21]/30 hover:text-red-400 self-start p-1"
                             >
                               <Trash2 className="size-4" />
                             </button>
@@ -208,12 +208,12 @@ export function CartSheet() {
 
               {checkoutStep === 'form' && (
                 <form onSubmit={handleCheckout} className="space-y-4 pt-2">
-                  <h3 className="font-heading text-lg text-gold font-light tracking-wide mb-3">
+                  <h3 className="font-heading text-lg text-[#C17D59] font-light tracking-wide mb-3">
                     Informations de Devis & Commande
                   </h3>
 
                   <div className="space-y-1">
-                    <label className="text-xs uppercase tracking-wider text-ivory/60">Nom Complet *</label>
+                    <label className="text-xs uppercase tracking-wider text-[#3A2A21]/60">Nom Complet *</label>
                     <input
                       type="text"
                       name="fullName"
@@ -221,12 +221,12 @@ export function CartSheet() {
                       value={formData.fullName}
                       onChange={handleInputChange}
                       placeholder="Ex: Mohamed Ben Ali"
-                      className="w-full rounded-lg border border-gold/20 bg-stone-900 px-4 py-2.5 text-sm text-ivory focus:border-gold focus:outline-none"
+                      className="w-full rounded-lg border border-[#E8DCCB]/20 bg-stone-900 px-4 py-2.5 text-sm text-[#3A2A21] focus:border-[#E8DCCB] focus:outline-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs uppercase tracking-wider text-ivory/60">Téléphone *</label>
+                    <label className="text-xs uppercase tracking-wider text-[#3A2A21]/60">Téléphone *</label>
                     <input
                       type="tel"
                       name="phoneNumber"
@@ -234,12 +234,12 @@ export function CartSheet() {
                       value={formData.phoneNumber}
                       onChange={handleInputChange}
                       placeholder="Ex: +216 99 999 999"
-                      className="w-full rounded-lg border border-gold/20 bg-stone-900 px-4 py-2.5 text-sm text-ivory focus:border-gold focus:outline-none"
+                      className="w-full rounded-lg border border-[#E8DCCB]/20 bg-stone-900 px-4 py-2.5 text-sm text-[#3A2A21] focus:border-[#E8DCCB] focus:outline-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs uppercase tracking-wider text-ivory/60">Email *</label>
+                    <label className="text-xs uppercase tracking-wider text-[#3A2A21]/60">Email *</label>
                     <input
                       type="email"
                       name="email"
@@ -247,23 +247,23 @@ export function CartSheet() {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="Ex: mohamed.ali@gmail.com"
-                      className="w-full rounded-lg border border-gold/20 bg-stone-900 px-4 py-2.5 text-sm text-ivory focus:border-gold focus:outline-none"
+                      className="w-full rounded-lg border border-[#E8DCCB]/20 bg-stone-900 px-4 py-2.5 text-sm text-[#3A2A21] focus:border-[#E8DCCB] focus:outline-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs uppercase tracking-wider text-ivory/60">Remarques ou Dimensions sur-mesure</label>
+                    <label className="text-xs uppercase tracking-wider text-[#3A2A21]/60">Remarques ou Dimensions sur-mesure</label>
                     <textarea
                       name="message"
                       rows={4}
                       value={formData.message}
                       onChange={handleInputChange}
                       placeholder="Entrez vos remarques, souhaits de patine, ajustements de dimensions..."
-                      className="w-full rounded-lg border border-gold/20 bg-stone-900 px-4 py-2.5 text-sm text-ivory focus:border-gold focus:outline-none resize-none"
+                      className="w-full rounded-lg border border-[#E8DCCB]/20 bg-stone-900 px-4 py-2.5 text-sm text-[#3A2A21] focus:border-[#E8DCCB] focus:outline-none resize-none"
                     />
                   </div>
 
-                  <p className="text-[11px] text-ivory/40 leading-relaxed pt-2">
+                  <p className="text-[11px] text-[#3A2A21]/40 leading-relaxed pt-2">
                     * Nos créations artisanales nécessitent des ajustements personnalisés de transport et parfois de fabrication. Aucune transaction bancaire n&apos;est requise ici. Notre équipe vous contactera directement pour finaliser.
                   </p>
                 </form>
@@ -271,14 +271,14 @@ export function CartSheet() {
 
               {checkoutStep === 'success' && (
                 <div className="flex h-full flex-col items-center justify-center text-center">
-                  <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-gold/10 text-gold">
+                  <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-[#E8DCCB]/10 text-[#C17D59]">
                     <Send className="size-6 animate-pulse" />
                   </div>
-                  <h3 className="font-heading text-2xl font-light text-gold">Demande envoyée !</h3>
-                  <p className="mt-3 text-sm text-ivory/70 leading-relaxed px-2">
+                  <h3 className="font-heading text-2xl font-light text-[#C17D59]">Demande envoyée !</h3>
+                  <p className="mt-3 text-sm text-[#3A2A21]/70 leading-relaxed px-2">
                     Merci pour votre intérêt envers l&apos;Atelier Aschi. 
                   </p>
-                  <p className="mt-2 text-xs text-ivory/50 leading-relaxed px-2">
+                  <p className="mt-2 text-xs text-[#3A2A21]/50 leading-relaxed px-2">
                     Votre panier a été transmis avec succès. Notre maître artisan ou notre chargé de clientèle vous contactera par téléphone d&apos;ici 24 heures pour valider votre commande et organiser le transport.
                   </p>
                   <button
@@ -286,7 +286,7 @@ export function CartSheet() {
                       setIsCartOpen(false)
                       setCheckoutStep('cart')
                     }}
-                    className="mt-8 rounded-full border border-gold px-8 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-gold transition-all hover:bg-gold hover:text-walnut"
+                    className="mt-8 rounded-full border border-[#E8DCCB] px-8 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#C17D59] transition-all hover:bg-[#E8DCCB] hover:text-walnut"
                   >
                     Retour à la boutique
                   </button>
@@ -296,10 +296,10 @@ export function CartSheet() {
 
             {/* Footer Summary / Actions */}
             {cartItems.length > 0 && checkoutStep !== 'success' && (
-              <div className="border-t border-gold/10 bg-black/40 px-6 py-6 space-y-4">
+              <div className="border-t border-[#E8DCCB]/10 bg-white/40 px-6 py-6 space-y-4">
                 <div className="flex items-center justify-between text-base">
-                  <span className="font-light text-ivory/70">Total Estimé :</span>
-                  <span className="font-heading text-2xl font-semibold text-gold">
+                  <span className="font-light text-[#3A2A21]/70">Total Estimé :</span>
+                  <span className="font-heading text-2xl font-semibold text-[#C17D59]">
                     {hasPriceItems ? `${cartTotal.toLocaleString()} DT` : 'Sur demande'}
                   </span>
                 </div>
@@ -307,7 +307,7 @@ export function CartSheet() {
                 {checkoutStep === 'cart' ? (
                   <button
                     onClick={() => setCheckoutStep('form')}
-                    className="flex w-full items-center justify-center gap-2 rounded-full bg-gold py-4 text-xs font-bold uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:bg-gold/90 hover:shadow-lg"
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-[#E8DCCB] py-4 text-xs font-bold uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:bg-[#E8DCCB]/90 hover:shadow-lg"
                   >
                     Finaliser la demande
                   </button>
@@ -315,14 +315,14 @@ export function CartSheet() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setCheckoutStep('cart')}
-                      className="flex-1 rounded-full border border-gold/30 py-3 text-xs uppercase tracking-[0.14em] text-gold hover:bg-gold/5"
+                      className="flex-1 rounded-full border border-[#E8DCCB]/30 py-3 text-xs uppercase tracking-[0.14em] text-[#C17D59] hover:bg-[#E8DCCB]/5"
                     >
                       Retour panier
                     </button>
                     <button
                       onClick={handleCheckout}
                       disabled={loading}
-                      className="flex-[2] flex items-center justify-center gap-2 rounded-full bg-gold py-3 text-xs font-bold uppercase tracking-[0.14em] text-walnut hover:bg-gold/90 disabled:opacity-50"
+                      className="flex-[2] flex items-center justify-center gap-2 rounded-full bg-[#E8DCCB] py-3 text-xs font-bold uppercase tracking-[0.14em] text-walnut hover:bg-[#E8DCCB]/90 disabled:opacity-50"
                     >
                       {loading ? 'Envoi...' : 'Valider la commande'}
                     </button>

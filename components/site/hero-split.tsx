@@ -52,9 +52,9 @@ export function HeroSplit() {
   if (latestProducts.length === 0) {
     return (
       <div className="relative h-full w-full bg-stone-950 flex flex-col items-center justify-center">
-         <Sparkles className="size-12 text-gold mb-6 opacity-50 animate-pulse" />
-         <h2 className="font-heading text-4xl md:text-5xl text-ivory">Nouvelles Créations</h2>
-         <p className="mt-4 text-gold tracking-widest uppercase text-xs">En préparation dans notre atelier...</p>
+         <Sparkles className="size-12 text-[#C17D59] mb-6 opacity-50 animate-pulse" />
+         <h2 className="font-heading text-4xl md:text-5xl text-[#3A2A21]">Nouvelles Créations</h2>
+         <p className="mt-4 text-[#C17D59] tracking-widest uppercase text-xs">En préparation dans notre atelier...</p>
       </div>
     )
   }
@@ -81,7 +81,7 @@ export function HeroSplit() {
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-gold text-xs font-semibold tracking-[0.3em] uppercase mb-4"
+          className="text-[#C17D59] text-xs font-semibold tracking-[0.3em] uppercase mb-4"
         >
           Nouveautés Exclusives
         </motion.p>
@@ -89,7 +89,7 @@ export function HeroSplit() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="font-heading text-5xl md:text-6xl lg:text-7xl text-ivory text-shadow-cinematic"
+          className="font-heading text-5xl md:text-6xl lg:text-7xl text-[#3A2A21] text-shadow-cinematic"
         >
           Nos Dernières Créations
         </motion.h2>
@@ -141,12 +141,12 @@ export function HeroSplit() {
                 
                 {/* Badge for the absolute newest */}
                 {index === 0 && (
-                  <div className="absolute top-6 right-6 bg-gold text-stone-950 text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">
+                  <div className="absolute top-6 right-6 bg-[#E8DCCB] text-stone-950 text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">
                     Le plus récent
                   </div>
                 )}
 
-                <h3 className="font-heading text-3xl text-ivory mb-2 group-hover:text-gold transition-colors duration-300">
+                <h3 className="font-heading text-3xl text-[#3A2A21] mb-2 group-hover:text-[#C17D59] transition-colors duration-300">
                   {product.name}
                 </h3>
                 
@@ -160,7 +160,7 @@ export function HeroSplit() {
                       e.stopPropagation()
                       setSelectedProduct(product)
                     }}
-                    className="flex-1 text-center py-3 border border-gold/50 text-gold text-xs tracking-widest uppercase hover:bg-gold hover:text-stone-950 transition-colors"
+                    className="flex-1 text-center py-3 border border-[#E8DCCB]/50 text-[#C17D59] text-xs tracking-widest uppercase hover:bg-[#E8DCCB] hover:text-stone-950 transition-colors"
                   >
                     Découvrir
                   </button>
@@ -169,7 +169,7 @@ export function HeroSplit() {
                       e.stopPropagation()
                       addToCart(product)
                     }}
-                    className="w-12 h-12 flex items-center justify-center bg-gold text-stone-950 hover:bg-ivory transition-colors shadow-lg shadow-gold/20"
+                    className="w-12 h-12 flex items-center justify-center bg-[#E8DCCB] text-stone-950 hover:bg-ivory transition-colors shadow-lg shadow-gold/20"
                     aria-label="Ajouter au panier"
                   >
                     <ShoppingCart className="size-4" />

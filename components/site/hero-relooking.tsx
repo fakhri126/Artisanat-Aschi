@@ -65,15 +65,15 @@ export function HeroRelooking() {
           className="lg:w-1/3 flex flex-col items-center lg:items-start text-center lg:text-left"
         >
           <div className="flex items-center gap-3 mb-6">
-            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-gold/10 border border-gold/30 text-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/30 text-[#C17D59] shadow-[0_0_15px_rgba(212,175,55,0.2)]">
               <Paintbrush className="size-4" />
             </span>
-            <p className="text-gold text-[10px] font-bold tracking-[0.4em] uppercase">
+            <p className="text-[#C17D59] text-[10px] font-bold tracking-[0.4em] uppercase">
               L'Art de la Restauration
             </p>
           </div>
 
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl text-ivory leading-tight mb-6">
+          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl text-[#3A2A21] leading-tight mb-6">
             {relooking ? relooking.title : "Relooking &\nRestauration"}
           </h1>
 
@@ -83,7 +83,7 @@ export function HeroRelooking() {
 
           <Link
             href="/relooking"
-            className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-gold text-gold font-medium uppercase tracking-[0.2em] text-xs transition-all hover:bg-gold hover:text-stone-950"
+            className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-[#E8DCCB] text-[#C17D59] font-medium uppercase tracking-[0.2em] text-xs transition-all hover:bg-[#E8DCCB] hover:text-stone-950"
           >
             Découvrir le service
             <Sparkles className="size-4 transition-transform group-hover:scale-125" />
@@ -98,7 +98,7 @@ export function HeroRelooking() {
           className="lg:w-2/3 w-full h-[40vh] lg:h-[70vh] relative perspective-1000"
         >
           {/* Ornate Frame around the slider */}
-          <div className="absolute -inset-4 border border-gold/20 bg-stone-900/50 backdrop-blur-sm rounded-sm z-0 hidden lg:block" />
+          <div className="absolute -inset-4 border border-[#E8DCCB]/20 bg-stone-900/50 backdrop-blur-sm rounded-sm z-0 hidden lg:block" />
           <div className="absolute -inset-4 border border-white/5 m-2 hidden lg:block" />
           
           <div 
@@ -128,13 +128,13 @@ export function HeroRelooking() {
             />
             
             {/* Tag APRES */}
-            <div className="absolute top-6 right-6 px-4 py-1.5 bg-black/60 backdrop-blur-md border border-gold/30 text-gold text-[10px] uppercase tracking-widest font-bold z-0 pointer-events-none">
+            <div className="absolute top-6 right-6 px-4 py-1.5 bg-white/60 backdrop-blur-md border border-[#E8DCCB]/30 text-[#C17D59] text-[10px] uppercase tracking-widest font-bold z-0 pointer-events-none">
               Après
             </div>
 
             {/* The Overlay Image: "AVANT" (Old, dusty, sepia/grayscale) */}
             <div 
-              className="absolute inset-y-0 left-0 overflow-hidden z-10 border-r-2 border-gold shadow-[2px_0_15px_rgba(0,0,0,0.5)]"
+              className="absolute inset-y-0 left-0 overflow-hidden z-10 border-r-2 border-[#E8DCCB] shadow-[2px_0_15px_rgba(0,0,0,0.5)]"
               style={{ width: `${sliderPosition}%` }}
             >
               <div className="absolute inset-y-0 left-0 w-[100vw] lg:w-[60vw]">
@@ -159,7 +159,7 @@ export function HeroRelooking() {
               className="absolute top-0 bottom-0 z-20 flex items-center justify-center -ml-4"
               style={{ left: `${sliderPosition}%` }}
             >
-              <div className="w-8 h-8 rounded-full bg-gold border-2 border-white shadow-lg flex items-center justify-center text-stone-900 pointer-events-none transition-transform hover:scale-110">
+              <div className="w-8 h-8 rounded-full bg-[#E8DCCB] border-2 border-white shadow-lg flex items-center justify-center text-stone-900 pointer-events-none transition-transform hover:scale-110">
                 <ArrowLeftRight className="size-4" />
               </div>
             </div>

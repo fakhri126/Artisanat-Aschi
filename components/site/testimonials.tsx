@@ -58,7 +58,7 @@ function StarRating({ rating = 5 }: { rating?: number }) {
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          className={`size-4 ${i < rating ? 'fill-gold text-gold' : 'fill-transparent text-gold/30'}`}
+          className={`size-4 ${i < rating ? 'fill-gold text-[#C17D59]' : 'fill-transparent text-[#C17D59]/30'}`}
         />
       ))}
     </div>
@@ -124,19 +124,19 @@ export function Testimonials() {
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-gold/20 to-transparent" />
         <div className="absolute right-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-gold/20 to-transparent" />
-        <div className="absolute -left-40 top-1/4 size-96 rounded-full bg-gold/5 blur-3xl" />
-        <div className="absolute -right-40 bottom-1/4 size-96 rounded-full bg-gold/5 blur-3xl" />
+        <div className="absolute -left-40 top-1/4 size-96 rounded-full bg-[#E8DCCB]/5 blur-3xl" />
+        <div className="absolute -right-40 bottom-1/4 size-96 rounded-full bg-[#E8DCCB]/5 blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         {/* Section Header */}
         <div className="mb-16 text-center">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-gold font-semibold mb-4">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-[#C17D59] font-semibold mb-4">
             ✦ Témoignages ✦
           </p>
-          <h2 className="font-heading text-4xl font-light text-ivory sm:text-5xl md:text-6xl leading-tight">
+          <h2 className="font-heading text-4xl font-light text-[#3A2A21] sm:text-5xl md:text-6xl leading-tight">
             La parole à ceux qui<br className="hidden sm:block" />
-            <span className="italic text-gold">nous ont fait confiance</span>
+            <span className="italic text-[#C17D59]">nous ont fait confiance</span>
           </h2>
           <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
         </div>
@@ -157,7 +157,7 @@ export function Testimonials() {
                 <div className="relative">
                   {/* Gold ring */}
                   <div className="absolute -inset-1.5 rounded-full bg-gradient-to-br from-gold/60 via-gold/20 to-transparent" />
-                  <div className="relative size-40 md:size-52 overflow-hidden rounded-full border-2 border-gold/30 bg-stone-900">
+                  <div className="relative size-40 md:size-52 overflow-hidden rounded-full border-2 border-[#E8DCCB]/30 bg-stone-900">
                     <img
                       src={active.imageUrl || '/client-placeholder.png'}
                       alt={active.clientName}
@@ -168,9 +168,9 @@ export function Testimonials() {
                   {active.type === 'VIDEO' && active.videoUrl && (
                     <button
                       onClick={() => setPlaying(active)}
-                      className="absolute inset-0 flex items-center justify-center rounded-full bg-walnut/60 backdrop-blur-sm transition-all hover:bg-walnut/80"
+                      className="absolute inset-0 flex items-center justify-center rounded-full bg-[#FAF7F2]/60 backdrop-blur-sm transition-all hover:bg-[#FAF7F2]/80"
                     >
-                      <span className="flex size-14 items-center justify-center rounded-full bg-gold text-walnut">
+                      <span className="flex size-14 items-center justify-center rounded-full bg-[#E8DCCB] text-walnut">
                         <Play className="ml-0.5 size-6 fill-current" />
                       </span>
                     </button>
@@ -180,10 +180,10 @@ export function Testimonials() {
                 {/* Stars + Name */}
                 <div className="text-center">
                   <StarRating rating={active.rating || 5} />
-                  <p className="mt-3 font-heading text-xl font-medium text-ivory">{active.clientName}</p>
-                  <p className="text-xs text-gold/80 font-medium uppercase tracking-wider mt-1">{active.clientRole}</p>
+                  <p className="mt-3 font-heading text-xl font-medium text-[#3A2A21]">{active.clientName}</p>
+                  <p className="text-xs text-[#C17D59]/80 font-medium uppercase tracking-wider mt-1">{active.clientRole}</p>
                   {active.location && active.location !== active.clientRole && (
-                    <p className="text-[11px] text-ivory/40 mt-0.5 italic">{active.location}</p>
+                    <p className="text-[11px] text-[#3A2A21]/40 mt-0.5 italic">{active.location}</p>
                   )}
                 </div>
               </div>
@@ -191,11 +191,11 @@ export function Testimonials() {
               {/* Right: Quote */}
               <div className="relative">
                 {/* Big decorative quote */}
-                <span className="absolute -top-6 -left-4 font-heading text-[120px] leading-none text-gold/10 select-none">
+                <span className="absolute -top-6 -left-4 font-heading text-[120px] leading-none text-[#C17D59]/10 select-none">
                   "
                 </span>
                 <blockquote className="relative z-10">
-                  <p className="font-heading text-2xl md:text-3xl font-light leading-relaxed text-ivory/90 italic">
+                  <p className="font-heading text-2xl md:text-3xl font-light leading-relaxed text-[#3A2A21]/90 italic">
                     "{active.content}"
                   </p>
                   <div className="mt-8 h-px w-16 bg-gradient-to-r from-gold/60 to-transparent" />
@@ -209,7 +209,7 @@ export function Testimonials() {
             <div className="mt-12 flex items-center justify-center gap-6">
               <button
                 onClick={prev}
-                className="flex size-11 items-center justify-center rounded-full border border-gold/20 bg-white/5 text-ivory/60 transition-all hover:border-gold hover:bg-gold/10 hover:text-gold"
+                className="flex size-11 items-center justify-center rounded-full border border-[#E8DCCB]/20 bg-white/5 text-[#3A2A21]/60 transition-all hover:border-[#E8DCCB] hover:bg-[#E8DCCB]/10 hover:text-[#C17D59]"
                 aria-label="Témoignage précédent"
               >
                 <ChevronLeft className="size-5" />
@@ -224,8 +224,8 @@ export function Testimonials() {
                     aria-label={`Aller au témoignage ${i + 1}`}
                     className={`transition-all duration-300 rounded-full ${
                       i === activeIndex
-                        ? 'w-8 h-2 bg-gold'
-                        : 'w-2 h-2 bg-gold/25 hover:bg-gold/50'
+                        ? 'w-8 h-2 bg-[#E8DCCB]'
+                        : 'w-2 h-2 bg-[#E8DCCB]/25 hover:bg-[#E8DCCB]/50'
                     }`}
                   />
                 ))}
@@ -233,7 +233,7 @@ export function Testimonials() {
 
               <button
                 onClick={next}
-                className="flex size-11 items-center justify-center rounded-full border border-gold/20 bg-white/5 text-ivory/60 transition-all hover:border-gold hover:bg-gold/10 hover:text-gold"
+                className="flex size-11 items-center justify-center rounded-full border border-[#E8DCCB]/20 bg-white/5 text-[#3A2A21]/60 transition-all hover:border-[#E8DCCB] hover:bg-[#E8DCCB]/10 hover:text-[#C17D59]"
                 aria-label="Témoignage suivant"
               >
                 <ChevronRight className="size-5" />
@@ -249,7 +249,7 @@ export function Testimonials() {
                   key={t.id}
                   onClick={() => goTo(i)}
                   className={`shrink-0 transition-all duration-300 rounded-full overflow-hidden border-2 ${
-                    i === activeIndex ? 'border-gold scale-110' : 'border-transparent opacity-40 hover:opacity-70 hover:scale-105'
+                    i === activeIndex ? 'border-[#E8DCCB] scale-110' : 'border-transparent opacity-40 hover:opacity-70 hover:scale-105'
                   }`}
                   aria-label={t.clientName}
                 >
@@ -272,12 +272,12 @@ export function Testimonials() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-white/90 p-4 backdrop-blur-sm"
             onClick={() => setPlaying(null)}
           >
             <button
               onClick={() => setPlaying(null)}
-              className="absolute right-6 top-6 rounded-full bg-white/10 p-2.5 text-white hover:bg-gold/40 transition-colors"
+              className="absolute right-6 top-6 rounded-full bg-white/10 p-2.5 text-white hover:bg-[#E8DCCB]/40 transition-colors"
               aria-label="Fermer"
             >
               <X className="size-5" />
@@ -292,17 +292,17 @@ export function Testimonials() {
               {playing.videoUrl ? (
                 <iframe
                   src={playing.videoUrl.replace('watch?v=', 'embed/') + "?mute=1&autoplay=1"}
-                  className="aspect-video w-full rounded-xl border border-gold/20"
+                  className="aspect-video w-full rounded-xl border border-[#E8DCCB]/20"
                   allowFullScreen
                   title={`Témoignage de ${playing.clientName}`}
                 />
               ) : (
-                <div className="aspect-video w-full flex flex-col items-center justify-center rounded-xl border border-gold/20 bg-stone-950 text-center p-8">
-                  <Play className="size-12 text-gold mb-4" />
-                  <p className="font-heading text-2xl font-light text-ivory">
+                <div className="aspect-video w-full flex flex-col items-center justify-center rounded-xl border border-[#E8DCCB]/20 bg-stone-950 text-center p-8">
+                  <Play className="size-12 text-[#C17D59] mb-4" />
+                  <p className="font-heading text-2xl font-light text-[#3A2A21]">
                     Témoignage de {playing.clientName}
                   </p>
-                  <p className="mt-2 text-sm text-ivory/50">La vidéo sera bientôt disponible.</p>
+                  <p className="mt-2 text-sm text-[#3A2A21]/50">La vidéo sera bientôt disponible.</p>
                 </div>
               )}
             </motion.div>

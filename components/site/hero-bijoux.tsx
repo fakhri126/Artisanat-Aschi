@@ -33,7 +33,7 @@ export function HeroBijoux() {
         {[...Array(15)].map((_, i) => (
           <motion.div
             key={`sparkle-${i}`}
-            className="absolute rounded-full bg-gold/40 blur-[1px]"
+            className="absolute rounded-full bg-[#E8DCCB]/40 blur-[1px]"
             style={{
               width: Math.random() * 6 + 2 + 'px',
               height: Math.random() * 6 + 2 + 'px',
@@ -58,7 +58,7 @@ export function HeroBijoux() {
           {/* Decorative Accent */}
           <div className="absolute -top-[1px] left-1/2 lg:left-12 -translate-x-1/2 lg:translate-x-0 w-1/2 h-[2px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent" />
           
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 border border-[#D4AF37]/20 text-[#D4AF37] text-xs font-bold uppercase tracking-[0.25em] mb-6 shadow-inner">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/40 border border-[#D4AF37]/20 text-[#D4AF37] text-xs font-bold uppercase tracking-[0.25em] mb-6 shadow-inner">
             <Sparkles className="size-3" />
             Collection Exclusive
           </div>
@@ -76,7 +76,7 @@ export function HeroBijoux() {
             <div className="h-px w-8 lg:w-16 bg-gradient-to-l from-transparent to-[#D4AF37]/50" />
           </div>
 
-          <p className="text-ivory/80 font-light text-sm sm:text-base md:text-lg mb-8 leading-relaxed tracking-wide drop-shadow-md">
+          <p className="text-[#3A2A21]/80 font-light text-sm sm:text-base md:text-lg mb-8 leading-relaxed tracking-wide drop-shadow-md">
             Sublimez vos meubles et portes avec nos poignées en céramique d&apos;art. 
             Des détails peints à la main pour apporter une élégance absolue à votre intérieur.
           </p>
@@ -114,7 +114,7 @@ export function HeroBijoux() {
               <motion.div 
                 whileTap={{ rotate: 120, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 150, damping: 10, mass: 1 }}
-                className="relative size-28 sm:size-32 md:size-40 rounded-full overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.9),0_0_25px_rgba(212,175,55,0.5),inset_0_4px_10px_rgba(255,255,255,0.3)] z-10 cursor-pointer border-[3px] border-[#D4AF37]/90 bg-black"
+                className="relative size-28 sm:size-32 md:size-40 rounded-full overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.9),0_0_25px_rgba(212,175,55,0.5),inset_0_4px_10px_rgba(255,255,255,0.3)] z-10 cursor-pointer border-[3px] border-[#D4AF37]/90 bg-white"
               >
                 <Image 
                   src="/poignees/new_knob_13.jpg" 
@@ -127,7 +127,7 @@ export function HeroBijoux() {
                 <div className="absolute top-1 left-[15%] right-[15%] h-1/4 rounded-t-full bg-gradient-to-b from-white/50 to-transparent pointer-events-none opacity-90" />
               </motion.div>
             </div>
-            <div className="absolute -bottom-8 bg-black/60 backdrop-blur-sm border border-[#D4AF37]/30 px-3 py-1 rounded-full text-[#D4AF37] text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            <div className="absolute -bottom-8 bg-white/60 backdrop-blur-sm border border-[#D4AF37]/30 px-3 py-1 rounded-full text-[#D4AF37] text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
               Tournez-moi
             </div>
           </button>
@@ -157,7 +157,7 @@ export function HeroBijoux() {
                   <motion.div
                     animate={{ rotate: [-2, 2, -2] }}
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: knob.delay }}
-                    className="relative size-10 md:size-16 rounded-full overflow-hidden shadow-lg border-2 border-[#D4AF37]/80 z-10 bg-black"
+                    className="relative size-10 md:size-16 rounded-full overflow-hidden shadow-lg border-2 border-[#D4AF37]/80 z-10 bg-white"
                   >
                     <Image src={knob.src} alt="Poignée artisanale" fill className="object-cover scale-105 pointer-events-none" />
                     <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-black/20 via-transparent to-white/30 pointer-events-none" />

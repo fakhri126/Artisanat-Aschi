@@ -132,26 +132,26 @@ export default function TurnkeyProjectsPage() {
   }, [selectedProject])
 
   return (
-    <main className="min-h-screen flex flex-col bg-walnut text-ivory">
+    <main className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#3A2A21]">
       <Navbar />
       
       <div className="flex-1 flex flex-col items-center justify-center px-6 pt-32 pb-24 max-w-7xl mx-auto w-full">
         {/* Page Header */}
         <div className="text-center mb-16 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/25 text-gold text-xs uppercase tracking-[0.2em] mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4">
             <Briefcase className="size-3.5" /> Espaces d&apos;Exception
           </div>
           <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl text-white mb-6">
             Espaces d&apos;Exception
           </h1>
-          <p className="text-ivory/70 text-base sm:text-lg leading-relaxed text-pretty font-light">
+          <p className="text-[#3A2A21]/70 text-base sm:text-lg leading-relaxed text-pretty font-light">
             De l&apos;étude de plans à l&apos;installation finale, l&apos;Atelier Aschi prend en charge l&apos;habillage complet en menuiserie d&apos;art et le mobilier pour les hôtels, restaurants, maisons d&apos;hôtes de prestige et espaces de direction d&apos;entreprises.
           </p>
         </div>
 
         {/* Filter Bar */}
         <Reveal delay={100} className="w-full flex justify-center mb-16 overflow-x-auto pb-4 scrollbar-thin">
-          <div className="flex gap-2 p-1.5 rounded-full bg-stone-950/40 border border-gold/15 backdrop-blur-md shrink-0">
+          <div className="flex gap-2 p-1.5 rounded-full bg-stone-950/40 border border-[#E8DCCB]/15 backdrop-blur-md shrink-0">
             {FILTER_TYPES.map((type) => {
               const Icon = type.icon
               const isActive = filter === type.id
@@ -161,8 +161,8 @@ export default function TurnkeyProjectsPage() {
                   onClick={() => setFilter(type.id)}
                   className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-semibold transition-all duration-300 ${
                     isActive
-                      ? 'bg-gold text-walnut shadow-[0_4px_12px_rgba(212,175,55,0.2)]'
-                      : 'text-ivory/60 hover:text-white hover:bg-white/5'
+                      ? 'bg-[#E8DCCB] text-walnut shadow-[0_4px_12px_rgba(212,175,55,0.2)]'
+                      : 'text-[#3A2A21]/60 hover:text-white hover:bg-white/5'
                   }`}
                 >
                   {Icon && <Icon className="size-3.5" />}
@@ -182,7 +182,7 @@ export default function TurnkeyProjectsPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center py-16 text-ivory/50"
+                className="text-center py-16 text-[#3A2A21]/50"
               >
                 Aucune réalisation trouvée pour cette catégorie.
               </motion.div>
@@ -197,10 +197,10 @@ export default function TurnkeyProjectsPage() {
                     exit={{ opacity: 0, y: -30 }}
                     transition={{ duration: 0.5, ease: 'easeOut', delay: index * 0.1 }}
                     onClick={() => handleOpenProject(project)}
-                    className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center bg-stone-950/20 rounded-3xl p-6 md:p-8 border border-gold/10 hover:border-gold/30 hover:bg-stone-950/30 transition-all duration-300 cursor-pointer group"
+                    className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center bg-stone-950/20 rounded-3xl p-6 md:p-8 border border-[#E8DCCB]/10 hover:border-[#E8DCCB]/30 hover:bg-stone-950/30 transition-all duration-300 cursor-pointer group"
                   >
                     {/* Visual image */}
-                    <div className="relative w-full lg:w-[45%] aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-gold/15 shrink-0">
+                    <div className="relative w-full lg:w-[45%] aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-[#E8DCCB]/15 shrink-0">
                       <Image
                         src={project.image}
                         alt={project.title}
@@ -209,8 +209,8 @@ export default function TurnkeyProjectsPage() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 pointer-events-none" />
                       {/* Click overlay prompt */}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <span className="bg-gold text-walnut text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-full shadow-lg flex items-center gap-2">
+                      <div className="absolute inset-0 bg-white/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <span className="bg-[#E8DCCB] text-walnut text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-full shadow-lg flex items-center gap-2">
                           <MessageSquare className="size-4" /> Explorer l&apos;espace
                         </span>
                       </div>
@@ -219,16 +219,16 @@ export default function TurnkeyProjectsPage() {
                     {/* Content Details */}
                     <div className="flex flex-col justify-between items-start text-left flex-1 py-2">
                       <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-gold font-semibold">
-                          <MapPin className="size-3.5 text-gold/80" />
+                        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#C17D59] font-semibold">
+                          <MapPin className="size-3.5 text-[#C17D59]/80" />
                           {project.location}
                         </div>
                         
-                        <h3 className="font-heading text-3xl sm:text-4xl text-white font-medium leading-tight group-hover:text-gold transition-colors duration-300">
+                        <h3 className="font-heading text-3xl sm:text-4xl text-white font-medium leading-tight group-hover:text-[#C17D59] transition-colors duration-300">
                           {project.title}
                         </h3>
                         
-                        <p className="text-sm font-light leading-relaxed text-ivory/70 text-pretty">
+                        <p className="text-sm font-light leading-relaxed text-[#3A2A21]/70 text-pretty">
                           {project.description}
                         </p>
                       </div>
@@ -238,7 +238,7 @@ export default function TurnkeyProjectsPage() {
                         {project.details.map((detail, idx) => (
                           <span
                             key={idx}
-                            className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider text-ivory/80 font-medium"
+                            className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider text-[#3A2A21]/80 font-medium"
                           >
                             {detail}
                           </span>
@@ -254,12 +254,12 @@ export default function TurnkeyProjectsPage() {
 
         {/* CTA Section: Démarrer votre projet */}
         <Reveal delay={200} className="w-full">
-          <div className="w-full bg-gradient-to-b from-stone-950 to-stone-950/60 border border-gold/25 rounded-3xl p-10 md:p-16 text-center shadow-2xl relative overflow-hidden flex flex-col items-center">
+          <div className="w-full bg-gradient-to-b from-stone-950 to-stone-950/60 border border-[#E8DCCB]/25 rounded-3xl p-10 md:p-16 text-center shadow-2xl relative overflow-hidden flex flex-col items-center">
             {/* Background design */}
-            <div className="absolute -left-1/4 -top-1/2 w-1/2 h-full bg-gold/5 blur-[120px] rounded-full pointer-events-none" />
-            <div className="absolute -right-1/4 -bottom-1/2 w-1/2 h-full bg-gold/5 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute -left-1/4 -top-1/2 w-1/2 h-full bg-[#E8DCCB]/5 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute -right-1/4 -bottom-1/2 w-1/2 h-full bg-[#E8DCCB]/5 blur-[120px] rounded-full pointer-events-none" />
 
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs uppercase tracking-[0.2em] mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/20 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-6">
               <Sparkles className="size-3.5" /> Projet de Grande Envergure
             </div>
             
@@ -267,13 +267,13 @@ export default function TurnkeyProjectsPage() {
               Donnez vie à vos espaces d&apos;exception
             </h2>
             
-            <p className="text-ivory/60 text-sm sm:text-base font-light leading-relaxed max-w-xl mb-10 text-pretty">
+            <p className="text-[#3A2A21]/60 text-sm sm:text-base font-light leading-relaxed max-w-xl mb-10 text-pretty">
               Architectes, décorateurs d&apos;intérieur ou propriétaires, confiez-nous vos plans et exigences. Notre bureau d&apos;étude et nos artisans sauront façonner l&apos;excellence.
             </p>
 
             <Link
               href="/contact?subject=espaces-exception"
-              className="inline-flex items-center gap-3 rounded-full bg-gold px-8 py-4.5 text-xs font-semibold uppercase tracking-[0.2em] text-walnut transition-all duration-300 hover:scale-[1.03] shadow-[0_4px_25px_rgba(212,175,55,0.25)] hover:shadow-[0_4px_30px_rgba(212,175,55,0.35)]"
+              className="inline-flex items-center gap-3 rounded-full bg-[#E8DCCB] px-8 py-4.5 text-xs font-semibold uppercase tracking-[0.2em] text-walnut transition-all duration-300 hover:scale-[1.03] shadow-[0_4px_25px_rgba(212,175,55,0.25)] hover:shadow-[0_4px_30px_rgba(212,175,55,0.35)]"
             >
               Démarrer votre projet
               <ChevronRight className="size-4" />
@@ -289,7 +289,7 @@ export default function TurnkeyProjectsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 md:p-6"
+            className="fixed inset-0 z-50 bg-white/85 backdrop-blur-md flex items-center justify-center p-4 md:p-6"
             onClick={handleCloseProject}
           >
             <motion.div
@@ -297,23 +297,23 @@ export default function TurnkeyProjectsPage() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 30 }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-5xl bg-stone-900 border border-gold/30 rounded-3xl shadow-2xl flex flex-col md:flex-row max-h-[90vh] overflow-hidden"
+              className="relative w-full max-w-5xl bg-stone-900 border border-[#E8DCCB]/30 rounded-3xl shadow-2xl flex flex-col md:flex-row max-h-[90vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
               <button
                 onClick={handleCloseProject}
-                className="absolute top-4 right-4 z-50 p-2 rounded-full bg-stone-950/60 border border-gold/25 text-gold hover:bg-gold hover:text-walnut transition-colors"
+                className="absolute top-4 right-4 z-50 p-2 rounded-full bg-stone-950/60 border border-[#E8DCCB]/25 text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut transition-colors"
                 aria-label="Fermer"
               >
                 <X className="size-5" />
               </button>
 
               {/* LEFT COLUMN: Media (Gallery & Video) */}
-              <div className="w-full md:w-[55%] flex flex-col border-b md:border-b-0 md:border-r border-gold/15 overflow-y-auto p-6 space-y-6 scrollbar-thin">
+              <div className="w-full md:w-[55%] flex flex-col border-b md:border-b-0 md:border-r border-[#E8DCCB]/15 overflow-y-auto p-6 space-y-6 scrollbar-thin">
                 
                 {/* Main Large Image Display */}
-                <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-gold/10 bg-stone-950">
+                <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-[#E8DCCB]/10 bg-stone-950">
                   <Image
                     src={selectedProject.gallery[activeImageIdx]}
                     alt={selectedProject.title}
@@ -329,7 +329,7 @@ export default function TurnkeyProjectsPage() {
                       key={idx}
                       onClick={() => setActiveImageIdx(idx)}
                       className={`relative w-20 aspect-[16/10] rounded-lg overflow-hidden border shrink-0 transition-all ${
-                        activeImageIdx === idx ? 'border-gold scale-95 shadow-md' : 'border-white/10 opacity-60 hover:opacity-100'
+                        activeImageIdx === idx ? 'border-[#E8DCCB] scale-95 shadow-md' : 'border-white/10 opacity-60 hover:opacity-100'
                       }`}
                     >
                       <Image
@@ -345,8 +345,8 @@ export default function TurnkeyProjectsPage() {
                 {/* Video Player */}
                 {selectedProject.video && (
                   <div className="space-y-3">
-                    <h4 className="text-[10px] uppercase tracking-widest text-gold font-semibold text-left">Aperçu Vidéo de l&apos;Atelier</h4>
-                    <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border border-gold/15 bg-stone-950 shadow-inner group/video">
+                    <h4 className="text-[10px] uppercase tracking-widest text-[#C17D59] font-semibold text-left">Aperçu Vidéo de l&apos;Atelier</h4>
+                    <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border border-[#E8DCCB]/15 bg-stone-950 shadow-inner group/video">
                       <video
                         ref={videoRef}
                         src={selectedProject.video}
@@ -359,13 +359,13 @@ export default function TurnkeyProjectsPage() {
                       {/* Play/Pause custom overlay */}
                       <div 
                         onClick={togglePlay}
-                        className="absolute inset-0 bg-black/35 flex items-center justify-center cursor-pointer group-hover/video:bg-black/50 transition-colors"
+                        className="absolute inset-0 bg-white/35 flex items-center justify-center cursor-pointer group-hover/video:bg-white/50 transition-colors"
                       >
-                        <div className="w-12 h-12 rounded-full bg-gold/90 text-walnut flex items-center justify-center transition-transform hover:scale-110 shadow-lg">
+                        <div className="w-12 h-12 rounded-full bg-[#E8DCCB]/90 text-walnut flex items-center justify-center transition-transform hover:scale-110 shadow-lg">
                           {isPlaying ? (
                             <div className="flex gap-1">
-                              <div className="w-1 h-4 bg-walnut rounded-full" />
-                              <div className="w-1 h-4 bg-walnut rounded-full" />
+                              <div className="w-1 h-4 bg-[#FAF7F2] rounded-full" />
+                              <div className="w-1 h-4 bg-[#FAF7F2] rounded-full" />
                             </div>
                           ) : (
                             <Play className="size-5 fill-current ml-1" />
@@ -383,7 +383,7 @@ export default function TurnkeyProjectsPage() {
                 
                 {/* Meta details */}
                 <div className="space-y-4">
-                  <span className="inline-block bg-gold/15 border border-gold/25 text-gold text-[10px] uppercase tracking-widest px-3 py-1 rounded-full font-semibold">
+                  <span className="inline-block bg-[#E8DCCB]/15 border border-[#E8DCCB]/25 text-[#C17D59] text-[10px] uppercase tracking-widest px-3 py-1 rounded-full font-semibold">
                     {FILTER_TYPES.find(t => t.id === selectedProject.type)?.label || selectedProject.type}
                   </span>
                   
@@ -391,32 +391,32 @@ export default function TurnkeyProjectsPage() {
                     {selectedProject.title}
                   </h3>
                   
-                  <div className="flex items-center gap-1.5 text-xs text-gold/80">
+                  <div className="flex items-center gap-1.5 text-xs text-[#C17D59]/80">
                     <MapPin className="size-3.5" />
                     {selectedProject.location}
                   </div>
 
-                  <p className="text-sm text-ivory/80 font-light leading-relaxed pt-2">
+                  <p className="text-sm text-[#3A2A21]/80 font-light leading-relaxed pt-2">
                     {selectedProject.description}
                   </p>
                 </div>
 
                 {/* Testimonial Box */}
                 {selectedProject.review && (
-                  <div className="bg-white/5 border border-gold/15 rounded-2xl p-5 space-y-3 relative">
+                  <div className="bg-white/5 border border-[#E8DCCB]/15 rounded-2xl p-5 space-y-3 relative">
                     <div className="flex gap-1">
                       {[...Array(selectedProject.review.rating)].map((_, i) => (
-                        <Star key={i} className="size-3.5 fill-gold text-gold" />
+                        <Star key={i} className="size-3.5 fill-gold text-[#C17D59]" />
                       ))}
                     </div>
                     
-                    <p className="text-xs text-ivory/70 italic leading-relaxed">
+                    <p className="text-xs text-[#3A2A21]/70 italic leading-relaxed">
                       &quot;{selectedProject.review.comment}&quot;
                     </p>
                     
                     <div className="border-t border-white/10 pt-2 flex flex-col">
                       <span className="text-xs font-semibold text-white">{selectedProject.review.author}</span>
-                      <span className="text-[10px] text-ivory/50">{selectedProject.review.role}</span>
+                      <span className="text-[10px] text-[#3A2A21]/50">{selectedProject.review.role}</span>
                     </div>
                   </div>
                 )}
@@ -425,7 +425,7 @@ export default function TurnkeyProjectsPage() {
                 <div className="pt-4 border-t border-white/10">
                   <Link
                     href={`/contact?subject=similaire-${selectedProject.title.replace(/\s+/g, '-').toLowerCase()}`}
-                    className="w-full inline-flex items-center justify-center gap-2.5 rounded-full bg-gold px-6 py-4.5 text-xs font-semibold uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:scale-[1.02] shadow-[0_4px_15px_rgba(212,175,55,0.2)]"
+                    className="w-full inline-flex items-center justify-center gap-2.5 rounded-full bg-[#E8DCCB] px-6 py-4.5 text-xs font-semibold uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:scale-[1.02] shadow-[0_4px_15px_rgba(212,175,55,0.2)]"
                   >
                     Demander un projet similaire
                     <ChevronRight className="size-3.5" />

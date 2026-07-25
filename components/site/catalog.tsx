@@ -139,16 +139,16 @@ export function Catalog() {
   }, [category, color, dimensions])
 
   return (
-    <section id="catalogue" className="bg-walnut py-24 text-walnut-foreground md:py-36">
+    <section id="catalogue" className="bg-[#FAF7F2] py-24 text-[#5A453A] md:py-36">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal className="text-center">
-          <p className="text-xs uppercase tracking-luxury text-gold">
+          <p className="text-xs uppercase tracking-luxury text-[#C17D59]">
             Catalogue d&apos;inspiration
           </p>
-          <h2 className="mx-auto mt-5 max-w-2xl text-balance font-heading text-4xl font-light leading-tight sm:text-5xl md:text-6xl text-ivory">
+          <h2 className="mx-auto mt-5 max-w-2xl text-balance font-heading text-4xl font-light leading-tight sm:text-5xl md:text-6xl text-[#3A2A21]">
             Nos créations passées, sources d&apos;inspiration
           </h2>
-          <p className="mx-auto mt-6 max-w-xl text-pretty text-base font-light leading-relaxed text-walnut-foreground/70">
+          <p className="mx-auto mt-6 max-w-xl text-pretty text-base font-light leading-relaxed text-[#5A453A]/70">
             Parcourez les modèles déjà réalisés. Choisissez-en un tel quel, ou
             laissez-le inspirer votre propre création sur-mesure.
           </p>
@@ -156,54 +156,54 @@ export function Catalog() {
 
         {/* Dynamic Filters Form */}
         <Reveal delay={120}>
-          <div className="mt-12 p-6 rounded-2xl bg-zinc-950/20 border border-gold/15 backdrop-blur-sm max-w-4xl mx-auto space-y-4">
+          <div className="mt-12 p-6 rounded-2xl bg-zinc-950/20 border border-[#E8DCCB]/15 backdrop-blur-sm max-w-4xl mx-auto space-y-4">
             <div className="grid gap-4 sm:grid-cols-3 text-left">
               {/* Category Select */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs uppercase tracking-wider text-gold font-semibold">Catégorie</label>
+                <label className="text-xs uppercase tracking-wider text-[#C17D59] font-semibold">Catégorie</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="bg-walnut/40 border border-gold/10 focus:border-gold/50 rounded-lg p-2.5 text-xs text-ivory outline-none transition-colors"
+                  className="bg-[#FAF7F2]/40 border border-[#E8DCCB]/10 focus:border-[#E8DCCB]/50 rounded-lg p-2.5 text-xs text-[#3A2A21] outline-none transition-colors"
                 >
                   {FILTERS_CAT.map(c => (
-                    <option key={c} value={c} className="bg-walnut text-ivory">{c}</option>
+                    <option key={c} value={c} className="bg-[#FAF7F2] text-[#3A2A21]">{c}</option>
                   ))}
                 </select>
               </div>
 
               {/* Color Select */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs uppercase tracking-wider text-gold font-semibold">Couleur</label>
+                <label className="text-xs uppercase tracking-wider text-[#C17D59] font-semibold">Couleur</label>
                 <select
                   value={color}
                   onChange={(e) => setColor(e.target.value)}
-                  className="bg-walnut/40 border border-gold/10 focus:border-gold/50 rounded-lg p-2.5 text-xs text-ivory outline-none transition-colors"
+                  className="bg-[#FAF7F2]/40 border border-[#E8DCCB]/10 focus:border-[#E8DCCB]/50 rounded-lg p-2.5 text-xs text-[#3A2A21] outline-none transition-colors"
                 >
                   {FILTERS_COLOR.map(c => (
-                    <option key={c} value={c} className="bg-walnut text-ivory">{c}</option>
+                    <option key={c} value={c} className="bg-[#FAF7F2] text-[#3A2A21]">{c}</option>
                   ))}
                 </select>
               </div>
 
               {/* Dimensions Select */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs uppercase tracking-wider text-gold font-semibold">Dimensions</label>
+                <label className="text-xs uppercase tracking-wider text-[#C17D59] font-semibold">Dimensions</label>
                 <select
                   value={dimensions}
                   onChange={(e) => setDimensions(e.target.value)}
-                  className="bg-walnut/40 border border-gold/10 focus:border-gold/50 rounded-lg p-2.5 text-xs text-ivory outline-none transition-colors"
+                  className="bg-[#FAF7F2]/40 border border-[#E8DCCB]/10 focus:border-[#E8DCCB]/50 rounded-lg p-2.5 text-xs text-[#3A2A21] outline-none transition-colors"
                 >
                   {FILTERS_DIM.map(d => (
-                    <option key={d} value={d} className="bg-walnut text-ivory">{d}</option>
+                    <option key={d} value={d} className="bg-[#FAF7F2] text-[#3A2A21]">{d}</option>
                   ))}
                 </select>
               </div>
             </div>
 
             {/* AI Disclaimer */}
-            <div className="pt-2 border-t border-gold/10 flex items-start gap-2 text-[10px] text-walnut-foreground/60 italic text-left leading-normal">
-              <AlertCircle className="size-3.5 text-gold shrink-0 mt-0.5" />
+            <div className="pt-2 border-t border-[#E8DCCB]/10 flex items-start gap-2 text-[10px] text-[#5A453A]/60 italic text-left leading-normal">
+              <AlertCircle className="size-3.5 text-[#C17D59] shrink-0 mt-0.5" />
               <span>Certaines variantes visuelles sont générées par intelligence artificielle et peuvent ne pas représenter des réalisations existantes.</span>
             </div>
           </div>
@@ -223,31 +223,31 @@ export function Catalog() {
               return (
                 <Reveal key={model.name} delay={(i % 3) * 100}>
                   <article className="group relative overflow-hidden">
-                    <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-zinc-950/20 border border-gold/5">
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-zinc-950/20 border border-[#E8DCCB]/5">
                       <img
                         src={image}
                         alt={model.name}
                         className="size-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-walnut/55 opacity-0 backdrop-blur-[2px] transition-opacity duration-500 group-hover:opacity-100" />
+                      <div className="absolute inset-0 bg-[#FAF7F2]/55 opacity-0 backdrop-blur-[2px] transition-opacity duration-500 group-hover:opacity-100" />
 
                       {/* Hover actions */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 opacity-0 transition-all duration-500 group-hover:opacity-100">
                         <Link
                           href={link}
-                          className="flex w-48 items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-walnut transition-colors hover:bg-ivory"
+                          className="flex w-48 items-center justify-center gap-2 rounded-full bg-[#E8DCCB] py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-walnut transition-colors hover:bg-ivory"
                         >
                           <Eye className="size-4" /> Voir les détails
                         </Link>
                         <Link
                           href={`${link}?action=devis`}
-                          className="flex w-48 items-center justify-center gap-2 rounded-full border border-ivory/70 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ivory transition-colors hover:border-gold hover:text-gold"
+                          className="flex w-48 items-center justify-center gap-2 rounded-full border border-ivory/70 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#3A2A21] transition-colors hover:border-[#E8DCCB] hover:text-[#C17D59]"
                         >
                           <MessageCircle className="size-4" /> Demander ce modèle
                         </Link>
                         <Link
                           href={`${link}?action=personnaliser`}
-                          className="flex w-48 items-center justify-center gap-2 rounded-full border border-ivory/70 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ivory transition-colors hover:border-gold hover:text-gold"
+                          className="flex w-48 items-center justify-center gap-2 rounded-full border border-ivory/70 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#3A2A21] transition-colors hover:border-[#E8DCCB] hover:text-[#C17D59]"
                         >
                           <Sparkles className="size-4" /> Personnaliser
                         </Link>
@@ -255,10 +255,10 @@ export function Catalog() {
                     </div>
                     <div className="flex items-baseline justify-between py-4 text-left">
                       <div>
-                        <h3 className="font-heading text-2xl font-light text-ivory">{model.name}</h3>
-                        <p className="text-xs text-walnut-foreground/50 mt-1">{model.materials || 'Bois noble'}</p>
+                        <h3 className="font-heading text-2xl font-light text-[#3A2A21]">{model.name}</h3>
+                        <p className="text-xs text-[#5A453A]/50 mt-1">{model.materials || 'Bois noble'}</p>
                       </div>
-                      <span className="text-xs uppercase tracking-[0.14em] text-gold font-medium">
+                      <span className="text-xs uppercase tracking-[0.14em] text-[#C17D59] font-medium">
                         {model.category?.name}
                       </span>
                     </div>

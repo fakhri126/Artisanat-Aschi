@@ -285,11 +285,11 @@ export function HeroSlider() {
               className="max-w-3xl"
             >
               <div className="flex justify-center mb-6">
-                <span className="text-gold text-xs font-bold tracking-[0.3em] uppercase bg-stone-900/40 px-4 py-2 border border-gold/20">
+                <span className="text-[#C17D59] text-xs font-bold tracking-[0.3em] uppercase bg-stone-900/40 px-4 py-2 border border-[#E8DCCB]/20">
                   {slide.subtitle}
                 </span>
               </div>
-              <h1 className="font-heading text-5xl md:text-7xl text-ivory mb-6 text-shadow-lg leading-tight">
+              <h1 className="font-heading text-5xl md:text-7xl text-[#3A2A21] mb-6 text-shadow-lg leading-tight">
                 {slide.title}
               </h1>
               <p className="text-lg md:text-xl font-light text-white/90 mb-10 text-shadow max-w-2xl mx-auto leading-relaxed">
@@ -309,7 +309,7 @@ export function HeroSlider() {
                         initial={{ opacity: 0, scale: 0.8, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8, y: -10 }}
-                        className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 pointer-events-none whitespace-nowrap bg-gold/95 text-walnut text-[9px] font-bold tracking-widest uppercase px-3 py-1 rounded-full shadow-[0_4px_12px_rgba(212,175,55,0.3)] border border-gold/30 animate-pulse"
+                        className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 pointer-events-none whitespace-nowrap bg-[#E8DCCB]/95 text-walnut text-[9px] font-bold tracking-widest uppercase px-3 py-1 rounded-full shadow-[0_4px_12px_rgba(212,175,55,0.3)] border border-[#E8DCCB]/30 animate-pulse"
                       >
                         Tournez la poignée
                       </motion.div>
@@ -337,7 +337,7 @@ export function HeroSlider() {
                   </motion.div>
                   
                   {/* Text prompt to click */}
-                  <span className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#d4af37] font-semibold bg-black/40 px-4 py-1.5 rounded-full border border-[#d4af37]/20 backdrop-blur-sm shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-all group-hover/knob:bg-gold group-hover/knob:text-walnut group-hover/knob:border-gold duration-300 select-none">
+                  <span className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#d4af37] font-semibold bg-white/40 px-4 py-1.5 rounded-full border border-[#d4af37]/20 backdrop-blur-sm shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition-all group-hover/knob:bg-[#E8DCCB] group-hover/knob:text-walnut group-hover/knob:border-[#E8DCCB] duration-300 select-none">
                     {SLIDES[current].cta}
                   </span>
                 </div>
@@ -351,7 +351,7 @@ export function HeroSlider() {
       <div className="absolute top-1/2 left-4 sm:left-8 z-30 -translate-y-1/2">
         <button
           onClick={() => paginate(-1)}
-          className="p-3 sm:p-4 rounded-full bg-black/20 text-white backdrop-blur-md hover:bg-gold hover:text-walnut transition-colors"
+          className="p-3 sm:p-4 rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-[#E8DCCB] hover:text-walnut transition-colors"
           aria-label="Previous slide"
         >
           <ChevronLeft className="size-6" />
@@ -360,7 +360,7 @@ export function HeroSlider() {
       <div className="absolute top-1/2 right-4 sm:right-8 z-30 -translate-y-1/2">
         <button
           onClick={() => paginate(1)}
-          className="p-3 sm:p-4 rounded-full bg-black/20 text-white backdrop-blur-md hover:bg-gold hover:text-walnut transition-colors"
+          className="p-3 sm:p-4 rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-[#E8DCCB] hover:text-walnut transition-colors"
           aria-label="Next slide"
         >
           <ChevronRight className="size-6" />
@@ -377,7 +377,7 @@ export function HeroSlider() {
               setCurrent(idx)
             }}
             className={`h-1.5 transition-all duration-500 rounded-full ${
-              idx === current ? 'w-10 bg-gold' : 'w-2 bg-white/50 hover:bg-white/80'
+              idx === current ? 'w-10 bg-[#E8DCCB]' : 'w-2 bg-white/50 hover:bg-white/80'
             }`}
             aria-label={`Go to slide ${idx + 1}`}
           />

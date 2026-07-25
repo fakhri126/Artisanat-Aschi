@@ -46,7 +46,7 @@ export function EventModal({ event, isOpen, onClose }: EventModalProps) {
               {/* Close button */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 z-20 p-2 text-white/50 hover:text-gold transition-colors bg-black/40 rounded-full backdrop-blur-md"
+                className="absolute top-4 right-4 z-20 p-2 text-white/50 hover:text-[#C17D59] transition-colors bg-white/40 rounded-full backdrop-blur-md"
               >
                 <X className="size-6" />
               </button>
@@ -62,11 +62,11 @@ export function EventModal({ event, isOpen, onClose }: EventModalProps) {
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent md:bg-gradient-to-r" />
                 
                 {/* Decorative Elements */}
-                <div className="absolute top-6 left-6 p-3 border border-gold/30 bg-black/40 backdrop-blur-md flex flex-col items-center justify-center rounded-sm">
-                  <span className="text-gold font-heading text-2xl leading-none">
+                <div className="absolute top-6 left-6 p-3 border border-[#E8DCCB]/30 bg-white/40 backdrop-blur-md flex flex-col items-center justify-center rounded-sm">
+                  <span className="text-[#C17D59] font-heading text-2xl leading-none">
                     {new Date(event.createdDate || Date.now()).getDate()}
                   </span>
-                  <span className="text-ivory text-[10px] uppercase tracking-widest mt-1">
+                  <span className="text-[#3A2A21] text-[10px] uppercase tracking-widest mt-1">
                     {new Date(event.createdDate || Date.now()).toLocaleString('fr-FR', { month: 'short' })}
                   </span>
                 </div>
@@ -75,7 +75,7 @@ export function EventModal({ event, isOpen, onClose }: EventModalProps) {
               {/* Content Section */}
               <div className="flex-1 p-8 md:p-12 overflow-y-auto custom-scrollbar flex flex-col">
                 <div className="flex items-center gap-4 mb-6">
-                  <span className="px-3 py-1 bg-gold/10 border border-gold/20 text-gold text-[10px] uppercase tracking-[0.2em] rounded-sm">
+                  <span className="px-3 py-1 bg-[#E8DCCB]/10 border border-[#E8DCCB]/20 text-[#C17D59] text-[10px] uppercase tracking-[0.2em] rounded-sm">
                     Actualité & Événement
                   </span>
                   <span className="flex items-center gap-2 text-white/50 text-xs font-light">
@@ -84,7 +84,7 @@ export function EventModal({ event, isOpen, onClose }: EventModalProps) {
                   </span>
                 </div>
 
-                <h2 className="font-heading text-3xl md:text-5xl text-ivory mb-8 leading-tight">
+                <h2 className="font-heading text-3xl md:text-5xl text-[#3A2A21] mb-8 leading-tight">
                   {event.title}
                 </h2>
                 
@@ -100,7 +100,7 @@ export function EventModal({ event, isOpen, onClose }: EventModalProps) {
                 <div className="mt-auto pt-10">
                   <button
                     onClick={onClose}
-                    className="w-full py-4 border border-white/20 text-white/80 text-xs uppercase tracking-widest hover:border-gold hover:text-gold transition-colors"
+                    className="w-full py-4 border border-white/20 text-white/80 text-xs uppercase tracking-widest hover:border-[#E8DCCB] hover:text-[#C17D59] transition-colors"
                   >
                     Fermer
                   </button>

@@ -58,33 +58,33 @@ export function Hero() {
 
       {/* Cinematic overlays */}
       <div className="absolute inset-0 z-10 bg-gradient-to-b from-walnut/70 via-walnut/40 to-walnut/90" />
-      <div className="absolute inset-0 z-10 bg-walnut/20" />
+      <div className="absolute inset-0 z-10 bg-[#FAF7F2]/20" />
 
       {/* Content */}
       <div className="relative z-20 mx-auto flex h-full max-w-5xl flex-col items-center justify-center px-6 text-center">
         <p
-          className="mb-6 animate-[fadeIn_1.4s_ease] text-xs uppercase tracking-luxury text-gold sm:text-sm"
+          className="mb-6 animate-[fadeIn_1.4s_ease] text-xs uppercase tracking-luxury text-[#C17D59] sm:text-sm"
           style={{ animationFillMode: 'both' }}
         >
           Atelier d&apos;art · Tunisie · Depuis 1960
         </p>
-        <h1 className="font-heading text-6xl font-medium leading-[0.95] text-ivory text-shadow-cinematic sm:text-7xl md:text-8xl lg:text-[8.5rem]">
+        <h1 className="font-heading text-6xl font-medium leading-[0.95] text-[#3A2A21] text-shadow-cinematic sm:text-7xl md:text-8xl lg:text-[8.5rem]">
           Artisanat Aschi
         </h1>
-        <p className="mt-8 max-w-2xl font-heading text-2xl font-light italic leading-snug text-ivory/90 text-shadow-cinematic sm:text-3xl md:text-4xl">
+        <p className="mt-8 max-w-2xl font-heading text-2xl font-light italic leading-snug text-[#3A2A21]/90 text-shadow-cinematic sm:text-3xl md:text-4xl">
           « Depuis 1960, nous sculptons l&apos;âme du patrimoine tunisien. »
         </p>
 
         <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:gap-5">
           <a
             href="#histoire"
-            className="rounded-full bg-gold px-9 py-4 text-xs font-medium uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:bg-ivory"
+            className="rounded-full bg-[#E8DCCB] px-9 py-4 text-xs font-medium uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:bg-ivory"
           >
             Découvrir l&apos;atelier
           </a>
           <a
             href="#creations"
-            className="rounded-full border border-ivory/60 px-9 py-4 text-xs font-medium uppercase tracking-[0.18em] text-ivory transition-all duration-300 hover:border-gold hover:text-gold"
+            className="rounded-full border border-ivory/60 px-9 py-4 text-xs font-medium uppercase tracking-[0.18em] text-[#3A2A21] transition-all duration-300 hover:border-[#E8DCCB] hover:text-[#C17D59]"
           >
             Explorer nos créations
           </a>
@@ -92,7 +92,7 @@ export function Hero() {
       </div>
 
       {/* Scroll cue */}
-      <div className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 text-ivory/70">
+      <div className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 text-[#3A2A21]/70">
         <ArrowDown className="size-6 animate-bounce" />
       </div>
     </section>
