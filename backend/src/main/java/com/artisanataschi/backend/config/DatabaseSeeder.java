@@ -188,7 +188,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         for (int i = 0; i < grandModels.length; i++) {
             String name = grandModels[i][0];
             String desc = grandModels[i][1];
-            String imgUrl = "/poignees/grand_rond_" + (i + 1) + ".png";
+            String imgUrl = "/poignees/new_knob_" + (i + 1) + ".jpg";
             if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(name))) {
                 Product hp = productWithImage(
                     name, desc, "Diamètre 6.5 cm", "Céramique de majolique", "Multicolore", "28", "Disponible", "REPRODUCTIBLE", true, gr, imgUrl
@@ -211,7 +211,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         for (int i = 0; i < ovaleModels.length; i++) {
             String name = ovaleModels[i][0];
             String desc = ovaleModels[i][1];
-            String imgUrl = "/poignees/ovale_" + (i + 1) + ".png";
+            String imgUrl = "/poignees/new_knob_" + (i + 7) + ".jpg";
             if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(name))) {
                 Product hp = productWithImage(
                     name, desc, "7 cm x 4 cm", "Céramique de majolique", "Multicolore", "32", "Disponible", "REPRODUCTIBLE", true, ov, imgUrl
@@ -226,7 +226,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             for (int c = 1; c <= 9; c++) {
                 String name = "Petite Poignée \"Modèle Artisan N°" + count + "\"";
                 String desc = "Miniature céramique peinte à la main. Pièce d'artisanat unique N°" + count + ".";
-                String imgUrl = "/poignees/petite_" + r + "_" + c + ".png";
+                int imgIdx = ((count - 1) % 25) + 1;
+                String imgUrl = "/poignees/new_knob_" + imgIdx + ".jpg";
                 if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(name))) {
                     Product hp = productWithImage(
                         name, desc, "Diamètre 3.5 cm", "Céramique de majolique", "Multicolore", "18", "Disponible", "REPRODUCTIBLE", true, pp, imgUrl

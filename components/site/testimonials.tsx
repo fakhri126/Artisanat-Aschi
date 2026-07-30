@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Play, X, Star } from 'lucide-react'
 import { publicApi, Testimonial } from '@/lib/api'
+import { BohoBand, BohoFan } from './boho-decor'
 
 const MOCK_TESTIMONIALS = [
   {
@@ -119,13 +120,17 @@ export function Testimonials() {
   const active = testimonials[activeIndex]
 
   return (
-    <section className="relative overflow-hidden bg-[#1a1109] py-24 md:py-36">
-      {/* Decorative gold lines */}
+    <section id="temoignages" className="bg-transparent py-24 md:py-36 border-y border-[#D9CEB8] relative overflow-hidden">
+      {/* Decorative geometric lines inspired by sculptures */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-gold/20 to-transparent" />
-        <div className="absolute right-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-gold/20 to-transparent" />
-        <div className="absolute -left-40 top-1/4 size-96 rounded-full bg-[#E8DCCB]/5 blur-3xl" />
-        <div className="absolute -right-40 bottom-1/4 size-96 rounded-full bg-[#E8DCCB]/5 blur-3xl" />
+        <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-[#C17D59]/15 to-transparent" />
+        <div className="absolute right-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-[#C17D59]/15 to-transparent" />
+        <div className="absolute -left-40 top-1/4 size-96 rounded-full bg-[#C17D59]/5 blur-3xl" />
+        <div className="absolute -right-40 bottom-1/4 size-96 rounded-full bg-[#C8960C]/5 blur-3xl" />
+        
+        {/* Decorative elements behind reviews */}
+        <BohoBand className="absolute top-10 left-4 md:left-10 w-24 md:w-48 opacity-10 text-[#C17D59]" color="currentColor" delay={0.2} />
+        <BohoFan className="absolute bottom-10 right-4 md:right-20 w-32 md:w-56 opacity-10 text-[#3A7D50] rotate-[-25deg]" color="currentColor" delay={0.4} />
       </div>
 
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
@@ -134,11 +139,11 @@ export function Testimonials() {
           <p className="text-[11px] uppercase tracking-[0.3em] text-[#C17D59] font-semibold mb-4">
             ✦ Témoignages ✦
           </p>
-          <h2 className="font-heading text-4xl font-light text-[#3A2A21] sm:text-5xl md:text-6xl leading-tight">
+          <h2 className="font-heading text-4xl font-light text-[#3A2A1E] sm:text-5xl md:text-6xl leading-tight">
             La parole à ceux qui<br className="hidden sm:block" />
             <span className="italic text-[#C17D59]">nous ont fait confiance</span>
           </h2>
-          <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+          <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-[#C17D59]/50 to-transparent" />
         </div>
 
         {/* Main Carousel */}

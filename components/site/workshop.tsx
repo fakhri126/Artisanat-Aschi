@@ -32,7 +32,7 @@ export function Workshop() {
     <section id="atelier" className="bg-background py-24 md:py-36">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal className="mx-auto max-w-3xl text-center">
-          <p className="text-xs uppercase tracking-luxury text-bronze">
+          <p className="text-sm md:text-base font-bold uppercase tracking-[0.2em] text-[#C17D59]">
             L&apos;expérience de l&apos;atelier
           </p>
           <h2 className="mt-5 text-balance font-heading text-4xl font-light leading-tight text-foreground sm:text-5xl md:text-6xl">

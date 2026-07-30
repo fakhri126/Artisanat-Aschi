@@ -1,0 +1,12 @@
+{
+  "AllowMultiple": true,
+  "Description": "Remove old border class from about-video",
+  "EndLine": 10,
+  "Instruction": "Remove border-t border-[#D9CEB8]",
+  "ReplacementContent": "    <section className=\"relative w-full py-24 md:py-36 bg-transparent overflow-hidden\">",
+  "StartLine": 10,
+  "TargetContent": "    <section className=\"relative w-full py-24 md:py-36 border-t border-[#D9CEB8] bg-transparent overflow-hidden\">",
+  "TargetFile": "c:\\Users\\kaddo\\Downloads\\artisanat-aschi-website\\components\\site\\about-video.tsx",
+  "toolAction": "Removing old border from about-video",
+  "toolSummary": "Fix about-video border"
+}

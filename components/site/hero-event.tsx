@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { motion, useAnimationControls } from 'framer-motion'
 import { publicApi, News } from '@/lib/api'
 import { EventModal } from './event-modal'
+import { BohoBand, BohoCarvedColumn, BohoCarvedKnob } from './boho-decor'
 
 export function HeroEvent() {
   const [latestEvent, setLatestEvent] = useState<News | null>(null)
@@ -38,44 +39,48 @@ export function HeroEvent() {
 
   return (
     <>
-      <div className="relative h-full w-full overflow-hidden bg-stone-950 flex items-center justify-center">
-        {/* Background Image with Parallax & Blur */}
-        <div className="absolute inset-0 w-full h-full">
-          <Image
-            src={image}
-            alt={latestEvent.title}
-            fill
-            priority
-            className="object-cover opacity-40 scale-105 blur-sm"
-          />
-        </div>
+      <div className="relative h-full w-full overflow-hidden bg-transparent flex items-center justify-center">
 
-        {/* Elegant Overlays */}
-        <div className="absolute inset-0 bg-stone-950/60" />
         
-        {/* Decorative Grid Lines */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100px_100px] pointer-events-none" />
+        {/* Decorative Grid Lines — motif géométrique */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(193,125,89,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(193,125,89,0.04)_1px,transparent_1px)] bg-[size:80px_80px] pointer-events-none" />
 
-        {/* Floating Artisan Frame */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 w-[90%] max-w-5xl h-[75%] max-h-[800px] flex flex-col md:flex-row items-center border border-white/10 bg-white/20 backdrop-blur-md"
-        >
-          {/* Golden Accents for the frame */}
-          <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-[#E8DCCB]/50 -translate-x-1 -translate-y-1" />
-          <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#E8DCCB]/50 translate-x-1 -translate-y-1" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#E8DCCB]/50 -translate-x-1 translate-y-1" />
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-[#E8DCCB]/50 translate-x-1 translate-y-1" />
+        {/* Wrapper for Card and Pillars */}
+        <div className="relative z-10 w-[90%] max-w-5xl h-[75%] max-h-[800px]">
+          
+          {/* Motif Carved Column stuck to the LEFT side of the card */}
+          <BohoCarvedColumn className="absolute top-0 left-[-15px] md:left-[-30px] lg:left-[-40px] h-full w-12 md:w-20 lg:w-28 opacity-100 z-20 pointer-events-none drop-shadow-2xl" color="#A67B5B" delay={0.3} />
+          
+          {/* Motif Carved Column stuck to the RIGHT side of the card */}
+          <BohoCarvedColumn className="absolute top-0 right-[-15px] md:right-[-30px] lg:right-[-40px] h-full w-12 md:w-20 lg:w-28 opacity-100 z-20 pointer-events-none drop-shadow-2xl" color="#A67B5B" delay={0.2} />
 
-          {/* Left Side: Image inside Frame */}
-          <div className="w-full md:w-1/2 h-[40%] md:h-full relative p-6 md:p-12">
+          {/* Floating Artisan Frame */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full h-full flex flex-col md:flex-row items-center border-[3px] border-[#C8B8A6] bg-[#E5D3C1] rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(58,42,30,0.2)]"
+          >
+            {/* Texture de fond artisanale */}
+            <div className="absolute inset-0 opacity-[0.05] bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] pointer-events-none mix-blend-multiply" />
+
+            {/* Cadre intérieur décoratif */}
+            <div className="absolute inset-3 border border-[#C17D59]/40 rounded-lg pointer-events-none" />
+          <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-[#C17D59]/40 -translate-x-1 -translate-y-1" />
+          <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#C17D59]/40 translate-x-1 -translate-y-1" />
+          <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#C17D59]/40 -translate-x-1 translate-y-1" />
+          <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-[#C17D59]/40 translate-x-1 translate-y-1" />
+
+          {/* Left Side: Image inside Arch Frame */}
+          <div className="w-full md:w-1/2 h-[45%] md:h-full relative p-6 md:p-10 flex items-center justify-center">
+            
+            {/* Arched Window Container */}
             <motion.div 
-              className="relative w-full h-full overflow-hidden group origin-left"
+              className="relative w-full h-full overflow-hidden group shadow-2xl rounded-t-full rounded-b-xl border-[6px] border-[#D8C6B3] md:translate-x-8"
               animate={{ rotateY: isHovered ? -5 : 0, perspective: 1000 }}
               transition={{ duration: 0.5 }}
             >
+              <div className="absolute inset-0 ring-1 ring-[#C17D59]/20 rounded-t-full rounded-b-xl z-10 pointer-events-none" />
               <Image
                 src={image}
                 alt={latestEvent.title}
@@ -89,18 +94,22 @@ export function HeroEvent() {
           </div>
 
           {/* Right Side: Content */}
-          <div className="w-full md:w-1/2 p-6 md:p-16 flex flex-col justify-center items-center md:items-start text-center md:text-left relative">
+          <div className="w-full md:w-1/2 p-6 md:p-12 lg:p-16 flex flex-col justify-center items-center md:items-start text-center md:text-left relative z-10">
             
-            <p className="text-[#C17D59] text-[10px] font-bold tracking-[0.4em] uppercase mb-6 flex items-center gap-4">
-              <span className="w-8 h-[1px] bg-[#E8DCCB]/50 hidden md:block" />
-              Événement & Foire
-            </p>
-
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl text-[#3A2A21] leading-tight mb-8">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-12 h-[2px] bg-[#C17D59] hidden md:block opacity-60" />
+              <p className="text-[#8B5E3C] text-[11px] font-bold tracking-[0.4em] uppercase">
+                Événement & Foire
+              </p>
+              <span className="w-12 h-[2px] bg-[#C17D59] hidden md:block opacity-60" />
+            </div>            
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-[3.5rem] text-[#3A2A21] leading-[1.1] mb-6">
               {latestEvent.title}
             </h1>
 
-            <p className="text-sm md:text-base font-light text-white/70 leading-relaxed line-clamp-3 mb-12 max-w-md">
+            <div className="w-16 h-1 bg-[#D9CEB8] mb-6 md:mb-8 rounded-full" />
+
+            <p className="text-sm md:text-lg font-light text-[#5A453A] leading-relaxed line-clamp-3 mb-10 max-w-lg">
               {latestEvent.content}
             </p>
 
@@ -111,28 +120,27 @@ export function HeroEvent() {
               onMouseLeave={() => setIsHovered(false)}
               onClick={() => setIsModalOpen(true)}
             >
-              <div className="relative size-16 md:size-20 rounded-full border border-[#E8DCCB]/30 flex items-center justify-center bg-white/40 backdrop-blur-md shadow-[0_0_30px_rgba(212,175,55,0.15)] transition-shadow hover:shadow-[0_0_40px_rgba(212,175,55,0.3)]">
+              <div className="relative size-24 md:size-28 rounded-full border border-[#C8B8A6] flex items-center justify-center bg-[#F3E7DB] shadow-[0_4px_20px_rgba(193,125,89,0.2)] transition-shadow hover:shadow-[0_4px_30px_rgba(193,125,89,0.35)]">
                 <motion.div animate={controls}>
-                  <Image 
-                    src="/handle-knob.png" 
-                    alt="Tourner pour découvrir" 
-                    width={40} 
-                    height={40} 
-                    className="opacity-90"
-                  />
+                  <BohoCarvedKnob className="w-20 h-20 md:w-24 md:h-24" color="#8B5E3C" />
                 </motion.div>
                 
-                {/* Ping animation effect behind the knob */}
-                <div className="absolute inset-0 rounded-full bg-[#E8DCCB]/10 animate-ping opacity-20 pointer-events-none" />
+                {/* Ping animation */}
+                <div className="absolute inset-0 rounded-full bg-[#C17D59]/10 animate-ping opacity-30 pointer-events-none" />
               </div>
               
-              <span className="text-[10px] text-white/50 tracking-[0.3em] uppercase">
+              <span className="text-[10px] text-[#8B5E3C] tracking-[0.3em] uppercase">
                 Ouvrir
               </span>
             </div>
 
           </div>
         </motion.div>
+        </div>
+
+        {/* Small floating zigzag motifs (Brown) */}
+        <BohoBand className="absolute top-10 right-10 md:right-20 w-48 opacity-20" color="#8B5E3C" />
+        <BohoBand className="absolute bottom-10 left-10 md:left-20 w-48 opacity-20" color="#8B5E3C" />
       </div>
 
       <EventModal 

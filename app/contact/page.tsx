@@ -12,6 +12,7 @@ export default function ContactPage() {
   return (
     <main className="overflow-x-hidden">
       <Navbar />
+      
       <div className="pt-20">
         <Contact />
       </div>

@@ -7,7 +7,9 @@ import { NewsSection } from "@/components/site/news-section"
 import { Testimonials } from "@/components/site/testimonials"
 import { VideoReel } from "@/components/site/video-reel"
 import { Gallery } from "@/components/site/gallery"
+import { ZellijScatter } from "@/components/site/zellij-scatter"
 import { Footer } from "@/components/site/footer"
+import { SectionSeparator } from "@/components/site/section-separator"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -18,15 +20,32 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <main className="overflow-x-hidden">
+    <main className="overflow-x-hidden relative">
+      <ZellijScatter type="page" />
       <Navbar />
       <HeroSlider />
+      
+      <SectionSeparator />
       <Stats />
+      
+      <SectionSeparator />
       <AboutVideo />
+      
+      <SectionSeparator />
       <WeeklyDelivery />
+      
+      <SectionSeparator />
+      <NewsSection />
+      
+      <SectionSeparator />
       <Testimonials />
+      
+      <SectionSeparator />
       <VideoReel />
+      
+      <SectionSeparator />
       <Gallery />
+      
       <Footer />
     </main>
   )

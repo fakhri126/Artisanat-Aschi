@@ -45,7 +45,7 @@ export function References() {
     <section className="bg-background py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal className="text-center">
-          <p className="text-xs uppercase tracking-luxury text-bronze">
+          <p className="text-sm md:text-base font-bold uppercase tracking-[0.2em] text-[#C17D59]">
             Ils nous ont fait confiance
           </p>
           <h2 className="mx-auto mt-5 max-w-2xl text-balance font-heading text-3xl font-light leading-tight text-foreground sm:text-4xl md:text-5xl">

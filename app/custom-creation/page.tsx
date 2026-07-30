@@ -11,8 +11,9 @@ export const metadata = {
 
 export default function CustomCreationPage() {
   return (
-    <main className="min-h-screen bg-[#FAF7F2] text-[#3A2A21]">
+    <main className="min-h-screen  text-[#3A2A21]">
       <Navbar />
+      
       
       {/* Intro & Wizard Form */}
       <div className="pt-32 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center">

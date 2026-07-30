@@ -43,7 +43,7 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="bg-[#FAF7F2] text-[#3A2A21] min-h-[90vh] flex flex-col relative overflow-hidden">
+    <section id="contact" className="bg-transparent text-[#3A2A21] min-h-[90vh] flex flex-col relative overflow-hidden">
       
       {/* Soft Decorative background blobs */}
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#E8DCCB]/50 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] blur-[80px] -translate-y-1/3 translate-x-1/3 pointer-events-none" />

@@ -52,11 +52,11 @@ export default function BijouxDePortePage() {
             catName.includes("porte") || 
             catName.includes("ronds") || 
             catName.includes("ovales") || 
-            catName.includes("poignée") ||
-            mat.includes("céramique") || 
+            catName.includes("poign\u00e9e") ||
+            mat.includes("c\u00e9ramique") || 
             mat.includes("majolique") ||
             name.includes("bouton") || 
-            name.includes("poignée")
+            name.includes("poign\u00e9e")
           )
         }
 
@@ -81,7 +81,10 @@ export default function BijouxDePortePage() {
             dimensions: p.dimensions || "Dimensions standards",
             price: p.price || 0,
             desc: p.description || "Une magnifique création artisanale en céramique Majolique.",
-            image: p.image_url && p.image_url.trim() !== '' ? p.image_url : woodImage,
+            image: (() => {
+              const rawImg = p.images?.[0]?.imageUrl || (p as any).image_url || '';
+              return rawImg.trim() !== '' && rawImg !== '/handle-knob.png' && !rawImg.includes('grand_rond') && !rawImg.includes('ovale') ? rawImg : woodImage;
+            })(),
             ideal: p.style || "Idéal pour décorer vos portes et tiroirs."
           }
         })
@@ -149,7 +152,7 @@ export default function BijouxDePortePage() {
   if (loading) return null
 
   return (
-    <main className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#3A2A21] font-sans relative overflow-hidden">
+    <main className="min-h-screen flex flex-col text-[#3A2A21] font-sans relative overflow-hidden">
       
       {/* Soft Organic Decorative Background */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#E8DCCB]/40 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
@@ -191,120 +194,53 @@ export default function BijouxDePortePage() {
         </div>
       </div>
 
-      {/* Soft Gallery Display */}
-      {filteredHandles.length > 0 && currentHandle && (
-        <div className="relative flex-1 flex flex-col items-center justify-center min-h-[50vh] pb-32 px-4 w-full max-w-6xl mx-auto z-10">
-          
-          <div className="w-full flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16 bg-white/40 p-6 md:p-12 rounded-[3rem] backdrop-blur-sm border border-white/60 shadow-[0_20px_60px_rgba(58,42,33,0.05)]">
-            
-            {/* Visual (Organic Frame) */}
-            <div className="w-full md:w-1/2 flex justify-center relative">
-              <AnimatePresence custom={direction} mode="wait">
-                <motion.div
-                  key={currentHandle.id}
-                  custom={direction}
-                  initial={{ opacity: 0, x: direction > 0 ? 30 : -30, scale: 0.95 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: direction > 0 ? -30 : 30, scale: 0.95 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="relative w-[280px] h-[280px] sm:w-[380px] sm:h-[380px] group"
-                >
-                  {/* Organic irregular blob background effect */}
-                  <div className="absolute inset-0 bg-[#E8DCCB] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] animate-[spin_20s_linear_infinite] opacity-50 group-hover:bg-[#C17D59]/20 transition-colors duration-1000" />
+      {/* Gallery Grid */}
+      <div className="w-full max-w-7xl mx-auto px-4 mb-32 relative z-10">
+        {filteredHandles.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10">
+            {filteredHandles.map((handle) => (
+              <div 
+                key={handle.id}
+                onClick={() => openInquiry(handle)}
+                className="flex flex-col items-center text-center group cursor-pointer bg-white/40 p-4 md:p-6 rounded-[2rem] backdrop-blur-sm border border-white/60 shadow-[0_10px_30px_rgba(58,42,33,0.03)] hover:shadow-[0_15px_40px_rgba(193,125,89,0.15)] hover:border-[#C17D59]/30 transition-all duration-300"
+              >
+                {/* Visual */}
+                <div className="relative w-32 h-32 md:w-48 md:h-48 mb-6 flex items-center justify-center rounded-full shadow-xl border-[4px] md:border-[6px] border-[#D4AF37]/80 bg-[#E8DCCB] overflow-hidden group-hover:shadow-2xl transition-shadow duration-300">
+                  {/* Inner thin border */}
+                  <div className="absolute inset-0 rounded-full border border-black/40 pointer-events-none z-20" />
                   
-                  <div className="absolute inset-4 rounded-full overflow-hidden border-[6px] border-white shadow-[0_10px_30px_rgba(0,0,0,0.1)]">
+                  {/* Real Light Wood Texture */}
+                  <div className="absolute inset-0 bg-[url('/light-wood.jpg')] bg-cover bg-center opacity-90 pointer-events-none" />
+                  
+                  {/* The Knob Image */}
+                  <div className="relative w-16 h-16 md:w-24 md:h-24 rounded-full overflow-hidden shadow-2xl z-10 bg-white group-hover:scale-110 transition-transform duration-500">
                     <Image
-                      src={currentHandle.image}
-                      alt={currentHandle.name}
+                      src={handle.image}
+                      alt={handle.name}
                       fill
-                      className="object-cover transition-transform duration-[6s] ease-out group-hover:scale-110"
-                      priority
+                      className="object-cover pointer-events-none"
                     />
+                    <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.4)_0%,transparent_60%)] pointer-events-none" />
                   </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
+                </div>
 
-            {/* Product Details (Soft typography) */}
-            <div className="w-full md:w-1/2 flex flex-col items-center text-center md:items-start md:text-left">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentHandle.id}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                  className="w-full flex flex-col gap-6"
-                >
-                  <div>
-                    <h2 className="font-serif text-4xl sm:text-5xl text-[#2C1E16] mb-3">
-                      {currentHandle.name}
-                    </h2>
-                    <p className="text-[#C17D59] font-medium tracking-[0.1em] text-sm uppercase">
-                      {currentHandle.categoryLabel}
-                    </p>
-                  </div>
-
-                  <p className="text-[#5A453A] font-light leading-relaxed">
-                    {currentHandle.desc}
-                  </p>
-
-                  <div className="flex flex-col gap-3 py-6 border-y border-[#E8DCCB]">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-[#8C7A6B] uppercase tracking-wider text-[10px] font-bold">Dimensions</span>
-                      <span className="text-[#2C1E16] font-medium">{currentHandle.dimensions}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-[#8C7A6B] uppercase tracking-wider text-[10px] font-bold">Prix Unitaire</span>
-                      <span className="text-[#2C1E16] font-medium text-lg">{currentHandle.price} DT</span>
-                    </div>
-                  </div>
-
-                  {/* Trust Badges (Adorable) */}
-                  <div className="flex flex-wrap gap-4 items-center justify-center md:justify-start">
-                    <div className="flex items-center gap-2 bg-white/60 px-3 py-1.5 rounded-full border border-[#E8DCCB]">
-                      <Heart className="size-3 text-[#C17D59]" />
-                      <span className="text-[10px] font-semibold text-[#5A453A] uppercase tracking-wider">Fait main</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/60 px-3 py-1.5 rounded-full border border-[#E8DCCB]">
-                      <Palette className="size-3 text-[#C17D59]" />
-                      <span className="text-[10px] font-semibold text-[#5A453A] uppercase tracking-wider">Peint à la main</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 w-full flex justify-center md:justify-start">
-                    <button
-                      onClick={() => openInquiry(currentHandle)}
-                      className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#2C1E16] text-white rounded-full hover:bg-[#C17D59] transition-colors duration-300 shadow-lg hover:shadow-xl w-full md:w-auto font-medium tracking-wide"
-                    >
-                      <ShoppingBag className="size-5" />
-                      <span>Réserver ma pièce</span>
-                    </button>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-            
+                {/* Details */}
+                <h3 className="font-serif text-xl md:text-2xl text-[#2C1E16] mb-2 group-hover:text-[#C17D59] transition-colors">
+                  {handle.name}
+                </h3>
+                <p className="text-[#8C7A6B] text-[10px] uppercase tracking-[0.15em] font-bold mb-4">
+                  {handle.categoryLabel}
+                </p>
+                <div className="mt-auto pt-4 border-t border-[#E8DCCB] w-full">
+                  <span className="text-sm text-[#C17D59] font-medium group-hover:underline underline-offset-4 decoration-[#C17D59]/40">
+                    Réserver
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
-
-          {/* Navigation Controls (Cute buttons) */}
-          <div className="absolute top-1/2 -translate-y-1/2 inset-x-0 w-full flex justify-between px-2 md:px-8 pointer-events-none">
-            <button 
-              onClick={prevHandle}
-              className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-white text-[#3A2A21] shadow-[0_5px_15px_rgba(0,0,0,0.05)] border border-[#E8DCCB] hover:bg-[#FAF7F2] hover:scale-110 transition-all duration-300"
-            >
-              <ChevronLeft className="size-6 md:size-8" />
-            </button>
-            <button 
-              onClick={nextHandle}
-              className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-white text-[#3A2A21] shadow-[0_5px_15px_rgba(0,0,0,0.05)] border border-[#E8DCCB] hover:bg-[#FAF7F2] hover:scale-110 transition-all duration-300"
-            >
-              <ChevronRight className="size-6 md:size-8" />
-            </button>
-          </div>
-
-        </div>
-      )}
+        )}
+      </div>
 
       {filteredHandles.length === 0 && !loading && (
         <div className="flex-1 flex items-center justify-center pb-32">

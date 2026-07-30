@@ -1,11 +1,17 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Leaf } from 'lucide-react'
+import { BohoBand } from './boho-decor'
 
 export function Footer() {
   return (
-    <footer className="border-t border-[#E8DCCB] bg-[#FAF7F2] py-16 text-[#3A2A21]">
-      <div className="mx-auto max-w-7xl px-6 relative">
+    <footer className="relative border-t border-[#DAB692]/20 bg-[#2C1E16]/90 backdrop-blur-md text-[#F7F3EC] overflow-hidden">
+      {/* Decorative Top Band */}
+      <div className="absolute top-0 left-0 w-full h-8 overflow-hidden opacity-20 pointer-events-none">
+        <BohoBand className="w-[120%] -ml-[10%] h-full text-[#C8960C]" color="currentColor" />
+      </div>
+
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 py-20 lg:py-24 relative z-10">
         {/* Soft Decorative background blob */}
         <div className="absolute top-0 right-10 w-64 h-64 bg-[#E8DCCB]/40 rounded-full blur-[60px] pointer-events-none" />
         

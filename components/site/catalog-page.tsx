@@ -315,10 +315,10 @@ export function CatalogPage() {
                     }}
                     onHoverStart={() => setHoveredId(model.id)}
                     onHoverEnd={() => setHoveredId(null)}
-                    className="group relative overflow-hidden rounded-2xl border border-[#E8DCCB]/10"
+                    className="group relative overflow-hidden rounded-sm border border-[#E8DCCB]/10"
                   >
                     {/* Image */}
-                    <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900">
+                    <div className={`relative aspect-[3/4] overflow-hidden bg-zinc-900 boho-picture-frame ${["frame-walnut", "frame-emerald"][model.id % 2]}`}>
                       <motion.img
                         src={image}
                         alt={model.name}

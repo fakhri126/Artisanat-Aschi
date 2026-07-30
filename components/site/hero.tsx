@@ -48,7 +48,9 @@ export function Hero() {
             src={src}
             alt="Atelier d'ébénisterie Artisanat Aschi"
             fill
+            sizes="100vw"
             priority={index === 0}
+            loading={index === 0 ? undefined : "lazy"}
             className={`object-cover transition-opacity duration-1000 ease-in-out ${
               index === currentImageIndex ? 'opacity-100 z-0' : 'opacity-0 -z-10'
             }`}
@@ -63,15 +65,15 @@ export function Hero() {
       {/* Content */}
       <div className="relative z-20 mx-auto flex h-full max-w-5xl flex-col items-center justify-center px-6 text-center">
         <p
-          className="mb-6 animate-[fadeIn_1.4s_ease] text-xs uppercase tracking-luxury text-[#C17D59] sm:text-sm"
+          className="mb-6 animate-[fadeIn_1.4s_ease] text-sm md:text-base font-bold uppercase tracking-[0.2em] text-[#C17D59]"
           style={{ animationFillMode: 'both' }}
         >
           Atelier d&apos;art · Tunisie · Depuis 1960
         </p>
-        <h1 className="font-heading text-6xl font-medium leading-[0.95] text-[#3A2A21] text-shadow-cinematic sm:text-7xl md:text-8xl lg:text-[8.5rem]">
+        <h1 className="font-heading text-5xl font-medium leading-[0.95] text-[#3A2A21] text-shadow-cinematic sm:text-6xl md:text-7xl lg:text-[7rem]">
           Artisanat Aschi
         </h1>
-        <p className="mt-8 max-w-2xl font-heading text-2xl font-light italic leading-snug text-[#3A2A21]/90 text-shadow-cinematic sm:text-3xl md:text-4xl">
+        <p className="mt-6 max-w-2xl font-heading text-xl font-light italic leading-snug text-[#3A2A21]/90 text-shadow-cinematic sm:text-2xl md:text-3xl">
           « Depuis 1960, nous sculptons l&apos;âme du patrimoine tunisien. »
         </p>
 

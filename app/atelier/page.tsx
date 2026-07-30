@@ -14,6 +14,7 @@ export default function AtelierPage() {
   return (
     <main className="overflow-x-hidden">
       <Navbar />
+      
       <div className="pt-20">
         <Story />
         <Workshop />

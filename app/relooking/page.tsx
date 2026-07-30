@@ -30,7 +30,7 @@ const ITEMS = [
     id: 2,
     title: 'Cadre de Miroir Ottoman',
     category: 'miroir',
-    description: 'Reconstitution des ornements sculptés endommagés sur un cadre en bois doré d\'époque. Moulage des détails manquants, consolidation structurelle, et application d\'une nouvelle dorure fine à la feuille d&apos;or avec patine ancienne.',
+    description: 'Reconstitution des ornements sculptés endommagés sur un cadre en bois doré d\'époque. Moulage des détails manquants, consolidation structurelle, et application d\'une nouvelle dorure fine à la feuille d\'or avec patine ancienne.',
     beforeImage: '/mirror-before.jpg',
     afterImage: '/mirror-after.jpg',
     steps: ['Moulage d\'ornements', 'Dorure fine à la feuille d\'or', 'Patine de vieillissement']
@@ -181,8 +181,9 @@ export default function RelookingPage() {
     : ITEMS.filter(item => item.category === filter)
 
   return (
-    <main className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#3A2A21]">
+    <main className="min-h-screen flex flex-col  text-[#3A2A21]">
       <Navbar />
+      
       
       <div className="flex-1 flex flex-col items-center justify-center px-6 pt-32 pb-24 max-w-6xl mx-auto w-full">
         {/* Page Header */}

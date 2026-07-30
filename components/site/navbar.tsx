@@ -75,10 +75,10 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-all duration-500 bg-transparent',
+        'fixed inset-x-0 top-0 z-50 transition-all duration-500',
         scrolled || servicesOpen
-          ? 'py-3'
-          : 'py-4',
+          ? 'py-3 bg-[#DAB692]/85 backdrop-blur-md border-b border-[#3A2A1E]/10 shadow-[0_2px_20px_rgba(58,42,30,0.1)]'
+          : 'py-4 bg-transparent border-b border-transparent',
       )}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-8">
@@ -230,7 +230,7 @@ export function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="absolute top-full left-0 w-full bg-[#FAF7F2]/95 backdrop-blur-xl border-t border-[#E8DCCB] shadow-[0_20px_50px_rgba(58,42,33,0.05)] overflow-hidden hidden lg:block"
+            className="absolute top-full left-0 w-full bg-[#E4D0B7]/95 backdrop-blur-xl border-t border-[#E8DCCB] shadow-[0_20px_50px_rgba(58,42,33,0.05)] overflow-hidden hidden lg:block"
             onMouseEnter={() => setServicesOpen(true)}
             onMouseLeave={() => setServicesOpen(false)}
           >
@@ -238,8 +238,7 @@ export function Navbar() {
               {SERVICES.map((service, idx) => (
                 <Link href={service.href} key={idx} className="flex-1 group relative overflow-hidden rounded-[2rem] border border-[#E8DCCB] bg-white transition-all hover:border-[#C17D59]/30 hover:shadow-[0_10px_30px_rgba(193,125,89,0.1)] flex flex-col">
                   <div className="h-40 relative overflow-hidden bg-[#E8DCCB]">
-                    <Image src={service.image} alt={service.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-80" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
+                    <Image src={service.image} alt={service.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                   </div>
                   <div className="p-6 flex-1 flex flex-col bg-white">
                     <h3 className="font-serif text-2xl text-[#2C1E16] mb-2">{service.title}</h3>
@@ -260,7 +259,7 @@ export function Navbar() {
       {/* Mobile menu */}
       <div
         className={cn(
-          'overflow-y-auto bg-[#FAF7F2]/95 backdrop-blur-md transition-all duration-500 lg:hidden absolute top-full left-0 w-full shadow-[0_20px_50px_rgba(58,42,33,0.05)]',
+          'overflow-y-auto bg-[#E4D0B7]/95 backdrop-blur-md transition-all duration-500 lg:hidden absolute top-full left-0 w-full shadow-[0_20px_50px_rgba(58,42,33,0.05)]',
           open ? 'max-h-screen border-t border-[#E8DCCB] py-5' : 'max-h-0 py-0',
         )}
       >

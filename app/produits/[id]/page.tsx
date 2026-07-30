@@ -102,6 +102,7 @@ export default function ProductDetailPage({ params }: PageProps) {
     return (
       <>
         <Navbar />
+      
         <div className="flex h-screen items-center justify-center bg-[#FAF7F2] text-[#3A2A21]">
           <div className="text-center">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#E8DCCB] border-t-transparent mx-auto"></div>
@@ -117,6 +118,7 @@ export default function ProductDetailPage({ params }: PageProps) {
     return (
       <>
         <Navbar />
+      
         <div className="min-h-[70vh] bg-secondary flex flex-col items-center justify-center p-6 text-center">
           <AlertCircle className="size-16 text-red-500 mb-4" />
           <h1 className="font-heading text-3xl font-light text-foreground">Création introuvable</h1>
@@ -133,6 +135,7 @@ export default function ProductDetailPage({ params }: PageProps) {
   return (
     <>
       <Navbar />
+      
       
       <main className="bg-secondary py-20 md:py-32">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">

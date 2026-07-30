@@ -5,6 +5,7 @@ import { motion, useInView, animate } from 'framer-motion'
 import { Mail } from 'lucide-react'
 import Link from 'next/link'
 import { Reveal } from './reveal'
+import { BohoFan, BohoBand, BohoCeilingArabesque, BohoRosace, BohoCeramicPattern } from './boho-decor'
 
 interface StatItemProps {
   value: number
@@ -12,9 +13,16 @@ interface StatItemProps {
   label: string
   href: string
   delay: number
+  theme: {
+    bg: string
+    text: string
+    label: string
+    border: string
+    hoverBg: string
+  }
 }
 
-function StatCard({ value, suffix, label, href, delay }: StatItemProps) {
+function StatCard({ value, suffix, label, href, delay, theme }: StatItemProps) {
   const [count, setCount] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-50px' })
@@ -37,17 +45,17 @@ function StatCard({ value, suffix, label, href, delay }: StatItemProps) {
           ref={ref}
           whileHover={{ y: -6, scale: 1.02 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-[#E8DCCB]/30 hover:bg-white/10 transition-all duration-300 relative overflow-hidden"
+          className={`group p-6 rounded-2xl ${theme.bg} border-2 ${theme.border} ${theme.hoverBg} transition-all duration-300 relative overflow-hidden shadow-md hover:shadow-lg`}
         >
-          {/* Internal hover glow */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          {/* Internal hover highlight */}
+          <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
           
-          <div className="font-heading text-5xl md:text-6xl lg:text-7xl font-light text-[#C17D59] tracking-tight mb-2 tabular-nums">
+          <div className={`font-heading text-4xl md:text-5xl lg:text-6xl font-light ${theme.text} tracking-tight mb-2 tabular-nums`}>
             {count}
-            <span className="text-[#C17D59]/80 font-sans font-normal ml-0.5">{suffix}</span>
+            <span className={`${theme.text} opacity-80 font-sans font-normal ml-0.5`}>{suffix}</span>
           </div>
           
-          <div className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-[#3A2A21]/60 font-semibold group-hover:text-[#C17D59] transition-colors duration-300">
+          <div className={`text-[10px] md:text-xs uppercase tracking-[0.25em] ${theme.label} font-semibold transition-colors duration-300`}>
             {label}
           </div>
         </motion.div>
@@ -58,19 +66,29 @@ function StatCard({ value, suffix, label, href, delay }: StatItemProps) {
 
 export function Stats() {
   const statsList = [
-    { value: 500, suffix: '+', label: 'PROJETS RÉALISÉS', href: '/realisations' },
-    { value: 1200, suffix: '+', label: 'CLIENTS SATISFAITS', href: '/contact' },
-    { value: 60, suffix: '+', label: "ANNÉES D'HÉRITAGE", href: '/atelier' },
-    { value: 48, suffix: 'h', label: 'RÉPONSE GARANTIE', href: '/contact' }
+    { value: 500, suffix: '+', label: 'PROJETS RÉALISÉS', href: '/realisations', theme: { bg: 'bg-[#C8960C]', text: 'text-[#3A2A1E]', label: 'text-[#3A2A1E]/80', border: 'border-[#B8860B]', hoverBg: 'hover:bg-[#B8860B]' } },
+    { value: 1200, suffix: '+', label: 'CLIENTS SATISFAITS', href: '/contact', theme: { bg: 'bg-[#2D5F8A]', text: 'text-white', label: 'text-white/80', border: 'border-[#1A3F60]', hoverBg: 'hover:bg-[#1A3F60]' } },
+    { value: 60, suffix: '+', label: "ANNÉES D'HÉRITAGE", href: '/atelier', theme: { bg: 'bg-[#5C3317]', text: 'text-white', label: 'text-white/80', border: 'border-[#3A2A1E]', hoverBg: 'hover:bg-[#3A2A1E]' } },
+    { value: 48, suffix: 'h', label: 'RÉPONSE GARANTIE', href: '/contact', theme: { bg: 'bg-[#3A7D50]', text: 'text-white', label: 'text-white/80', border: 'border-[#2D6A40]', hoverBg: 'hover:bg-[#2D6A40]' } }
   ]
 
   return (
-    <section className="bg-stone-950 text-[var(--ivory)] py-20 border-t border-[#E8DCCB]/15 relative overflow-hidden">
-      {/* Subtle gold aura background */}
-      <div className="absolute -left-1/4 -top-1/2 w-1/2 h-full bg-[#E8DCCB]/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute -right-1/4 -bottom-1/2 w-1/2 h-full bg-[#E8DCCB]/5 blur-[120px] rounded-full pointer-events-none" />
+    <section className="relative w-full overflow-hidden bg-transparent py-16 md:py-24">
+      {/* Repeating small ceramic background pattern */}
+      <BohoCeramicPattern className="absolute inset-0 z-0 pointer-events-none" color="#8B5E3C" opacity={0.015} />
 
-      <div className="mx-auto max-w-7xl px-6">
+      <BohoRosace 
+        className="absolute bottom-5 right-10 w-32 md:w-96 opacity-[0.25] -z-10 text-[#8B5E3C]" 
+        color="currentColor" 
+        delay={0.4} 
+        monochrome={true}
+      />
+      <BohoBand 
+        className="absolute bottom-0 left-1/3 hidden md:block w-96 opacity-[0.04] -z-10 text-[#C17D59]" 
+        color="currentColor" 
+      />
+
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 relative z-10">
         <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between">
           
           {/* Numbers Grid */}
@@ -83,6 +101,7 @@ export function Stats() {
                 label={stat.label}
                 href={stat.href}
                 delay={i * 100}
+                theme={stat.theme}
               />
             ))}
           </div>
@@ -91,7 +110,7 @@ export function Stats() {
           <Reveal delay={400} className="shrink-0 flex justify-center lg:justify-end">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-3 rounded-full bg-[#E8DCCB]/90 px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-walnut transition-all duration-300 hover:bg-[#E8DCCB] hover:scale-[1.03] shadow-[0_4px_20px_rgba(212,175,55,0.2)]"
+              className="inline-flex items-center gap-3 rounded-full bg-[#C17D59] px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-all duration-300 hover:bg-[#A66645] hover:scale-[1.03] shadow-[0_4px_20px_rgba(193,125,89,0.35)]"
             >
               <Mail className="size-4" />
               Étude Gratuite

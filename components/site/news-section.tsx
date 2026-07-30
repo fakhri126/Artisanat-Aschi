@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, ArrowRight, Clock, Sparkles, X, Feather, Share2, Check, MapPin } from 'lucide-react'
 import { Reveal } from './reveal'
 import { publicApi, News } from '@/lib/api'
+import { BohoRosace, BohoOrnateDiamond, BohoGoldenLattice } from './boho-decor'
 
 // Helper pour temps de lecture (env. 200 mots/minute)
 const getReadTime = (text: string) => {
@@ -77,26 +78,31 @@ export function NewsSection() {
   }
 
   return (
-    <section id="actualites" className="bg-[#1a1512] py-24 md:py-36 border-t border-[#E8DCCB]/15 relative overflow-hidden text-[#3A2A21]">
-      {/* Background ambient gold lighting */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 bg-[#E8DCCB]/5 blur-[150px] pointer-events-none rounded-full" />
+    <section id="actualites" className="relative bg-transparent py-16 md:py-24 overflow-hidden">
+      
+      {/* Background ambient warm glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 bg-[#C17D59]/10 blur-[150px] pointer-events-none rounded-full" />
+      
+      {/* Background Motifs */}
+      <BohoGoldenLattice className="absolute top-4 right-4 md:top-10 md:right-10 w-[200px] md:w-[400px] opacity-90 pointer-events-none" delay={0.1} />
+      <BohoOrnateDiamond className="absolute bottom-10 -left-20 w-[150px] md:w-[300px] opacity-40" color="#D4AF37" delay={0.3} />
 
       <div className="mx-auto max-w-7xl px-5 sm:px-8 relative z-10">
         {/* Section Title */}
         <Reveal className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4 font-semibold shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F7F3EC] border border-[#D9CEB8] text-[#C17D59] text-sm md:text-base font-bold uppercase tracking-[0.2em] mb-4 shadow-sm">
             <Feather className="size-3.5" /> Actualités &amp; Événements
           </div>
-          <h2 className="font-heading text-4xl font-light leading-tight sm:text-5xl md:text-6xl text-white text-balance max-w-3xl mx-auto">
+          <h2 className="font-heading text-3xl font-light leading-tight sm:text-4xl md:text-5xl text-[#3A2A1E] text-balance max-w-3xl mx-auto">
             La vie de notre maison d&apos;art
           </h2>
-          <p className="mx-auto mt-6 max-w-xl text-pretty text-base font-light leading-relaxed text-[#3A2A21]/70">
-            Suivez les temps forts de l&apos;atelier : expositions nationales, vie des artisans, nouvelles collections et projets d&apos;exception.
+          <p className="mx-auto mt-6 max-w-xl text-pretty text-base font-light leading-relaxed text-[#7A6250]">
+            Suivez les temps forts de l&apos;atelier : expositions nationales, vie des artisans, nouvelles collections et projets d&apos;exception.
           </p>
         </Reveal>
 
         {/* List of News */}
-        <div className="flex flex-col gap-10 divide-y divide-gold/20">
+        <div className="flex flex-col gap-10 divide-y divide-[#D9CEB8]">
           {news.map((item, i) => {
             const dateStr = new Date(item.createdDate).toLocaleDateString('fr-FR', {
               day: 'numeric',
@@ -115,7 +121,7 @@ export function NewsSection() {
                   {/* Photo thumbnail */}
                   <div 
                     onClick={() => setSelectedNews(isExpanded ? null : item)}
-                    className="relative w-full md:w-72 aspect-[16/10] overflow-hidden rounded-2xl bg-stone-950 shrink-0 border border-[#E8DCCB]/25 shadow-xl group cursor-pointer"
+                    className="relative w-full md:w-72 aspect-[16/10] overflow-hidden rounded-2xl bg-[#D4B896] shrink-0 border border-[#D9CEB8] shadow-md group cursor-pointer"
                   >
                     <motion.img
                       whileHover={{ scale: 1.08 }}
@@ -130,7 +136,7 @@ export function NewsSection() {
                     
                     {isRecent(item.createdDate) && (
                       <div className="absolute top-3 right-3">
-                        <span className="bg-[#E8DCCB] text-walnut text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                        <span className="bg-[#C17D59] text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg">
                           <Sparkles className="size-2.5" /> Nouveau
                         </span>
                       </div>

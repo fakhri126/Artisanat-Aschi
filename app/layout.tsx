@@ -48,10 +48,7 @@ export default function RootLayout({
       lang="fr"
       className={`${cormorant.variable} ${jost.variable} ${geistMono.variable}`}
     >
-      <body className="antialiased min-h-screen font-sans selection:bg-[#C17D59] selection:text-white bg-[#DEB887] bg-[url('/oak-wood.jpg')] bg-repeat bg-[length:100vw_auto] text-[#1A110B]">
-        
-
-        {/* Cadre Minimaliste Élégant - Rendu plus visible et mis en valeur */}
+      <body className="antialiased min-h-screen font-sans selection:bg-[#C17D59] selection:text-white bg-[#DEB887] bg-[url('/seamless-plank-bg.jpg')] bg-repeat bg-[length:100vw_auto] text-[#1A110B]">        {/* Cadre Minimaliste Élégant - Rendu plus visible et mis en valeur */}
         <div className="fixed inset-0 pointer-events-none z-[50] overflow-hidden drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]">
           <BohoFineCorner className="absolute top-4 left-4 w-16 sm:w-24 md:w-32 opacity-90 text-[#3A2A1E]" color="currentColor" />
           <BohoFineCorner className="absolute top-4 right-4 w-16 sm:w-24 md:w-32 opacity-90 text-[#3A2A1E] scale-x-[-1]" color="currentColor" delay={0.2} />

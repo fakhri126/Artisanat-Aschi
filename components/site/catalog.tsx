@@ -139,10 +139,10 @@ export function Catalog() {
   }, [category, color, dimensions])
 
   return (
-    <section id="catalogue" className="bg-[#FAF7F2] py-24 text-[#5A453A] md:py-36">
+    <section id="catalogue" className="bg-transparent py-24 text-[#5A453A] md:py-36">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal className="text-center">
-          <p className="text-xs uppercase tracking-luxury text-[#C17D59]">
+          <p className="text-sm md:text-base font-bold uppercase tracking-[0.2em] text-[#C17D59]">
             Catalogue d&apos;inspiration
           </p>
           <h2 className="mx-auto mt-5 max-w-2xl text-balance font-heading text-4xl font-light leading-tight sm:text-5xl md:text-6xl text-[#3A2A21]">

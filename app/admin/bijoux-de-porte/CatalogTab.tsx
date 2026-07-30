@@ -76,7 +76,21 @@ export default function CatalogTab() {
         )
       }
 
-      const handles = allProducts.filter(isHandleProduct)
+      const handles = allProducts.filter(isHandleProduct).map((p, idx) => {
+        const oldImg = p.images?.[0]?.imageUrl || '';
+        if (oldImg.includes('grand_rond') || oldImg.includes('ovale') || !oldImg || oldImg === '/handle-knob.png') {
+          return {
+            ...p,
+            images: [{
+              ...(p.images?.[0] || {}),
+              id: p.images?.[0]?.id || Date.now(),
+              imageUrl: `/poignees/new_knob_${(idx % 25) + 1}.jpg`,
+              isPrimary: true
+            }]
+          };
+        }
+        return p;
+      });
       setProducts(handles)
     } catch (err) {
       console.error('Error loading handle products:', err)
@@ -285,12 +299,12 @@ export default function CatalogTab() {
               className="bg-walnut rounded-2xl border border-gold/10 overflow-hidden hover:border-gold/30 transition-all flex flex-col justify-between"
             >
               <div className="p-4 flex flex-col items-center">
-                <div className="relative w-32 h-32 rounded-xl overflow-hidden bg-stone-900 border border-gold/20 shadow-inner flex items-center justify-center p-2">
+                <div className="relative w-32 h-32 rounded-full overflow-hidden bg-stone-900 border-2 border-gold/30 shadow-inner flex items-center justify-center">
                   <Image
                     src={product.images?.[0]?.imageUrl || '/handle-knob.png'}
                     alt={product.name}
                     fill
-                    className="object-contain p-2"
+                    className="object-cover"
                   />
                 </div>
 

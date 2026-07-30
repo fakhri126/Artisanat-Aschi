@@ -79,7 +79,7 @@ export function Story() {
   const prev = () => setIndex((prev) => (prev - 1 + MILESTONES.length) % MILESTONES.length)
 
   return (
-    <section id="histoire" className="relative bg-[#FAF7F2] py-24 flex items-center justify-center overflow-hidden grain border-y border-[#E8DCCB]/10">
+    <section id="histoire" className="relative bg-transparent py-24 flex items-center justify-center overflow-hidden grain border-y border-[#E8DCCB]/10">
       <div className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay bg-[url('/wood-bg.jpg')] bg-cover bg-center" />
       
       <div className="mx-auto max-w-5xl px-6 relative z-10 w-full">

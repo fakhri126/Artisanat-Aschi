@@ -57,116 +57,132 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* ============================================
+   BOHÈME ARTISANAL — Design System
+   Palette inspirée des sculptures & peintures
+   des créations Artisanat Aschi
+   ============================================ */
+
+/* Motif géométrique SVG en filigrane — losanges + rosaces */
 :root {
   color-scheme: light;
-  /* Warm ivory base */
-  --background: oklch(0.962 0.013 83);
-  --foreground: oklch(0.265 0.028 52);
 
-  --card: oklch(0.94 0.016 82);
-  --card-foreground: oklch(0.265 0.028 52);
-  --popover: oklch(0.97 0.012 84);
-  --popover-foreground: oklch(0.265 0.028 52);
+  /* ---- Fond Bohème : Bois Clair Chaud ---- */
+  --background: #E4D0B7;
+  --foreground: #3A2A1E;
 
-  /* Dark walnut primary */
-  --primary: oklch(0.305 0.035 48);
-  --primary-foreground: oklch(0.95 0.015 84);
+  --card: #F0EBE0;
+  --card-foreground: #3A2A1E;
+  --popover: #F7F3EC;
+  --popover-foreground: #3A2A1E;
 
-  /* Sand beige secondary */
-  --secondary: oklch(0.885 0.024 80);
-  --secondary-foreground: oklch(0.305 0.035 48);
+  /* Noyer foncé */
+  --primary: #3A2A1E;
+  --primary-foreground: #F7F3EC;
 
-  --muted: oklch(0.9 0.018 81);
-  --muted-foreground: oklch(0.48 0.03 58);
+  /* Beige pierre */
+  --secondary: #EDE6D6;
+  --secondary-foreground: #3A2A1E;
 
-  /* Warm gold / bronze accent */
-  --accent: oklch(0.64 0.094 66);
-  --accent-foreground: oklch(0.98 0.01 85);
+  --muted: #E8E0CE;
+  --muted-foreground: #7A6250;
 
-  --destructive: oklch(0.505 0.16 32);
-  --border: oklch(0.855 0.022 78);
-  --input: oklch(0.855 0.022 78);
-  --ring: oklch(0.64 0.094 66);
+  /* Terracotta principal */
+  --accent: #C17D59;
+  --accent-foreground: #F7F3EC;
 
-  /* Brand tokens */
-  --walnut: oklch(0.225 0.026 46);
-  --walnut-deep: oklch(0.175 0.022 44);
-  --walnut-foreground: oklch(0.95 0.015 84);
-  --bronze: oklch(0.54 0.072 58);
-  --gold: oklch(0.7 0.105 72);
-  --sand: oklch(0.885 0.024 80);
-  --ivory: oklch(0.962 0.013 83);
+  --destructive: #A63D2F;
+  --border: #D9CEB8;
+  --input: #D9CEB8;
+  --ring: #C17D59;
 
-  --chart-1: oklch(0.64 0.094 66);
-  --chart-2: oklch(0.54 0.072 58);
-  --chart-3: oklch(0.305 0.035 48);
-  --chart-4: oklch(0.7 0.105 72);
-  --chart-5: oklch(0.225 0.026 46);
-  --radius: 0.25rem;
+  /* ---- Tokens de marque enrichis ---- */
+  --walnut: #3A2A1E;
+  --walnut-deep: #2C1E16;
+  --walnut-foreground: #F7F3EC;
+  --bronze: #8B5E3C;
+  --gold: #C8960C;
+  --sand: #EDE6D6;
+  --ivory: #F7F3EC;
 
-  --sidebar: oklch(0.94 0.016 82);
-  --sidebar-foreground: oklch(0.265 0.028 52);
-  --sidebar-primary: oklch(0.305 0.035 48);
-  --sidebar-primary-foreground: oklch(0.95 0.015 84);
-  --sidebar-accent: oklch(0.64 0.094 66);
-  --sidebar-accent-foreground: oklch(0.98 0.01 85);
-  --sidebar-border: oklch(0.855 0.022 78);
-  --sidebar-ring: oklch(0.64 0.094 66);
+  /* ---- Couleurs des sculptures (boho) ---- */
+  --boho-cobalt: #3B6FA0;
+  --boho-emerald: #3A7D50;
+  --boho-mustard: #C8960C;
+  --boho-terracotta: #C17D59;
+  --boho-brick: #A63D2F;
+  --boho-wood-light: #D4B896;
+  --boho-wood-dark: #8B5E3C;
+  --boho-beige: #EDE6D6;
+
+  --chart-1: #C17D59;
+  --chart-2: #3B6FA0;
+  --chart-3: #3A7D50;
+  --chart-4: #C8960C;
+  --chart-5: #A63D2F;
+  --radius: 0.5rem;
+
+  --sidebar: #F0EBE0;
+  --sidebar-foreground: #3A2A1E;
+  --sidebar-primary: #3A2A1E;
+  --sidebar-primary-foreground: #F7F3EC;
+  --sidebar-accent: #C17D59;
+  --sidebar-accent-foreground: #F7F3EC;
+  --sidebar-border: #D9CEB8;
+  --sidebar-ring: #C17D59;
 }
 
 .dark {
   color-scheme: dark;
-  --background: oklch(0.205 0.022 46);
-  --foreground: oklch(0.93 0.016 84);
-  --card: oklch(0.245 0.026 47);
-  --card-foreground: oklch(0.93 0.016 84);
-  --popover: oklch(0.245 0.026 47);
-  --popover-foreground: oklch(0.93 0.016 84);
-  --primary: oklch(0.93 0.016 84);
-  --primary-foreground: oklch(0.245 0.026 47);
-  --secondary: oklch(0.3 0.03 48);
-  --secondary-foreground: oklch(0.93 0.016 84);
-  --muted: oklch(0.3 0.03 48);
-  --muted-foreground: oklch(0.72 0.03 70);
-  --accent: oklch(0.64 0.094 66);
-  --accent-foreground: oklch(0.2 0.02 46);
-  --destructive: oklch(0.6 0.17 30);
-  --border: oklch(0.93 0.016 84 / 12%);
-  --input: oklch(0.93 0.016 84 / 16%);
-  --ring: oklch(0.64 0.094 66);
-  --walnut: oklch(0.205 0.022 46);
-  --walnut-foreground: oklch(0.93 0.016 84);
-  --bronze: oklch(0.54 0.072 58);
-  --gold: oklch(0.7 0.105 72);
-  --sand: oklch(0.3 0.03 48);
-  --ivory: oklch(0.93 0.016 84);
-  --chart-1: oklch(0.64 0.094 66);
-  --chart-2: oklch(0.54 0.072 58);
-  --chart-3: oklch(0.7 0.105 72);
-  --chart-4: oklch(0.5 0.05 55);
-  --chart-5: oklch(0.8 0.08 78);
-  --sidebar: oklch(0.245 0.026 47);
-  --sidebar-foreground: oklch(0.93 0.016 84);
-  --sidebar-primary: oklch(0.64 0.094 66);
-  --sidebar-primary-foreground: oklch(0.2 0.02 46);
-  --sidebar-accent: oklch(0.3 0.03 48);
-  --sidebar-accent-foreground: oklch(0.93 0.016 84);
-  --sidebar-border: oklch(0.93 0.016 84 / 12%);
-  --sidebar-ring: oklch(0.64 0.094 66);
+  --background: #2C1E16;
+  --foreground: #F0EBE0;
+  --card: #3A2A1E;
+  --card-foreground: #F0EBE0;
+  --popover: #3A2A1E;
+  --popover-foreground: #F0EBE0;
+  --primary: #F0EBE0;
+  --primary-foreground: #3A2A1E;
+  --secondary: #4A3426;
+  --secondary-foreground: #F0EBE0;
+  --muted: #4A3426;
+  --muted-foreground: #B09070;
+  --accent: #C17D59;
+  --accent-foreground: #2C1E16;
+  --destructive: #A63D2F;
+  --border: rgba(240, 235, 224, 0.12);
+  --input: rgba(240, 235, 224, 0.16);
+  --ring: #C17D59;
+  --walnut: #2C1E16;
+  --walnut-foreground: #F0EBE0;
+  --bronze: #8B5E3C;
+  --gold: #C8960C;
+  --sand: #4A3426;
+  --ivory: #F0EBE0;
+  --sidebar: #3A2A1E;
+  --sidebar-foreground: #F0EBE0;
+  --sidebar-primary: #C17D59;
+  --sidebar-primary-foreground: #2C1E16;
+  --sidebar-accent: #4A3426;
+  --sidebar-accent-foreground: #F0EBE0;
+  --sidebar-border: rgba(240, 235, 224, 0.12);
+  --sidebar-ring: #C17D59;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply text-foreground;
-    background-image: linear-gradient(to bottom, rgba(28, 20, 14, 0.92), rgba(20, 14, 10, 0.96)), url('/wood-bg.jpg');
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-color: #E4D0B7;
+    /* Motif géométrique zigzag (BohoBand) en orangé */
+    background-image:
+      url("data:image/svg+xml,%3Csvg width='300' height='40' viewBox='0 0 300 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23C17D59' stroke-width='2' fill='none' opacity='0.07'%3E%3Crect x='0' y='5' width='300' height='30' /%3E%3Cpath d='M0,20 L10,10 L30,30 L50,10 L70,30 L90,10 L110,30 L130,10 L150,30 L170,10 L190,30 L210,10 L230,30 L250,10 L270,30 L290,10 L300,20' stroke-width='1.5' /%3E%3Ccircle cx='20' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='40' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='60' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='80' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='100' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='120' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='140' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='160' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='180' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='200' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='220' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='240' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='260' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='280' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3Ccircle cx='300' cy='20' r='2' fill='%23C17D59' opacity='0.4' /%3E%3C/g%3E%3C/svg%3E");
+    background-size: 300px 40px;
+    background-repeat: repeat;
   }
+
   html {
     @apply font-sans;
     scroll-behavior: smooth;
@@ -223,4 +239,63 @@
     opacity: 0.045;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+}
+
+@layer base {
+  /* Demande client : les titres en gras et en valeur */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+  }
+  
+  /* Ajout d'une très légère ombre portée douce pour faire ressortir les grands titres */
+  h1, h2, h3 {
+    text-shadow: 0 2px 15px rgba(58, 42, 30, 0.1) !important;
+  }
+
+  /* Demande client : les textes bien présentés et en valeur */
+  p {
+    font-weight: 500 !important; /* Rend le texte plus lisible que light/normal */
+    line-height: 1.8 !important; /* Espacement optimal pour la présentation */
+  }
+}
+
+/* Cadres décoratifs façon tableau pour les photos */
+.boho-picture-frame {
+  padding: 10px;
+  background-color: var(--background);
+  border: 12px solid var(--frame-color, var(--walnut));
+  box-shadow: 
+    inset 0 0 0 2px rgba(0,0,0,0.4),
+    inset 0 0 0 3px rgba(255,255,255,0.2),
+    0 15px 35px -5px rgba(0,0,0,0.3);
+  border-radius: 2px;
+  position: relative;
+}
+.boho-picture-frame::after {
+  content: '';
+  position: absolute;
+  top: 9px; right: 9px; bottom: 9px; left: 9px;
+  border: 1px solid rgba(0,0,0,0.2);
+  pointer-events: none;
+  z-index: 20;
+}
+/* Décorations de coins sculptés */
+.boho-picture-frame::before {
+  content: '';
+  position: absolute;
+  top: -12px; left: -12px; right: -12px; bottom: -12px;
+  border: 2px solid rgba(255,255,255,0.1);
+  pointer-events: none;
+  z-index: 21;
+}
+.frame-gold { --frame-color: #C8960C; }
+.frame-walnut { --frame-color: #3A2A1E; }
+.frame-emerald { --frame-color: #3A7D50; }
+.frame-terracotta { --frame-color: #A63D2F; }
+
+/* Motif Peinture Transparente */
+.wood-motif {
+    mix-blend-mode: multiply;
+    opacity: 0.95;
 }

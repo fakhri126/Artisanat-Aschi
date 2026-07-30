@@ -6,8 +6,35 @@ import { adminApi, Relooking } from '@/lib/api'
 import { Plus, Edit2, Trash2, X, Image as ImageIcon, ArrowLeftRight } from 'lucide-react'
 import { ImageUploader } from '@/components/site/image-uploader'
 
+const FALLBACK_RELOOKINGS: Relooking[] = [
+  {
+    id: 1,
+    title: 'Commode de Style Louis XVI',
+    description: 'Restauration complète d\'une commode en placage de noyer desséchée. Décapage, comblement des fentes et vernissage traditionnel au tampon.',
+    imageAvantUrl: '/relooking-before.jpg',
+    imageApresUrl: '/relooking-after.jpg',
+    createdDate: new Date().toISOString()
+  },
+  {
+    id: 2,
+    title: 'Cadre de Miroir Ottoman',
+    description: 'Reconstitution des ornements sculptés endommagés sur un cadre en bois doré d\'époque et dorure fine à la feuille d\'or.',
+    imageAvantUrl: '/mirror-before.jpg',
+    imageApresUrl: '/mirror-after.jpg',
+    createdDate: new Date().toISOString()
+  },
+  {
+    id: 3,
+    title: 'Porte d\'Entrée de Demeure',
+    description: 'Rénovation esthétique et protectrice d\'une porte d\'entrée en bois massif exposée aux intempéries.',
+    imageAvantUrl: '/door-before.jpg',
+    imageApresUrl: '/door-after.jpg',
+    createdDate: new Date().toISOString()
+  }
+]
+
 export default function AdminRelookingPage() {
-  const [relookings, setRelookings] = useState<Relooking[]>([])
+  const [relookings, setRelookings] = useState<Relooking[]>(FALLBACK_RELOOKINGS)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
@@ -30,19 +57,14 @@ export default function AdminRelookingPage() {
     try {
       setLoading(true)
       const data = await adminApi.getRelookings()
-      setRelookings(data)
+      if (data && data.length > 0) {
+        setRelookings(data)
+      } else {
+        setRelookings(FALLBACK_RELOOKINGS)
+      }
     } catch (err: any) {
-      console.warn("Backend inaccessible, utilisation de données fictives (mock) pour les relookings.", err)
-      setRelookings([
-        {
-          id: 1,
-          title: "Commode Louis XV",
-          description: "Restauration complète d'une commode très abîmée.",
-          imageAvantUrl: "/placeholder.jpg",
-          imageApresUrl: "/relooking_service.jpg",
-          createdDate: new Date().toISOString()
-        }
-      ])
+      console.warn("Backend inaccessible, utilisation des relookings modèles par défaut.", err)
+      setRelookings(FALLBACK_RELOOKINGS)
     } finally {
       setLoading(false)
     }

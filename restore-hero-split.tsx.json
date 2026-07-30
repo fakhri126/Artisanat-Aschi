@@ -1,0 +1,30 @@
+{
+  "Description": "Add BohoDoorPanel to hero-split.tsx",
+  "Instruction": "In hero-split.tsx, import BohoDoorPanel and add it to the Left Door and Right Door inside the Arched Frame.",
+  "ReplacementChunks": [
+    {
+      "AllowMultiple": false,
+      "EndLine": 11,
+      "ReplacementContent": "import { ProductModal } from './product-modal'\nimport { BohoFloralRosette, BohoBand, BohoDoorPanel } from './boho-decor'",
+      "StartLine": 10,
+      "TargetContent": "import { ProductModal } from './product-modal'\nimport { BohoFloralRosette, BohoBand } from './boho-decor'"
+    },
+    {
+      "AllowMultiple": false,
+      "EndLine": 186,
+      "ReplacementContent": "                 <div className=\"absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]\" />\n\n                 {/* Sculpture artisanale sur la porte gauche */}\n                 <BohoDoorPanel className=\"absolute inset-0 w-full h-full p-2 md:p-4 opacity-70 pointer-events-none\" color=\"#2C1E16\" />\n\n                 {/* Handle */}",
+      "StartLine": 183,
+      "TargetContent": "                 <div className=\"absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]\" />\n\n                 {/* Handle */}"
+    },
+    {
+      "AllowMultiple": false,
+      "EndLine": 198,
+      "ReplacementContent": "                 <div className=\"absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]\" />\n\n                 {/* Sculpture artisanale sur la porte droite (mirrored layout) */}\n                 <BohoDoorPanel className=\"absolute inset-0 w-full h-full p-2 md:p-4 opacity-70 pointer-events-none transform -scale-x-100\" color=\"#2C1E16\" />\n\n                 {/* Handle */}",
+      "StartLine": 196,
+      "TargetContent": "                 <div className=\"absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]\" />\n\n                 {/* Handle */}"
+    }
+  ],
+  "TargetFile": "c:\\Users\\kaddo\\Downloads\\artisanat-aschi-website\\components\\site\\hero-split.tsx",
+  "toolAction": "Adding carved panels to doors",
+  "toolSummary": "Add panels"
+}

@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { Reveal } from "./reveal"
+import { BohoOrnateDiamond, BohoRosace, BohoDeepCarvedDiamond, BohoCeramicOctagon, BohoCeramicCross, BohoCeramicDiamond } from "./boho-decor"
 
 const images = [
   { src: "/gallery-1.png", alt: "Détail de sculpture arabesque sur noyer", span: "row-span-2" },
@@ -14,10 +15,15 @@ const images = [
 
 export function Gallery() {
   return (
-    <section id="galerie" className="bg-background py-24 md:py-36">
-      <div className="mx-auto max-w-7xl px-6">
+    <section id="galerie" className="bg-transparent py-24 md:py-36 relative overflow-hidden">
+      
+      {/* Bohemian Sculpted Motifs */}
+      <BohoRosace className="absolute -top-40 -left-40 w-[300px] md:w-[600px] opacity-[0.15] text-[#3B6FA0]" color="currentColor" />
+      <BohoDeepCarvedDiamond className="absolute bottom-20 -right-10 md:-right-20 w-40 md:w-80 opacity-40" color="#D4AF37" />
+
+      <div className="mx-auto max-w-7xl px-6 relative z-10">
         <Reveal>
-          <p className="font-heading text-sm uppercase tracking-[0.3em] text-[var(--gold)]">Galerie d&apos;art</p>
+          <p className="font-heading text-base md:text-lg font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Galerie d&apos;art</p>
           <h2 className="mt-4 max-w-2xl font-heading text-4xl leading-tight text-foreground md:text-6xl text-balance">
             La beauté dans le détail
           </h2>
@@ -28,7 +34,7 @@ export function Gallery() {
             <Reveal
               key={img.src}
               delay={i * 80}
-              className={`group relative overflow-hidden rounded-sm ${img.span}`}
+              className={`group relative overflow-hidden rounded-sm ${img.span} boho-picture-frame ${["frame-walnut", "frame-emerald"][i % 2]}`}
             >
               <Image
                 src={img.src || "/placeholder.svg"}

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Play, Pause, Volume2, VolumeX, Star, ThumbsUp, X } from 'lucide-react'
+import { BohoCeramicCross, BohoRosace, BohoCarvedColumn } from './boho-decor'
 
 // We will fetch SOCIAL_REVIEWS dynamically now
 export interface SocialReview {
@@ -155,11 +156,20 @@ export function VideoReel() {
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 
   return (
-    <section className="relative bg-[#0d0a06] py-24 md:py-32 overflow-hidden">
-      {/* Ambient decorations */}
+    <section className="relative bg-transparent py-16 md:py-24 overflow-hidden">
+      {/* Ambient decorations & Motifs */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/4 top-1/4 size-80 rounded-full bg-[#E8DCCB]/5 blur-3xl" />
-        <div className="absolute right-1/4 bottom-1/4 size-80 rounded-full bg-[#E8DCCB]/5 blur-3xl" />
+        <div className="absolute left-1/4 top-1/4 size-80 rounded-full bg-white/20 blur-3xl" />
+        <div className="absolute right-1/4 bottom-1/4 size-80 rounded-full bg-white/20 blur-3xl" />
+        
+        {/* Motif Zellij en haut à gauche */}
+        <BohoCeramicCross className="absolute top-0 left-0 w-[400px] h-auto text-[#E8DCCB] opacity-40 transform -translate-x-1/4 -translate-y-1/4" />
+        
+        {/* Rosace en bois en bas à droite */}
+        <BohoRosace color="#5A453A" monochrome={true} className="absolute bottom-0 right-0 w-[300px] h-auto opacity-30 transform translate-x-1/4 translate-y-1/4" />
+
+        {/* Motif barre sculptée (Carved Column) à droite */}
+        <BohoCarvedColumn className="absolute top-0 right-0 md:-right-10 h-full w-24 md:w-32 lg:w-40 opacity-50 pointer-events-none" color="#C17D59" delay={0.1} />
       </div>
 
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
@@ -168,7 +178,7 @@ export function VideoReel() {
           <p className="text-[11px] uppercase tracking-[0.3em] text-[#C17D59] font-semibold mb-4">
             ✦ Ils nous font confiance ✦
           </p>
-          <h2 className="font-heading text-4xl font-light text-[#3A2A21] sm:text-5xl leading-tight">
+          <h2 className="font-heading text-3xl font-light text-[#3A2A21] sm:text-4xl leading-tight">
             Ce que disent nos clients
           </h2>
           <p className="mt-4 text-[#3A2A21]/50 text-sm max-w-lg mx-auto">
@@ -177,16 +187,17 @@ export function VideoReel() {
           <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
         </div>
 
-        {/* Video Player - Full Width Cinematic */}
-        <div className="relative mx-auto w-full group">
-          <div className="relative overflow-hidden border-y border-[#E8DCCB]/20 bg-white shadow-2xl shadow-black">
+        {/* Video Player - Square Layout */}
+        <div className="relative mx-auto w-full group max-w-3xl">
+          <div className="relative overflow-hidden border-[12px] border-white shadow-2xl bg-[#E8DCCB] rounded-sm">
             {/* Video Element */}
-            <div className="relative w-full h-[70vh] md:h-[90vh]">
+            <div className="relative w-full aspect-square">
               <video
                 ref={videoRef}
                 src={videoUrl}
                 muted
                 autoPlay
+                preload="metadata"
                 className="w-full h-full object-cover"
                 loop
                 playsInline
@@ -196,7 +207,7 @@ export function VideoReel() {
               />
 
               {/* Overlay gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#3A2A1E]/80 via-transparent to-[#3A2A1E]/30 pointer-events-none" />
 
               {/* Review overlays */}
               <AnimatePresence>
@@ -217,7 +228,7 @@ export function VideoReel() {
             </div>
 
             {/* Custom Controls - Positioned over the video at the bottom */}
-            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-16 pb-4 md:pb-6 px-4 md:px-8 flex items-center gap-3 md:gap-4 transition-opacity opacity-0 group-hover:opacity-100 focus-within:opacity-100">
+            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#3A2A1E]/90 via-[#3A2A1E]/50 to-transparent pt-16 pb-8 md:pb-10 px-6 md:px-12 flex items-center gap-3 md:gap-4 transition-opacity opacity-0 group-hover:opacity-100 focus-within:opacity-100">
               {/* Play/Pause */}
               <button
                 onClick={togglePlay}

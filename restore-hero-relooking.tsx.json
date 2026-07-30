@@ -1,0 +1,16 @@
+{
+  "Description": "Make motif in hero-relooking solid and more visible",
+  "Instruction": "In hero-relooking.tsx, change opacity-[0.4] to opacity-[0.9] and remove mix-blend-multiply on the BohoCeramicDiamond motif to make its white background clearly visible.",
+  "ReplacementChunks": [
+    {
+      "AllowMultiple": false,
+      "EndLine": 56,
+      "ReplacementContent": "      {/* Bohemian Sculpted Motifs - Placé en bas à gauche pour ne pas gêner le titre ni l'image */}\n      <BohoCeramicDiamond className=\"absolute -bottom-10 -left-10 w-64 md:w-80 opacity-[0.9] shadow-2xl rounded-2xl z-0 pointer-events-none\" delay={0.2} />",
+      "StartLine": 54,
+      "TargetContent": "      {/* Bohemian Sculpted Motifs - Placé en bas à gauche pour ne pas gêner le titre ni l'image */}\n      <BohoCeramicDiamond className=\"absolute -bottom-10 -left-10 w-64 md:w-80 opacity-[0.4] z-0 pointer-events-none mix-blend-multiply\" delay={0.2} />"
+    }
+  ],
+  "TargetFile": "c:\\Users\\kaddo\\Downloads\\artisanat-aschi-website\\components\\site\\hero-relooking.tsx",
+  "toolAction": "Increasing visibility of motif in hero-relooking",
+  "toolSummary": "Update opacity in hero-relooking"
+}

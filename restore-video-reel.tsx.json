@@ -1,0 +1,12 @@
+{
+  "AllowMultiple": true,
+  "Description": "Remove old border class from video-reel",
+  "EndLine": 159,
+  "Instruction": "Remove border-t border-[#D9CEB8]",
+  "ReplacementContent": "    <section className=\"relative bg-transparent py-24 md:py-32 overflow-hidden\">",
+  "StartLine": 159,
+  "TargetContent": "    <section className=\"relative bg-transparent py-24 md:py-32 overflow-hidden border-t border-[#D9CEB8]\">",
+  "TargetFile": "c:\\Users\\kaddo\\Downloads\\artisanat-aschi-website\\components\\site\\video-reel.tsx",
+  "toolAction": "Removing old border from video-reel",
+  "toolSummary": "Fix video-reel border"
+}

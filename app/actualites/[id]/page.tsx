@@ -87,7 +87,7 @@ export default function ActualiteDetailPage({ params }: { params: Promise<{ id: 
 
   if (loading) {
     return (
-      <main className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#3A2A21] justify-center items-center">
+      <main className="min-h-screen flex flex-col  text-[#3A2A21] justify-center items-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#E8DCCB] border-t-transparent"></div>
       </main>
     )
@@ -95,7 +95,7 @@ export default function ActualiteDetailPage({ params }: { params: Promise<{ id: 
 
   if (!article) {
     return (
-      <main className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#3A2A21] justify-center items-center">
+      <main className="min-h-screen flex flex-col  text-[#3A2A21] justify-center items-center">
         <p className="text-[#3A2A21]/60">Actualité non trouvée.</p>
         <Link href="/#actualites" className="mt-4 text-[#C17D59] hover:underline text-xs uppercase tracking-widest">Retour à l&apos;accueil</Link>
       </main>
@@ -112,8 +112,9 @@ export default function ActualiteDetailPage({ params }: { params: Promise<{ id: 
   const readTime = `${Math.max(1, Math.ceil(words / 200))} min`
 
   return (
-    <main className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#3A2A21]">
+    <main className="min-h-screen flex flex-col  text-[#3A2A21]">
       <Navbar />
+      
 
       <article className="flex-1 pt-28 pb-24 px-5 sm:px-8 max-w-4xl mx-auto w-full text-left">
         {/* Back Link */}

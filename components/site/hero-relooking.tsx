@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeftRight, Paintbrush, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { publicApi, Relooking } from '@/lib/api'
+import { BohoCeramicCross, BohoOrnateDiamond } from './boho-decor'
 
 export function HeroRelooking() {
   const [relooking, setRelooking] = useState<Relooking | null>(null)
@@ -45,17 +46,14 @@ export function HeroRelooking() {
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-stone-950 flex items-center justify-center">
+    <div className="relative h-full w-full overflow-hidden bg-transparent flex items-center justify-center">
       
-      {/* Dynamic Background */}
-      <div 
-        className="absolute inset-0 opacity-20 bg-cover bg-center blur-xl" 
-        style={{ backgroundImage: `url(${relooking ? relooking.imageApresUrl : '/relooking_service.jpg'})` }}
-      />
-      <div className="absolute inset-0 bg-stone-950/80" />
+      {/* Motif Zellij en bas à gauche */}
+      <BohoCeramicCross className="absolute bottom-10 left-10 w-48 h-48 text-[#E8DCCB] opacity-50 pointer-events-none" />
 
       {/* Main Content Layout */}
-      <div className="relative z-10 w-full max-w-7xl px-6 h-full flex flex-col lg:flex-row items-center justify-center gap-12 pt-20 lg:pt-0">
+      <div className="relative z-10 w-full max-w-7xl px-6 h-full flex flex-col lg:flex-row items-center justify-center gap-12 pt-20 lg:pt-0 pb-16 lg:pb-0">
+
         
         {/* Left Text Content */}
         <motion.div 
@@ -73,17 +71,17 @@ export function HeroRelooking() {
             </p>
           </div>
 
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl text-[#3A2A21] leading-tight mb-6">
-            {relooking ? relooking.title : "Relooking &\nRestauration"}
+          <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl text-[#3A2A21] leading-tight mb-6 font-bold uppercase tracking-widest drop-shadow-sm">
+            {relooking ? relooking.title : "RELOOKING &\nRESTAURATION"}
           </h1>
 
-          <p className="text-sm md:text-base font-light text-white/70 leading-relaxed mb-10 max-w-md line-clamp-4">
+          <p className="text-sm md:text-base font-light text-[#5A453A] leading-relaxed mb-10 max-w-md line-clamp-4">
             {relooking ? relooking.description : "Dans notre atelier, chaque meuble ancien possède une âme. Nous effaçons les marques du temps tout en préservant l'histoire. Découvrez la magie de la restauration artisanale Aschi."}
           </p>
 
           <Link
             href="/relooking"
-            className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-[#E8DCCB] text-[#C17D59] font-medium uppercase tracking-[0.2em] text-xs transition-all hover:bg-[#E8DCCB] hover:text-stone-950"
+            className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-[#C17D59] text-[#C17D59] font-medium uppercase tracking-[0.2em] text-xs transition-all hover:bg-[#C17D59] hover:text-white rounded-full"
           >
             Découvrir le service
             <Sparkles className="size-4 transition-transform group-hover:scale-125" />
@@ -95,15 +93,13 @@ export function HeroRelooking() {
           initial={{ opacity: 0, scale: 0.9, rotateY: 15 }}
           animate={{ opacity: 1, scale: 1, rotateY: 0 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:w-2/3 w-full h-[40vh] lg:h-[70vh] relative perspective-1000"
+          className="lg:w-2/3 w-full h-[50vh] lg:h-[65vh] relative perspective-1000 max-w-2xl mx-auto"
         >
           {/* Ornate Frame around the slider */}
-          <div className="absolute -inset-4 border border-[#E8DCCB]/20 bg-stone-900/50 backdrop-blur-sm rounded-sm z-0 hidden lg:block" />
-          <div className="absolute -inset-4 border border-white/5 m-2 hidden lg:block" />
           
           <div 
             ref={containerRef}
-            className="relative w-full h-full rounded-sm overflow-hidden shadow-2xl cursor-ew-resize select-none z-10"
+            className="relative w-full h-full overflow-hidden shadow-2xl cursor-ew-resize select-none z-10 border-[8px] border-white rounded-sm bg-stone-100"
             onMouseDown={(e) => {
               setIsDragging(true)
               handleMove(e.clientX)
@@ -166,8 +162,9 @@ export function HeroRelooking() {
             
           </div>
           
+          
           {/* Instruction Text below slider */}
-          <p className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-white/40 text-[9px] tracking-[0.3em] uppercase hidden lg:block">
+          <p className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[#C17D59] text-[9px] font-bold tracking-[0.3em] uppercase hidden lg:block">
             Glissez pour révéler la transformation
           </p>
         </motion.div>
