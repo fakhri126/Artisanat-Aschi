@@ -7,8 +7,10 @@ import { ArrowLeftRight, Paintbrush, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { publicApi, Relooking } from '@/lib/api'
 import { BohoCeramicCross, BohoOrnateDiamond } from './boho-decor'
+import { useRandomHeroColor } from '@/hooks/use-random-hero-color'
 
 export function HeroRelooking() {
+  const { color: titleColor, isMounted } = useRandomHeroColor()
   const [relooking, setRelooking] = useState<Relooking | null>(null)
   const [sliderPosition, setSliderPosition] = useState(50) // Percentage 0-100
   const containerRef = useRef<HTMLDivElement>(null)
@@ -56,37 +58,41 @@ export function HeroRelooking() {
 
         
         {/* Left Text Content */}
-        <motion.div 
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, ease: 'easeOut' }}
-          className="lg:w-1/3 flex flex-col items-center lg:items-start text-center lg:text-left"
-        >
-          <div className="flex items-center gap-3 mb-6">
-            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/30 text-[#C17D59] shadow-[0_0_15px_rgba(212,175,55,0.2)]">
-              <Paintbrush className="size-4" />
-            </span>
-            <p className="text-[#C17D59] text-[10px] font-bold tracking-[0.4em] uppercase">
-              L'Art de la Restauration
-            </p>
-          </div>
-
-          <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl text-[#3A2A21] leading-tight mb-6 font-bold uppercase tracking-widest drop-shadow-sm">
-            {relooking ? relooking.title : "RELOOKING &\nRESTAURATION"}
-          </h1>
-
-          <p className="text-sm md:text-base font-light text-[#5A453A] leading-relaxed mb-10 max-w-md line-clamp-4">
-            {relooking ? relooking.description : "Dans notre atelier, chaque meuble ancien possède une âme. Nous effaçons les marques du temps tout en préservant l'histoire. Découvrez la magie de la restauration artisanale Aschi."}
-          </p>
-
-          <Link
-            href="/relooking"
-            className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-[#C17D59] text-[#C17D59] font-medium uppercase tracking-[0.2em] text-xs transition-all hover:bg-[#C17D59] hover:text-white rounded-full"
+        <div className="w-full lg:w-1/3 flex flex-col justify-center items-center lg:items-start text-center lg:text-left z-20 mt-8 lg:mt-0 order-2 lg:order-1 lg:col-start-1 lg:row-start-1 lg:pb-8">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-center lg:items-start w-full max-w-xl"
           >
-            Découvrir le service
-            <Sparkles className="size-4 transition-transform group-hover:scale-125" />
-          </Link>
-        </motion.div>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#D9CEB8] text-[#C17D59] text-xs font-bold uppercase tracking-[0.2em] mb-6 shadow-sm">
+              <Paintbrush className="size-4" />
+              Restauration d&apos;Art & Relooking
+            </div>
+            
+            <h2 
+              className="font-heading text-5xl md:text-6xl lg:text-7xl drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] drop-shadow-[0_0_20px_rgba(255,255,255,0.7)] mb-6 leading-none transition-colors duration-1000"
+              style={{ color: isMounted ? titleColor : '#87CEEB' }}
+            >
+              Relooking <br/>
+              <span className="text-[#D4AF37] italic text-4xl md:text-5xl lg:text-6xl drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] drop-shadow-[0_0_20px_rgba(255,255,255,0.7)]">& Restauration</span>
+            </h2>
+            
+            <p className="text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] font-medium max-w-sm xl:max-w-md text-sm md:text-base xl:text-lg mb-10 leading-relaxed">
+              Offrez une seconde vie à vos précieux meubles de famille. Notre atelier restaure, patine et réinvente vos pièces d&apos;exception en préservant leur noblesse et leur histoire.
+            </p>
+            
+            <Link
+              href="/relooking"
+              className="group relative inline-flex items-center justify-center bg-gradient-to-r from-[#C17D59] to-[#8C5230] hover:from-[#d4af37] hover:to-[#C17D59] text-white px-8 py-4 rounded-full text-xs md:text-sm font-bold uppercase tracking-widest overflow-hidden shadow-lg border border-[#E8DCCB]/30 transition-all hover:-translate-y-1 hover:shadow-xl"
+            >
+              <span className="relative z-10 flex items-center gap-2 md:gap-3">
+                <Sparkles className="size-4" />
+                Découvrir la Restauration
+              </span>
+            </Link>
+          </motion.div>
+        </div>
 
         {/* Right Comparison Slider */}
         <motion.div 

@@ -5,7 +5,7 @@ import { BohoCeramicOctagon, BohoCeramicCross, BohoCeramicDiamond } from "./boho
 
 export function ZellijSection() {
   return (
-    <section className="bg-transparent py-16 border-t border-b border-[#D9CEB8]">
+    <section className="bg-transparent py-16">
       <div className="mx-auto max-w-7xl px-6 relative z-10">
         <Reveal>
           <p className="font-heading text-base md:text-lg font-bold uppercase tracking-[0.3em] text-[var(--gold)] text-center mb-8">

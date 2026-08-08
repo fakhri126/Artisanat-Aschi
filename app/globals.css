@@ -296,6 +296,5 @@
 
 /* Motif Peinture Transparente */
 .wood-motif {
-    mix-blend-mode: multiply;
-    opacity: 0.95;
+  display: none !important;
 }

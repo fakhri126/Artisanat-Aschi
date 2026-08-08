@@ -10,8 +10,10 @@ import { useCart } from '@/lib/cart-context'
 import { cn } from '@/lib/utils'
 import { ProductModal } from './product-modal'
 import { BohoRosace, BohoDoorPanel } from './boho-decor'
+import { useRandomHeroColor } from '@/hooks/use-random-hero-color'
 
 export function HeroSplit() {
+  const { color: titleColor, isMounted: isColorMounted } = useRandomHeroColor()
   const [latestProduct, setLatestProduct] = useState<Product | null>(null)
   const [isMounted, setIsMounted] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -74,61 +76,62 @@ export function HeroSplit() {
   const isVideo = image.match(/\.(mp4|webm|ogg|mov)$/i)
 
   return (
-    <div className="relative h-full min-h-[700px] w-full overflow-hidden flex items-center font-sans border-b border-[#D9CEB8] bg-transparent">
+    <div className="relative h-full min-h-[700px] w-full overflow-hidden flex items-center font-sans bg-transparent">
       {/* Intricate Bohemian Motifs */}
-      <BohoRosace color="#D4AF37" monochrome={true} className="absolute top-[10%] left-[-20%] md:top-[-10%] md:left-[-10%] lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 w-[300px] sm:w-[350px] md:w-[450px] lg:w-[600px] opacity-40 pointer-events-none" delay={0.2} />
+      <BohoRosace variant="dark-overlay" color="#D4AF37" monochrome={true} className="absolute top-[10%] left-[-20%] md:top-[-10%] md:left-[-10%] lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 w-[300px] sm:w-[350px] md:w-[450px] lg:w-[600px] opacity-10 pointer-events-none" delay={0.2} />
 
       <div className="relative z-10 h-full w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-y-4 lg:gap-y-0 lg:gap-x-20 pt-16 pb-8 items-center">
         
-        {/* Title and Intro Text */}
-        <div className="w-full flex flex-col justify-end order-1 lg:col-start-1 lg:row-start-1 lg:pb-8 z-20">
+        {/* Left Side: Text and Actions */}
+        <div className="w-full flex flex-col justify-center items-center lg:items-start text-center lg:text-left z-20 mt-8 lg:mt-0 order-1 lg:col-start-1 lg:row-start-1 lg:pb-8">
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-center lg:items-start w-full max-w-xl"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#D9CEB8] text-[#C17D59] text-xs font-bold uppercase tracking-[0.2em] mb-6 shadow-sm">
-              <Sparkles className="size-4 animate-pulse" />
-              Nouveautés Exclusives
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#D9CEB8] text-[#C17D59] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4 lg:mb-6 shadow-sm">
+              <Sparkles className="size-3 md:size-4" />
+              Nouveau Produit
             </div>
             
-            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl text-[#3A2A1E] mb-6 leading-tight">
-              Nos Dernières<br/>Créations
+            <h2 
+              className="font-heading text-5xl md:text-6xl lg:text-7xl drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] drop-shadow-[0_0_20px_rgba(255,255,255,0.7)] mb-6 leading-none transition-colors duration-1000"
+              style={{ color: isColorMounted ? titleColor : '#87CEEB' }}
+            >
+              L'Art <br/>
+              <span className="text-[#D4AF37] text-4xl md:text-5xl lg:text-6xl italic drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] drop-shadow-[0_0_20px_rgba(255,255,255,0.7)]">Marocain</span>
             </h2>
             
-            <p className="text-[#5A453A] font-light max-w-md text-base md:text-lg leading-relaxed mb-4 lg:mb-0">
+            <p className="text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] font-medium max-w-sm xl:max-w-md text-sm md:text-base xl:text-lg mb-4 leading-relaxed">
               {latestProduct.description || "Découvrez la toute dernière pièce unique tout juste sortie de notre atelier."}
             </p>
-          </motion.div>
-        </div>
 
-        {/* Details Card */}
-        <div className="w-full flex flex-col justify-start order-3 lg:col-start-1 lg:row-start-2 z-30 mt-6 lg:mt-0">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-[#D9CEB8] shadow-lg max-w-sm md:max-w-md mx-auto lg:mx-0">
-              <h3 className="font-heading text-lg md:text-2xl text-[#3A2A1E] mb-3 md:mb-4">{latestProduct.name}</h3>
+            <h3 className="font-heading text-xl md:text-3xl text-[#D4AF37] drop-shadow-[0_2px_4px_rgba(26,17,11,0.8)] mb-10 italic">
+              {latestProduct.name}
+            </h3>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              {/* Bouton Acheter */}
+              <button
+                onClick={() => addToCart(latestProduct)}
+                className="group relative inline-flex items-center justify-center bg-gradient-to-r from-[#C17D59] to-[#8C5230] hover:from-[#d4af37] hover:to-[#C17D59] text-white px-7 py-3.5 md:px-8 md:py-4 rounded-full text-xs md:text-sm font-bold uppercase tracking-widest overflow-hidden shadow-lg border border-[#E8DCCB]/30 transition-all hover:-translate-y-1 hover:shadow-xl"
+              >
+                <span className="relative z-10 flex items-center gap-2 md:gap-3">
+                  <ShoppingCart className="size-4 text-white" />
+                  Acheter
+                </span>
+              </button>
               
-              <div className="mt-6 flex flex-col sm:flex-row items-center gap-4">
-                <button
-                  onClick={() => setSelectedProduct(latestProduct)}
-                  className="w-full sm:w-auto bg-[#D4AF37] hover:bg-[#C59B27] text-white px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 border border-[#D4AF37]/50 relative overflow-hidden group"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    <Eye className="size-4" /> Découvrir
-                  </span>
-                  <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 skew-x-12" />
-                </button>
-                <button
-                  onClick={() => addToCart(latestProduct)}
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-full border-2 border-[#D4AF37] text-[#D4AF37] text-xs font-bold uppercase tracking-[0.15em] hover:bg-[#D4AF37] hover:text-white transition-all text-center flex items-center justify-center gap-2"
-                >
-                  <ShoppingCart className="size-4" /> Panier
-                </button>
-              </div>
+              {/* Bouton Explorer la Collection */}
+              <Link
+                href="/creations"
+                className="group relative inline-flex items-center justify-center bg-white/10 text-white px-6 py-3.5 md:px-7 md:py-4 rounded-full text-xs md:text-sm font-bold uppercase tracking-widest shadow-lg border border-white/40 backdrop-blur-sm hover:bg-white/20 transition-all hover:-translate-y-0.5"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  <Eye className="size-4" /> Explorer la Collection
+                </span>
+              </Link>
             </div>
           </motion.div>
         </div>
@@ -171,24 +174,30 @@ export function HeroSplit() {
               {/* Sliding Doors */}
               <div 
                 className={cn(
-                  "absolute inset-y-0 left-0 w-1/2 bg-[#3A2A1E] transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] z-10 border-r border-black/50 overflow-hidden",
+                  "absolute inset-y-0 left-0 w-1/2 transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] z-10 border-r-2 border-black/80 overflow-hidden shadow-[5px_0_20px_rgba(0,0,0,0.6)]",
                   isUnveiled ? "-translate-x-full" : "translate-x-0"
                 )}
               >
-                <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]" />
-                <BohoDoorPanel className="absolute inset-0 w-[200%] h-full p-2 md:p-4 opacity-70 pointer-events-none" color="#2C1E16" />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-16 bg-gradient-to-b from-amber-600 to-amber-800 rounded-full shadow-md" />
+                <img
+                  src="/blue-door.jpg"
+                  alt="Porte Bleue"
+                  className="absolute inset-0 h-full max-w-none object-cover"
+                  style={{ width: '200%', left: '0' }}
+                />
               </div>
 
               <div 
                 className={cn(
-                  "absolute inset-y-0 right-0 w-1/2 bg-[#3A2A1E] transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] z-10 border-l border-white/10 overflow-hidden",
+                  "absolute inset-y-0 right-0 w-1/2 transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] z-10 border-l-2 border-black/80 overflow-hidden shadow-[-5px_0_20px_rgba(0,0,0,0.6)]",
                   isUnveiled ? "translate-x-full" : "translate-x-0"
                 )}
               >
-                <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]" />
-                <BohoDoorPanel className="absolute inset-0 w-[200%] h-full p-2 md:p-4 opacity-70 pointer-events-none -translate-x-1/2 transform -scale-x-100" color="#2C1E16" />
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-1.5 h-16 bg-gradient-to-b from-amber-600 to-amber-800 rounded-full shadow-md" />
+                <img
+                  src="/blue-door.jpg"
+                  alt="Porte Bleue"
+                  className="absolute inset-0 h-full max-w-none object-cover"
+                  style={{ width: '200%', left: '-100%' }}
+                />
               </div>
 
             </div>

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Play, Pause, Volume2, VolumeX, Star, ThumbsUp, X } from 'lucide-react'
 import { BohoCeramicCross, BohoRosace, BohoCarvedColumn } from './boho-decor'
+import { useRandomHeroColor } from '@/hooks/use-random-hero-color'
 
 // We will fetch SOCIAL_REVIEWS dynamically now
 export interface SocialReview {
@@ -77,6 +78,7 @@ function ReviewOverlay({ review, position }: { review: SocialReview; position: s
 }
 
 export function VideoReel() {
+  const { color: titleColor, isMounted: isHeroColorMounted } = useRandomHeroColor()
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(true)
@@ -157,31 +159,24 @@ export function VideoReel() {
 
   return (
     <section className="relative bg-transparent py-16 md:py-24 overflow-hidden">
-      {/* Ambient decorations & Motifs */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/4 top-1/4 size-80 rounded-full bg-white/20 blur-3xl" />
-        <div className="absolute right-1/4 bottom-1/4 size-80 rounded-full bg-white/20 blur-3xl" />
-        
-        {/* Motif Zellij en haut à gauche */}
-        <BohoCeramicCross className="absolute top-0 left-0 w-[400px] h-auto text-[#E8DCCB] opacity-40 transform -translate-x-1/4 -translate-y-1/4" />
-        
-        {/* Rosace en bois en bas à droite */}
-        <BohoRosace color="#5A453A" monochrome={true} className="absolute bottom-0 right-0 w-[300px] h-auto opacity-30 transform translate-x-1/4 translate-y-1/4" />
+      {/* Repeating Panel Background */}
+      <div 
+        className="absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none bg-[url('/images/bg-white-cabinet.png')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" 
+      />
 
-        {/* Motif barre sculptée (Carved Column) à droite */}
-        <BohoCarvedColumn className="absolute top-0 right-0 md:-right-10 h-full w-24 md:w-32 lg:w-40 opacity-50 pointer-events-none" color="#C17D59" delay={0.1} />
-      </div>
-
-      <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
+      <div className="relative mx-auto max-w-6xl px-5 sm:px-8 z-10">
         {/* Header */}
         <div className="text-center mb-12">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-[#C17D59] font-semibold mb-4">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-white drop-shadow-[0_1px_2px_rgba(26,17,11,0.8)] font-semibold mb-4">
             ✦ Ils nous font confiance ✦
           </p>
-          <h2 className="font-heading text-3xl font-light text-[#3A2A21] sm:text-4xl leading-tight">
+          <h2 
+            className="font-heading text-3xl font-light drop-shadow-[0_2px_4px_rgba(26,17,11,0.8)] sm:text-4xl leading-tight transition-colors duration-1000"
+            style={{ color: isHeroColorMounted ? titleColor : '#8B4513' }}
+          >
             Ce que disent nos clients
           </h2>
-          <p className="mt-4 text-[#3A2A21]/50 text-sm max-w-lg mx-auto">
+          <p className="mt-4 text-white drop-shadow-[0_1px_2px_rgba(26,17,11,0.8)] text-sm max-w-lg mx-auto font-medium">
             Des centaines d'avis sur Google, Facebook et Instagram. Découvrez leur expérience avec l'Atelier Aschi.
           </p>
           <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />

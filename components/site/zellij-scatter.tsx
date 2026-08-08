@@ -9,7 +9,12 @@ export function ZellijScatter({ type = "page" }: { type?: "page" | "hero" }) {
     { Motif: BohoCeramicDiamond, top: '75%', left: '6%', rotate: 30 },
     { Motif: BohoCeramicDiamond, top: '95%', left: '85%', rotate: -25 },
     { Motif: BohoCeramicDiamond, top: '85%', left: '55%', rotate: 40 },
-  ] : []
+  ] : [
+    { Motif: BohoCeramicOctagon, top: '15%', left: '12%', rotate: 15 },
+    { Motif: BohoCeramicCross, top: '75%', left: '85%', rotate: -15 },
+    { Motif: BohoCeramicDiamond, top: '80%', left: '15%', rotate: 45 },
+    { Motif: BohoCeramicOctagon, top: '25%', left: '88%', rotate: -25 },
+  ]
 
   // Opacité augmentée pour rendre les motifs bien visibles avec leur fond blanc
   const baseOpacity = type === "hero" ? "0.85" : "0.7"

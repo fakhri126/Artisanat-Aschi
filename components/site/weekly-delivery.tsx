@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeIn } from '@/components/motion/fade-in'
 import { publicApi, Delivery } from '@/lib/api'
+import { useRandomHeroColor } from '@/hooks/use-random-hero-color'
 import { Truck, MapPin, Calendar } from 'lucide-react'
 import Image from 'next/image'
 import { BohoCeramicPattern, BohoGoldenLattice, BohoRosace, BohoDoorPanel } from './boho-decor'
 
 export function WeeklyDelivery() {
+  const { color: titleColor, isMounted: isHeroColorMounted } = useRandomHeroColor()
   const [deliveries, setDeliveries] = useState<Delivery[]>([])
   const [isMounted, setIsMounted] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -64,26 +66,22 @@ export function WeeklyDelivery() {
   const isVideo = currentDelivery?.imageUrl?.match(/\.(mp4|webm|ogg|mov)$/i)
 
   return (
-    <section id="livraison-semaine" className="bg-transparent py-16 md:py-36 relative overflow-hidden">
-
-      
-      {/* Repeating small ceramic background pattern */}
-      <BohoCeramicPattern className="absolute inset-0 z-0 pointer-events-none" color="#C17D59" opacity={0.25} />
-      
-      {/* Bohemian Sculpted Motifs - Wood colored */}
-      <BohoRosace className="absolute top-0 right-0 hidden md:block w-[400px] opacity-90 pointer-events-none" color="#C17D59" delay={0.1} />
-      <BohoRosace className="absolute bottom-20 left-10 w-32 md:w-64 opacity-[0.05] text-[#3A2A1E] pointer-events-none" color="currentColor" delay={0.3} />
-      
-      <div className="mx-auto max-w-7xl px-4 sm:px-8 relative z-10">
+    <section id="livraison" className="relative w-full overflow-hidden bg-transparent py-16 md:py-24">
+      {/* Darkening Overlay */}
+      <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 relative z-10">
         <FadeIn className="text-center mb-12 md:mb-20">
           <div className="inline-flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-[#EDE6D6] text-[#8B5E3C] text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4 md:mb-6 border border-[#D4B896]/50 shadow-sm">
             <Truck className="size-3 md:size-4 animate-pulse" />
             Directement chez vous
           </div>
-          <h2 className="font-heading text-2xl md:text-4xl lg:text-5xl text-[#3A2A1E] font-light tracking-tight mb-4 md:mb-6">
-            La Livraison de la Semaine
+          <h2 
+            className="font-heading text-2xl md:text-4xl lg:text-5xl drop-shadow-[0_2px_4px_rgba(26,17,11,0.8)] font-light tracking-tight mb-4 md:mb-6 transition-colors duration-1000"
+            style={{ color: isHeroColorMounted ? titleColor : '#6B8E23' }}
+          >
+            L'Élégance Livrée Chez Vous
           </h2>
-          <p className="text-[#7A6250] font-light max-w-2xl mx-auto text-sm md:text-lg px-2">
+          <p className="text-white font-medium drop-shadow-[0_1px_2px_rgba(26,17,11,0.8)] max-w-2xl mx-auto text-sm md:text-lg px-2">
             Découvrez nos dernières créations tout juste sorties de l'atelier et installées dans leurs nouvelles demeures d'exception.
           </p>
         </FadeIn>
@@ -137,13 +135,13 @@ export function WeeklyDelivery() {
 
               {/* Content */}
               <div className="w-full md:w-7/12 lg:w-3/5 py-4 md:py-6 px-4 md:px-8">
-                <h3 className="font-heading text-xl md:text-3xl lg:text-4xl text-[#3A2A1E] mb-3 md:mb-6 leading-tight">
+                <h3 className="font-heading text-xl md:text-3xl lg:text-4xl text-[#6B8E23] drop-shadow-[0_2px_4px_rgba(26,17,11,0.8)] mb-3 md:mb-6 leading-tight">
                   {currentDelivery.title}
                 </h3>
                 
-                <div className="w-8 md:w-12 h-1 bg-[#C17D59] mb-4 md:mb-8 rounded-full" />
+                <div className="w-8 md:w-12 h-1 bg-[#FDFBF7] shadow-[0_1px_2px_rgba(26,17,11,0.8)] mb-4 md:mb-8 rounded-full" />
                 
-                <p className="text-[#5A453A] font-light text-sm md:text-base lg:text-lg leading-relaxed mb-6 md:mb-8 line-clamp-4">
+                <p className="text-white font-medium drop-shadow-[0_1px_2px_rgba(26,17,11,0.8)] text-sm md:text-base lg:text-lg leading-relaxed mb-6 md:mb-8 line-clamp-4">
                   {currentDelivery.description}
                 </p>
 

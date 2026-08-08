@@ -24,8 +24,15 @@ export function Creations() {
           publicApi.getCategories()
         ])
 
-        // Only keep available products (not catalog/inspiration ones)
-        const availableProds = prodData.filter((p) => p.type !== 'CATALOGUE')
+        // Only keep available products (not catalog/inspiration ones) and exclude Bijoux de Porte
+        const availableProds = prodData.filter((p) => {
+          const isCatalog = p.type === 'CATALOGUE'
+          const catName = p.category?.name?.toLowerCase() || ''
+          const prodName = p.name?.toLowerCase() || ''
+          const isBijoux = catName.includes('bijou') || catName.includes('poignée') || catName.includes('bouton') ||
+                           prodName.includes('bijou') || prodName.includes('poignée') || prodName.includes('bouton')
+          return !isCatalog && !isBijoux
+        })
         setAllProducts(availableProds)
 
         // Get unique category names from both DB categories and existing products
