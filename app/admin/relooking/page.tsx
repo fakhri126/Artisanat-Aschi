@@ -45,6 +45,7 @@ export default function AdminRelookingPage() {
   // Form fields
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [category, setCategory] = useState('')
   const [imageAvantUrl, setImageAvantUrl] = useState('')
   const [imageApresUrl, setImageApresUrl] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -75,12 +76,14 @@ export default function AdminRelookingPage() {
       setEditingRelooking(relooking)
       setTitle(relooking.title)
       setDescription(relooking.description)
+      setCategory(relooking.category || '')
       setImageAvantUrl(relooking.imageAvantUrl)
       setImageApresUrl(relooking.imageApresUrl)
     } else {
       setEditingRelooking(null)
       setTitle('')
       setDescription('')
+      setCategory('')
       setImageAvantUrl('')
       setImageApresUrl('')
     }
@@ -96,14 +99,14 @@ export default function AdminRelookingPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!title || !description || !imageAvantUrl || !imageApresUrl) {
-      setError("Tous les champs sont requis, y compris les deux images.")
+    if (!title || !description || !category || !imageAvantUrl || !imageApresUrl) {
+      setError("Tous les champs sont requis, y compris la catégorie et les deux images.")
       return
     }
 
     try {
       setUploading(true)
-      const data = { title, description, imageAvantUrl, imageApresUrl }
+      const data = { title, description, category, imageAvantUrl, imageApresUrl }
 
       if (editingRelooking) {
         await adminApi.updateRelooking(editingRelooking.id, data)
@@ -163,6 +166,7 @@ export default function AdminRelookingPage() {
                   <th className="p-4 font-medium text-stone-600 w-24">Avant</th>
                   <th className="p-4 font-medium text-stone-600 w-24">Après</th>
                   <th className="p-4 font-medium text-stone-600">Titre</th>
+                  <th className="p-4 font-medium text-stone-600">Catégorie</th>
                   <th className="p-4 font-medium text-stone-600 text-right">Actions</th>
                 </tr>
               </thead>
@@ -192,6 +196,11 @@ export default function AdminRelookingPage() {
                     <td className="p-4">
                       <div className="font-medium text-stone-800">{r.title}</div>
                       <div className="text-sm text-stone-500 mt-1 line-clamp-1">{r.description}</div>
+                    </td>
+                    <td className="p-4">
+                      <span className="inline-block px-2 py-1 bg-stone-100 text-stone-600 text-xs rounded-md border border-stone-200">
+                        {r.category || 'Général'}
+                      </span>
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
@@ -253,6 +262,22 @@ export default function AdminRelookingPage() {
                     className="w-full bg-white/20 border border-[#E8DCCB]/10 focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-[#3A2A21] outline-none shadow-inner transition-colors"
                     placeholder="Ex: Restauration d'une commode d'époque"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-[#3A2A21]/60 font-semibold mb-1">Catégorie</label>
+                  <select
+                    required
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full bg-white/20 border border-[#E8DCCB]/10 focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-[#3A2A21] outline-none shadow-inner transition-colors appearance-none"
+                  >
+                    <option value="" disabled>Sélectionnez une catégorie...</option>
+                    <option value="Miroirs & Cadres">Miroirs & Cadres</option>
+                    <option value="Mobilier d'Art">Mobilier d'Art</option>
+                    <option value="Portes & Sculptures">Portes & Sculptures</option>
+                    <option value="Luminaires & Décoration">Luminaires & Décoration</option>
+                  </select>
                 </div>
 
                 <div>

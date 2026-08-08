@@ -2,10 +2,232 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { adminApi, publicApi, Product, Category, ProductRequest } from '@/lib/api'
-import { Plus, Edit2, Trash2, Eye, Bot, X, Image as ImageIcon } from 'lucide-react'
+import { adminApi, publicApi, Product, Category, ProductRequest, ImageVariant } from '@/lib/api'
+import { Plus, Edit2, Trash2, Eye, Bot, X, Image as ImageIcon, Upload, CheckCircle2, Palette, Search } from 'lucide-react'
 import Link from 'next/link'
-import { MultiImageUploader } from '@/components/site/image-uploader'
+
+// ─── Preset colour swatches for quick selection ──────────────────────────────
+const COLOR_PRESETS = [
+  { label: 'Original',      hex: null },
+  { label: 'Noyer',         hex: '#5C3317' },
+  { label: 'Bleu',          hex: '#2D5F8A' },
+  { label: 'Or',            hex: '#C9A84C' },
+  { label: 'Naturel',       hex: '#C4A882' },
+  { label: 'Blanc Cérusé',  hex: '#F0EDE6' },
+  { label: 'Vert Olivier',  hex: '#4A5E3A' },
+  { label: 'Bordeaux',      hex: '#7B2D3E' },
+  { label: 'Autre…',        hex: null },
+]
+
+const VARIANTS_PRESETS = [...COLOR_PRESETS]
+const DIMENSION_PRESETS = [
+  { label: 'Petit',         hex: null },
+  { label: 'Moyen',         hex: null },
+  { label: 'Grand',         hex: null },
+]
+
+const ALL_PRESETS = [
+  ...VARIANTS_PRESETS.filter(p => p.label !== 'Autre…'),
+  ...DIMENSION_PRESETS,
+  { label: 'Autre…', hex: null }
+]
+
+// ─── Image Variant Manager ────────────────────────────────────────────────────
+function ImageVariantManager({
+  variants,
+  onChange,
+  uploadFn,
+}: {
+  variants: ImageVariant[]
+  onChange: (variants: ImageVariant[]) => void
+  uploadFn: (file: File) => Promise<{ url: string }>
+}) {
+  const [uploading, setUploading] = useState<number | null>(null)
+  const [customLabels, setCustomLabels] = useState<Record<number, string>>({})
+
+  const addVariant = () => {
+    onChange([...variants, { imageUrl: '', colorLabel: null }])
+  }
+
+  const removeVariant = (idx: number) => {
+    onChange(variants.filter((_, i) => i !== idx))
+  }
+
+  const updateUrl = (idx: number, url: string) => {
+    const next = [...variants]
+    next[idx] = { ...next[idx], imageUrl: url }
+    onChange(next)
+  }
+
+  const updateLabel = (idx: number, label: string | null) => {
+    const next = [...variants]
+    next[idx] = { ...next[idx], colorLabel: label }
+    onChange(next)
+  }
+
+  const handleFileUpload = async (idx: number, file: File) => {
+    setUploading(idx)
+    try {
+      const res = await uploadFn(file)
+      updateUrl(idx, res.url)
+    } catch {
+      alert("Erreur lors de l'envoi de l'image.")
+    } finally {
+      setUploading(null)
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <label className="text-xs uppercase tracking-wider text-[#C17D59] font-bold flex items-center gap-2">
+          <Palette className="size-3.5" />
+          Variantes en images (Couleur ou Dimension)
+        </label>
+        <button
+          type="button"
+          onClick={addVariant}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E8DCCB]/20 border border-[#E8DCCB]/40 text-[#C17D59] text-xs font-semibold hover:bg-[#E8DCCB]/30 transition-colors"
+        >
+          <Plus className="size-3.5" /> Ajouter une photo (Vue ou Variante)
+        </button>
+      </div>
+
+      {variants.length === 0 && (
+        <p className="text-xs text-muted-foreground bg-secondary/30 rounded-lg p-3 border border-border border-dashed text-center">
+          Ajoutez au moins une variante. La première sera marquée comme « Original » (photo réelle de l'atelier).
+        </p>
+      )}
+
+      <div className="space-y-3">
+        {variants.map((v, idx) => {
+          const isFirstOriginal = idx === 0
+          const isOriginal = v.colorLabel === 'Original' || v.colorLabel === null
+          const isCustom = v.colorLabel && !ALL_PRESETS.slice(0, -1).some(p => p.label === v.colorLabel)
+
+          return (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`relative rounded-xl border p-4 space-y-3 ${
+                isOriginal
+                  ? 'border-emerald-500/30 bg-emerald-500/5'
+                  : 'border-violet-500/20 bg-violet-500/5'
+              }`}
+            >
+              {/* Variant header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {isFirstOriginal ? (
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                      <CheckCircle2 className="size-3.5" /> Photo Principale
+                    </span>
+                  ) : isOriginal ? (
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-400/80">
+                      <CheckCircle2 className="size-3.5" /> Vue additionnelle (Même modèle)
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-violet-400">
+                      <Bot className="size-3.5" /> Variante (Couleur / IA)
+                    </span>
+                  )}
+                </div>
+                {!isFirstOriginal && (
+                  <button
+                    type="button"
+                    onClick={() => removeVariant(idx)}
+                    className="p-1 text-red-400/60 hover:text-red-400 transition-colors"
+                  >
+                    <X className="size-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Image URL + Upload */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="URL de l'image ou télécharger →"
+                  value={v.imageUrl}
+                  onChange={e => updateUrl(idx, e.target.value)}
+                  className="flex-1 bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-2.5 text-xs text-foreground outline-none"
+                />
+                <label className="inline-flex items-center gap-1.5 bg-secondary/70 hover:bg-[#E8DCCB]/20 border border-border hover:border-[#E8DCCB]/40 text-[#C17D59] px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors shrink-0">
+                  <Upload className="size-3.5" />
+                  {uploading === idx ? '...' : 'Photo'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={e => e.target.files?.[0] && handleFileUpload(idx, e.target.files[0])}
+                  />
+                </label>
+              </div>
+
+              {/* Image preview */}
+              {v.imageUrl && (
+                <div className="relative h-24 w-full rounded-lg overflow-hidden bg-secondary/50 border border-border">
+                  <img src={v.imageUrl} alt="" className="size-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                </div>
+              )}
+
+              {/* Color label picker */}
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+                  Lier cette photo à une variante :
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {ALL_PRESETS.map(preset => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => {
+                        if (preset.label === 'Autre…') {
+                          updateLabel(idx, customLabels[idx] || '')
+                        } else {
+                          updateLabel(idx, preset.label === 'Original' ? null : preset.label)
+                        }
+                      }}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[10px] font-semibold transition-all ${
+                          (v.colorLabel === preset.label || (v.colorLabel === null && preset.label === 'Original') || (preset.label === 'Autre…' && isCustom))
+                            ? 'border-violet-400 bg-violet-500/20 text-violet-300'
+                            : 'border-border text-muted-foreground hover:border-violet-400/50 hover:text-violet-300'
+                        }`}
+                      >
+                        {preset.hex && preset.label !== 'Original' && (
+                          <div className="size-3 rounded-full border border-white/20" style={{ backgroundColor: preset.hex }} />
+                        )}
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                  {isCustom && (
+                    <input
+                      type="text"
+                      placeholder="Tapez le nom de la couleur/taille..."
+                      value={v.colorLabel || ''}
+                      onChange={e => {
+                        const val = e.target.value
+                        setCustomLabels(prev => ({ ...prev, [idx]: val }))
+                        updateLabel(idx, val)
+                      }}
+                      className="mt-3 w-full bg-secondary/50 border border-violet-500/30 focus:border-violet-400/60 rounded-lg p-2.5 text-xs text-foreground outline-none"
+                    />
+                  )}
+                  {v.colorLabel && (
+                    <p className="mt-1.5 text-[10px] text-violet-400">
+                      ✓ Le client verra ce bouton : <strong>"{v.colorLabel}"</strong>
+                    </p>
+                  )}
+                </div>
+            </motion.div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 export default function AdminCataloguePage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -16,6 +238,13 @@ export default function AdminCataloguePage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 
+  // Search & Filters
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterCategory, setFilterCategory] = useState('Tout')
+  
+  // Bulk Selection
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
+
   // Form fields
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -25,9 +254,7 @@ export default function AdminCataloguePage() {
   const [color, setColor] = useState('')
   const [price, setPrice] = useState('')
   const [availability, setAvailability] = useState('Disponible')
-  const [imageUrls, setImageUrls] = useState<string[]>([])
-  const [uploading, setUploading] = useState(false)
-  const [isAiGenerated, setIsAiGenerated] = useState(false)
+  const [imageVariants, setImageVariants] = useState<ImageVariant[]>([])
 
   useEffect(() => { loadData() }, [])
 
@@ -52,7 +279,7 @@ export default function AdminCataloguePage() {
     setEditingProduct(null)
     setName(''); setDescription(''); setCategoryId(categories[0]?.id.toString() || '')
     setDimensions(''); setMaterials(''); setColor(''); setPrice('')
-    setAvailability('Disponible'); setImageUrls([]); setIsAiGenerated(false)
+    setAvailability('Disponible'); setImageVariants([{ imageUrl: '', colorLabel: 'Original' }])
     setModalOpen(true)
   }
 
@@ -63,8 +290,11 @@ export default function AdminCataloguePage() {
     setMaterials(product.materials || ''); setColor(product.color || '')
     setPrice(product.price ? product.price.toString() : '')
     setAvailability(product.availability || 'Disponible')
-    setImageUrls(product.images.map(img => img.imageUrl))
-    setIsAiGenerated(false)
+    const variants: ImageVariant[] = product.images.map((img, i) => ({
+      imageUrl: img.imageUrl,
+      colorLabel: img.colorLabel ?? (i === 0 ? 'Original' : null),
+    }))
+    setImageVariants(variants.length > 0 ? variants : [{ imageUrl: '', colorLabel: 'Original' }])
     setModalOpen(true)
   }
 
@@ -78,17 +308,48 @@ export default function AdminCataloguePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (imageVariants.length === 0 || !imageVariants[0].imageUrl) {
+      alert("Veuillez ajouter au moins une photo originale du produit.")
+      return
+    }
+
     const payload: ProductRequest = {
       name, description, categoryId: parseInt(categoryId), dimensions, materials,
       color, price: price === '' ? null : parseFloat(price), availability,
       type: 'CATALOGUE', isFeatured: false,
-      imageUrls: imageUrls.length > 0 ? imageUrls : ['/placeholder.png'],
+      imageVariants: imageVariants.filter(v => v.imageUrl.trim() !== ''),
     }
     try {
       if (editingProduct) await adminApi.updateProduct(editingProduct.id, payload)
       else await adminApi.createProduct(payload)
       setModalOpen(false); loadData()
     } catch (err: any) { alert(err.message || "Erreur d'enregistrement.") }
+  }
+
+  const filteredProducts = products.filter(p => {
+    const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchCat = filterCategory === 'Tout' || p.category?.name === filterCategory
+    return matchSearch && matchCat
+  })
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredProducts.length && filteredProducts.length > 0) setSelectedIds([])
+    else setSelectedIds(filteredProducts.map(p => p.id))
+  }
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`Supprimer ${selectedIds.length} modèles du catalogue ?`)) return
+    try {
+       for (const id of selectedIds) {
+         await adminApi.deleteProduct(id)
+       }
+       setProducts(products.filter(p => !selectedIds.includes(p.id)))
+       setSelectedIds([])
+    } catch(err: any) { alert("Erreur lors de la suppression en masse.") }
   }
 
   if (loading && products.length === 0) {
@@ -128,6 +389,43 @@ export default function AdminCataloguePage() {
         <div className="p-4 rounded-xl bg-red-950/20 border border-red-500/25 text-red-400 text-sm">{error}</div>
       )}
 
+      {/* Filters & Search */}
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-[#FAF7F2]/80 p-4 rounded-2xl border border-[#E8DCCB]/20 shadow-sm backdrop-blur-md">
+        <div className="flex flex-col sm:flex-row flex-1 items-center gap-3 w-full md:w-auto">
+          <div className="relative flex-1 w-full max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#8C7A6B]" />
+            <input 
+              type="text" 
+              placeholder="Rechercher un modèle..." 
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full bg-white border border-[#E8DCCB]/50 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-[#C17D59] transition-colors"
+            />
+          </div>
+          <select 
+            value={filterCategory}
+            onChange={e => setFilterCategory(e.target.value)}
+            className="w-full sm:w-auto bg-white border border-[#E8DCCB]/50 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#C17D59] text-[#5A453A] font-medium"
+          >
+            <option value="Tout">Toutes les catégories</option>
+            {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+          </select>
+        </div>
+        
+        {/* Bulk Actions Indicator */}
+        <div className="flex items-center gap-3 text-sm font-medium w-full md:w-auto justify-end">
+          <label className="flex items-center gap-2 cursor-pointer text-[#5A453A] bg-white border border-[#E8DCCB]/40 px-3 py-1.5 rounded-full hover:bg-[#E8DCCB]/10 transition-colors">
+            <input 
+              type="checkbox" 
+              className="rounded text-[#C17D59] focus:ring-[#C17D59] border-[#E8DCCB] size-4 cursor-pointer" 
+              checked={selectedIds.length > 0 && selectedIds.length === filteredProducts.length} 
+              onChange={toggleSelectAll} 
+            />
+            Sélectionner la page
+          </label>
+        </div>
+      </div>
+
       {/* Grid of catalogue items */}
       <motion.div
         className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
@@ -135,13 +433,13 @@ export default function AdminCataloguePage() {
         animate="visible"
         variants={{ visible: { transition: { staggerChildren: 0.07 } }, hidden: {} }}
       >
-        {products.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <div className="col-span-3 flex flex-col items-center justify-center py-16 bg-[#FAF7F2]/50 backdrop-blur-md border border-[#E8DCCB]/10 rounded-2xl text-[#3A2A21]/40">
             <Bot className="size-10 mb-3 opacity-20" />
             <p>Aucun modèle dans le catalogue d&apos;inspiration.</p>
           </div>
         ) : (
-          products.map((product) => {
+          filteredProducts.map((product) => {
             const image = product.images?.[0]?.imageUrl || '/placeholder.png'
             return (
               <motion.article
@@ -150,8 +448,18 @@ export default function AdminCataloguePage() {
                   hidden: { opacity: 0, y: 20 },
                   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
                 }}
-                className="group bg-[#FAF7F2]/50 backdrop-blur-md border border-[#E8DCCB]/10 rounded-2xl overflow-hidden shadow-lg hover:shadow-gold/5 transition-all duration-300 hover:-translate-y-1"
+                className={`group bg-[#FAF7F2]/50 backdrop-blur-md border rounded-2xl overflow-hidden shadow-lg hover:shadow-gold/5 transition-all duration-300 hover:-translate-y-1 relative ${selectedIds.includes(product.id) ? 'border-[#C17D59] ring-1 ring-[#C17D59]' : 'border-[#E8DCCB]/10'}`}
               >
+                {/* Bulk Select Checkbox */}
+                <div className="absolute top-3 right-3 z-20">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedIds.includes(product.id)}
+                    onChange={() => toggleSelect(product.id)}
+                    className="size-5 rounded border-white/60 bg-black/20 text-[#C17D59] focus:ring-[#C17D59] focus:ring-offset-0 cursor-pointer shadow-sm backdrop-blur-md border-2 checked:border-none"
+                  />
+                </div>
+
                 <div className="relative h-48 overflow-hidden bg-white/40">
                   <img src={image} alt={product.name} className="size-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a1512] via-transparent to-transparent opacity-80" />
@@ -169,12 +477,19 @@ export default function AdminCataloguePage() {
                   </div>
                   <p className="mt-2 text-xs text-[#3A2A21]/60 line-clamp-2">{product.description}</p>
                   <div className="mt-4 flex items-center gap-3 text-xs text-[#3A2A21]/50 font-medium">
-                    {product.color && (
-                      <span className="flex items-center gap-1.5">
-                        <span className="size-2.5 rounded-full shadow-inner" style={{ backgroundColor: product.color.toLowerCase() === 'noyer' ? '#5C3317' : product.color.toLowerCase() === 'or' ? '#C9A84C' : product.color.toLowerCase() === 'bleu' ? '#2D5F8A' : '#C4A882' }} />
-                        {product.color}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      <div className="size-2 rounded-full bg-emerald-500/20 border border-emerald-400/40" title="Original" />
+                      {product.images.filter(img => img.colorLabel && img.colorLabel !== 'Original').slice(0, 3).map((img, i) => (
+                        <div
+                          key={i}
+                          className="size-2.5 rounded-full border border-violet-400/30 bg-violet-500/20 flex items-center justify-center"
+                          title={img.colorLabel || ''}
+                        />
+                      ))}
+                      {product.images.filter(img => img.colorLabel && img.colorLabel !== 'Original').length > 3 && (
+                        <span className="text-[10px] text-muted-foreground">+{product.images.filter(img => img.colorLabel && img.colorLabel !== 'Original').length - 3}</span>
+                      )}
+                    </div>
                     {product.dimensions && <span>{product.dimensions}</span>}
                   </div>
                   <div className="mt-5 flex items-center justify-end gap-2 border-t border-[#E8DCCB]/10 pt-4 opacity-70 group-hover:opacity-100 transition-opacity">
@@ -194,6 +509,22 @@ export default function AdminCataloguePage() {
           })
         )}
       </motion.div>
+
+      {/* Floating Action Bar for Bulk */}
+      {selectedIds.length > 0 && (
+        <motion.div 
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-[#3A2A21] text-white px-6 py-3 rounded-full shadow-2xl border border-[#5A453A]"
+        >
+          <span className="text-sm font-semibold">{selectedIds.length} sélectionné(s)</span>
+          <div className="w-px h-5 bg-[#5A453A]" />
+          <button onClick={handleBulkDelete} className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors font-medium">
+            <Trash2 className="size-4" /> Supprimer
+          </button>
+        </motion.div>
+      )}
 
       {/* Modal */}
       {modalOpen && (
@@ -227,11 +558,40 @@ export default function AdminCataloguePage() {
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Matériaux</label>
                   <input type="text" placeholder="Ex: Noyer massif" value={materials} onChange={e => setMaterials(e.target.value)} className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Couleur</label>
-                  <select value={color} onChange={e => setColor(e.target.value)} className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none">
-                    {['Noyer', 'Bleu', 'Or', 'Naturel', 'Blanc Cérusé', 'Vert Olivier', 'Bordeaux'].map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                <div className="space-y-3">
+                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Couleur de l'Original (Principale)</label>
+                  <div className="flex flex-wrap gap-2">
+                    {COLOR_PRESETS.filter(p => p.label !== 'Original').map(preset => {
+                      const isCustom = color && !COLOR_PRESETS.slice(0, -1).some(p => p.label === color)
+                      const isSelected = color === preset.label || (preset.label === 'Autre…' && isCustom)
+                      return (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          onClick={() => {
+                            if (preset.label === 'Autre…') {
+                              setColor('') // Clear to show text input
+                            } else {
+                              setColor(preset.label)
+                            }
+                          }}
+                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-[10px] font-semibold transition-all ${
+                            isSelected
+                              ? 'border-emerald-400 bg-emerald-500/20 text-emerald-400'
+                              : 'border-border text-muted-foreground hover:border-emerald-400/50 hover:text-emerald-400'
+                          }`}
+                        >
+                          {preset.hex && (
+                            <div className="size-3 rounded-full border border-white/20" style={{ backgroundColor: preset.hex }} />
+                          )}
+                          {preset.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  {(!color || !COLOR_PRESETS.slice(0, -1).some(p => p.label === color)) && (
+                    <input type="text" placeholder="Entrez la couleur exacte de l'original..." value={color} onChange={e => setColor(e.target.value)} className="w-full bg-secondary/50 border border-emerald-500/30 focus:border-emerald-400/60 rounded-lg p-2.5 text-xs text-foreground outline-none" />
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Dimensions</label>
@@ -246,21 +606,17 @@ export default function AdminCataloguePage() {
                 <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Description</label>
                 <textarea rows={3} placeholder="Présentation du modèle..." value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
               </div>
-              <MultiImageUploader
-                label="Images du modèle"
-                imageUrls={imageUrls}
-                onAdd={(url) => setImageUrls(prev => [...prev, url])}
-                onRemove={(index) => setImageUrls(prev => prev.filter((_, i) => i !== index))}
-                uploading={uploading}
-                setUploading={setUploading}
-                uploadFn={adminApi.uploadProductImage}
-              />
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-[#E8DCCB]/5 border border-[#E8DCCB]/10">
-                <input type="checkbox" id="aiCheck" checked={isAiGenerated} onChange={e => setIsAiGenerated(e.target.checked)} className="size-4 rounded" />
-                <label htmlFor="aiCheck" className="text-xs text-foreground cursor-pointer flex items-center gap-2">
-                  <Bot className="size-4 text-[#C17D59]" />
-                  Ce modèle est généré / illustré par IA
-                </label>
+              <div className="rounded-xl border border-[#E8DCCB]/20 bg-secondary/20 p-4">
+                <ImageVariantManager
+                  variants={imageVariants}
+                  onChange={setImageVariants}
+                  uploadFn={adminApi.uploadProductImage}
+                />
+                <div className="mt-4 p-3 rounded-lg bg-blue-500/5 border border-blue-400/20 text-xs text-blue-300 space-y-1">
+                  <p><strong>🟢 1ère image</strong> = Photo originale (réelle, fabriquée dans l'atelier)</p>
+                  <p><strong>✨ Images suivantes</strong> = Variantes IA (le client peut voir les couleurs ou dimensions en image)</p>
+                  <p>Le client verra des boutons avec le nom de chaque variante (ex: Bleu, ou Grand) que vous avez défini.</p>
+                </div>
               </div>
               <footer className="pt-4 border-t border-border flex items-center justify-end gap-3">
                 <button type="button" onClick={() => setModalOpen(false)} className="rounded-full border border-border px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-foreground hover:bg-secondary/40 transition-all">

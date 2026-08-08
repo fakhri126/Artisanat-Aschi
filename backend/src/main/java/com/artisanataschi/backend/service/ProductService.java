@@ -67,17 +67,8 @@ public class ProductService {
         product.setIsFeatured(request.getIsFeatured() != null ? request.getIsFeatured() : false);
         product.setCategory(category);
 
-        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
-            List<ProductImage> images = new ArrayList<>();
-            for (int i = 0; i < request.getImageUrls().size(); i++) {
-                ProductImage pi = new ProductImage();
-                pi.setProduct(product);
-                pi.setImageUrl(request.getImageUrls().get(i));
-                pi.setIsPrimary(i == 0);
-                images.add(pi);
-            }
-            product.setImages(images);
-        }
+        List<ProductImage> images = buildImages(request, product);
+        product.setImages(images);
 
         return productRepository.save(product);
     }
@@ -100,17 +91,39 @@ public class ProductService {
         product.setCategory(category);
 
         product.getImages().clear();
-        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+        List<ProductImage> images = buildImages(request, product);
+        product.getImages().addAll(images);
+
+        return productRepository.save(product);
+    }
+
+    private List<ProductImage> buildImages(ProductRequest request, Product product) {
+        List<ProductImage> images = new ArrayList<>();
+
+        if (request.getImageVariants() != null && !request.getImageVariants().isEmpty()) {
+            // New structured variants
+            for (int i = 0; i < request.getImageVariants().size(); i++) {
+                ProductRequest.ImageVariant variant = request.getImageVariants().get(i);
+                ProductImage pi = new ProductImage();
+                pi.setProduct(product);
+                pi.setImageUrl(variant.getImageUrl());
+                pi.setIsPrimary(i == 0);
+                pi.setColorLabel(variant.getColorLabel());
+                images.add(pi);
+            }
+        } else if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            // Legacy fallback
             for (int i = 0; i < request.getImageUrls().size(); i++) {
                 ProductImage pi = new ProductImage();
                 pi.setProduct(product);
                 pi.setImageUrl(request.getImageUrls().get(i));
                 pi.setIsPrimary(i == 0);
-                product.getImages().add(pi);
+                pi.setColorLabel(null);
+                images.add(pi);
             }
         }
 
-        return productRepository.save(product);
+        return images;
     }
 
     public void deleteProduct(Long id) {

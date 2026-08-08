@@ -6,47 +6,11 @@ import { Footer } from '@/components/site/footer'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { publicApi, Relooking } from '@/lib/api'
 import { Sparkles, ArrowRightLeft, Mail, Phone, Calendar, Hammer, Heart } from 'lucide-react'
 import { Reveal } from '@/components/site/reveal'
 
-const FILTER_CATEGORIES = [
-  { id: 'all', label: 'Tous les projets' },
-  { id: 'mobilier', label: 'Mobilier d\'Art' },
-  { id: 'miroir', label: 'Miroirs & Cadres' },
-  { id: 'porte', label: 'Portes & Sculptures' }
-]
-
-const ITEMS = [
-  {
-    id: 1,
-    title: 'Commode de Style Louis XVI',
-    category: 'mobilier',
-    description: 'Restauration complète d\'une commode en placage de noyer desséchée. Décapage de l\'ancien vernis craquelé, comblement des fentes, traitement curatif du bois et application d\'un vernis au tampon traditionnel pour raviver les contrastes naturels du veinage.',
-    beforeImage: '/relooking-before.jpg',
-    afterImage: '/relooking-after.jpg',
-    steps: ['Décapage & Nettoyage', 'Traitement fongicide', 'Vernissage traditionnel au tampon']
-  },
-  {
-    id: 2,
-    title: 'Cadre de Miroir Ottoman',
-    category: 'miroir',
-    description: 'Reconstitution des ornements sculptés endommagés sur un cadre en bois doré d\'époque. Moulage des détails manquants, consolidation structurelle, et application d\'une nouvelle dorure fine à la feuille d\'or avec patine ancienne.',
-    beforeImage: '/mirror-before.jpg',
-    afterImage: '/mirror-after.jpg',
-    steps: ['Moulage d\'ornements', 'Dorure fine à la feuille d\'or', 'Patine de vieillissement']
-  },
-  {
-    id: 3,
-    title: 'Porte d\'Entrée de Demeure',
-    category: 'porte',
-    description: 'Rénovation esthétique et protectrice d\'une porte d\'entrée en bois massif exposée aux intempéries et blanchie par le soleil. Ponçage en profondeur, recollage des assemblages disjoints, teinte chaude protectrice et finitions hydrofuges huilées.',
-    beforeImage: '/door-before.jpg',
-    afterImage: '/door-after.jpg',
-    steps: ['Ponçage & Gommage', 'Recollage des assemblages', 'Application d\'huile protectrice']
-  }
-]
-
-function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
+function BeforeAfterItem({ item }: { item: Relooking }) {
   const [sliderPosition, setSliderPosition] = useState(50) // 0 to 100
   const [isDragging, setIsDragging] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -96,7 +60,7 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
       >
         {/* BEFORE image (Left/Background) */}
         <Image
-          src={item.beforeImage}
+          src={item.imageAvantUrl || '/relooking-before.jpg'}
           alt={`${item.title} - Avant`}
           fill
           className="object-cover animate-fade-in"
@@ -115,7 +79,7 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
           }}
         >
           <Image
-            src={item.afterImage}
+            src={item.imageApresUrl || '/relooking-after.jpg'}
             alt={`${item.title} - Après`}
             fill
             className="object-cover"
@@ -141,8 +105,8 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
       {/* Description Area */}
       <div className="flex flex-col justify-between items-start text-left flex-1 py-1">
         <div className="space-y-4">
-          <span className="text-[10px] uppercase tracking-widest text-[#C17D59]/80 font-semibold bg-[#E8DCCB]/10 px-3 py-1 rounded-full border border-[#E8DCCB]/15">
-            {FILTER_CATEGORIES.find(c => c.id === item.category)?.label || item.category}
+          <span className="text-[10px] uppercase tracking-widest text-white font-bold bg-[#C17D59] px-3 py-1 rounded-full shadow-sm border border-[#C17D59]/50">
+            {item.category || 'Général'}
           </span>
           
           <h3 className="font-heading text-2xl sm:text-3xl text-white font-medium">
@@ -154,20 +118,6 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
           </p>
         </div>
 
-        {/* Restoration Steps */}
-        <div className="mt-6 space-y-2.5 w-full">
-          <h4 className="text-[10px] uppercase tracking-widest text-white/50 font-bold">Interventions Réalisées</h4>
-          <div className="flex flex-wrap gap-2">
-            {item.steps.map((step, idx) => (
-              <span
-                key={idx}
-                className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider text-[#3A2A21]/80 font-medium"
-              >
-                {step}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   )
@@ -175,10 +125,43 @@ function BeforeAfterItem({ item }: { item: typeof ITEMS[0] }) {
 
 export default function RelookingPage() {
   const [filter, setFilter] = useState('all')
+  const [items, setItems] = useState<Relooking[]>([])
+  const [categories, setCategories] = useState<{id: string, label: string}[]>([{ id: 'all', label: 'Tous les projets' }])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadRelookings() {
+      try {
+        setLoading(true)
+        const data = await publicApi.getRelookings()
+        setItems(data || [])
+        
+        // Extract unique categories
+        const uniqueCats = new Set<string>()
+        data?.forEach((item: Relooking) => {
+          if (item.category) {
+            uniqueCats.add(item.category)
+          }
+        })
+        
+        const catArray = Array.from(uniqueCats).map(cat => ({
+          id: cat,
+          label: cat
+        }))
+        
+        setCategories([{ id: 'all', label: 'Tous les projets' }, ...catArray])
+      } catch (err) {
+        console.error("Failed to load relookings", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadRelookings()
+  }, [])
 
   const filteredItems = filter === 'all' 
-    ? ITEMS 
-    : ITEMS.filter(item => item.category === filter)
+    ? items 
+    : items.filter(item => item.category === filter)
 
   return (
     <main className="min-h-screen flex flex-col  text-[#3A2A21]">
@@ -202,7 +185,7 @@ export default function RelookingPage() {
         {/* Filter Bar */}
         <Reveal delay={100} className="w-full flex justify-center mb-12 overflow-x-auto pb-3 scrollbar-thin">
           <div className="flex gap-2 p-1.5 rounded-full bg-stone-950/40 border border-[#E8DCCB]/15 backdrop-blur-sm shrink-0">
-            {FILTER_CATEGORIES.map((cat) => {
+            {categories.map((cat) => {
               const isActive = filter === cat.id
               return (
                 <button
@@ -224,7 +207,17 @@ export default function RelookingPage() {
         {/* Before/After list */}
         <div className="w-full flex flex-col gap-12 mb-20">
           <AnimatePresence mode="wait">
-            {filteredItems.length === 0 ? (
+            {loading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center py-16 text-[#3A2A21]/50"
+              >
+                Chargement des projets...
+              </motion.div>
+            ) : filteredItems.length === 0 ? (
               <motion.div
                 key="empty"
                 initial={{ opacity: 0 }}

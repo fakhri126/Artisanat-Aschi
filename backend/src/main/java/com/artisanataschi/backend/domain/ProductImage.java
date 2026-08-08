@@ -21,6 +21,10 @@ public class ProductImage {
 
     private Boolean isPrimary = false;
 
+    // null = not a color variant. "Original" = the real atelier photo. Other values = IA variant label.
+    @Column(nullable = true)
+    private String colorLabel;
+
     public ProductImage() {
     }
 
@@ -29,6 +33,7 @@ public class ProductImage {
         this.product = product;
         this.imageUrl = imageUrl;
         this.isPrimary = isPrimary;
+        this.colorLabel = null;
     }
 
     public Long getId() {
@@ -61,5 +66,13 @@ public class ProductImage {
 
     public void setIsPrimary(Boolean isPrimary) {
         this.isPrimary = isPrimary;
+    }
+
+    public String getColorLabel() {
+        return colorLabel;
+    }
+
+    public void setColorLabel(String colorLabel) {
+        this.colorLabel = colorLabel;
     }
 }

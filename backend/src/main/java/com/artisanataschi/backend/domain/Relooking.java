@@ -24,6 +24,9 @@ public class Relooking {
     @Column(name = "image_apres_url", nullable = false)
     private String imageApresUrl;
 
+    @Column(name = "category")
+    private String category = "Général";
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdDate;
@@ -31,12 +34,13 @@ public class Relooking {
     public Relooking() {
     }
 
-    public Relooking(Long id, String title, String description, String imageAvantUrl, String imageApresUrl, LocalDateTime createdDate) {
+    public Relooking(Long id, String title, String description, String imageAvantUrl, String imageApresUrl, String category, LocalDateTime createdDate) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.imageAvantUrl = imageAvantUrl;
         this.imageApresUrl = imageApresUrl;
+        this.category = category != null ? category : "Général";
         this.createdDate = createdDate;
     }
 
@@ -78,6 +82,14 @@ public class Relooking {
 
     public void setImageApresUrl(String imageApresUrl) {
         this.imageApresUrl = imageApresUrl;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public LocalDateTime getCreatedDate() {

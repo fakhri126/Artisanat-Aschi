@@ -24,7 +24,24 @@ public class ProductRequest {
     private String type;
 
     private Boolean isFeatured = false;
+
+    // Legacy simple URLs (kept for backwards compat)
     private List<String> imageUrls;
+
+    // New: structured image variants with colorLabel
+    private List<ImageVariant> imageVariants;
+
+    // Inner DTO for image variants
+    public static class ImageVariant {
+        private String imageUrl;
+        // null = no color label, "Original" = real photo, other = IA variant label
+        private String colorLabel;
+
+        public String getImageUrl() { return imageUrl; }
+        public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+        public String getColorLabel() { return colorLabel; }
+        public void setColorLabel(String colorLabel) { this.colorLabel = colorLabel; }
+    }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -58,4 +75,7 @@ public class ProductRequest {
 
     public List<String> getImageUrls() { return imageUrls; }
     public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
+
+    public List<ImageVariant> getImageVariants() { return imageVariants; }
+    public void setImageVariants(List<ImageVariant> imageVariants) { this.imageVariants = imageVariants; }
 }

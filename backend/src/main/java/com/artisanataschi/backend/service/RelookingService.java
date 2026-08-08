@@ -27,6 +27,7 @@ public class RelookingService {
 
         relooking.setTitle(relookingDetails.getTitle());
         relooking.setDescription(relookingDetails.getDescription());
+        relooking.setCategory(relookingDetails.getCategory());
         relooking.setImageAvantUrl(relookingDetails.getImageAvantUrl());
         relooking.setImageApresUrl(relookingDetails.getImageApresUrl());
 

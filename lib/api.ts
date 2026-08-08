@@ -12,6 +12,7 @@ export interface ProductImage {
   id: number;
   imageUrl: string;
   isPrimary: boolean;
+  colorLabel: string | null; // null = no variant, 'Original' = real photo, other = IA variant name
 }
 
 export interface Product {
@@ -53,6 +54,7 @@ export interface Relooking {
   description: string;
   imageAvantUrl: string;
   imageApresUrl: string;
+  category: string;
   createdDate: string;
 }
 
@@ -100,6 +102,11 @@ export interface LoginResponse {
   role: string;
 }
 
+export interface ImageVariant {
+  imageUrl: string;
+  colorLabel: string | null; // 'Original' | 'Bleu Cérusé' | 'Doré' | etc.
+}
+
 export interface ProductRequest {
   name: string;
   description: string;
@@ -111,7 +118,8 @@ export interface ProductRequest {
   availability: string;
   type: 'PIECE_UNIQUE' | 'REPRODUCTIBLE' | 'CATALOGUE';
   isFeatured: boolean;
-  imageUrls: string[];
+  imageUrls?: string[];         // legacy fallback
+  imageVariants?: ImageVariant[]; // new: structured variants with colorLabel
 }
 
 // --- Auth Helper ---
@@ -179,6 +187,19 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   return response.json() as Promise<T>;
 }
 
+export function parseProduct(product: Product): Product {
+  if (product && product.images && Array.isArray(product.images)) {
+    product.images = product.images.map(img => {
+      if (img.imageUrl && img.imageUrl.includes('#color=')) {
+        const [url, colorPart] = img.imageUrl.split('#color=');
+        return { ...img, imageUrl: url, colorLabel: decodeURIComponent(colorPart) };
+      }
+      return img;
+    });
+  }
+  return product;
+}
+
 // --- Public Endpoints ---
 
 export const publicApi = {
@@ -190,19 +211,23 @@ export const publicApi = {
       });
     }
     const queryString = query.toString();
-    return fetchApi<Product[]>(`/public/products${queryString ? '?' + queryString : ''}`);
+    return fetchApi<Product[]>(`/public/products${queryString ? '?' + queryString : ''}`)
+      .then(res => res.map(parseProduct));
   },
   
   getFeaturedProducts: () => {
-    return fetchApi<Product[]>('/public/products/featured');
+    return fetchApi<Product[]>('/public/products/featured')
+      .then(res => res.map(parseProduct));
   },
   
   getProductById: (id: number) => {
-    return fetchApi<Product>(`/public/products/${id}`);
+    return fetchApi<Product>(`/public/products/${id}`)
+      .then(parseProduct);
   },
   
   getLatestProducts: () => {
-    return fetchApi<Product[]>('/public/products/latest');
+    return fetchApi<Product[]>('/public/products/latest')
+      .then(res => res.map(parseProduct));
   },
   
   getCategories: () => {
@@ -298,15 +323,25 @@ export const adminApi = {
   }),
 
   // Products CRUD
-  getProducts: () => fetchApi<Product[]>('/public/products'),
-  createProduct: (data: ProductRequest) => fetchApi<Product>('/admin/products', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-  updateProduct: (id: number, data: ProductRequest) => fetchApi<Product>(`/admin/products/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
+  getProducts: () => fetchApi<Product[]>('/public/products').then(res => res.map(parseProduct)),
+  createProduct: (data: ProductRequest) => {
+    if (data.imageVariants && data.imageVariants.length > 0) {
+      data.imageUrls = data.imageVariants.map(v => `${v.imageUrl}#color=${encodeURIComponent(v.colorLabel || 'Original')}`);
+    }
+    return fetchApi<Product>('/admin/products', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }).then(parseProduct);
+  },
+  updateProduct: (id: number, data: ProductRequest) => {
+    if (data.imageVariants && data.imageVariants.length > 0) {
+      data.imageUrls = data.imageVariants.map(v => `${v.imageUrl}#color=${encodeURIComponent(v.colorLabel || 'Original')}`);
+    }
+    return fetchApi<Product>(`/admin/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }).then(parseProduct);
+  },
   deleteProduct: (id: number) => fetchApi<void>(`/admin/products/${id}`, {
     method: 'DELETE',
   }),
