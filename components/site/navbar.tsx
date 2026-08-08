@@ -14,7 +14,6 @@ const LINKS = [
   { label: 'Créations', href: '/creations' },
   { label: 'Bijoux de Porte', href: '/bijoux-de-porte' },
   { label: 'Nos Services', isDropdown: true },
-  { label: 'Réalisations', href: '/realisations' },
   { label: 'Contact', href: '/contact' },
 ]
 
