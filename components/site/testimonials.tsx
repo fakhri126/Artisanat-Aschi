@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Play, X, Star } from 'lucide-react'
 import { publicApi, Testimonial } from '@/lib/api'
 import { BohoBand, BohoFan } from './boho-decor'
+import { useRandomHeroColor } from '@/hooks/use-random-hero-color'
 
 const MOCK_TESTIMONIALS = [
   {
@@ -67,6 +68,7 @@ function StarRating({ rating = 5 }: { rating?: number }) {
 }
 
 export function Testimonials() {
+  const { color: titleColor, isMounted: isHeroColorMounted } = useRandomHeroColor()
   const [testimonials, setTestimonials] = useState<any[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const [playing, setPlaying] = useState<any | null>(null)
@@ -120,28 +122,22 @@ export function Testimonials() {
   const active = testimonials[activeIndex]
 
   return (
-    <section id="temoignages" className="bg-transparent py-24 md:py-36 border-y border-[#D9CEB8] relative overflow-hidden">
-      {/* Decorative geometric lines inspired by sculptures */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-[#C17D59]/15 to-transparent" />
-        <div className="absolute right-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-[#C17D59]/15 to-transparent" />
-        <div className="absolute -left-40 top-1/4 size-96 rounded-full bg-[#C17D59]/5 blur-3xl" />
-        <div className="absolute -right-40 bottom-1/4 size-96 rounded-full bg-[#C8960C]/5 blur-3xl" />
-        
-        {/* Decorative elements behind reviews */}
-        <BohoBand className="absolute top-10 left-4 md:left-10 w-24 md:w-48 opacity-10 text-[#C17D59]" color="currentColor" delay={0.2} />
-        <BohoFan className="absolute bottom-10 right-4 md:right-20 w-32 md:w-56 opacity-10 text-[#3A7D50] rotate-[-25deg]" color="currentColor" delay={0.4} />
-      </div>
-
-      <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
+    <section id="temoignages" className="relative overflow-hidden py-24 md:py-36 border-y border-[#D9CEB8]">
+      <div 
+        className="absolute inset-0 z-0 opacity-60 brightness-50 pointer-events-none bg-[url('/images/bg-colorful-cabinet.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" 
+      />
+      <div className="relative mx-auto max-w-6xl px-5 sm:px-8 z-10">
         {/* Section Header */}
         <div className="mb-16 text-center">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-[#C17D59] font-semibold mb-4">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-white drop-shadow-[0_1px_2px_rgba(26,17,11,0.8)] font-semibold mb-4">
             ✦ Témoignages ✦
           </p>
-          <h2 className="font-heading text-4xl font-light text-[#3A2A1E] sm:text-5xl md:text-6xl leading-tight">
+          <h2 
+            className="font-heading text-4xl font-light drop-shadow-[0_2px_4px_rgba(26,17,11,0.8)] sm:text-5xl md:text-6xl leading-tight transition-colors duration-1000"
+            style={{ color: isHeroColorMounted ? titleColor : '#800020' }}
+          >
             La parole à ceux qui<br className="hidden sm:block" />
-            <span className="italic text-[#C17D59]">nous ont fait confiance</span>
+            <span className="italic" style={{ color: isHeroColorMounted ? titleColor : '#800020' }}>nous ont fait confiance</span>
           </h2>
           <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-[#C17D59]/50 to-transparent" />
         </div>

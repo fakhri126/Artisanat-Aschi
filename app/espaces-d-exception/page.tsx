@@ -365,6 +365,19 @@ export default function TurnkeyProjectsPage() {
     setIsPlaying(!isPlaying)
   }
 
+  // Auto-open project if specified in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const projectId = params.get('projectId')
+    if (projectId) {
+      const proj = PROJECTS.find(p => p.id === parseInt(projectId))
+      if (proj) {
+        handleOpenProject(proj)
+      }
+    }
+  }, [])
+
+  // Prevent scroll when modal is open
   useEffect(() => {
     if (selectedProject) {
       document.body.style.overflow = 'hidden'
@@ -377,24 +390,28 @@ export default function TurnkeyProjectsPage() {
   }, [selectedProject])
 
   return (
-    <main className="min-h-screen flex flex-col text-[#3A2A21]">
-      <Navbar />
-
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pt-32 pb-24 max-w-7xl mx-auto w-full">
-
-        {/* Page Header */}
-        <div className="text-center mb-16 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4">
-            <Briefcase className="size-3.5" /> Espaces d&apos;Exception
+    <main className="min-h-screen flex flex-col relative text-[#3A2A21] overflow-hidden">
+      {/* Unified Background */}
+      <div className="absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none bg-[url('/images/bg-espace-exception.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
+      <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
+      
+      <div className="relative z-10 flex flex-col min-h-screen w-full">
+        <Navbar />
+        
+        <div className="flex-1 flex flex-col items-center justify-center px-6 pt-32 pb-24 max-w-7xl mx-auto w-full">
+          {/* Page Header */}
+          <div className="text-center mb-16 max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4">
+              <Briefcase className="size-3.5" /> Espaces d&apos;Exception
+            </div>
+            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl text-white mb-6">
+              Espaces d&apos;Exception
+            </h1>
+            <p className="text-[#3A2A21]/70 text-base sm:text-lg leading-relaxed text-pretty font-light">
+              De l&apos;étude de plans à l&apos;installation finale, l&apos;Atelier Aschi prend en charge l&apos;habillage complet en menuiserie d&apos;art et le mobilier pour les hôtels, restaurants, maisons d&apos;hôtes de prestige et espaces de direction d&apos;entreprises.
+            </p>
           </div>
-          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl text-white mb-6">
-            Espaces d&apos;Exception
-          </h1>
-          <p className="text-[#3A2A21]/70 text-base sm:text-lg leading-relaxed text-pretty font-light">
-            De l&apos;étude de plans à l&apos;installation finale, l&apos;Atelier Aschi prend en charge l&apos;habillage complet en menuiserie d&apos;art et le mobilier pour les hôtels, restaurants, maisons d&apos;hôtes de prestige et espaces de direction d&apos;entreprises.
-          </p>
-        </div>
-
+          
         {/* Filter Bar */}
         <Reveal delay={100} className="w-full flex justify-center mb-16 overflow-x-auto pb-4 scrollbar-thin">
           <div className="flex gap-2 p-1.5 rounded-full bg-stone-950/40 border border-[#E8DCCB]/15 backdrop-blur-md shrink-0">
@@ -716,6 +733,7 @@ export default function TurnkeyProjectsPage() {
       </AnimatePresence>
 
       <Footer />
+      </div>
     </main>
   )
 }

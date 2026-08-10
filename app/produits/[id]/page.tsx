@@ -6,15 +6,13 @@ import { publicApi, Product } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { Navbar } from '@/components/site/navbar'
 import { Footer } from '@/components/site/footer'
-import { ArrowLeft, Ruler, Hammer, Sparkles, MessageCircle, AlertCircle, X, ShoppingCart, Bot, Palette, SquareStack, Send, CheckCircle2, Check } from 'lucide-react'
+import { ArrowLeft, Ruler, Hammer, Sparkles, MessageCircle, AlertCircle, X, ShoppingCart, Bot, Palette, SquareStack, Send, CheckCircle2, Check, ZoomIn, ZoomOut, RotateCcw, Move, Maximize2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
-
-// SIZES are dynamically generated inside the component based on category
 
 export default function ProductDetailPage({ params }: PageProps) {
   const resolvedParams = use(params)
@@ -26,6 +24,25 @@ export default function ProductDetailPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeImage, setActiveImage] = useState('')
+
+  // ── Interactive Loupe & Lightbox Zoom State ──────────────────────────────
+  const [showZoomLens, setShowZoomLens] = useState(false)
+  const [lensPos, setLensPos] = useState({ x: 0, y: 0 })
+  const [imgPercent, setImgPercent] = useState({ x: 50, y: 50 })
+  const [isFullscreenZoom, setIsFullscreenZoom] = useState(false)
+  const [modalZoomScale, setModalZoomScale] = useState(1)
+  const zoomContainerRef = useRef<HTMLDivElement>(null)
+
+  const handleZoomMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!zoomContainerRef.current) return
+    const rect = zoomContainerRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const px = Math.max(0, Math.min(100, (x / rect.width) * 100))
+    const py = Math.max(0, Math.min(100, (y / rect.height) * 100))
+    setLensPos({ x, y })
+    setImgPercent({ x: px, y: py })
+  }
 
   // Dynamically generate size options based on product category
   const isAIDimensionCategory = product ? ['buffet', 'tv', 'porte'].some(k => product.category?.name.toLowerCase().includes(k)) : false
@@ -309,17 +326,82 @@ export default function ProductDetailPage({ params }: PageProps) {
                 )}
               </div>
 
-              {/* Main image — real photo from admin */}
-              <div className="relative aspect-[4/5] bg-[#FAF7F2]/10 border border-border overflow-hidden rounded-2xl shadow-xl">
+              {/* Main image — real photo from admin with Interactive Loupe & Fullscreen Zoom */}
+              <div 
+                ref={zoomContainerRef}
+                onMouseEnter={() => setShowZoomLens(true)}
+                onMouseLeave={() => setShowZoomLens(false)}
+                onMouseMove={handleZoomMouseMove}
+                onClick={() => setIsFullscreenZoom(true)}
+                className="relative aspect-[4/5] bg-[#FAF7F2]/10 border border-border overflow-hidden rounded-2xl shadow-xl cursor-crosshair group select-none"
+              >
                 <motion.img
                   key={activeImage}
                   src={activeImage || '/placeholder.png'}
                   alt={product.name}
-                  className="size-full object-cover"
+                  className="size-full object-cover transition-transform duration-300"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.4 }}
                 />
+
+                {/* --- Interactive Loupe Lens (4x Ultra HD) --- */}
+                {showZoomLens && activeImage && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    style={{
+                      top: lensPos.y - 96,
+                      left: lensPos.x - 96,
+                      backgroundImage: `url(${activeImage})`,
+                      backgroundPosition: `${imgPercent.x}% ${imgPercent.y}%`,
+                      backgroundSize: '420%',
+                    }}
+                    className="pointer-events-none absolute size-48 rounded-full border-2 border-amber-400 shadow-[0_15px_40px_rgba(0,0,0,0.6)] z-30 bg-no-repeat overflow-hidden ring-4 ring-black/40"
+                  />
+                )}
+
+                {/* --- Shimmering Zoom Hint Badge --- */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-stone-950/85 backdrop-blur-md border border-[#E8DCCB]/30 text-white shadow-xl opacity-90 group-hover:opacity-100 transition-opacity">
+                  <Sparkles className="size-3.5 text-amber-300 animate-pulse" />
+                  <span className="text-[11px] font-medium tracking-wide text-amber-100">
+                    Survolez pour la loupe HD • Cliquez pour agrandir
+                  </span>
+                  <Maximize2 className="size-3.5 text-amber-200 ml-1" />
+                </div>
+
+                {/* Pro Image Navigation Arrows */}
+                {viewsForSelectedVariant.length > 1 && (
+                  <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-20">
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        const currentIdx = viewsForSelectedVariant.findIndex(v => v.imageUrl === activeImage)
+                        const prevIdx = currentIdx <= 0 ? viewsForSelectedVariant.length - 1 : currentIdx - 1
+                        setActiveImage(viewsForSelectedVariant[prevIdx].imageUrl)
+                      }}
+                      className="p-3.5 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+                      title="Vue précédente"
+                    >
+                      <ChevronLeft className="size-5 transition-transform group-hover/arrow:-translate-x-0.5" />
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        const currentIdx = viewsForSelectedVariant.findIndex(v => v.imageUrl === activeImage)
+                        const nextIdx = currentIdx >= viewsForSelectedVariant.length - 1 ? 0 : currentIdx + 1
+                        setActiveImage(viewsForSelectedVariant[nextIdx].imageUrl)
+                      }}
+                      className="p-3.5 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+                      title="Vue suivante"
+                    >
+                      <ChevronRight className="size-5 transition-transform group-hover/arrow:translate-x-0.5" />
+                    </button>
+                  </div>
+                )}
 
                 {/* IA watermark overlay when a variant is selected */}
                 <AnimatePresence>
@@ -328,7 +410,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-black/50 backdrop-blur-md rounded-full px-3 py-1.5 border border-violet-400/30"
+                      className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-black/60 backdrop-blur-md rounded-full px-3 py-1.5 border border-violet-400/30"
                     >
                       <Sparkles className="size-3.5 text-violet-400" />
                       <span className="text-[10px] text-violet-300 font-semibold uppercase tracking-wider">Variante IA</span>
@@ -337,21 +419,21 @@ export default function ProductDetailPage({ params }: PageProps) {
                 </AnimatePresence>
 
                 {product.type === 'PIECE_UNIQUE' && (
-                  <span className="absolute left-4 top-4 rounded-full bg-[#E8DCCB] px-4 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-walnut">
+                  <span className="absolute left-4 top-4 z-20 rounded-full bg-[#E8DCCB] px-4 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-walnut shadow-md">
                     Pièce unique
                   </span>
                 )}
               </div>
 
-              {/* Thumbnail strip — shows all views of the selected variant */}
+              {/* Thumbnail strip — shows all views of the selected variant without native scrollbars */}
               {viewsForSelectedVariant.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-3 overflow-x-auto pb-2 scroll-smooth scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {viewsForSelectedVariant.map((view, i) => (
                     <button
                       key={view.id}
                       onClick={() => setActiveImage(view.imageUrl)}
                       className={`relative size-20 border rounded-xl overflow-hidden shrink-0 transition-all ${
-                        activeImage === view.imageUrl ? 'border-[#E8DCCB] ring-2 ring-gold' : 'border-border opacity-60 hover:opacity-100'
+                        activeImage === view.imageUrl ? 'border-[#C17D59] ring-2 ring-[#C17D59]/40 opacity-100 scale-105 shadow-md' : 'border-border opacity-60 hover:opacity-100'
                       }`}
                       title={`${selectedVariant.label} - Vue ${i + 1}`}
                     >
@@ -738,6 +820,99 @@ export default function ProductDetailPage({ params }: PageProps) {
           </motion.div>
         </div>
       )}
+
+      {/* --- Fullscreen Lightbox HD Zoom Modal with Controls & Pan --- */}
+      <AnimatePresence>
+        {isFullscreenZoom && activeImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 select-none overflow-hidden"
+          >
+            {/* Top Toolbar */}
+            <div className="absolute top-6 inset-x-6 flex items-center justify-between z-50 pointer-events-none">
+              <div className="inline-flex items-center gap-2 bg-stone-900/90 backdrop-blur-md border border-[#E8DCCB]/30 text-amber-100 px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider shadow-2xl pointer-events-auto">
+                <Sparkles className="size-4 text-amber-300 animate-pulse" />
+                <span>Inspection Ultra-HD • {product?.name || 'Détails Artisanats'}</span>
+              </div>
+
+              {/* Controls */}
+              <div className="flex items-center gap-2 pointer-events-auto">
+                <button
+                  type="button"
+                  onClick={() => setModalZoomScale(s => Math.min(4, s + 0.5))}
+                  className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl"
+                  title="Zoomer +"
+                >
+                  <ZoomIn className="size-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalZoomScale(s => Math.max(1, s - 0.5))}
+                  className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl"
+                  title="Dézoomer -"
+                >
+                  <ZoomOut className="size-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalZoomScale(1)}
+                  className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl"
+                  title="Taille réelle (1x)"
+                >
+                  <RotateCcw className="size-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsFullscreenZoom(false)
+                    setModalZoomScale(1)
+                  }}
+                  className="p-3 rounded-full bg-white/15 hover:bg-red-500/80 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl ml-2"
+                  title="Fermer"
+                >
+                  <X className="size-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Draggable/Pannable Image Canvas */}
+            <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+              <motion.img
+                drag={modalZoomScale > 1}
+                dragConstraints={{ left: -600, right: 600, top: -400, bottom: 400 }}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: modalZoomScale, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                src={activeImage}
+                alt={product?.name || 'Zoom Produit HD'}
+                className={`max-w-full max-h-[82vh] object-contain rounded-2xl shadow-2xl border border-white/15 ${
+                  modalZoomScale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in'
+                }`}
+                onClick={() => {
+                  if (modalZoomScale === 1) setModalZoomScale(2)
+                  else if (modalZoomScale === 2) setModalZoomScale(3.5)
+                  else setModalZoomScale(1)
+                }}
+              />
+            </div>
+
+            {/* Bottom Hint */}
+            <div className="absolute bottom-6 inset-x-6 flex justify-center z-50 pointer-events-none">
+              <div className="inline-flex items-center gap-2 bg-black/75 backdrop-blur-md border border-white/20 text-white px-5 py-2.5 rounded-full text-xs font-medium tracking-wider shadow-2xl">
+                <Move className="size-3.5 text-amber-300" />
+                <span>
+                  {modalZoomScale > 1
+                    ? 'Glissez la souris pour vous déplacer dans les détails'
+                    : 'Cliquez sur l\'image ou utilisez les boutons en haut pour zoomer jusqu\'à 4x'}
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </>

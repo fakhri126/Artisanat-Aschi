@@ -7,7 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { publicApi, Relooking } from '@/lib/api'
-import { Sparkles, ArrowRightLeft, Mail, Phone, Calendar, Hammer, Heart } from 'lucide-react'
+import { Sparkles, ArrowRightLeft, Mail, Phone, Hammer } from 'lucide-react'
 import { Reveal } from '@/components/site/reveal'
 
 function BeforeAfterItem({ item }: { item: Relooking }) {
@@ -71,7 +71,7 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
           Avant
         </div>
 
-        {/* AFTER image (Overlay with clip-path, dynamically revealed from the right) */}
+        {/* AFTER image */}
         <div
           className="absolute inset-0 z-10 pointer-events-none"
           style={{
@@ -103,109 +103,98 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
       </div>
 
       {/* Description Area */}
-      <div className="flex flex-col justify-between items-start text-left flex-1 py-1">
+      <div className="flex flex-col justify-center items-start text-left flex-1 py-1">
         <div className="space-y-4">
-          <span className="text-[10px] uppercase tracking-widest text-white font-bold bg-[#C17D59] px-3 py-1 rounded-full shadow-sm border border-[#C17D59]/50">
-            {item.category || 'Général'}
-          </span>
+          {item.category && (
+            <span className="text-[10px] uppercase tracking-widest text-white font-bold bg-[#C17D59] px-3 py-1 rounded-full shadow-sm border border-[#C17D59]/50">
+              {item.category}
+            </span>
+          )}
           
           <h3 className="font-heading text-2xl sm:text-3xl text-white font-medium">
             {item.title}
           </h3>
           
-          <p className="text-sm font-light leading-relaxed text-[#3A2A21]/70 text-pretty">
+          <p className="text-sm font-light leading-relaxed text-[#D4B896] text-pretty">
             {item.description}
           </p>
         </div>
-
       </div>
     </div>
   )
 }
 
+const BackgroundOverlay = () => (
+  <>
+    <div className="absolute inset-0 z-0 opacity-80 brightness-75 pointer-events-none bg-[url('/images/bg-relooking.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
+    <div className="absolute inset-0 z-0 bg-black/40 pointer-events-none" />
+  </>
+);
+
+const STATIC_RELOOKINGS: Relooking[] = [
+  {
+    id: 1,
+    title: "Restauration & Patine d'Art sur Noyer Massif",
+    description: "Restauration complète d'un buffet d'époque : ponçage artisanal à la main, traitement conservateur du bois noble, application d'une patine dorée et restauration des gravures traditionnelles.",
+    imageAvantUrl: "/relooking-before.jpg",
+    imageApresUrl: "/relooking-after.jpg",
+    createdDate: new Date().toISOString()
+  },
+  {
+    id: 2,
+    title: "Mise en Teinte & Relooking d'une Armoire d'Apparat",
+    description: "Modernisation d'une pièce sculptée ancienne : rénovation de la structure en bois massif, égalisation du grain et application d'une finition ivoire patinée pour une parfaite harmonie dans un intérieur contemporain.",
+    imageAvantUrl: "/mirror-before.jpg",
+    imageApresUrl: "/mirror-after.jpg",
+    createdDate: new Date().toISOString()
+  }
+]
+
 export default function RelookingPage() {
-  const [filter, setFilter] = useState('all')
-  const [items, setItems] = useState<Relooking[]>([])
-  const [categories, setCategories] = useState<{id: string, label: string}[]>([{ id: 'all', label: 'Tous les projets' }])
+  const [items, setItems] = useState<Relooking[]>(STATIC_RELOOKINGS)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function loadRelookings() {
-      try {
-        setLoading(true)
-        const data = await publicApi.getRelookings()
-        setItems(data || [])
-        
-        // Extract unique categories
-        const uniqueCats = new Set<string>()
-        data?.forEach((item: Relooking) => {
-          if (item.category) {
-            uniqueCats.add(item.category)
-          }
-        })
-        
-        const catArray = Array.from(uniqueCats).map(cat => ({
-          id: cat,
-          label: cat
-        }))
-        
-        setCategories([{ id: 'all', label: 'Tous les projets' }, ...catArray])
-      } catch (err) {
-        console.error("Failed to load relookings", err)
-      } finally {
+    publicApi.getRelookings()
+      .then(data => {
+        if (data && data.length > 0) {
+          setItems(data)
+        }
+      })
+      .catch(err => {
+        console.error("Erreur de chargement des relookings, utilisation des données statiques", err)
+      })
+      .finally(() => {
         setLoading(false)
-      }
-    }
-    loadRelookings()
+      })
   }, [])
 
-  const filteredItems = filter === 'all' 
-    ? items 
-    : items.filter(item => item.category === filter)
-
   return (
-    <main className="min-h-screen flex flex-col  text-[#3A2A21]">
+    <main className="min-h-screen flex flex-col text-[#E8DCCB] overflow-x-hidden bg-[#1A1512]">
       <Navbar />
       
-      
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pt-32 pb-24 max-w-6xl mx-auto w-full">
-        {/* Page Header */}
-        <div className="text-center mb-16 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4">
-            <Sparkles className="size-3.5" /> Restauration d&apos;Art
+      {/* Header Section */}
+      <section className="relative w-full flex flex-col items-center justify-center px-6 pt-32 pb-16">
+        <BackgroundOverlay />
+        <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col items-center">
+          <div className="text-center mb-8 max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4">
+              <Sparkles className="size-3.5" /> Restauration d&apos;Art
+            </div>
+            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl text-white mb-6">
+              Relooking &amp; Restauration
+            </h1>
+            <p className="text-[#D4B896] text-base sm:text-lg leading-relaxed text-pretty font-light">
+              À l&apos;Atelier Aschi, nous croyons que chaque meuble ancien possède une âme. Nos ébénistes et sculpteurs restaurent, relaquent et subliment vos pièces de famille pour les adapter aux intérieurs contemporains les plus raffinés.
+            </p>
           </div>
-          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl text-white mb-6">
-            Relooking &amp; Restauration
-          </h1>
-          <p className="text-[#3A2A21]/70 text-base sm:text-lg leading-relaxed text-pretty font-light">
-            À l&apos;Atelier Aschi, nous croyons que chaque meuble ancien possède une âme. Nos ébénistes et sculpteurs restaurent, relaquent et subliment vos pièces de famille pour les adapter aux intérieurs contemporains les plus raffinés.
-          </p>
         </div>
+      </section>
 
-        {/* Filter Bar */}
-        <Reveal delay={100} className="w-full flex justify-center mb-12 overflow-x-auto pb-3 scrollbar-thin">
-          <div className="flex gap-2 p-1.5 rounded-full bg-stone-950/40 border border-[#E8DCCB]/15 backdrop-blur-sm shrink-0">
-            {categories.map((cat) => {
-              const isActive = filter === cat.id
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setFilter(cat.id)}
-                  className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs uppercase tracking-wider font-semibold transition-all duration-300 ${
-                    isActive
-                      ? 'bg-[#E8DCCB] text-walnut shadow-md'
-                      : 'text-[#3A2A21]/60 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              )
-            })}
-          </div>
-        </Reveal>
-
-        {/* Before/After list */}
-        <div className="w-full flex flex-col gap-12 mb-20">
+      {/* Projects Section */}
+      <section className="relative w-full flex flex-col items-center justify-center px-6 py-16 border-t border-[#E8DCCB]/10">
+        <BackgroundOverlay />
+        <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col gap-12">
           <AnimatePresence mode="wait">
             {loading ? (
               <motion.div
@@ -213,23 +202,23 @@ export default function RelookingPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center py-16 text-[#3A2A21]/50"
+                className="text-center py-16 text-[#D4B896]/70 animate-pulse"
               >
-                Chargement des projets...
+                Chargement de nos restaurations...
               </motion.div>
-            ) : filteredItems.length === 0 ? (
+            ) : items.length === 0 ? (
               <motion.div
                 key="empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center py-16 text-[#3A2A21]/50"
+                className="text-center py-16 text-[#D4B896]/70"
               >
-                Aucun projet de restauration trouvé pour cette catégorie.
+                Aucun projet de restauration trouvé.
               </motion.div>
             ) : (
               <div className="flex flex-col gap-10">
-                {filteredItems.map((item) => (
+                {items.map((item) => (
                   <motion.div
                     key={item.id}
                     layout
@@ -245,48 +234,57 @@ export default function RelookingPage() {
             )}
           </AnimatePresence>
         </div>
+      </section>
 
-        {/* Contact CTA Section */}
-        <Reveal delay={200} className="w-full">
-          <div className="w-full bg-gradient-to-b from-stone-950 to-stone-950/60 border border-[#E8DCCB]/25 rounded-3xl p-8 md:p-12 text-center shadow-2xl relative overflow-hidden flex flex-col items-center">
-            {/* Design accents */}
-            <div className="absolute -left-1/4 -top-1/2 w-1/2 h-full bg-[#E8DCCB]/5 blur-[120px] pointer-events-none" />
-            <div className="absolute -right-1/4 -bottom-1/2 w-1/2 h-full bg-[#E8DCCB]/5 blur-[120px] pointer-events-none" />
+      {/* Contact Section */}
+      <section className="relative w-full flex flex-col items-center justify-center px-6 py-24 border-t border-[#E8DCCB]/10">
+        <BackgroundOverlay />
+        <div className="relative z-10 w-full max-w-6xl mx-auto">
+          <Reveal delay={200} className="w-full">
+            <div className="w-full bg-gradient-to-b from-stone-950 to-stone-950/60 border border-[#E8DCCB]/25 rounded-3xl p-8 md:p-12 text-center shadow-2xl relative overflow-hidden flex flex-col items-center">
+              <div className="absolute -left-1/4 -top-1/2 w-1/2 h-full bg-[#E8DCCB]/5 blur-[120px] pointer-events-none" />
+              <div className="absolute -right-1/4 -bottom-1/2 w-1/2 h-full bg-[#E8DCCB]/5 blur-[120px] pointer-events-none" />
 
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/20 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-6">
-              <Hammer className="size-3.5" /> Donner vie à vos objets
-            </div>
-            
-            <h2 className="font-heading text-3xl sm:text-4xl text-white mb-4 max-w-2xl leading-tight">
-              Faites restaurer votre pièce de famille
-            </h2>
-            
-            <p className="text-[#3A2A21]/60 text-sm max-w-xl mb-8 leading-relaxed font-light text-pretty">
-              Qu&apos;il s&apos;agisse de restaurer à l&apos;identique ou de relooker pour intégrer dans un décor moderne, nos artisans étudient vos pièces sur photo ou en atelier.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link
-                href="/contact?subject=relooking"
-                className="inline-flex items-center gap-2.5 rounded-full bg-[#E8DCCB] px-7 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:scale-[1.03] shadow-[0_4px_15px_rgba(212,175,55,0.2)]"
-              >
-                <Mail className="size-3.5" />
-                Demander une étude
-              </Link>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/20 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-6">
+                <Hammer className="size-3.5" /> Donner vie à vos objets
+              </div>
               
-              <a
-                href="tel:+21655743760"
-                className="inline-flex items-center gap-2.5 rounded-full bg-white/5 border border-white/10 px-7 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:bg-white/10"
-              >
-                <Phone className="size-3.5 text-[#C17D59]" />
-                +216 55 743 760
-              </a>
+              <h2 className="font-heading text-3xl sm:text-4xl text-white mb-4 max-w-2xl leading-tight">
+                Faites restaurer votre pièce de famille
+              </h2>
+              
+              <p className="text-[#D4B896] text-sm max-w-xl mb-8 leading-relaxed font-light text-pretty">
+                Qu&apos;il s&apos;agisse de restaurer à l&apos;identique ou de relooker pour intégrer dans un décor moderne, nos artisans étudient vos pièces sur photo ou en atelier.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link
+                  href="/contact?subject=relooking"
+                  className="inline-flex items-center gap-2.5 rounded-full bg-[#E8DCCB] px-7 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:scale-[1.03] shadow-[0_4px_15px_rgba(212,175,55,0.2)]"
+                >
+                  <Mail className="size-3.5" />
+                  Demander une étude
+                </Link>
+                
+                <a
+                  href="tel:+21655743760"
+                  className="inline-flex items-center gap-2.5 rounded-full bg-white/5 border border-white/10 px-7 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:bg-white/10"
+                >
+                  <Phone className="size-3.5 text-[#C17D59]" />
+                  +216 55 743 760
+                </a>
+              </div>
             </div>
-          </div>
-        </Reveal>
-      </div>
+          </Reveal>
+        </div>
+      </section>
       
-      <Footer />
+      <section className="relative w-full">
+        <BackgroundOverlay />
+        <div className="relative z-10 w-full">
+          <Footer />
+        </div>
+      </section>
     </main>
   )
 }

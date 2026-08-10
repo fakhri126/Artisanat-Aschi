@@ -73,22 +73,10 @@ export function Stats() {
   ]
 
   return (
-    <section className="relative w-full overflow-hidden bg-transparent py-16 md:py-24">
-      {/* Repeating small ceramic background pattern */}
-      <BohoCeramicPattern className="absolute inset-0 z-0 pointer-events-none" color="#8B5E3C" opacity={0.015} />
-
-      <BohoRosace 
-        className="absolute bottom-5 right-10 w-32 md:w-96 opacity-[0.25] -z-10 text-[#8B5E3C]" 
-        color="currentColor" 
-        delay={0.4} 
-        monochrome={true}
-      />
-      <BohoBand 
-        className="absolute bottom-0 left-1/3 hidden md:block w-96 opacity-[0.04] -z-10 text-[#C17D59]" 
-        color="currentColor" 
-      />
-
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 relative z-10">
+    <section id="statistiques" className="relative overflow-hidden bg-transparent py-24 sm:py-32">
+      {/* Darkening Overlay */}
+      <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
         <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between">
           
           {/* Numbers Grid */}

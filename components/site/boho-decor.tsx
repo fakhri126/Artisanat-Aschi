@@ -6,24 +6,35 @@ interface BohoShapeProps {
   className?: string
   color?: string
   delay?: number
+  variant?: 'carved-in' | 'dark-overlay' | 'colorful'
 }
 
 // Rosace polychrome (inspirée du grand motif floral de la porte droite)
-export function BohoRosace({ className, color = '#3B6FA0', delay = 0, monochrome = false }: BohoShapeProps & { monochrome?: boolean }) {
+export function BohoRosace({ className, color = '#3B6FA0', delay = 0, monochrome = false, variant = 'carved-in' }: BohoShapeProps & { monochrome?: boolean }) {
+  const isDarkOverlay = variant === 'dark-overlay';
+  const isColorful = variant === 'colorful';
   return (
     <motion.div
       initial={{ opacity: 0, rotate: -45, scale: 0.8 }}
-      whileInView={{ opacity: 1, rotate: 0, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, rotate: 0, scale: 1 }}
+      
       transition={{ duration: 1.2, delay, ease: 'easeOut' }}
       className={className || ''}
-      style={{ mixBlendMode: 'multiply', aspectRatio: '1/1', display: 'inline-flex' }}
+      style={{ 
+        mixBlendMode: isDarkOverlay ? 'multiply' : 'normal', 
+        aspectRatio: '1/1', 
+        display: 'inline-flex' 
+      }}
     >
       <img 
         src="/painted-wood-rosette.jpg" 
         alt="Rosace en bois sculpté et peint" 
-        className="w-full h-full object-contain rounded-full"
-        style={{ filter: 'brightness(1.35) saturate(1.2)' }}
+        className="w-full h-full object-contain rounded-full drop-shadow-xl"
+        style={isDarkOverlay 
+          ? { filter: 'brightness(1.05) contrast(1.3)', opacity: 0.8, clipPath: 'circle(48%)' } 
+          : isColorful
+            ? { filter: 'brightness(1.05) saturate(1.1)', opacity: 1, clipPath: 'circle(48%)' }
+            : { filter: 'grayscale(1) contrast(1.2) brightness(1.1)', opacity: 0.85, clipPath: 'circle(48%)' }}
       />
     </motion.div>
   )
@@ -34,8 +45,8 @@ export function BohoOrnateDiamond({ className, color = '#C8960C', delay = 0 }: B
   return (
     <motion.svg
       initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1 }}
+      
       transition={{ duration: 1, delay, ease: 'easeOut' }}
       viewBox="0 0 140 200"
       className={`wood-motif ${className || ''}`}
@@ -63,8 +74,8 @@ export function BohoFan({ className, color = '#3A7D50', delay = 0 }: BohoShapePr
   return (
     <motion.svg
       initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, y: 0 }}
+      
       transition={{ duration: 1, delay, ease: 'easeOut' }}
       viewBox="0 0 200 100"
       className={`wood-motif ${className || ''}`}
@@ -94,8 +105,8 @@ export function BohoBand({ className, color = '#C17D59', delay = 0 }: BohoShapeP
   return (
     <motion.svg
       initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, x: 0 }}
+      
       transition={{ duration: 1, delay, ease: 'easeOut' }}
       viewBox="0 0 300 40"
       className={`wood-motif ${className || ''}`}
@@ -119,8 +130,8 @@ export function BohoLotusTile({ className, color = '#2D5F8A', delay = 0 }: BohoS
   return (
     <motion.svg
       initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1 }}
+      
       transition={{ duration: 1.2, delay, ease: 'easeOut' }}
       viewBox="0 0 100 200"
       className={`wood-motif ${className || ''}`}
@@ -162,60 +173,29 @@ export function BohoZigzagDivider({ className, color = '#C17D59', opacity = 1 }:
 }
 
 // Colonne sculptée artisanale (Pilastre) avec motif zigzag
-export function BohoCarvedColumn({ className, color = '#8B5E3C', delay = 0 }: BohoShapeProps) {
+export function BohoCarvedColumn({ className, color = '#8B5E3C', delay = 0, variant = 'carved-in' }: BohoShapeProps) {
+  const isDarkOverlay = variant === 'dark-overlay';
   return (
-    <motion.svg
+    <motion.div
       initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 1.5, delay, ease: 'easeOut' }}
-      viewBox="0 0 100 400"
-      preserveAspectRatio="none"
-      className={`wood-motif ${className || ''}`}
-    >
-      <defs>
-        <filter id="column-shadow" x="-20%" y="-10%" width="140%" height="120%">
-          <feDropShadow dx="0" dy="5" stdDeviation="4" floodColor="#3A2A1E" floodOpacity="0.25" />
-        </filter>
-        <linearGradient id="column-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#C1A38B" />
-          <stop offset="20%" stopColor="#D9BAA0" />
-          <stop offset="80%" stopColor="#C1A38B" />
-          <stop offset="100%" stopColor="#A67B5B" />
-        </linearGradient>
-      </defs>
+      animate={{ opacity: 1, y: 0 }}
       
-      <g stroke={color} fill="none" filter="url(#column-shadow)">
-        {/* Corps de la colonne */}
-        <rect x="10" y="0" width="80" height="400" strokeWidth="2" fill="url(#column-grad)" />
-        <rect x="15" y="0" width="70" height="400" strokeWidth="1" opacity="0.5" />
-        
-        {/* Chapiteau (Haut) */}
-        <rect x="5" y="0" width="90" height="15" fill={color} />
-        <polygon points="10,15 90,15 80,25 20,25" fill={color} opacity="0.8" />
-        
-        {/* Base (Bas) */}
-        <rect x="5" y="385" width="90" height="15" fill={color} />
-        <polygon points="20,375 80,375 90,385 10,385" fill={color} opacity="0.8" />
-        
-        {/* Lignes verticales (Cannelures) */}
-        <line x1="25" y1="25" x2="25" y2="375" strokeWidth="1" opacity="0.4" />
-        <line x1="75" y1="25" x2="75" y2="375" strokeWidth="1" opacity="0.4" />
-
-        {/* Motif Zigzag Sculpté au centre */}
-        <path 
-          d="M50,40 L35,60 L65,80 L35,100 L65,120 L35,140 L65,160 L35,180 L65,200 L35,220 L65,240 L35,260 L65,280 L35,300 L65,320 L35,340 L50,360" 
-          strokeWidth="3" 
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-        
-        {/* Incrustations (Points décoratifs) */}
-        {Array.from({ length: 15 }).map((_, i) => (
-          <circle key={i} cx={i % 2 === 0 ? 65 : 35} cy={50 + i * 20} r="3" fill="#E8C8AE" stroke="none" />
-        ))}
-      </g>
-    </motion.svg>
+      transition={{ duration: 1.5, delay, ease: 'easeOut' }}
+      className={className || ''}
+      style={{ 
+        mixBlendMode: isDarkOverlay ? 'multiply' : 'hard-light',
+        overflow: 'hidden'
+      }}
+    >
+      <img 
+        src="/carved-wood-pillar.jpg" 
+        alt="Colonne en bois sculpté" 
+        className="w-full h-full object-cover"
+        style={isDarkOverlay
+          ? { filter: 'brightness(1.05) contrast(1.3)', transform: 'scale(1.1)' }
+          : { filter: 'grayscale(1) contrast(1.2) brightness(1.1)', opacity: 0.85, transform: 'scale(1.1)' }}
+      />
+    </motion.div>
   )
 }
 
@@ -224,8 +204,8 @@ export function BohoCeilingArabesque({ className, color = '#5C3317', delay = 0 }
   return (
     <motion.svg
       initial={{ opacity: 0, rotate: 15 }}
-      whileInView={{ opacity: 1, rotate: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, rotate: 0 }}
+      
       transition={{ duration: 1.5, delay, ease: 'easeOut' }}
       viewBox="0 0 200 200"
       className={`wood-motif ${className || ''}`}
@@ -256,8 +236,8 @@ export function BohoDeepCarvedDiamond({ className, color = '#8B5E3C', delay = 0 
   return (
     <motion.svg
       initial={{ opacity: 0, scale: 0.8 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1 }}
+      
       transition={{ duration: 1, delay, ease: 'easeOut' }}
       viewBox="0 0 100 100"
       className={`wood-motif ${className || ''}`}
@@ -286,8 +266,8 @@ export function BohoFloralRosette({ className, color = '#C8960C', delay = 0, mon
   return (
     <motion.svg
       initial={{ opacity: 0, rotate: 20 }}
-      whileInView={{ opacity: 1, rotate: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, rotate: 0 }}
+      
       transition={{ duration: 1.5, delay, ease: 'easeOut' }}
       viewBox="0 0 200 200"
       className={`wood-motif ${className || ''}`}
@@ -323,8 +303,8 @@ export function BohoGoldenSun({ className, color = '#C8960C', delay = 0 }: BohoS
   return (
     <motion.svg
       initial={{ opacity: 0, scale: 0.9, rotate: -10 }}
-      whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+      
       transition={{ duration: 1.5, delay, ease: 'easeOut' }}
       viewBox="0 0 400 400"
       className={`wood-motif ${className || ''}`}
@@ -364,8 +344,8 @@ export function BohoWoodDiamondLattice({ className, color = '#8B5E3C', delay = 0
   return (
     <motion.svg
       initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1 }}
+      
       transition={{ duration: 1.2, delay, ease: 'easeOut' }}
       viewBox="0 0 200 200"
       className={`wood-motif ${className || ''}`}
@@ -387,8 +367,8 @@ export function BohoColorfulWheel({ className, color = '#3A7D50', delay = 0 }: B
   return (
     <motion.svg
       initial={{ opacity: 0, rotate: -30 }}
-      whileInView={{ opacity: 1, rotate: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, rotate: 0 }}
+      
       transition={{ duration: 1.4, delay, ease: 'easeOut' }}
       viewBox="0 0 200 200"
       className={`wood-motif ${className || ''}`}
@@ -419,8 +399,8 @@ export function BohoIntricateOvals({ className, color = '#2D5F8A', delay = 0 }: 
   return (
     <motion.svg
       initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, y: 0 }}
+      
       transition={{ duration: 1.3, delay, ease: 'easeOut' }}
       viewBox="0 0 150 250"
       className={`wood-motif ${className || ''}`}
@@ -443,8 +423,8 @@ export function BohoFineCorner({ className, color = '#C8960C', delay = 0 }: Boho
   return (
     <motion.svg
       initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1 }}
+      
       transition={{ duration: 1.5, delay, ease: 'easeOut' }}
       viewBox="0 0 100 100"
       className={`wood-motif ${className || ''}`}
@@ -483,8 +463,8 @@ export function BohoEye({ className, color = '#3B6FA0', delay = 0 }: BohoShapePr
   return (
     <motion.svg
       initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1 }}
+      
       transition={{ duration: 1.2, delay, ease: 'easeOut' }}
       viewBox="0 0 200 200"
       className={`wood-motif ${className || ''}`}
@@ -534,44 +514,21 @@ export function BohoCeramicPattern({ className, color = '#2D5F8A', opacity = 0.0
 // Motif Doré Géométrique (Inspiré par le moucharabieh / vitrail doré)
 export function BohoGoldenLattice({ className, delay = 0 }: BohoShapeProps) {
   return (
-    <motion.svg
+    <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1 }}
+      
       transition={{ duration: 1.2, delay, ease: 'easeOut' }}
-      viewBox="0 0 200 200"
-      className={`wood-motif ${className || ''}`}
+      className={className || ''}
+      style={{ mixBlendMode: 'hard-light', aspectRatio: '1/1', display: 'inline-flex' }}
     >
-      <defs>
-        <linearGradient id="goldGradientLattice" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#F9E596" />
-          <stop offset="30%" stopColor="#D4AF37" />
-          <stop offset="70%" stopColor="#AA7C11" />
-          <stop offset="100%" stopColor="#D4AF37" />
-        </linearGradient>
-        <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="2" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-      </defs>
-      <g stroke="url(#goldGradientLattice)" strokeWidth="4" fill="none" strokeLinecap="square" strokeLinejoin="miter" filter="url(#goldGlow)">
-        {/* Outer Frame */}
-        <rect x="10" y="10" width="180" height="180" strokeWidth="6" />
-        
-        {/* Outer Diamond */}
-        <polygon points="100,10 190,100 100,190 10,100" />
-        
-        {/* Middle Diamond */}
-        <polygon points="100,45 155,100 100,155 45,100" />
-        
-        {/* Inner Solid Diamond */}
-        <polygon points="100,75 125,100 100,125 75,100" fill="url(#goldGradientLattice)" />
-        
-        {/* Crossbars */}
-        <line x1="100" y1="10" x2="100" y2="190" />
-        <line x1="10" y1="100" x2="190" y2="100" />
-      </g>
-    </motion.svg>
+      <img 
+        src="/blue-carved-tile.jpg" 
+        alt="Carreau en bois sculpté et peint" 
+        className="w-full h-full object-contain"
+        style={{ filter: 'grayscale(1) contrast(1.2) brightness(1.1)', opacity: 0.85, clipPath: 'inset(8%)' }}
+      />
+    </motion.div>
   )
 }
 
@@ -633,8 +590,8 @@ export function BohoCeramicOctagon({ className, delay = 0 }: BohoShapeProps) {
   return (
     <motion.svg
       initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1 }}
+      
       transition={{ duration: 1.2, delay, ease: 'easeOut' }}
       viewBox="0 0 300 300"
       className={`wood-motif ${className || ''}`}
@@ -680,8 +637,8 @@ export function BohoCeramicCross({ className, delay = 0 }: BohoShapeProps) {
   return (
     <motion.svg
       initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1 }}
+      
       transition={{ duration: 1.2, delay, ease: 'easeOut' }}
       viewBox="0 0 300 300"
       className={`wood-motif ${className || ''}`}
@@ -740,8 +697,8 @@ export function BohoCeramicDiamond({ className, delay = 0 }: BohoShapeProps) {
   return (
     <motion.svg
       initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1 }}
+      
       transition={{ duration: 1.2, delay, ease: 'easeOut' }}
       viewBox="0 0 300 300"
       className={`wood-motif ${className || ''}`}
@@ -787,8 +744,7 @@ export function BohoCarvedKnob({ className, color = '#8B5E3C', delay = 0 }: Boho
   return (
     <motion.svg
       initial={{ opacity: 0, scale: 0.8 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1, delay, ease: 'easeOut' }}
       viewBox="0 0 100 100"
       className={`wood-motif ${className || ''}`}

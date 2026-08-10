@@ -143,14 +143,13 @@ export function Catalog() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal className="text-center">
           <p className="text-sm md:text-base font-bold uppercase tracking-[0.2em] text-[#C17D59]">
-            Catalogue d&apos;inspiration
+            Catalogue d&apos;Inspiration Sur-Mesure
           </p>
-          <h2 className="mx-auto mt-5 max-w-2xl text-balance font-heading text-4xl font-light leading-tight sm:text-5xl md:text-6xl text-[#3A2A21]">
-            Nos créations passées, sources d&apos;inspiration
+          <h2 className="mx-auto mt-5 max-w-3xl text-balance font-heading text-4xl font-light leading-tight sm:text-5xl md:text-6xl text-[#3A2A21]">
+            Visualisez nos modèles sous toutes leurs formes
           </h2>
-          <p className="mx-auto mt-6 max-w-xl text-pretty text-base font-light leading-relaxed text-[#5A453A]/70">
-            Parcourez les modèles déjà réalisés. Choisissez-en un tel quel, ou
-            laissez-le inspirer votre propre création sur-mesure.
+          <p className="mx-auto mt-6 max-w-2xl text-pretty text-base font-light leading-relaxed text-[#5A453A]/80">
+            Découvrez nos pièces d&apos;artisanat déclinées dans plusieurs dimensions, essences de bois (noyer, olivier, chêne) et patines d&apos;exception. Laissez-vous inspirer par ces variations pour concevoir votre meuble 100% sur-mesure.
           </p>
         </Reveal>
 
@@ -246,10 +245,10 @@ export function Catalog() {
                           <MessageCircle className="size-4" /> Demander ce modèle
                         </Link>
                         <Link
-                          href={`${link}?action=personnaliser`}
-                          className="flex w-48 items-center justify-center gap-2 rounded-full border border-ivory/70 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#3A2A21] transition-colors hover:border-[#E8DCCB] hover:text-[#C17D59]"
+                          href="/custom-creation"
+                          className="flex w-52 items-center justify-center gap-2 rounded-full border border-ivory/70 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#3A2A21] transition-colors hover:border-[#E8DCCB] hover:text-[#C17D59]"
                         >
-                          <Sparkles className="size-4" /> Personnaliser
+                          <Sparkles className="size-4" /> Créer en Sur-Mesure
                         </Link>
                       </div>
                     </div>

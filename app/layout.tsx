@@ -36,7 +36,6 @@ export const viewport: Viewport = {
 import { CartProvider } from '@/lib/cart-context'
 import { CartSheet } from '@/components/site/cart-sheet'
 import { Toaster } from 'sonner'
-import { BohoFineCorner } from '@/components/site/boho-decor'
 
 export default function RootLayout({
   children,
@@ -48,16 +47,7 @@ export default function RootLayout({
       lang="fr"
       className={`${cormorant.variable} ${jost.variable} ${geistMono.variable}`}
     >
-      <body className="antialiased min-h-screen font-sans selection:bg-[#C17D59] selection:text-white bg-[#DEB887] bg-[url('/seamless-plank-bg.jpg')] bg-repeat bg-[length:100vw_auto] text-[#1A110B]">        {/* Cadre Minimaliste Élégant - Rendu plus visible et mis en valeur */}
-        <div className="fixed inset-0 pointer-events-none z-[50] overflow-hidden drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]">
-          <BohoFineCorner className="absolute top-4 left-4 w-16 sm:w-24 md:w-32 opacity-90 text-[#3A2A1E]" color="currentColor" />
-          <BohoFineCorner className="absolute top-4 right-4 w-16 sm:w-24 md:w-32 opacity-90 text-[#3A2A1E] scale-x-[-1]" color="currentColor" delay={0.2} />
-          <BohoFineCorner className="absolute bottom-4 left-4 w-16 sm:w-24 md:w-32 opacity-90 text-[#3A2A1E] scale-y-[-1]" color="currentColor" delay={0.4} />
-          <BohoFineCorner className="absolute bottom-4 right-4 w-16 sm:w-24 md:w-32 opacity-90 text-[#3A2A1E] scale-[-1]" color="currentColor" delay={0.6} />
-        </div>
-
-
-
+      <body className="antialiased min-h-screen font-sans selection:bg-[#C17D59] selection:text-white bg-[#1A1512] text-[#E8DCCB]">
         <CartProvider>
           <PageTransitionWrapper>
             {children}

@@ -1,9 +1,5 @@
-'use client'
-
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { MapPin, ChevronLeft, ChevronRight, Quote } from 'lucide-react'
+import { MapPin, Quote } from 'lucide-react'
+import { Reveal } from './reveal'
 
 interface MilestoneDetails {
   anecdote: string
@@ -72,108 +68,91 @@ const MILESTONES: Milestone[] = [
 ]
 
 export function Story() {
-  const [index, setIndex] = useState(0)
-  const activeMilestone = MILESTONES[index]
-
-  const next = () => setIndex((prev) => (prev + 1) % MILESTONES.length)
-  const prev = () => setIndex((prev) => (prev - 1 + MILESTONES.length) % MILESTONES.length)
-
   return (
-    <section id="histoire" className="relative bg-transparent py-24 flex items-center justify-center overflow-hidden grain border-y border-[#E8DCCB]/10">
-      <div className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay bg-[url('/wood-bg.jpg')] bg-cover bg-center" />
+    <section id="histoire" className="relative bg-transparent py-24 md:py-36 overflow-hidden border-t border-[#E8DCCB]/10">
+      {/* Unified Background */}
+      <div className="absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none bg-[url('/images/bg-carved-wood.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
+      {/* Darkening Overlay */}
+      <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
       
-      <div className="mx-auto max-w-5xl px-6 relative z-10 w-full">
+      <div className="relative z-10 mx-auto max-w-6xl px-5 sm:px-8">
         
-        {/* Adorable Chic Card */}
-        <div className="bg-white/80 backdrop-blur-md rounded-3xl p-6 md:p-12 shadow-2xl border border-[#E8DCCB]/20 flex flex-col md:flex-row items-center gap-10 md:gap-16">
-          
-          {/* Left: Arch Image */}
-          <div className="w-full md:w-1/2 flex justify-center">
-            <div className="relative w-64 h-[22rem] md:w-80 md:h-[450px] overflow-hidden rounded-t-[1000px] rounded-b-3xl border-[4px] border-[#E8DCCB]/20 shadow-[0_0_30px_rgba(197,168,128,0.15)] bg-stone-900 group">
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={activeMilestone.id}
-                  src={activeMilestone.image}
-                  alt={activeMilestone.title}
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                />
-              </AnimatePresence>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/60 backdrop-blur-sm px-4 py-1.5 rounded-full border border-[#E8DCCB]/30 flex items-center gap-2">
-                <MapPin className="w-3 h-3 text-[#C17D59]" />
-                <span className="text-[10px] text-[#3A2A21] tracking-widest uppercase whitespace-nowrap">{activeMilestone.location}</span>
-              </div>
-            </div>
-          </div>
+        <Reveal className="text-center mb-20 md:mb-32">
+          <p className="text-[#C17D59] text-sm md:text-base font-bold tracking-[0.2em] uppercase">
+            Notre Histoire
+          </p>
+          <h2 className="mt-4 font-heading text-4xl sm:text-5xl md:text-6xl text-[#E8DCCB] font-light">
+            Un héritage dans le temps
+          </h2>
+        </Reveal>
 
-          {/* Right: Content */}
-          <div className="w-full md:w-1/2 flex flex-col justify-center relative min-h-[350px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeMilestone.id}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="flex flex-col"
-              >
-                <span className="text-[#C17D59] text-[11px] font-sans tracking-[0.2em] uppercase mb-3">
-                  {activeMilestone.badge}
-                </span>
-                
-                <h3 className="font-heading text-5xl md:text-6xl text-[#3A2A21] font-light mb-2 italic tracking-tight">
-                  {activeMilestone.year}
-                </h3>
-                
-                <h4 className="text-xl md:text-2xl text-white/90 font-medium mb-4">
-                  {activeMilestone.title}
-                </h4>
+        {/* Timeline Container */}
+        <div className="relative">
+          {/* Central Line for Desktop, Left Line for Mobile */}
+          <div className="absolute left-0 md:left-1/2 top-4 bottom-0 w-px bg-[#C17D59]/30 md:-translate-x-1/2" />
 
-                <p className="text-sm md:text-base text-white/70 leading-relaxed font-light mb-6 max-w-sm">
-                  {activeMilestone.text}
-                </p>
+          <div className="space-y-20 md:space-y-32">
+            {MILESTONES.map((milestone, index) => {
+              const isEven = index % 2 === 0;
+              return (
+                <div key={milestone.id} className="relative">
+                  
+                  {/* Timeline Dot */}
+                  <div className="absolute left-[-5px] md:left-1/2 top-0 md:top-1/2 md:-translate-y-1/2 md:-translate-x-1/2 w-3 h-3 bg-[#C17D59] rounded-full shadow-[0_0_15px_rgba(193,125,89,0.8)] border-2 border-[#3A2A21] z-20" />
 
-                <div className="bg-[#E8DCCB]/5 border border-[#E8DCCB]/10 rounded-2xl p-5 relative mt-auto">
-                  <Quote className="w-5 h-5 text-[#C17D59]/30 absolute top-4 right-4" />
-                  <p className="text-xs text-white/60 italic leading-relaxed pr-6">
-                    {activeMilestone.details.anecdote}
-                  </p>
+                  <Reveal delay={index * 150}>
+                    <div className={`relative flex flex-col md:flex-row items-start md:items-center gap-10 md:gap-16 ${isEven ? '' : 'md:flex-row-reverse'}`}>
+                      
+                      {/* Image Side */}
+                      <div className={`w-full pl-8 md:pl-0 md:w-1/2 flex ${isEven ? 'md:justify-end' : 'md:justify-start'}`}>
+                        <div className={`relative w-full max-w-md aspect-[4/3] rounded-2xl overflow-hidden border border-[#E8DCCB]/20 group shadow-2xl ${isEven ? 'md:rounded-l-3xl md:rounded-tr-[100px] md:rounded-br-3xl' : 'md:rounded-r-3xl md:rounded-tl-[100px] md:rounded-bl-3xl'}`}>
+                          <img 
+                            src={milestone.image} 
+                            alt={milestone.title}
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-stone-900/10 group-hover:bg-transparent transition-colors duration-500" />
+                          <div className={`absolute bottom-4 ${isEven ? 'left-4' : 'right-4'} bg-stone-950/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-[#E8DCCB]/20 flex items-center gap-2`}>
+                            <MapPin className="w-3 h-3 text-[#C17D59]" />
+                            <span className="text-[10px] text-[#E8DCCB] tracking-widest uppercase">{milestone.location}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Content Side */}
+                      <div className={`w-full pl-8 md:pl-0 md:w-1/2 flex flex-col ${isEven ? 'md:pr-12 md:items-start md:text-left' : 'md:pl-12 md:items-end md:text-right'}`}>
+                        <span className="text-[#C17D59] text-[11px] font-bold tracking-[0.2em] uppercase mb-2">
+                          {milestone.badge}
+                        </span>
+                        
+                        <h3 className="font-heading text-6xl md:text-7xl text-[#E8DCCB] font-light mb-3 italic tracking-tight opacity-90">
+                          {milestone.year}
+                        </h3>
+                        
+                        <h4 className="text-2xl md:text-3xl text-white/90 font-medium mb-4">
+                          {milestone.title}
+                        </h4>
+                        
+                        <p className={`text-base text-white/70 leading-relaxed font-light mb-8 max-w-md ${isEven ? '' : 'md:text-right'}`}>
+                          {milestone.text}
+                        </p>
+                        
+                        <div className={`bg-stone-900/60 backdrop-blur-md border border-[#E8DCCB]/10 rounded-2xl p-6 relative w-full max-w-md ${isEven ? 'text-left' : 'text-left md:text-right'}`}>
+                          <Quote className={`w-6 h-6 text-[#C17D59]/20 absolute top-4 ${isEven ? 'right-4' : 'right-4 md:left-4 md:right-auto'}`} />
+                          <p className={`text-sm text-white/60 italic leading-relaxed ${isEven ? 'pr-8' : 'pr-8 md:pr-0 md:pl-8'}`}>
+                            {milestone.details.anecdote}
+                          </p>
+                        </div>
+                      </div>
+
+                    </div>
+                  </Reveal>
                 </div>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Navigation Controls */}
-            <div className="flex items-center gap-4 mt-8 md:mt-10">
-              <button 
-                onClick={prev}
-                className="w-10 h-10 rounded-full border border-[#E8DCCB]/30 flex items-center justify-center text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut-deep transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <div className="flex gap-2">
-                {MILESTONES.map((_, i) => (
-                  <div 
-                    key={i} 
-                    className={cn(
-                      "h-1.5 rounded-full transition-all duration-300", 
-                      i === index ? "w-6 bg-[#E8DCCB]" : "w-1.5 bg-[#E8DCCB]/20"
-                    )} 
-                  />
-                ))}
-              </div>
-              <button 
-                onClick={next}
-                className="w-10 h-10 rounded-full border border-[#E8DCCB]/30 flex items-center justify-center text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut-deep transition-colors"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            
+              );
+            })}
           </div>
         </div>
+        
       </div>
     </section>
   )

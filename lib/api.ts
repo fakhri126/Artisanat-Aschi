@@ -28,6 +28,7 @@ export interface Product {
   isFeatured: boolean;
   category: Category;
   images: ProductImage[];
+  style?: string;
 }
 
 export interface Project {
@@ -64,6 +65,8 @@ export interface Delivery {
   description: string;
   imageUrl: string;
   deliveryDate: string;
+  location?: string;
+  clientReview?: string;
 }
 
 export interface Reference {

@@ -14,7 +14,6 @@ const LINKS = [
   { label: 'Créations', href: '/creations' },
   { label: 'Bijoux de Porte', href: '/bijoux-de-porte' },
   { label: 'Nos Services', isDropdown: true },
-  { label: 'Réalisations', href: '/realisations' },
   { label: 'Contact', href: '/contact' },
 ]
 
@@ -77,11 +76,11 @@ export function Navbar() {
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-500',
         scrolled || servicesOpen
-          ? 'py-3 bg-[#DAB692]/85 backdrop-blur-md border-b border-[#3A2A1E]/10 shadow-[0_2px_20px_rgba(58,42,30,0.1)]'
+          ? 'py-3 bg-transparent border-b border-[#D4B896]/10 backdrop-blur-sm'
           : 'py-4 bg-transparent border-b border-transparent',
       )}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-8">
+      <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group relative z-50">
           {/* Mobile Logo: Clean Monogram */}
@@ -89,7 +88,7 @@ export function Navbar() {
             <svg viewBox="0 0 100 100" className="size-11 text-[#C17D59] fill-none stroke-current stroke-[2.5] shrink-0">
               <circle cx="50" cy="50" r="43" className="stroke-[#C17D59]/20" />
               <path d="M50 22 L32 78 M50 22 L68 78 M38 60 L62 60" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="50" cy="22" r="4.5" className="fill-white stroke-[#C17D59] stroke-[2.5]" />
+              <circle cx="50" cy="22" r="4.5" className="fill-[#1A1512] stroke-[#C17D59] stroke-[2.5]" />
               <path d="M26 73 L74 37" strokeLinecap="round" className="stroke-[#C17D59]/40 stroke-[2]" />
             </svg>
           </div>
@@ -125,10 +124,10 @@ export function Navbar() {
             </motion.div>
           </div>
           <div className="flex flex-col leading-none">
-            <span className="font-heading text-2xl font-bold tracking-wide text-[#2C1E16]">
+            <span className="font-heading text-2xl font-bold tracking-wide text-[#E8DCCB]">
               Artisanat Aschi
             </span>
-            <span className="mt-1 text-[0.68rem] uppercase tracking-[0.2em] text-[#C17D59] font-medium">
+            <span className="mt-1 text-[0.68rem] uppercase tracking-[0.2em] text-[#D4B896] font-medium">
               Maison fondée en 1960
             </span>
           </div>
@@ -149,7 +148,7 @@ export function Navbar() {
                   <button
                     className={cn(
                       'group flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.15em] transition-colors py-4',
-                      isActive || servicesOpen ? 'text-[#C17D59]' : 'text-[#5A453A] hover:text-[#C17D59]',
+                      isActive || servicesOpen ? 'text-[#C17D59]' : 'text-[#E8DCCB] hover:text-[#C17D59]',
                     )}
                   >
                     {link.label}
@@ -172,7 +171,7 @@ export function Navbar() {
                   href={link.href!}
                   className={cn(
                     'group relative text-xs font-semibold uppercase tracking-[0.15em] transition-colors py-4',
-                    isActive ? 'text-[#C17D59]' : 'text-[#5A453A] hover:text-[#C17D59]',
+                    isActive ? 'text-[#C17D59]' : 'text-[#E8DCCB] hover:text-[#C17D59]',
                   )}
                 >
                   {link.label}
@@ -194,7 +193,7 @@ export function Navbar() {
             type="button"
             onClick={() => setIsCartOpen(true)}
             aria-label="Ouvrir le panier"
-            className="relative rounded-full p-2.5 text-[#5A453A] transition-colors hover:text-[#C17D59]"
+            className="relative rounded-full p-2.5 text-[#E8DCCB] transition-colors hover:text-[#C17D59]"
           >
             <ShoppingCart className="size-5 sm:size-6" />
             {isMounted && cartCount > 0 && (
@@ -215,7 +214,7 @@ export function Navbar() {
             type="button"
             aria-label="Ouvrir le menu"
             onClick={() => setOpen((v) => !v)}
-            className="text-walnut-foreground lg:hidden"
+            className="text-[#E8DCCB] lg:hidden"
           >
             {open ? <X className="size-7" /> : <Menu className="size-7" />}
           </button>
@@ -230,19 +229,19 @@ export function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="absolute top-full left-0 w-full bg-[#E4D0B7]/95 backdrop-blur-xl border-t border-[#E8DCCB] shadow-[0_20px_50px_rgba(58,42,33,0.05)] overflow-hidden hidden lg:block"
+            className="absolute top-full left-0 w-full bg-[#1A1512]/95 backdrop-blur-xl border-t border-[#D4B896]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden hidden lg:block"
             onMouseEnter={() => setServicesOpen(true)}
             onMouseLeave={() => setServicesOpen(false)}
           >
             <div className="mx-auto max-w-5xl px-8 py-10 flex gap-8">
               {SERVICES.map((service, idx) => (
-                <Link href={service.href} key={idx} className="flex-1 group relative overflow-hidden rounded-[2rem] border border-[#E8DCCB] bg-white transition-all hover:border-[#C17D59]/30 hover:shadow-[0_10px_30px_rgba(193,125,89,0.1)] flex flex-col">
-                  <div className="h-40 relative overflow-hidden bg-[#E8DCCB]">
+                <Link href={service.href} key={idx} className="flex-1 group relative overflow-hidden rounded-[2rem] border border-[#D4B896]/30 bg-[#2C1E16] transition-all hover:border-[#C17D59]/50 hover:shadow-[0_10px_30px_rgba(193,125,89,0.1)] flex flex-col">
+                  <div className="h-40 relative overflow-hidden bg-[#1A1512]">
                     <Image src={service.image} alt={service.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                   </div>
-                  <div className="p-6 flex-1 flex flex-col bg-white">
-                    <h3 className="font-serif text-2xl text-[#2C1E16] mb-2">{service.title}</h3>
-                    <p className="text-[#5A453A] text-sm font-light leading-relaxed mb-6 flex-1">
+                  <div className="p-6 flex-1 flex flex-col bg-[#2C1E16]">
+                    <h3 className="font-serif text-2xl text-[#E8DCCB] mb-2">{service.title}</h3>
+                    <p className="text-[#D4B896] text-sm font-light leading-relaxed mb-6 flex-1">
                       {service.description}
                     </p>
                     <span className="inline-flex items-center text-xs uppercase tracking-[0.15em] text-[#C17D59] font-bold group-hover:translate-x-2 transition-transform duration-300">
@@ -256,21 +255,20 @@ export function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* Mobile menu */}
       <div
         className={cn(
-          'overflow-y-auto bg-[#E4D0B7]/95 backdrop-blur-md transition-all duration-500 lg:hidden absolute top-full left-0 w-full shadow-[0_20px_50px_rgba(58,42,33,0.05)]',
-          open ? 'max-h-screen border-t border-[#E8DCCB] py-5' : 'max-h-0 py-0',
+          'overflow-y-auto bg-[#1A1512]/95 backdrop-blur-md transition-all duration-500 lg:hidden absolute top-full left-0 w-full shadow-[0_20px_50px_rgba(0,0,0,0.5)]',
+          open ? 'max-h-screen border-t border-[#D4B896]/20 py-5' : 'max-h-0 py-0',
         )}
       >
         <ul className="flex flex-col gap-1 px-6">
           {LINKS.map((link) => {
             if (link.isDropdown) {
               return (
-                <li key={link.label} className="border-b border-[#E8DCCB] pb-2 mb-2">
+                <li key={link.label} className="border-b border-[#D4B896]/20 pb-2 mb-2">
                   <button
                     onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                    className="flex w-full items-center justify-between py-2.5 font-serif text-xl text-[#2C1E16] transition-colors hover:text-[#C17D59]"
+                    className="flex w-full items-center justify-between py-2.5 font-serif text-xl text-[#E8DCCB] transition-colors hover:text-[#C17D59]"
                   >
                     {link.label}
                     <ChevronDown className={cn("size-5 transition-transform duration-300", mobileServicesOpen && "rotate-180")} />
@@ -288,14 +286,14 @@ export function Navbar() {
                             <Link
                               href={service.href}
                               onClick={() => setOpen(false)}
-                              className="group flex gap-4 items-center rounded-2xl bg-white/50 border border-[#E8DCCB] p-3"
+                              className="group flex gap-4 items-center rounded-2xl bg-[#2C1E16]/50 border border-[#D4B896]/30 p-3"
                             >
                               <div className="relative size-16 rounded-xl overflow-hidden shrink-0">
                                 <Image src={service.image} alt={service.title} fill className="object-cover" />
                               </div>
                               <div>
-                                <h4 className="font-serif text-lg text-[#2C1E16] group-hover:text-[#C17D59] transition-colors">{service.title}</h4>
-                                <p className="text-xs text-[#5A453A] line-clamp-1">{service.description}</p>
+                                <h4 className="font-serif text-lg text-[#E8DCCB] group-hover:text-[#C17D59] transition-colors">{service.title}</h4>
+                                <p className="text-xs text-[#D4B896] line-clamp-1">{service.description}</p>
                               </div>
                             </Link>
                           </li>
@@ -309,11 +307,11 @@ export function Navbar() {
 
             const isActive = pathname === link.href
             return (
-              <li key={link.href} className="border-b border-[#E8DCCB] pb-2 mb-2">
+              <li key={link.href} className="border-b border-[#D4B896]/20 pb-2 mb-2">
                 <Link
                   href={link.href!}
                   onClick={() => setOpen(false)}
-                  className="block py-2.5 font-serif text-xl text-[#2C1E16] transition-colors hover:text-[#C17D59]"
+                  className="block py-2.5 font-serif text-xl text-[#E8DCCB] transition-colors hover:text-[#C17D59]"
                 >
                   {link.label}
                 </Link>

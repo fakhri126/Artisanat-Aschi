@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown } from 'lucide-react'
+import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { FadeIn } from '@/components/motion/fade-in'
 import { publicApi, Product } from '@/lib/api'
@@ -112,32 +112,7 @@ function isFuzzyMatch(term: string, target: string | null | undefined): boolean 
 
 // ─── Mock data fallback ──────────────────────────────────────────────────────
 
-const MOCK_MODELS: Product[] = [
-  { 
-    id: 5, 
-    name: 'Buffet Carthage', 
-    category: { id: 1, name: 'Buffets', type: '' }, 
-    images: [
-      { id: 101, imageUrl: '/buffet-carthage-face-principale.jpg', isPrimary: true, colorLabel: 'Original' },
-      { id: 102, imageUrl: '/buffet-carthage-angle-gauche.jpg', isPrimary: false, colorLabel: 'Original' },
-      { id: 103, imageUrl: '/buffet-carthage-angle-droit.jpg', isPrimary: false, colorLabel: 'Original' },
-      { id: 104, imageUrl: '/buffet-carthage-vue-gauche.jpg', isPrimary: false, colorLabel: 'Original' },
-      { id: 105, imageUrl: '/buffet-carthage-vue-droite.jpg', isPrimary: false, colorLabel: 'Original' },
-      { id: 106, imageUrl: '/buffet-carthage-plateau-top.jpg', isPrimary: false, colorLabel: 'Original' },
-    ], 
-    description: "Buffet artisanal d'exception blanc patiné incrusté de carreaux de céramique faits main.", 
-    materials: 'Bois massif & Céramique', 
-    dimensions: '180 x 50 x 85 cm', 
-    color: 'Blanc Patiné', 
-    price: 4200, 
-    availability: 'Disponible', 
-    type: 'CATALOGUE', 
-    isFeatured: true 
-  },
-  { id: 6, name: 'Meuble TV Hammamet', category: { id: 2, name: 'Meubles TV', type: '' }, images: [{ id: 2, imageUrl: '/cat-tv.png', isPrimary: true, colorLabel: 'Blanc Cérusé' }], description: 'Meuble bas tout en élégance.', materials: 'Bois de frêne', dimensions: '160 x 40 x 55 cm', color: 'Blanc Cérusé', price: 2600, availability: 'Disponible', type: 'CATALOGUE', isFeatured: false },
-  { id: 4, name: 'Miroir Sidi Bou', category: { id: 3, name: 'Miroirs', type: '' }, images: [{ id: 3, imageUrl: '/creation-model.png', isPrimary: true, colorLabel: 'Or' }], description: "Miroir au cadre sculpté rehaussé de feuille d'or.", materials: "Bois d'olivier", dimensions: '80 x 120 cm', color: 'Or', price: 1900, availability: 'Sur commande', type: 'CATALOGUE', isFeatured: false },
-  { id: 3, name: 'Porte Dar El Bey', category: { id: 4, name: 'Portes', type: '' }, images: [{ id: 4, imageUrl: '/cat-door.png', isPrimary: true, colorLabel: 'Noyer' }], description: 'Porte artistique aux gravures géométriques profondes.', materials: 'Chêne', dimensions: '220 x 140 cm', color: 'Noyer', price: null, availability: 'Sur commande', type: 'CATALOGUE', isFeatured: false },
-]
+const MOCK_MODELS: Product[] = []
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -403,8 +378,16 @@ export function CatalogPage() {
   // Dynamic Categories
   const [categories, setCategories] = useState<{ id: string; label: string; icon: any; count: number }[]>([])
   
-  // Carousel Ref for auto-centering
+  // Carousel Ref for auto-centering & Thumbnails
   const carouselRef = useRef<HTMLDivElement>(null)
+  const thumbCarouselRef = useRef<HTMLDivElement>(null)
+
+  const scrollThumbnails = (direction: 'left' | 'right') => {
+    if (thumbCarouselRef.current) {
+      const amount = direction === 'left' ? -180 : 180
+      thumbCarouselRef.current.scrollBy({ left: amount, behavior: 'smooth' })
+    }
+  }
   
   // Favorites
   const [favorites, setFavorites] = useState<number[]>([])
@@ -466,10 +449,14 @@ export function CatalogPage() {
     loadProducts()
   }, [])
 
-  // Derive dynamic categories from dbProducts
+  // Derive dynamic categories from all available products (DB + MOCK fallback)
   useEffect(() => {
+    const allProducts = dbProducts.length > 0 
+      ? [...dbProducts, ...MOCK_MODELS.filter(m => !dbProducts.some(dbP => dbP.name?.toLowerCase() === m.name?.toLowerCase() || dbP.id === m.id))]
+      : MOCK_MODELS
+
     const counts: Record<string, number> = {}
-    dbProducts.forEach(p => {
+    allProducts.forEach(p => {
       const catName = p.category?.name || 'Autre'
       counts[catName] = (counts[catName] || 0) + 1
     })
@@ -482,14 +469,16 @@ export function CatalogPage() {
     })).sort((a, b) => a.label.localeCompare(b.label))
 
     setCategories([
-      { id: 'Tout', label: 'Tout', icon: Grid2X2, count: dbProducts.length },
+      { id: 'Tout', label: 'Tout', icon: Grid2X2, count: allProducts.length },
       ...dynamicCategories
     ])
   }, [dbProducts])
 
-  // Client-side filtering on database products (fallback to MOCK_MODELS if DB is empty)
+  // Client-side filtering on merged products
   useEffect(() => {
-    const source = dbProducts.length > 0 ? dbProducts : (loading ? [] : MOCK_MODELS)
+    const source = dbProducts.length > 0 
+      ? [...dbProducts, ...MOCK_MODELS.filter(m => !dbProducts.some(dbP => dbP.name?.toLowerCase() === m.name?.toLowerCase() || dbP.id === m.id))]
+      : (loading ? [] : MOCK_MODELS)
     let filtered = source
 
     let needsGoldCard = false
@@ -542,23 +531,49 @@ export function CatalogPage() {
     }
 
     if (category !== 'Tout') {
-      filtered = filtered.filter(p => p.category?.name === category)
+      filtered = filtered.filter(p => p.category?.name?.toLowerCase() === category.toLowerCase())
     }
     if (color !== 'Tout') {
       const targetColor = color.trim().toLowerCase()
       filtered = filtered.filter(p => {
-        const matchesMain = p.color?.trim().toLowerCase() === targetColor
-        const matchesVariant = p.images?.some(img => img.colorLabel?.trim().toLowerCase() === targetColor)
+        const mainColor = p.color?.trim().toLowerCase() || ''
+        const matchesMain = mainColor.includes(targetColor) || targetColor.includes(mainColor) || isFuzzyMatch(targetColor, mainColor)
+        const matchesVariant = p.images?.some(img => {
+          const vLabel = img.colorLabel?.trim().toLowerCase() || ''
+          return vLabel.includes(targetColor) || targetColor.includes(vLabel) || isFuzzyMatch(targetColor, vLabel)
+        })
         return matchesMain || matchesVariant
       })
     }
     if (dimension !== 'Tout') {
       filtered = filtered.filter(p => {
-        const dim = parseInt(p.dimensions || '0')
-        if (dimension === 'Petit (< 80 cm)') return dim < 80
-        if (dimension === 'Moyen (80–150 cm)') return dim >= 80 && dim <= 150
-        if (dimension === 'Grand (> 150 cm)') return dim > 150
-        return true
+        const dimStr = (p.dimensions || '').toLowerCase()
+        const targetDim = dimension.toLowerCase()
+        
+        // 1. Explicit text tag match ("petit", "moyen", "grand")
+        if (targetDim.includes('petit') && dimStr.includes('petit')) return true
+        if (targetDim.includes('moyen') && dimStr.includes('moyen')) return true
+        if (targetDim.includes('grand') && dimStr.includes('grand')) return true
+
+        // 2. Image variant label match
+        const hasVariantDim = p.images?.some(img => {
+          const label = (img.colorLabel || '').toLowerCase()
+          return (targetDim.includes('petit') && label.includes('petit')) ||
+                 (targetDim.includes('moyen') && label.includes('moyen')) ||
+                 (targetDim.includes('grand') && label.includes('grand'))
+        })
+        if (hasVariantDim) return true
+
+        // 3. Numeric parsing fallback (e.g. 180 x 50 x 85 cm -> 180)
+        const numbers = dimStr.match(/\d+/g)
+        if (numbers && numbers.length > 0) {
+          const mainVal = parseInt(numbers[0])
+          if (targetDim.includes('petit')) return mainVal > 0 && mainVal < 80
+          if (targetDim.includes('moyen')) return mainVal >= 80 && mainVal <= 150
+          if (targetDim.includes('grand')) return mainVal > 150
+        }
+        
+        return false
       })
     }
 
@@ -624,8 +639,8 @@ export function CatalogPage() {
                 <X className="size-5" />
               </button>
 
-              {/* Left Side: Photo Showcase */}
-              <div className="w-full md:w-1/2 relative bg-[#FAF7F2] aspect-[4/5] md:aspect-auto h-[320px] md:h-[580px] border-b md:border-b-0 md:border-r border-[#E8DCCB]/60 overflow-hidden">
+              {/* Left Side: Photo Showcase (Clean without Zoom) */}
+              <div className="w-full md:w-1/2 relative bg-[#FAF7F2] aspect-[4/5] md:aspect-auto h-[320px] md:h-[580px] border-b md:border-b-0 md:border-r border-[#E8DCCB]/60 overflow-hidden group select-none">
                 {quickViewProduct.images && quickViewProduct.images.length > 0 ? (
                   <>
                     <AnimatePresence mode="wait">
@@ -641,41 +656,73 @@ export function CatalogPage() {
                       />
                     </AnimatePresence>
 
-                    {/* Navigation Arrows */}
+                    {/* Pro Navigation Arrows */}
                     {quickViewProduct.images.length > 1 && (
                       <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-20">
                         <button 
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setQuickViewImageIndex(i => i === 0 ? (quickViewProduct.images?.length || 1) - 1 : i - 1); }}
-                          className="p-2.5 bg-black/40 hover:bg-black/70 text-white rounded-full backdrop-blur-md transition-all pointer-events-auto shadow-md"
+                          className="p-3.5 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+                          title="Image précédente"
                         >
-                          <ChevronLeft className="size-4" />
+                          <ChevronLeft className="size-5 transition-transform group-hover/arrow:-translate-x-0.5" />
                         </button>
                         <button 
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setQuickViewImageIndex(i => i === (quickViewProduct.images?.length || 1) - 1 ? 0 : i + 1); }}
-                          className="p-2.5 bg-black/40 hover:bg-black/70 text-white rounded-full backdrop-blur-md transition-all pointer-events-auto shadow-md"
+                          className="p-3.5 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+                          title="Image suivante"
                         >
-                          <ChevronRight className="size-4" />
+                          <ChevronRight className="size-5 transition-transform group-hover/arrow:translate-x-0.5" />
                         </button>
                       </div>
                     )}
 
-                    {/* Image Thumbnails Strip */}
+                    {/* Image Thumbnails Strip with Pro Scroll Control */}
                     {quickViewProduct.images.length > 1 && (
-                      <div className="absolute bottom-4 inset-x-4 flex justify-center gap-2 z-20 overflow-x-auto scrollbar-hide py-1">
-                        {quickViewProduct.images.map((img: any, idx: number) => (
-                          <button 
-                            key={img.id || idx}
+                      <div className="absolute bottom-4 inset-x-3 z-20 flex items-center justify-center gap-1.5">
+                        {/* Scroll Left Thumbnail Arrow */}
+                        {quickViewProduct.images.length > 4 && (
+                          <button
                             type="button"
-                            onClick={(e) => { e.stopPropagation(); setQuickViewImageIndex(idx); }}
-                            className={`size-12 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer shadow-md ${
-                              idx === quickViewImageIndex ? 'border-[#C17D59] scale-110 ring-2 ring-[#C17D59]/30' : 'border-white opacity-70 hover:opacity-100'
-                            }`}
+                            onClick={(e) => { e.stopPropagation(); scrollThumbnails('left'); }}
+                            className="size-8 rounded-full bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white backdrop-blur-md flex items-center justify-center shrink-0 shadow-lg border border-white/20 transition-all hover:scale-110 active:scale-95 group/tarrow"
+                            title="Défiler à gauche"
                           >
-                            <img src={img.imageUrl} alt="" className="size-full object-cover" />
+                            <ChevronLeft className="size-4 transition-transform group-hover/tarrow:-translate-x-0.5" />
                           </button>
-                        ))}
+                        )}
+
+                        {/* Thumbnails Container without native scrollbars */}
+                        <div 
+                          ref={thumbCarouselRef}
+                          className="flex gap-2 overflow-x-auto scroll-smooth py-1 px-1 max-w-[85%] scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                        >
+                          {quickViewProduct.images.map((img: any, idx: number) => (
+                            <button 
+                              key={img.id || idx}
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setQuickViewImageIndex(idx); }}
+                              className={`size-12 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer shadow-md ${
+                                idx === quickViewImageIndex ? 'border-[#C17D59] scale-105 ring-2 ring-[#C17D59]/40 opacity-100' : 'border-white/80 opacity-70 hover:opacity-100'
+                              }`}
+                            >
+                              <img src={img.imageUrl} alt="" className="size-full object-cover" />
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Scroll Right Thumbnail Arrow */}
+                        {quickViewProduct.images.length > 4 && (
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); scrollThumbnails('right'); }}
+                            className="size-8 rounded-full bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white backdrop-blur-md flex items-center justify-center shrink-0 shadow-lg border border-white/20 transition-all hover:scale-110 active:scale-95 group/tarrow"
+                            title="Défiler à droite"
+                          >
+                            <ChevronRight className="size-4 transition-transform group-hover/tarrow:translate-x-0.5" />
+                          </button>
+                        )}
                       </div>
                     )}
 
@@ -847,6 +894,8 @@ export function CatalogPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+
 
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
 

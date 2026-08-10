@@ -595,7 +595,30 @@ export default function AdminCataloguePage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Dimensions</label>
-                  <input type="text" placeholder="Ex: 180 x 50 x 85 cm" value={dimensions} onChange={e => setDimensions(e.target.value)} className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
+                  <input type="text" placeholder="Ex: 180 x 50 x 85 cm ou Petit" value={dimensions} onChange={e => setDimensions(e.target.value)} className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <span className="text-[10px] text-muted-foreground font-medium">Filtre taille :</span>
+                    {['Petit', 'Moyen', 'Grand'].map(size => {
+                      const isTagged = dimensions.toLowerCase().includes(size.toLowerCase())
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => {
+                            if (isTagged) return
+                            setDimensions(dimensions ? `${size} (${dimensions})` : size)
+                          }}
+                          className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all border ${
+                            isTagged 
+                              ? 'bg-[#C17D59] text-white border-[#C17D59]' 
+                              : 'bg-white/60 text-[#3A2A21]/70 border-[#E8DCCB] hover:bg-[#E8DCCB]/40'
+                          }`}
+                        >
+                          + {size}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Prix indicatif (DT)</label>

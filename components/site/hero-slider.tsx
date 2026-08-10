@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowDown, ChevronLeft, ChevronRight, Sparkles, FileText, ShieldCheck, TreePine, Ruler, MessageCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
@@ -45,11 +45,10 @@ const SLIDES = [
   },
   {
     id: 'relooking',
-    title: 'Rebooking & Relooking',
-    subtitle: 'Nouveau Service',
-    description: 'Offrez une seconde vie à vos meubles grâce à notre savoir-faire unique et notre approche sur-mesure.',
-    image: '/relooking_service.jpg',
-    cta: 'Découvrir le service',
+    title: 'Relooking & Restauration',
+    subtitle: 'Restauration d\'Art',
+    description: 'Offrez une seconde vie à vos meubles familiaux grâce à la magie de notre savoir-faire ancestral.',
+    cta: 'Découvrir la Restauration',
     href: '/relooking',
   },
   {
@@ -150,6 +149,26 @@ export function HeroSlider() {
 
   return (
     <section id="top" className="relative h-screen min-h-[40rem] w-full overflow-hidden grain">
+      {/* Wood Background Overlay (Mobile) */}
+      <div 
+        className="md:hidden absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none" 
+        style={{ 
+          backgroundImage: "url('/images/hero-mobile-portrait.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat"
+        }} 
+      />
+      {/* Wood Background Overlay (Desktop) */}
+      <div 
+        className="hidden md:block absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none" 
+        style={{ 
+          backgroundImage: "url('/images/hero-colorful-wood-fixed.jpg?v=3')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat"
+        }} 
+      />
       <ZellijScatter type="hero" />
       {/* Slideshow */}
       <AnimatePresence initial={false} custom={direction}>
@@ -306,19 +325,27 @@ export function HeroSlider() {
               variants={textVariants}
               className="max-w-3xl"
             >
-              <div className="flex justify-center mb-6">
-                <span className="text-[#F7F3EC] text-xs font-bold tracking-[0.3em] uppercase bg-[#C17D59]/80 px-5 py-2 rounded-full border border-[#E8DCCB]/30 backdrop-blur-sm shadow-md">
+              {/* Prestige Banner */}
+              <div className="flex flex-col items-center gap-2 mb-6">
+                <div className="flex items-center gap-2 text-[#D4AF37] text-[11px] font-medium tracking-[0.25em] uppercase bg-[#1A1512]/60 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 backdrop-blur-md">
+                  <Sparkles className="size-3.5 text-[#D4AF37] animate-pulse" />
+                  <span>Maison Fondée en 1960 • Sculpteurs du Patrimoine</span>
+                </div>
+                <span className="text-[#F7F3EC] text-xs font-bold tracking-[0.3em] uppercase bg-[#C17D59]/80 px-5 py-1.5 rounded-full border border-[#E8DCCB]/30 backdrop-blur-sm shadow-md">
                   {slide.subtitle}
                 </span>
               </div>
+
               <h1 className="font-heading text-5xl md:text-7xl text-white mb-6 leading-tight" style={{textShadow: '0 2px 20px rgba(58,42,30,0.5)'}}>
                 {slide.title}
               </h1>
-              <p className="text-lg md:text-xl font-light text-[#F7F3EC]/90 mb-10 max-w-2xl mx-auto leading-relaxed" style={{textShadow: '0 1px 10px rgba(58,42,30,0.4)'}}>
+              <p className="text-lg md:text-xl font-light text-[#F7F3EC]/90 mb-8 max-w-2xl mx-auto leading-relaxed" style={{textShadow: '0 1px 10px rgba(58,42,30,0.4)'}}>
                 {slide.description}
               </p>
               
-              <div className="flex flex-col items-center gap-6">
+              {/* Dual CTA: Knob interactive + Direct Devis Express Button */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-10">
+                {/* Knob Interactive Element */}
                 <div 
                   onClick={() => handleKnobClick(slide.href)}
                   onMouseEnter={() => setShowGuide(false)}
@@ -338,67 +365,101 @@ export function HeroSlider() {
                     )}
                   </AnimatePresence>
                   {/* Glow ring behind knob */}
-                  <div className="absolute w-28 h-28 rounded-full bg-[#d4af37]/15 blur-lg group-hover/knob:bg-[#d4af37]/25 transition-all duration-500" />
+                  <div className="absolute w-24 h-24 rounded-full bg-[#d4af37]/15 blur-lg group-hover/knob:bg-[#d4af37]/30 transition-all duration-500" />
                   
                   {/* The Knob */}
                   <motion.div
                     animate={clickedKnob === SLIDES[current].href ? { rotate: [0, -35, 10, 0] } : {}}
                     transition={{ duration: 0.6, ease: "easeInOut" }}
-                    className="relative w-32 h-32 md:w-40 md:h-40 rounded-full border-[3px] border-[#C17D59] bg-[#3A2A1E] shadow-[0_10px_20px_rgba(58,42,30,0.6),inset_0_4px_8px_rgba(255,255,255,0.15)] overflow-hidden"
+                    className="relative w-28 h-28 md:w-32 md:h-32 rounded-full border-[3px] border-[#C17D59] bg-[#3A2A1E] shadow-[0_10px_20px_rgba(58,42,30,0.6),inset_0_4px_8px_rgba(255,255,255,0.15)] overflow-hidden"
                     whileHover={{ rotate: 15, scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <BohoCarvedKnob className="w-full h-full text-[#E8DCCB]" color="currentColor" />
-                    {/* Highlight overlay */}
                     <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-black/30 via-transparent to-white/15 pointer-events-none" />
                   </motion.div>
                   
-                  {/* Text prompt to click */}
-                  <span className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#F7F3EC] font-semibold bg-[#C17D59]/80 px-4 py-1.5 rounded-full border border-[#C17D59]/40 backdrop-blur-sm shadow-[0_4px_10px_rgba(193,125,89,0.4)] transition-all group-hover/knob:bg-[#F7F3EC] group-hover/knob:text-[#3A2A1E] group-hover/knob:border-[#D9CEB8] duration-300 select-none">
+                  <span className="mt-3 text-[10px] uppercase tracking-[0.2em] text-[#F7F3EC] font-semibold bg-[#C17D59]/80 px-4 py-1.5 rounded-full border border-[#C17D59]/40 backdrop-blur-sm shadow-[0_4px_10px_rgba(193,125,89,0.4)] transition-all group-hover/knob:bg-[#F7F3EC] group-hover/knob:text-[#3A2A1E] group-hover/knob:border-[#D9CEB8] duration-300 select-none">
                     {SLIDES[current].cta}
                   </span>
                 </div>
+
+                {/* Separator / Or */}
+                <div className="hidden sm:flex flex-col items-center gap-1 opacity-50">
+                  <div className="w-px h-8 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent" />
+                  <span className="text-[10px] uppercase font-bold text-[#D4AF37]">ou</span>
+                  <div className="w-px h-8 bg-gradient-to-b from-transparent via-[#D4AF37] to-transparent" />
+                </div>
+
+                {/* Direct High-Conversion Button */}
+                <Link
+                  href="/custom-creation"
+                  className="group flex items-center gap-3 bg-gradient-to-r from-[#C17D59] to-[#8C5230] hover:from-[#d4af37] hover:to-[#C17D59] text-white font-semibold text-xs uppercase tracking-[0.16em] px-7 py-4 rounded-full shadow-[0_10px_25px_rgba(193,125,89,0.4)] border border-[#E8DCCB]/30 transition-all duration-300 transform hover:-translate-y-1"
+                >
+                  <FileText className="size-4 text-white group-hover:scale-110 transition-transform" />
+                  <span>Devis Sur-Mesure Express</span>
+                </Link>
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
       )}
 
-      {/* Slider Controls */}
-      <div className="absolute top-1/2 left-4 sm:left-8 z-30 -translate-y-1/2">
-        <button
-          onClick={() => paginate(-1)}
-          className="p-3 sm:p-4 rounded-full bg-[#F7F3EC]/20 text-[#F7F3EC] backdrop-blur-md border border-[#F7F3EC]/20 hover:bg-[#F7F3EC] hover:text-[#3A2A1E] transition-all duration-300"
-          aria-label="Previous slide"
-        >
-          <ChevronLeft className="size-6" />
-        </button>
-      </div>
-      <div className="absolute top-1/2 right-4 sm:right-8 z-30 -translate-y-1/2">
-        <button
-          onClick={() => paginate(1)}
-          className="p-3 sm:p-4 rounded-full bg-[#F7F3EC]/20 text-[#F7F3EC] backdrop-blur-md border border-[#F7F3EC]/20 hover:bg-[#F7F3EC] hover:text-[#3A2A1E] transition-all duration-300"
-          aria-label="Next slide"
-        >
-          <ChevronRight className="size-6" />
-        </button>
-      </div>
-
-      {/* Slide Indicators */}
-      <div className="absolute bottom-20 left-1/2 z-30 flex -translate-x-1/2 gap-3">
-        {SLIDES.map((_, idx) => (
+      {/* Slider Controls & Trust Badges Bar (Bottom) */}
+      <div className="absolute bottom-4 sm:bottom-8 left-1/2 z-40 flex flex-col items-center -translate-x-1/2 gap-4 w-full max-w-4xl px-4">
+        
+        {/* Controls Bar */}
+        <div className="flex items-center gap-6 sm:gap-8 bg-[#1A1512]/75 backdrop-blur-md px-6 sm:px-8 py-2.5 sm:py-3 rounded-full border border-[#D4AF37]/25 shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
           <button
-            key={idx}
-            onClick={() => {
-              setDirection(idx > current ? 1 : -1)
-              setCurrent(idx)
-            }}
-            className={`h-1.5 transition-all duration-500 rounded-full ${
-              idx === current ? 'w-10 bg-[#C17D59]' : 'w-2 bg-[#F7F3EC]/50 hover:bg-[#F7F3EC]/80'
-            }`}
-            aria-label={`Go to slide ${idx + 1}`}
-          />
-        ))}
+            onClick={() => paginate(-1)}
+            className="p-1.5 rounded-full bg-[#F7F3EC]/10 text-[#F7F3EC] hover:bg-[#D4AF37] hover:text-[#1A1512] hover:scale-110 transition-all duration-300"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="size-4 sm:size-5" />
+          </button>
+
+          <div className="flex gap-2.5 items-center">
+            {SLIDES.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  setDirection(idx > current ? 1 : -1)
+                  setCurrent(idx)
+                }}
+                className={`h-1.5 transition-all duration-500 rounded-full ${
+                  idx === current ? 'w-8 sm:w-10 bg-[#D4AF37]' : 'w-2 bg-[#F7F3EC]/50 hover:bg-[#F7F3EC]/80 hover:w-4'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={() => paginate(1)}
+            className="p-1.5 rounded-full bg-[#F7F3EC]/10 text-[#F7F3EC] hover:bg-[#D4AF37] hover:text-[#1A1512] hover:scale-110 transition-all duration-300"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="size-4 sm:size-5" />
+          </button>
+        </div>
+
+        {/* Reassurance Trust Badges */}
+        <div className="hidden md:flex items-center justify-center gap-6 text-[10px] tracking-wider uppercase text-[#E8DCCB]/90 bg-[#1A1512]/60 backdrop-blur-md px-6 py-2 rounded-full border border-[#E8DCCB]/10">
+          <div className="flex items-center gap-1.5">
+            <TreePine className="size-3.5 text-[#D4AF37]" />
+            <span>100% Bois Noble (Noyer & Olivier)</span>
+          </div>
+          <span className="text-[#D4AF37]/40">•</span>
+          <div className="flex items-center gap-1.5">
+            <Ruler className="size-3.5 text-[#D4AF37]" />
+            <span>Création Sur-Mesure & Plan 3D</span>
+          </div>
+          <span className="text-[#D4AF37]/40">•</span>
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck className="size-3.5 text-[#D4AF37]" />
+            <span>Livraison & Restauration d&apos;Art</span>
+          </div>
+        </div>
       </div>
 
       {/* Scroll cue */}

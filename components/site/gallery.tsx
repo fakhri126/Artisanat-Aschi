@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { Reveal } from "./reveal"
 import { BohoOrnateDiamond, BohoRosace, BohoDeepCarvedDiamond, BohoCeramicOctagon, BohoCeramicCross, BohoCeramicDiamond } from "./boho-decor"
+import { useRandomHeroColor } from '@/hooks/use-random-hero-color'
 
 const images = [
   { src: "/gallery-1.png", alt: "Détail de sculpture arabesque sur noyer", span: "row-span-2" },
@@ -14,17 +15,16 @@ const images = [
 ]
 
 export function Gallery() {
+  const { color: titleColor, isMounted: isHeroColorMounted } = useRandomHeroColor()
   return (
-    <section id="galerie" className="bg-transparent py-24 md:py-36 relative overflow-hidden">
-      
-      {/* Bohemian Sculpted Motifs */}
-      <BohoRosace className="absolute -top-40 -left-40 w-[300px] md:w-[600px] opacity-[0.15] text-[#3B6FA0]" color="currentColor" />
-      <BohoDeepCarvedDiamond className="absolute bottom-20 -right-10 md:-right-20 w-40 md:w-80 opacity-40" color="#D4AF37" />
-
-      <div className="mx-auto max-w-7xl px-6 relative z-10">
+    <section id="inspirations" className="relative w-full py-16 md:py-24 bg-transparent overflow-hidden">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 relative z-10">
         <Reveal>
-          <p className="font-heading text-base md:text-lg font-bold uppercase tracking-[0.3em] text-[var(--gold)]">Galerie d&apos;art</p>
-          <h2 className="mt-4 max-w-2xl font-heading text-4xl leading-tight text-foreground md:text-6xl text-balance">
+          <p className="font-heading text-base md:text-lg font-bold uppercase tracking-[0.3em] text-white drop-shadow-[0_1px_2px_rgba(26,17,11,0.8)]">Galerie d&apos;art</p>
+          <h2 
+            className="mt-4 max-w-2xl font-heading text-4xl leading-tight drop-shadow-[0_2px_4px_rgba(26,17,11,0.8)] md:text-6xl text-balance transition-colors duration-1000"
+            style={{ color: isHeroColorMounted ? titleColor : '#F28C28' }}
+          >
             La beauté dans le détail
           </h2>
         </Reveal>
