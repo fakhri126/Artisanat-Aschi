@@ -8,6 +8,8 @@ import { Plus, Edit2, Trash2, Eye, Star, X, Image as ImageIcon, Upload, CheckCir
 // ─── Preset variant labels for quick selection ─────────────────────────────
 const VARIANTS_PRESETS = [
   { label: 'Original',      hex: null },
+  { label: 'Blanc',         hex: '#FFFFFF' },
+  { label: 'Noir',          hex: '#1A1A1A' },
   { label: 'Noyer foncé',   hex: '#5C3317' },
   { label: 'Bleu Cérusé',   hex: '#2D5F8A' },
   { label: 'Doré',          hex: '#C9A84C' },
@@ -283,14 +285,87 @@ export default function AdminProductsPage() {
     }
   }
 
+  // Auto-naming & auto-description helpers
+  const getNextModelName = (catId: string, allProds: Product[], allCats: Category[]) => {
+    const cat = allCats.find(c => c.id.toString() === catId)
+    const catName = cat?.name || 'Création'
+    
+    let singular = catName
+    if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
+      singular = singular.slice(0, -1)
+    }
+    if (singular.toLowerCase().includes('meuble')) {
+      singular = 'Meuble TV'
+    }
+
+    const inCat = allProds.filter(p => p.category?.id.toString() === catId || p.category?.name === catName)
+    
+    let maxNum = 0
+    for (const p of inCat) {
+      const match = p.name.match(/(?:Modèle|N°|#|\s)(\d+)/i)
+      if (match) {
+        const num = parseInt(match[1], 10)
+        if (num > maxNum) maxNum = num
+      }
+    }
+    
+    const nextNum = (maxNum + 1).toString().padStart(2, '0')
+    return `${singular} — Modèle ${nextNum}`
+  }
+
+  const buildAutoDescription = (modelName: string, catId: string, itemColor: string, itemDim: string, allCats: Category[]) => {
+    const cat = allCats.find(c => c.id.toString() === catId)
+    let singular = cat?.name || 'Création'
+    if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
+      singular = singular.slice(0, -1)
+    }
+    if (singular.toLowerCase().includes('meuble')) {
+      singular = 'Meuble TV'
+    }
+
+    const match = modelName.match(/(?:Modèle|N°|#|\s)(\d+)/i)
+    const modelPart = match ? `(Modèle ${match[1].padStart(2, '0')}) ` : ''
+    const colorPart = itemColor ? `Finition ${itemColor}` : 'Finition au choix'
+    const dimPart = itemDim ? `, format ${itemDim}` : ''
+
+    return `${singular} artisanal d'art fait-main sur-mesure ${modelPart}— ${colorPart}${dimPart}.`
+  }
+
+  const handleCategoryChange = (newCatId: string) => {
+    setCategoryId(newCatId)
+    if (!editingProduct) {
+      const nextName = getNextModelName(newCatId, products, categories)
+      setName(nextName)
+      setDescription(buildAutoDescription(nextName, newCatId, color, dimensions, categories))
+    } else {
+      setDescription(buildAutoDescription(name, newCatId, color, dimensions, categories))
+    }
+  }
+
+  const handleColorChange = (newColor: string) => {
+    setColor(newColor)
+    setDescription(buildAutoDescription(name, categoryId, newColor, dimensions, categories))
+  }
+
+  const handleDimensionsChange = (newDim: string) => {
+    setDimensions(newDim)
+    setDescription(buildAutoDescription(name, categoryId, color, newDim, categories))
+  }
+
   const openCreateModal = () => {
     setEditingProduct(null)
-    setName('')
-    setDescription('')
-    setCategoryId(categories[0]?.id.toString() || '')
-    setDimensions('')
-    setMaterials('')
-    setColor('')
+    const initCatId = categories.find(c => c.name.toLowerCase().includes('buffet'))?.id.toString() || categories[0]?.id.toString() || '1'
+    const initColor = 'Blanc'
+    const initDim = 'Moyen'
+    const nextName = getNextModelName(initCatId, products, categories)
+    const initDesc = buildAutoDescription(nextName, initCatId, initColor, initDim, categories)
+
+    setName(nextName)
+    setDescription(initDesc)
+    setCategoryId(initCatId)
+    setDimensions(initDim)
+    setMaterials('Bois massif noble & Céramique artisanale')
+    setColor(initColor)
     setPrice('')
     setAvailability('Disponible')
     setType('PIECE_UNIQUE')
@@ -557,14 +632,14 @@ export default function AdminProductsPage() {
               {/* Basic info grid */}
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Nom du produit</label>
-                  <input type="text" required placeholder="Ex: Buffet Carthage" value={name} onChange={e => setName(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
+                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Nom du produit (Généré auto)</label>
+                  <input type="text" required placeholder="Ex: Buffet — Modèle 01" value={name} onChange={e => setName(e.target.value)}
+                    className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none font-medium" />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Catégorie</label>
-                  <select value={categoryId} onChange={e => setCategoryId(e.target.value)}
+                  <select value={categoryId} onChange={e => handleCategoryChange(e.target.value)}
                     className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none">
                     {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                   </select>
@@ -592,27 +667,24 @@ export default function AdminProductsPage() {
 
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Dimensions</label>
-                  <input type="text" placeholder="Ex: 180 x 50 x 85 cm ou Petit" value={dimensions} onChange={e => setDimensions(e.target.value)}
+                  <input type="text" placeholder="Ex: Petit, Moyen ou Grand" value={dimensions} onChange={e => handleDimensionsChange(e.target.value)}
                     className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
                   <div className="flex items-center gap-1.5 pt-1">
-                    <span className="text-[10px] text-muted-foreground font-medium">Filtre taille :</span>
+                    <span className="text-[10px] text-muted-foreground font-medium">Format rapide :</span>
                     {['Petit', 'Moyen', 'Grand'].map(size => {
-                      const isTagged = dimensions.toLowerCase().includes(size.toLowerCase())
+                      const isTagged = dimensions.toLowerCase() === size.toLowerCase()
                       return (
                         <button
                           key={size}
                           type="button"
-                          onClick={() => {
-                            if (isTagged) return
-                            setDimensions(dimensions ? `${size} (${dimensions})` : size)
-                          }}
-                          className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all border ${
+                          onClick={() => handleDimensionsChange(size)}
+                          className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all border ${
                             isTagged 
-                              ? 'bg-[#C17D59] text-white border-[#C17D59]' 
-                              : 'bg-white/60 text-[#3A2A21]/70 border-[#E8DCCB] hover:bg-[#E8DCCB]/40'
+                              ? 'bg-[#C17D59] text-white border-[#C17D59] shadow-sm' 
+                              : 'bg-white text-[#3A2A21] border-[#E8DCCB] hover:bg-[#FAF7F2]'
                           }`}
                         >
-                          + {size}
+                          {size}
                         </button>
                       )
                     })}
@@ -621,21 +693,21 @@ export default function AdminProductsPage() {
 
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Matériaux</label>
-                  <input type="text" placeholder="Ex: Noyer massif & Laiton" value={materials} onChange={e => setMaterials(e.target.value)}
+                  <input type="text" placeholder="Ex: Noyer massif noble & Céramique" value={materials} onChange={e => setMaterials(e.target.value)}
                     className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Couleur principale</label>
-                  <input type="text" placeholder="Ex: Blanc, Noyer, Bleu, Or" value={color} onChange={e => setColor(e.target.value)}
+                  <input type="text" placeholder="Ex: Blanc, Noir, Noyer, Bleu, Or" value={color} onChange={e => handleColorChange(e.target.value)}
                     className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
                   <div className="flex flex-wrap items-center gap-1 pt-1">
                     <span className="text-[10px] text-muted-foreground font-medium">Suggéré :</span>
-                    {['Blanc', 'Noyer', 'Bleu', 'Or', 'Naturel', 'Vert Olivier'].map(colorTag => (
+                    {['Blanc', 'Noir', 'Noyer', 'Bleu', 'Or', 'Naturel', 'Vert Olivier'].map(colorTag => (
                       <button
                         key={colorTag}
                         type="button"
-                        onClick={() => setColor(colorTag)}
+                        onClick={() => handleColorChange(colorTag)}
                         className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all border ${
                           color.toLowerCase() === colorTag.toLowerCase()
                             ? 'bg-[#C17D59] text-white border-[#C17D59]'
@@ -656,8 +728,17 @@ export default function AdminProductsPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Description</label>
-                <textarea rows={3} placeholder="Présentation du meuble, son histoire, sa sculpture, etc." value={description} onChange={e => setDescription(e.target.value)}
+                <div className="flex items-center justify-between">
+                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Description (Auto-générée)</label>
+                  <button
+                    type="button"
+                    onClick={() => setDescription(buildAutoDescription(name, categoryId, color, dimensions, categories))}
+                    className="text-[10px] text-[#C17D59] hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    🪄 Régénérer la description
+                  </button>
+                </div>
+                <textarea rows={3} placeholder="Présentation du modèle..." value={description} onChange={e => setDescription(e.target.value)}
                   className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none resize-none" />
               </div>
 

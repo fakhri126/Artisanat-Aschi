@@ -333,13 +333,20 @@ export default function ProductDetailPage({ params }: PageProps) {
                 onMouseLeave={() => setShowZoomLens(false)}
                 onMouseMove={handleZoomMouseMove}
                 onClick={() => setIsFullscreenZoom(true)}
-                className="relative aspect-[4/5] bg-[#FAF7F2]/10 border border-border overflow-hidden rounded-2xl shadow-xl cursor-crosshair group select-none"
+                className="relative aspect-[4/5] bg-[#2C1E16]/5 border border-[#E8DCCB] overflow-hidden rounded-2xl shadow-xl cursor-crosshair group select-none flex items-center justify-center"
               >
+                {/* Ambient Blurred Luxury Backdrop (Eliminates white empty bars seamlessly) */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center blur-2xl opacity-35 scale-125"
+                  style={{ backgroundImage: `url(${activeImage || '/placeholder.png'})` }}
+                />
+
+                {/* 100% COMPLETE PHOTO (Fully visible from top to bottom) */}
                 <motion.img
                   key={activeImage}
                   src={activeImage || '/placeholder.png'}
                   alt={product.name}
-                  className="size-full object-cover transition-transform duration-300"
+                  className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-[1.02]"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.4 }}
@@ -373,16 +380,22 @@ export default function ProductDetailPage({ params }: PageProps) {
 
                 {/* Pro Image Navigation Arrows */}
                 {viewsForSelectedVariant.length > 1 && (
-                  <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-20">
+                  <div 
+                    onMouseEnter={() => setShowZoomLens(false)}
+                    onMouseLeave={() => setShowZoomLens(true)}
+                    className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-40"
+                  >
                     <button 
                       type="button"
                       onClick={(e) => {
+                        e.preventDefault()
                         e.stopPropagation()
                         const currentIdx = viewsForSelectedVariant.findIndex(v => v.imageUrl === activeImage)
                         const prevIdx = currentIdx <= 0 ? viewsForSelectedVariant.length - 1 : currentIdx - 1
                         setActiveImage(viewsForSelectedVariant[prevIdx].imageUrl)
                       }}
-                      className="p-3.5 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+                      onMouseEnter={() => setShowZoomLens(false)}
+                      className="p-3.5 bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border-2 border-white/40 hover:scale-115 active:scale-95 group/arrow cursor-pointer"
                       title="Vue précédente"
                     >
                       <ChevronLeft className="size-5 transition-transform group-hover/arrow:-translate-x-0.5" />
@@ -390,12 +403,14 @@ export default function ProductDetailPage({ params }: PageProps) {
                     <button 
                       type="button"
                       onClick={(e) => {
+                        e.preventDefault()
                         e.stopPropagation()
                         const currentIdx = viewsForSelectedVariant.findIndex(v => v.imageUrl === activeImage)
                         const nextIdx = currentIdx >= viewsForSelectedVariant.length - 1 ? 0 : currentIdx + 1
                         setActiveImage(viewsForSelectedVariant[nextIdx].imageUrl)
                       }}
-                      className="p-3.5 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+                      onMouseEnter={() => setShowZoomLens(false)}
+                      className="p-3.5 bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border-2 border-white/40 hover:scale-115 active:scale-95 group/arrow cursor-pointer"
                       title="Vue suivante"
                     >
                       <ChevronRight className="size-5 transition-transform group-hover/arrow:translate-x-0.5" />

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2 } from 'lucide-react'
+import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { FadeIn } from '@/components/motion/fade-in'
 import { publicApi, Product } from '@/lib/api'
@@ -13,6 +13,8 @@ import { useRouter } from 'next/navigation'
 
 const COLORS = [
   { label: 'Tout',          hex: null,      border: 'border-border' },
+  { label: 'Blanc',         hex: '#FFFFFF', border: 'border-stone-300' },
+  { label: 'Noir',          hex: '#1A1A1A', border: 'border-stone-800' },
   { label: 'Noyer',         hex: '#5C3317', border: 'border-amber-900' },
   { label: 'Bleu',          hex: '#2D5F8A', border: 'border-blue-700' },
   { label: 'Or',            hex: '#C9A84C', border: 'border-yellow-600' },
@@ -75,6 +77,21 @@ const isOriginal = (label: string | null | undefined) => {
   return !label || label.trim().toLowerCase() === 'original'
 }
 
+const getDimensionBadge = (dim: string | null | undefined) => {
+  if (!dim) return null
+  const d = dim.toLowerCase()
+  if (d.includes('petit')) {
+    return { label: 'Petit Format', size: '< 80 cm' }
+  }
+  if (d.includes('moyen')) {
+    return { label: 'Format Moyen', size: '80–150 cm' }
+  }
+  if (d.includes('grand')) {
+    return { label: 'Grand Format', size: '> 150 cm' }
+  }
+  return { label: dim, size: '' }
+}
+
 // ─── Utils ───────────────────────────────────────────────────────────────────
 
 function levenshtein(a: string, b: string): number {
@@ -99,15 +116,74 @@ function levenshtein(a: string, b: string): number {
 function isFuzzyMatch(term: string, target: string | null | undefined): boolean {
   if (!target) return false;
   const t = target.toLowerCase();
+  const words = t.split(/[\s,.'’"()/-]+/).map(w => w.trim()).filter(Boolean);
+
+  // For short terms (<= 3 chars, e.g. "or", "tv", "bois"), enforce exact whole-word match
+  if (term.length <= 3) {
+    return words.includes(term) || t === term;
+  }
+
   if (t.includes(term)) return true;
+
   // If term is long enough, allow 1-2 typos
   if (term.length >= 4) {
-    const words = t.split(/[\s,.-]+/);
-    // 1 typo for 4-5 chars, 2 typos for 6+ chars
     const maxTypos = term.length >= 6 ? 2 : 1;
     return words.some(w => levenshtein(term, w) <= maxTypos);
   }
   return false;
+}
+
+function matchColorFlexible(target: string, itemColor: string | null | undefined): boolean {
+  if (!itemColor || !target) return false
+  const t = target.trim().toLowerCase()
+  const c = itemColor.trim().toLowerCase()
+  
+  if (t === 'tout' || !t) return true
+  if (c === 'original') return false // "Original" is a view label, not a color
+
+  // Extract distinct words from target and color
+  const tWords = t.split(/[\s,.'’"()/-]+/).map(w => w.trim()).filter(Boolean)
+  const cWords = c.split(/[\s,.'’"()/-]+/).map(w => w.trim()).filter(Boolean)
+
+  // 1. White group
+  const isWhiteTarget = tWords.some(w => ['blanc', 'blanche', 'ceruse', 'cérusé', 'white'].includes(w))
+  const isWhiteItem = cWords.some(w => ['blanc', 'blanche', 'ceruse', 'cérusé', 'white'].includes(w))
+  if (isWhiteTarget) return isWhiteItem
+
+  // 2. Gold group
+  const isGoldTarget = tWords.some(w => ['or', 'doré', 'dore', 'gold', 'jaune'].includes(w))
+  const isGoldItem = cWords.some(w => ['or', 'doré', 'dore', 'gold', 'jaune'].includes(w))
+  if (isGoldTarget) return isGoldItem
+
+  // 3. Blue group
+  const isBlueTarget = tWords.some(w => ['bleu', 'bleue', 'blue', 'cyan', 'cobalt'].includes(w))
+  const isBlueItem = cWords.some(w => ['bleu', 'bleue', 'blue', 'cyan', 'cobalt'].includes(w))
+  if (isBlueTarget) return isBlueItem
+
+  // 4. Walnut / Wood / Natural group
+  const isWoodTarget = tWords.some(w => ['noyer', 'bois', 'naturel', 'marron', 'brun', 'chêne'].includes(w))
+  const isWoodItem = cWords.some(w => ['noyer', 'bois', 'naturel', 'marron', 'brun', 'chêne'].includes(w))
+  if (isWoodTarget) return isWoodItem
+
+  // 5. Green group
+  const isGreenTarget = tWords.some(w => ['vert', 'verte', 'green', 'olivier'].includes(w))
+  const isGreenItem = cWords.some(w => ['vert', 'verte', 'green', 'olivier'].includes(w))
+  if (isGreenTarget) return isGreenItem
+
+  // 6. Bordeaux / Red group
+  const isBordeauxTarget = tWords.some(w => ['bordeaux', 'rouge', 'red'].includes(w))
+  const isBordeauxItem = cWords.some(w => ['bordeaux', 'rouge', 'red'].includes(w))
+  if (isBordeauxTarget) return isBordeauxItem
+
+  // 7. Black group
+  const isBlackTarget = tWords.some(w => ['noir', 'noire', 'black'].includes(w))
+  const isBlackItem = cWords.some(w => ['noir', 'noire', 'black'].includes(w))
+  if (isBlackTarget) return isBlackItem
+
+  // Direct exact match
+  if (c === t) return true
+
+  return false
 }
 
 // ─── Mock data fallback ──────────────────────────────────────────────────────
@@ -151,7 +227,7 @@ const CatalogProductCard = ({
        const label = img.colorLabel?.trim().toLowerCase() || ''
        if (!label) return
        
-       if (targetColor && label === targetColor) {
+       if (targetColor && matchColorFlexible(targetColor, label)) {
          bestVariant = img
          bestScore = -1
          return
@@ -200,16 +276,22 @@ const CatalogProductCard = ({
       className="group relative flex flex-col p-3 sm:p-4 rounded-[1.75rem] sm:rounded-[2.25rem] bg-[#FAF8F5] hover:bg-white border border-[#E8DCCB] hover:border-[#C17D59] shadow-[0_4px_20px_rgba(58,42,33,0.05)] hover:shadow-[0_20px_45px_rgba(193,125,89,0.18)] transition-all duration-500 transform hover:-translate-y-1.5"
     >
       {/* MODERN ARTISANAL PHOTO ARCH FRAME */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-t-[1.5rem] sm:rounded-t-[2rem] rounded-b-xl bg-[#FAF7F2] border border-[#E8DCCB]/60 shadow-inner group/img">
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-t-[1.5rem] sm:rounded-t-[2rem] rounded-b-xl bg-[#2C1E16]/5 border border-[#E8DCCB]/60 shadow-inner group/img flex items-center justify-center">
         
+        {/* Ambient Blurred Luxury Backdrop */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center blur-xl opacity-30 scale-125"
+          style={{ backgroundImage: `url(${image})` }}
+        />
+
         {/* Main photo / AI Variant */}
         {isAIVariantDisplayed && variantImage ? (
           <>
             <motion.img
               src={variantImage.imageUrl}
               alt={model.name}
-              className="size-full object-cover"
-              animate={{ scale: isHovered ? 1.08 : 1 }}
+              className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-sm"
+              animate={{ scale: isHovered ? 1.05 : 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
             />
             <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-violet-600/95 backdrop-blur-md px-3 py-1 shadow-md border border-violet-400/50">
@@ -224,9 +306,9 @@ const CatalogProductCard = ({
                 key={image}
                 src={image}
                 alt={model.name}
-                className="absolute inset-0 size-full object-cover"
+                className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-sm"
                 initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: isHovered ? 1.08 : 1 }}
+                animate={{ opacity: 1, scale: isHovered ? 1.05 : 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
               />
@@ -290,6 +372,60 @@ const CatalogProductCard = ({
           </button>
         </div>
 
+        {/* PRO CARD NAVIGATION ARROWS */}
+        {hasMultipleImages && (
+          <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-30 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                setActiveImageIndex(i => i === 0 ? model.images.length - 1 : i - 1)
+              }}
+              className="size-8 rounded-full bg-[#2C1E16]/85 hover:bg-[#C17D59] text-white backdrop-blur-md transition-all pointer-events-auto shadow-lg flex items-center justify-center border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+              title="Photo précédente"
+            >
+              <ChevronLeft className="size-4 transition-transform group-hover/arrow:-translate-x-0.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                setActiveImageIndex(i => i === model.images.length - 1 ? 0 : i + 1)
+              }}
+              className="size-8 rounded-full bg-[#2C1E16]/85 hover:bg-[#C17D59] text-white backdrop-blur-md transition-all pointer-events-auto shadow-lg flex items-center justify-center border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+              title="Photo suivante"
+            >
+              <ChevronRight className="size-4 transition-transform group-hover/arrow:translate-x-0.5" />
+            </button>
+          </div>
+        )}
+
+        {/* PHOTO PROGRESS DOTS / COUNTER */}
+        {hasMultipleImages && (
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 shadow-md">
+            {model.images.map((_: any, idx: number) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setActiveImageIndex(idx)
+                }}
+                className={`transition-all rounded-full cursor-pointer ${
+                  idx === activeImageIndex
+                    ? 'w-3.5 h-1.5 bg-[#C17D59]'
+                    : 'w-1.5 h-1.5 bg-white/60 hover:bg-white'
+                }`}
+                title={`Vue ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
+
         {/* VIEW COUNT BADGE */}
         {hasMultipleImages && (
           <div className="absolute bottom-3 right-3 z-20 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-[9px] font-bold text-amber-100 border border-white/20 group-hover/img:hidden">
@@ -303,7 +439,7 @@ const CatalogProductCard = ({
 
       {/* MULTI-ANGLE THUMBNAILS SELECTOR */}
       {hasMultipleImages && !isAIVariantDisplayed && (
-        <div className="pt-2.5 pb-0.5 flex gap-1.5 overflow-x-auto scrollbar-hide z-20 relative pointer-events-auto px-0.5">
+        <div className="pt-2.5 pb-0.5 flex gap-1.5 overflow-x-auto z-20 relative pointer-events-auto px-0.5 scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {model.images.map((img: any, idx: number) => (
             <button
               key={img.id || idx}
@@ -328,24 +464,41 @@ const CatalogProductCard = ({
       {/* MODERN ARTISANAL DETAILS SECTION */}
       <div className="pt-3 px-1 flex flex-col flex-1 justify-between gap-3">
         <div>
-          <div className="flex items-center justify-between gap-1 mb-1.5">
+          <div className="flex items-center justify-between gap-1.5 mb-2">
             <span className="text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#C17D59] bg-[#C17D59]/10 px-2.5 py-0.5 rounded-full border border-[#C17D59]/20 truncate">
               {model.category?.name || 'Création Unique'}
             </span>
-            <span className="text-[9px] text-[#8C7A6B] font-semibold tracking-wider uppercase opacity-90 truncate max-w-[110px]">
-              🪵 {model.materials || 'Bois massif'}
-            </span>
+            
+            {(() => {
+              const dimBadge = getDimensionBadge(model.dimensions)
+              if (!dimBadge) return null
+              return (
+                <span className="inline-flex items-center gap-1.5 text-[9.5px] font-bold tracking-wider uppercase bg-gradient-to-r from-[#FAF6F0] to-[#F5EFEB] text-[#5A3E2B] border border-[#E2D2BE] px-2.5 py-1 rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.03)] shrink-0">
+                  <Ruler className="size-3 text-[#C17D59] stroke-[2.4]" />
+                  <span>{dimBadge.label}</span>
+                  {dimBadge.size && (
+                    <span className="text-[8.5px] text-[#8C7A6B] font-medium opacity-80 border-l border-[#D5C2AD] pl-1.5 ml-0.5">
+                      {dimBadge.size}
+                    </span>
+                  )}
+                </span>
+              )
+            })()}
           </div>
           
-          <h3 className="font-serif text-base sm:text-lg font-medium leading-snug text-[#2C1E16] group-hover:text-[#C17D59] transition-colors truncate">
+          <h3 className="font-serif text-base sm:text-lg font-bold leading-snug text-[#2C1E16] group-hover:text-[#C17D59] transition-colors truncate">
             {model.name}
           </h3>
+
+          <p className="text-[11px] text-[#8C7A6B] font-medium tracking-wide line-clamp-1 mt-0.5">
+            {model.materials || 'Bois massif noble & Céramique artisanale'}
+          </p>
         </div>
 
         <div className="pt-2.5 border-t border-[#E8DCCB]/60 flex items-center justify-between gap-1.5">
-          <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-[#8C7A6B] uppercase tracking-wider font-semibold truncate">
-            <span className="size-2.5 rounded-full border border-black/10 shrink-0 shadow-inner" style={{ background: getColorHex(displayColor) }} />
-            <span className="truncate max-w-[80px]">{displayColor}</span>
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-[#5A453A] font-bold uppercase tracking-wider truncate">
+            <span className="size-3 rounded-full border border-black/15 shrink-0 shadow-sm" style={{ background: getColorHex(displayColor) }} />
+            <span className="truncate max-w-[100px]">{displayColor}</span>
           </div>
 
           <div className="flex items-center gap-1 bg-gradient-to-r from-[#2C1E16] via-[#5C3317] to-[#C17D59] text-white px-3.5 py-1.5 rounded-full shadow-md shrink-0">
@@ -367,13 +520,19 @@ export function CatalogPage() {
   const [dimension, setDimension] = useState('Tout')
   const [aiQuery, setAiQuery] = useState('')
   const [sortBy, setSortBy] = useState('featured')
-  const [visibleCount, setVisibleCount] = useState(12)
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 12
+
   const [showGoldCard, setShowGoldCard] = useState(false)
   const [dbProducts, setDbProducts] = useState<Product[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
   const [hoveredId, setHoveredId] = useState<number | null>(null)
+
+  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE) || 1
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const paginatedProducts = products.slice(startIndex, startIndex + ITEMS_PER_PAGE)
   
   // Dynamic Categories
   const [categories, setCategories] = useState<{ id: string; label: string; icon: any; count: number }[]>([])
@@ -381,6 +540,18 @@ export function CatalogPage() {
   // Carousel Ref for auto-centering & Thumbnails
   const carouselRef = useRef<HTMLDivElement>(null)
   const thumbCarouselRef = useRef<HTMLDivElement>(null)
+  const gridTopRef = useRef<HTMLDivElement>(null)
+
+  const scrollToGridTop = () => {
+    if (gridTopRef.current) {
+      gridTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+    scrollToGridTop()
+  }
 
   const scrollThumbnails = (direction: 'left' | 'right') => {
     if (thumbCarouselRef.current) {
@@ -399,7 +570,7 @@ export function CatalogPage() {
 
   // Reset pagination on filter or sort change
   useEffect(() => {
-    setVisibleCount(12)
+    setCurrentPage(1)
   }, [category, color, dimension, aiQuery, sortBy])
 
   useEffect(() => {
@@ -426,17 +597,17 @@ export function CatalogPage() {
         const data = await publicApi.getProducts({ type: 'CATALOGUE' })
         const isHandleProduct = (p: Product) => {
           const catName = p.category?.name?.toLowerCase() || ''
-          const mat = p.materials?.toLowerCase() || ''
           const name = p.name?.toLowerCase() || ''
           return (
             catName.includes("bijoux de porte") || 
             catName.includes("ronds") || 
             catName.includes("ovales") || 
             catName.includes("poignée") ||
-            mat.includes("céramique") || 
-            mat.includes("majolique") ||
-            name.includes("bouton") || 
-            name.includes("poignée")
+            catName.includes("poignee") ||
+            name.includes("bouton majolique") || 
+            name.includes("petite poignée") ||
+            name.includes("grand rond") ||
+            name.includes("bouton ovale")
           )
         }
         setDbProducts(data.filter(p => !isHandleProduct(p)))
@@ -510,9 +681,18 @@ export function CatalogPage() {
         filtered = perfectMatches
         needsGoldCard = false
       } else {
-        // No perfect match -> Show Gold Card, but fallback to partial matches so grid is not empty
+        // No perfect match -> Show Gold Card, but fallback to partial matches if color matches
         needsGoldCard = true
+        
+        // If a specific color keyword is in the query (e.g. "blanc"), enforce that returned products MUST match that color!
+        const colorWords = ['blanc', 'blanche', 'or', 'doré', 'dore', 'bleu', 'bleue', 'noyer', 'naturel', 'vert', 'verte', 'bordeaux', 'rose', 'gris', 'grise', 'noir', 'noire', 'rouge']
+        const typedColor = searchTerms.find(term => colorWords.includes(term))
+
         let partialMatches = filtered.filter(p => {
+          if (typedColor) {
+            const matchesColor = isFuzzyMatch(typedColor, p.color) || p.images?.some(img => isFuzzyMatch(typedColor, img.colorLabel))
+            if (!matchesColor) return false
+          }
           return searchTerms.some(term => {
             const matchesName = isFuzzyMatch(term, p.name)
             const matchesDesc = isFuzzyMatch(term, p.description)
@@ -525,8 +705,9 @@ export function CatalogPage() {
 
         if (partialMatches.length > 0) {
           filtered = partialMatches
+        } else {
+          filtered = []
         }
-        // If partialMatches is also 0, we leave `filtered` as the base source (so it shows all products in current category/color filter)
       }
     }
 
@@ -536,12 +717,8 @@ export function CatalogPage() {
     if (color !== 'Tout') {
       const targetColor = color.trim().toLowerCase()
       filtered = filtered.filter(p => {
-        const mainColor = p.color?.trim().toLowerCase() || ''
-        const matchesMain = mainColor.includes(targetColor) || targetColor.includes(mainColor) || isFuzzyMatch(targetColor, mainColor)
-        const matchesVariant = p.images?.some(img => {
-          const vLabel = img.colorLabel?.trim().toLowerCase() || ''
-          return vLabel.includes(targetColor) || targetColor.includes(vLabel) || isFuzzyMatch(targetColor, vLabel)
-        })
+        const matchesMain = matchColorFlexible(targetColor, p.color)
+        const matchesVariant = p.images?.some(img => matchColorFlexible(targetColor, img.colorLabel))
         return matchesMain || matchesVariant
       })
     }
@@ -577,16 +754,44 @@ export function CatalogPage() {
       })
     }
 
-    // Also trigger gold card if color filter is active but no results found (and we reset to all products in that category)
-    if (filtered.length === 0 && color !== 'Tout' && !isAiSearchActive) {
+    // Trigger gold custom creation card if color or dimension filter is active but no matching items exist
+    if (filtered.length === 0 && (color !== 'Tout' || dimension !== 'Tout') && !isAiSearchActive) {
        needsGoldCard = true
-       // fallback to products before color filter
-       filtered = source.filter(p => category === 'Tout' || p.category?.name === category)
     }
 
     // Apply Sorting
     let sorted = [...filtered]
-    if (sortBy === 'newest') {
+
+    const getColorRank = (p: Product) => {
+      const c = (p.color || '').toLowerCase()
+      const n = (p.name || '').toLowerCase()
+      if (c.includes('blanc') || c.includes('cérusé') || n.includes('blanc')) return 1
+      if (c.includes('or') || c.includes('doré') || c.includes('dore') || c.includes('jaune') || n.includes(' or ') || n.includes('doré') || n.startsWith('buffet or')) return 2
+      if (c.includes('noyer') || c.includes('naturel') || c.includes('bois') || n.includes('noyer')) return 3
+      if (c.includes('bleu') || n.includes('bleu')) return 4
+      return 5
+    }
+
+    const getSizeRank = (p: Product) => {
+      const d = (p.dimensions || '').toLowerCase()
+      const n = (p.name || '').toLowerCase()
+      if (d.includes('petit') || n.includes('petit')) return 1
+      if (d.includes('moyen') || n.includes('moyen')) return 2
+      if (d.includes('grand') || n.includes('grand')) return 3
+      return 4
+    }
+
+    if (sortBy === 'featured') {
+      sorted.sort((a, b) => {
+        const colorDiff = getColorRank(a) - getColorRank(b)
+        if (colorDiff !== 0) return colorDiff
+
+        const sizeDiff = getSizeRank(a) - getSizeRank(b)
+        if (sizeDiff !== 0) return sizeDiff
+
+        return (Number(a.id) || 0) - (Number(b.id) || 0)
+      })
+    } else if (sortBy === 'newest') {
       sorted.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0))
     } else if (sortBy === 'price-asc') {
       sorted.sort((a, b) => (a.price || 0) - (b.price || 0))
@@ -594,8 +799,6 @@ export function CatalogPage() {
       sorted.sort((a, b) => (b.price || 0) - (a.price || 0))
     } else if (sortBy === 'name') {
       sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-    } else if (sortBy === 'featured') {
-      sorted.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0))
     }
 
     setShowGoldCard(needsGoldCard)
@@ -640,7 +843,15 @@ export function CatalogPage() {
               </button>
 
               {/* Left Side: Photo Showcase (Clean without Zoom) */}
-              <div className="w-full md:w-1/2 relative bg-[#FAF7F2] aspect-[4/5] md:aspect-auto h-[320px] md:h-[580px] border-b md:border-b-0 md:border-r border-[#E8DCCB]/60 overflow-hidden group select-none">
+              <div className="w-full md:w-1/2 relative bg-[#2C1E16]/5 aspect-[4/5] md:aspect-auto h-[360px] md:h-[580px] border-b md:border-b-0 md:border-r border-[#E8DCCB]/60 overflow-hidden group select-none flex items-center justify-center p-3 sm:p-5">
+                {/* Ambient Blurred Luxury Backdrop */}
+                {quickViewProduct.images && quickViewProduct.images[quickViewImageIndex] && (
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center blur-2xl opacity-35 scale-125"
+                    style={{ backgroundImage: `url(${quickViewProduct.images[quickViewImageIndex]?.imageUrl})` }}
+                  />
+                )}
+
                 {quickViewProduct.images && quickViewProduct.images.length > 0 ? (
                   <>
                     <AnimatePresence mode="wait">
@@ -648,13 +859,20 @@ export function CatalogPage() {
                         key={quickViewImageIndex}
                         src={quickViewProduct.images[quickViewImageIndex]?.imageUrl} 
                         alt={quickViewProduct.name}
-                        className="w-full h-full object-cover"
-                        initial={{ opacity: 0, scale: 1.02 }}
+                        className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-md rounded-xl"
+                        initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.3 }}
                       />
                     </AnimatePresence>
+
+                    {/* Photo Counter Pill */}
+                    {quickViewProduct.images.length > 1 && (
+                      <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 rounded-full bg-[#2C1E16]/80 backdrop-blur-md px-3 py-1 shadow-md border border-white/20 text-white text-[10px] font-bold">
+                        <span>📷 Photo {quickViewImageIndex + 1} / {quickViewProduct.images.length}</span>
+                      </div>
+                    )}
 
                     {/* Pro Navigation Arrows */}
                     {quickViewProduct.images.length > 1 && (
@@ -662,7 +880,7 @@ export function CatalogPage() {
                         <button 
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setQuickViewImageIndex(i => i === 0 ? (quickViewProduct.images?.length || 1) - 1 : i - 1); }}
-                          className="p-3.5 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+                          className="p-3 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
                           title="Image précédente"
                         >
                           <ChevronLeft className="size-5 transition-transform group-hover/arrow:-translate-x-0.5" />
@@ -670,7 +888,7 @@ export function CatalogPage() {
                         <button 
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setQuickViewImageIndex(i => i === (quickViewProduct.images?.length || 1) - 1 ? 0 : i + 1); }}
-                          className="p-3.5 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+                          className="p-3 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
                           title="Image suivante"
                         >
                           <ChevronRight className="size-5 transition-transform group-hover/arrow:translate-x-0.5" />
@@ -678,51 +896,26 @@ export function CatalogPage() {
                       </div>
                     )}
 
-                    {/* Image Thumbnails Strip with Pro Scroll Control */}
+                    {/* Image Thumbnails Strip */}
                     {quickViewProduct.images.length > 1 && (
-                      <div className="absolute bottom-4 inset-x-3 z-20 flex items-center justify-center gap-1.5">
-                        {/* Scroll Left Thumbnail Arrow */}
-                        {quickViewProduct.images.length > 4 && (
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); scrollThumbnails('left'); }}
-                            className="size-8 rounded-full bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white backdrop-blur-md flex items-center justify-center shrink-0 shadow-lg border border-white/20 transition-all hover:scale-110 active:scale-95 group/tarrow"
-                            title="Défiler à gauche"
-                          >
-                            <ChevronLeft className="size-4 transition-transform group-hover/tarrow:-translate-x-0.5" />
-                          </button>
-                        )}
-
-                        {/* Thumbnails Container without native scrollbars */}
+                      <div className="absolute bottom-4 inset-x-4 flex justify-center z-20">
                         <div 
                           ref={thumbCarouselRef}
-                          className="flex gap-2 overflow-x-auto scroll-smooth py-1 px-1 max-w-[85%] scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                          className="flex gap-2 overflow-x-auto scroll-smooth py-1 px-2 max-w-full scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-2xl bg-black/40 backdrop-blur-md border border-white/20"
                         >
                           {quickViewProduct.images.map((img: any, idx: number) => (
                             <button 
                               key={img.id || idx}
                               type="button"
                               onClick={(e) => { e.stopPropagation(); setQuickViewImageIndex(idx); }}
-                              className={`size-12 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer shadow-md ${
-                                idx === quickViewImageIndex ? 'border-[#C17D59] scale-105 ring-2 ring-[#C17D59]/40 opacity-100' : 'border-white/80 opacity-70 hover:opacity-100'
+                              className={`size-11 sm:size-12 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer shadow-md ${
+                                idx === quickViewImageIndex ? 'border-[#C17D59] scale-105 ring-2 ring-[#C17D59]/40 opacity-100' : 'border-white/60 opacity-60 hover:opacity-100'
                               }`}
                             >
                               <img src={img.imageUrl} alt="" className="size-full object-cover" />
                             </button>
                           ))}
                         </div>
-
-                        {/* Scroll Right Thumbnail Arrow */}
-                        {quickViewProduct.images.length > 4 && (
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); scrollThumbnails('right'); }}
-                            className="size-8 rounded-full bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white backdrop-blur-md flex items-center justify-center shrink-0 shadow-lg border border-white/20 transition-all hover:scale-110 active:scale-95 group/tarrow"
-                            title="Défiler à droite"
-                          >
-                            <ChevronRight className="size-4 transition-transform group-hover/tarrow:translate-x-0.5" />
-                          </button>
-                        )}
                       </div>
                     )}
 
@@ -1147,7 +1340,7 @@ export function CatalogPage() {
         <FadeIn delay={0.2}>
           <div className="mb-8 flex items-center justify-between border-b border-[#E8DCCB]/40 pb-4">
             <p className="text-sm font-medium text-[#8C7A6B]">
-              Affichage de <span className="text-[#2C1E16] font-bold">{Math.min(visibleCount, products.length)}</span> sur <span className="text-[#C17D59] font-bold">{products.length}</span> création{products.length !== 1 ? 's' : ''}
+              Affichage de <span className="text-[#2C1E16] font-bold">{products.length > 0 ? startIndex + 1 : 0} à {Math.min(startIndex + ITEMS_PER_PAGE, products.length)}</span> sur <span className="text-[#C17D59] font-bold">{products.length}</span> création{products.length !== 1 ? 's' : ''}
             </p>
           </div>
         </FadeIn>
@@ -1183,8 +1376,11 @@ export function CatalogPage() {
             </motion.div>
           ) : (
             <>
+              {/* Anchor for smooth scroll back to top */}
+              <div ref={gridTopRef} className="scroll-mt-32 -mb-2" />
+
               <motion.div
-                key={`${category}-${color}-${dimension}-${aiQuery}-${sortBy}`}
+                key={`${category}-${color}-${dimension}-${aiQuery}-${sortBy}-${currentPage}`}
                 className="grid gap-4 sm:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5"
                 initial="hidden"
                 animate="visible"
@@ -1221,7 +1417,7 @@ export function CatalogPage() {
                   </motion.div>
                 )}
 
-                {products.slice(0, visibleCount).map((model) => (
+                {paginatedProducts.map((model) => (
                   <CatalogProductCard 
                     key={model.id}
                     model={model}
@@ -1237,35 +1433,56 @@ export function CatalogPage() {
                 ))}
               </motion.div>
 
-              {/* ARTISANAL LOAD MORE & PROGRESS BAR */}
-              {products.length > visibleCount && (
-                <div className="mt-16 flex flex-col items-center justify-center gap-5">
-                  <div className="w-full max-w-xs space-y-2 text-center">
-                    <div className="flex justify-between text-[11px] font-semibold text-[#8C7A6B]">
-                      <span>Progression de l'exploration</span>
-                      <span className="font-bold text-[#C17D59]">{Math.min(visibleCount, products.length)} / {products.length}</span>
-                    </div>
-                    <div className="h-2 w-full bg-[#E8DCCB]/40 rounded-full overflow-hidden p-0.5 border border-[#E8DCCB]/60">
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-[#C17D59] via-[#C9A84C] to-[#3A2A21] rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(Math.min(visibleCount, products.length) / products.length) * 100}%` }}
-                        transition={{ duration: 0.5 }}
-                      />
-                    </div>
+              {/* LUXURY NUMBERED PAGINATION */}
+              {totalPages > 1 && (
+                <div className="mt-16 flex flex-col items-center justify-center gap-4">
+                  <div className="flex items-center gap-2">
+                    {/* Previous Button */}
+                    <button
+                      type="button"
+                      onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="size-10 rounded-full border border-[#E8DCCB] bg-white hover:bg-[#FAF7F2] text-[#5A453A] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm cursor-pointer"
+                      title="Page précédente"
+                    >
+                      <ChevronLeft className="size-4" />
+                    </button>
+
+                    {/* Page Numbers */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                      const isActive = pageNum === currentPage
+                      return (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`size-10 rounded-full text-xs font-serif font-bold transition-all duration-200 shadow-sm cursor-pointer ${
+                            isActive
+                              ? 'bg-[#2C1E16] text-white ring-2 ring-[#C17D59] scale-110 shadow-md'
+                              : 'bg-white hover:bg-[#FAF7F2] text-[#5A453A] hover:text-[#C17D59] border border-[#E8DCCB]'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      )
+                    })}
+
+                    {/* Next Button */}
+                    <button
+                      type="button"
+                      onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="size-10 rounded-full border border-[#E8DCCB] bg-white hover:bg-[#FAF7F2] text-[#5A453A] disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm cursor-pointer"
+                      title="Page suivante"
+                    >
+                      <ChevronRight className="size-4" />
+                    </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setVisibleCount(prev => prev + 12)}
-                    className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#3A2A21] text-white font-bold text-xs uppercase tracking-widest hover:bg-[#C17D59] shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
-                  >
-                    <span>Découvrir d'autres créations</span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold text-amber-100">
-                      + {Math.min(12, products.length - visibleCount)}
-                    </span>
-                    <ChevronRight className="size-4 group-hover:translate-x-1 transition-transform" />
-                  </button>
+                  {/* Subtle Page Counter */}
+                  <p className="text-xs text-[#8C7A6B] font-medium tracking-wide">
+                    Page <span className="text-[#2C1E16] font-bold">{currentPage}</span> sur <span className="text-[#2C1E16] font-bold">{totalPages}</span> — <span className="text-[#C17D59] font-semibold">{products.length} créations</span>
+                  </p>
                 </div>
               )}
             </>
