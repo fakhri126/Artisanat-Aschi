@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass } from 'lucide-react'
+import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass, Lamp, Folder } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { FadeIn } from '@/components/motion/fade-in'
-import { publicApi, Product } from '@/lib/api'
+import { publicApi, Product, Category } from '@/lib/api'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -33,15 +33,13 @@ const DIMENSIONS = [
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-import { Folder } from 'lucide-react'
-
 const getCategoryIcon = (name: string) => {
   const norm = name.toLowerCase()
   if (norm.includes('buffet')) return GripHorizontal
   if (norm.includes('tv')) return Tv
   if (norm.includes('miroir')) return Frame
   if (norm.includes('porte')) return DoorClosed
-  if (norm.includes('coffre')) return Archive
+  if (norm.includes('lampe') || norm.includes('coffre') || norm.includes('luminaire')) return Lamp
   if (norm.includes('décoration') || norm.includes('deco')) return Sparkles
   if (norm.includes('table')) return LayoutDashboard
   return Folder
@@ -591,10 +589,15 @@ export function CatalogPage() {
     setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id])
   }
 
+  const [dbCategories, setDbCategories] = useState<Category[]>([])
+
   useEffect(() => {
-    async function loadProducts() {
+    async function loadData() {
       try {
-        const data = await publicApi.getProducts({ type: 'CATALOGUE' })
+        const [prodData, catData] = await Promise.all([
+          publicApi.getProducts({ type: 'CATALOGUE' }),
+          publicApi.getCategories()
+        ])
         const isHandleProduct = (p: Product) => {
           const catName = p.category?.name?.toLowerCase() || ''
           const name = p.name?.toLowerCase() || ''
@@ -610,23 +613,47 @@ export function CatalogPage() {
             name.includes("bouton ovale")
           )
         }
-        setDbProducts(data.filter(p => !isHandleProduct(p)))
+        setDbProducts(prodData.filter(p => !isHandleProduct(p)))
+        
+        const isHandleCat = (c: Category) => {
+          const catName = c.name?.toLowerCase() || ''
+          return (
+            catName.includes("bijoux de porte") || 
+            catName.includes("ronds") || 
+            catName.includes("ovales") || 
+            catName.includes("poignée") ||
+            catName.includes("poignee")
+          )
+        }
+        setDbCategories(catData.filter(c => !isHandleCat(c)))
       } catch (err) {
         console.error("Failed to load catalog products:", err)
       } finally {
         setLoading(false)
       }
     }
-    loadProducts()
+    loadData()
   }, [])
 
-  // Derive dynamic categories from all available products (DB + MOCK fallback)
+  // Derive dynamic categories from all available products & DB categories
   useEffect(() => {
     const allProducts = dbProducts.length > 0 
       ? [...dbProducts, ...MOCK_MODELS.filter(m => !dbProducts.some(dbP => dbP.name?.toLowerCase() === m.name?.toLowerCase() || dbP.id === m.id))]
       : MOCK_MODELS
 
     const counts: Record<string, number> = {}
+
+    // Seed official categories so Lampes & Coffres, etc. appear consistently
+    dbCategories.forEach(c => {
+      counts[c.name] = 0
+    })
+    
+    // Core categories guarantee
+    const coreCats = ['Buffets', 'Meubles TV', 'Miroirs', 'Lampes & Coffres', 'Portes', 'Tables']
+    coreCats.forEach(c => {
+      if (counts[c] === undefined) counts[c] = 0
+    })
+
     allProducts.forEach(p => {
       const catName = p.category?.name || 'Autre'
       counts[catName] = (counts[catName] || 0) + 1
@@ -637,13 +664,13 @@ export function CatalogPage() {
       label: catName,
       icon: getCategoryIcon(catName),
       count: counts[catName]
-    })).sort((a, b) => a.label.localeCompare(b.label))
+    }))
 
     setCategories([
       { id: 'Tout', label: 'Tout', icon: Grid2X2, count: allProducts.length },
       ...dynamicCategories
     ])
-  }, [dbProducts])
+  }, [dbProducts, dbCategories])
 
   // Client-side filtering on merged products
   useEffect(() => {
