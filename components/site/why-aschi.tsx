@@ -47,14 +47,14 @@ function StatNumber({ value, suffix, label, sublabel }: StatProps) {
 
   return (
     <div ref={ref} className="text-center p-2 sm:p-3">
-      <div className="font-sans font-extralight text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-gold-gradient tracking-tight tabular-nums drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+      <div className="font-sans font-light text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-gold-gradient tracking-tight tabular-nums drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
         {formattedCount}
         <span className="text-[#F2BD52] font-sans font-light ml-0.5 text-base sm:text-xl md:text-2xl">{suffix}</span>
       </div>
-      <div className="text-[10px] sm:text-xs uppercase tracking-[0.14em] text-[#F2BD52] font-bold mt-0.5 sm:mt-1">
+      <div className="text-[10.5px] sm:text-xs uppercase tracking-[0.14em] text-[#F2BD52] font-bold mt-0.5 sm:mt-1">
         {label}
       </div>
-      <div className="text-[9px] sm:text-[10.5px] text-white/80 drop-shadow font-normal mt-0.5 hidden sm:block">
+      <div className="text-[9.5px] sm:text-[11px] text-white/85 drop-shadow font-normal mt-0.5 hidden sm:block">
         {sublabel}
       </div>
     </div>
@@ -68,46 +68,46 @@ export function WhyAschi() {
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
 
   const statsList = [
-    { value: 65, suffix: ' Ans', label: "D'Héritage Artisanal", sublabel: "Atelier familial fondé en 1960" },
-    { value: 1200, suffix: '+', label: 'Demeures Sublimées', sublabel: "Villas & résidences privées" },
-    { value: 500, suffix: '+', label: 'Projets Monumentaux', sublabel: "Palaces, riads & hôtels 5★" },
-    { value: 100, suffix: '%', label: 'Bois Noble Garanti', sublabel: "Noyer massif séché à cœur" }
+    { value: 65, suffix: ' Ans', label: "D'Expérience", sublabel: "Atelier familial depuis 1960" },
+    { value: 1500, suffix: '+', label: 'Espaces Aménagés', sublabel: "Villas, hôtels & bureaux" },
+    { value: 3000, suffix: '+', label: 'Créations Uniques', sublabel: "Portes, salons & mobilier d'art" },
+    { value: 100, suffix: '%', label: 'Bois Massif Garanti', sublabel: "Noyer noble séché à cœur" }
   ]
 
   const engagements = [
     {
       id: 1,
-      tag: "01 • Matériau d'Exception",
+      tag: "01 • Le Matériau",
       tabTitle: "100% Noyer Massif",
-      title: "100% Noyer Noble Séché à Cœur",
-      desc: "Chaque bille de noyer est rigoureusement sélectionnée et séchée naturellement au grand air. Une essence noble garantissant une patine intemporelle, une stabilité parfaite et une longévité sur plusieurs générations.",
+      title: "Du Vrai Bois de Noyer Massif",
+      desc: "Nous utilisons uniquement du bois de noyer noble bien séché à cœur. Vos meubles ne bougent pas avec le temps, résistent à l'humidité et durent toute une vie.",
       image: "/images/raw-sculptures.jpg",
       icon: <Trees className="size-4 text-[#F2BD52]" />
     },
     {
       id: 2,
-      tag: "02 • Savoir-Faire & Héritage",
-      tabTitle: "Maîtrise depuis 1960",
-      title: "Trois Générations de Maîtres Sculpteurs",
-      desc: "Héritière de plus de six décennies de gestes nobles, la Maison Aschi façonne chaque ornement à la main. Ciselage au ciseau et à la gouge pour donner relief, âme et vie au bois massif.",
+      tag: "02 • Le Travail Manuel",
+      tabTitle: "Sculpté à la Main",
+      title: "100% Fait Main depuis 1960",
+      desc: "Chaque motif, arabesque et détail est sculpté à la main par nos maîtres artisans. C'est ce travail d'artisan qui donne à chaque pièce son âme et son authenticité.",
       image: "/news-exposition.jpg",
       icon: <Award className="size-4 text-[#F2BD52]" />
     },
     {
       id: 3,
-      tag: "03 • Ingénierie & Sur-Mesure",
-      tabTitle: "Plans 3D & Conception",
-      title: "Étude Sur-Mesure & Modélisation 3D sous 24h",
-      desc: "De la prise de cotes à l'intégration architecturale, chaque création fait l'objet d'une modélisation 3D photoréaliste. Vous visualisez et validez les proportions et volumes de votre mobilier avant toute mise en fabrication.",
+      tag: "03 • Le Sur-Mesure",
+      tabTitle: "Plans 3D Gratuits",
+      title: "Meubles Sur-Mesure avec Plan 3D sous 24h",
+      desc: "Vous choisissez vos dimensions, vos formes et vos couleurs. Nous réalisons un plan 3D réaliste pour que vous puissiez voir votre futur meuble avant sa fabrication.",
       image: "/project-villa.png",
       icon: <Compass className="size-4 text-[#F2BD52]" />
     },
     {
       id: 4,
-      tag: "04 • Orfèvrerie & Métaux",
+      tag: "04 • Les Finitions",
       tabTitle: "Finitions d'Art",
-      title: "Laiton Ciselé, Cuivre Forgé & Céramiques",
-      desc: "Sublimation de l'ébénisterie par les arts du feu : poignées en majolique peintes à la main, quincaillerie en laiton massif martelé, ferrures d'art et dorure délicate à la feuille d'or fin.",
+      title: "Cuivre, Céramique & Poignées d'Art",
+      desc: "Nous sublimons nos meubles avec de superbes finitions : poignées en céramique peintes à la main, ferronneries en cuivre martelé et touches dorées raffinées.",
       image: "/images/luminaire-cuivre-bois.jpg",
       icon: <Gem className="size-4 text-[#F2BD52]" />
     }
@@ -163,28 +163,28 @@ export function WhyAschi() {
       <div className="mx-auto max-w-6xl px-3.5 sm:px-6 lg:px-8 relative z-10">
         
         {/* ========================================================================= */}
-        {/* 1. EN-TÊTE STATUTAIRE AVEC FOND DE LISIBILITÉ                             */}
+        {/* 1. EN-TÊTE CLAIR & COMPRÉHENSIBLE                                         */}
         {/* ========================================================================= */}
         <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
           <Reveal>
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#3B271C]/95 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.2em] mb-2.5 shadow-md">
               <Sparkles className="size-2.5 sm:size-3 text-[#E6A635] animate-pulse" />
-              <span>Pourquoi Artisanat Aschi ?</span>
+              <span>Pourquoi Choisir Artisanat Aschi ?</span>
             </div>
           </Reveal>
 
           <Reveal delay={60}>
             <h2 className="font-heading text-2xl sm:text-4xl md:text-5xl font-light leading-tight text-gold-gradient drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)] tracking-tight">
-              L&apos;Excellence du Patrimoine <br className="hidden sm:inline" />
+              L&apos;Art du Vrai Bois Massif <br className="hidden sm:inline" />
               <span className="font-serif italic text-white font-normal text-xl sm:text-3xl md:text-4xl block sm:inline mt-0.5 sm:mt-0">
-                &amp; de la Haute Ébénisterie
+                &amp; du Meuble Sur-Mesure
               </span>
             </h2>
           </Reveal>
         </div>
 
         {/* ========================================================================= */}
-        {/* 2. STATISTIQUES STATUTAIRES EN HAUT (Compteurs Animés Propres)             */}
+        {/* 2. STATISTIQUES EN HAUT (Espaces Aménagés & Créations Uniques)             */}
         {/* ========================================================================= */}
         <Reveal delay={100} className="mb-6 sm:mb-8">
           <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-[#E6A635]/40 bg-[#3B271C]/95 backdrop-blur-2xl p-3 sm:p-5 shadow-2xl">
@@ -203,11 +203,11 @@ export function WhyAschi() {
         </Reveal>
 
         {/* ========================================================================= */}
-        {/* 3. CARROUSEL IMMERSIF : Grande Image & Texte Intégré                      */}
+        {/* 3. CARROUSEL : Grande Image & Textes Simples                              */}
         {/* ========================================================================= */}
         <div className="relative mb-6 sm:mb-8">
           
-          {/* Onglets sélecteurs rapides sur Desktop/Tablette */}
+          {/* Onglets rapides sur Desktop/Tablette */}
           <div className="hidden sm:grid grid-cols-4 gap-2.5 mb-4">
             {engagements.map((item, idx) => (
               <button
@@ -228,7 +228,7 @@ export function WhyAschi() {
                   {item.icon}
                 </div>
                 <div className="truncate">
-                  <span className="text-[9px] uppercase tracking-wider font-semibold text-[#F2BD52] block">
+                  <span className="text-[9.5px] uppercase tracking-wider font-semibold text-[#F2BD52] block">
                     0{item.id}
                   </span>
                   <span className="text-xs font-heading font-medium truncate block">
@@ -239,7 +239,7 @@ export function WhyAschi() {
             ))}
           </div>
 
-          {/* Diapositive Active (Grande Image avec Texte Intégré) */}
+          {/* Diapositive Active */}
           <div 
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -286,7 +286,7 @@ export function WhyAschi() {
                 <div className="relative z-20 text-white max-w-2xl">
                   <div className="inline-flex items-center gap-1.5 text-[9.5px] sm:text-[10.5px] uppercase font-bold tracking-[0.16em] text-[#F2BD52] mb-1.5">
                     <ShieldCheck className="size-3.5 text-[#E6A635]" />
-                    <span>Signature d&apos;Excellence Maison Aschi</span>
+                    <span>Garantie Qualité Maison Aschi</span>
                   </div>
 
                   <h3 className="font-heading text-xl sm:text-3xl md:text-4xl font-light text-white leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] mb-2 group-hover:text-[#F2BD52] transition-colors">
@@ -348,10 +348,10 @@ export function WhyAschi() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
               <div className="max-w-xl">
                 <h3 className="font-heading text-lg sm:text-2xl font-light text-gold-gradient leading-tight mb-1">
-                  Un Projet de Mobilier d&apos;Exception en Tête ?
+                  Vous avez une idée ou un meuble en tête ?
                 </h3>
                 <p className="text-white/90 text-xs sm:text-sm font-normal">
-                  Étude personnalisée, modélisation 3D réaliste et devis gratuit sous 24h.
+                  Contactez-nous pour étudier votre projet. Devis gratuit et modèle 3D sous 24h.
                 </p>
               </div>
 
@@ -372,7 +372,7 @@ export function WhyAschi() {
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E6A635]/45 bg-[#241812]/95 hover:bg-[#4E3425] hover:text-[#F2BD52] px-6 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition-all shadow-md w-full sm:w-auto text-center"
                 >
                   <MessageCircle className="size-3.5 text-emerald-400" />
-                  <span>WhatsApp</span>
+                  <span>Discuter sur WhatsApp</span>
                 </a>
               </div>
             </div>
