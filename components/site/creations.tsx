@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { Reveal } from './reveal'
-import { publicApi, Product, Category } from '@/lib/api'
+import { publicApi, Product } from '@/lib/api'
 import Link from 'next/link'
-import { ShoppingCart, Sparkles, Flame } from 'lucide-react'
+import { ShoppingCart, Sparkles, Flame, CheckCircle2, ArrowRight } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
+import Image from 'next/image'
 
 export function Creations() {
   const { addToCart } = useCart()
@@ -18,24 +19,24 @@ export function Creations() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch products and categories
         const [prodData, catData] = await Promise.all([
           publicApi.getProducts(),
           publicApi.getCategories()
         ])
 
-        // Only keep available products (not catalog/inspiration ones) and exclude Bijoux de Porte
+        // Only keep available products (not inspiration ones) and exclude Bijoux de Porte
         const availableProds = prodData.filter((p) => {
           const isCatalog = p.type === 'CATALOGUE'
           const catName = p.category?.name?.toLowerCase() || ''
           const prodName = p.name?.toLowerCase() || ''
-          const isBijoux = catName.includes('bijou') || catName.includes('poignée') || catName.includes('bouton') ||
-                           prodName.includes('bijou') || prodName.includes('poignée') || prodName.includes('bouton')
+          const mat = p.materials?.toLowerCase() || ''
+          const isBijoux = catName.includes('bijou') || catName.includes('poignée') || catName.includes('bouton') || catName.includes('porte') || catName.includes('ronds') || catName.includes('ovales') ||
+                           prodName.includes('bijou') || prodName.includes('poignée') || prodName.includes('bouton') ||
+                           mat.includes('céramique') || mat.includes('majolique')
           return !isCatalog && !isBijoux
         })
         setAllProducts(availableProds)
 
-        // Get unique category names from both DB categories and existing products
         const catNames = new Set<string>()
         catData.forEach(c => catNames.add(c.name))
         availableProds.forEach(p => {
@@ -45,7 +46,6 @@ export function Creations() {
         setCategories(['Tout', 'Pièces uniques', ...Array.from(catNames)])
       } catch (err) {
         console.error('Error fetching creations data:', err)
-        // Fallback categories if API fails
         setCategories(['Tout', 'Pièces uniques', 'Buffets', 'Meubles TV', 'Miroirs', 'Portes', 'Coffres', 'Décoration', 'Tables'])
       } finally {
         setLoading(false)
@@ -54,7 +54,6 @@ export function Creations() {
     fetchData()
   }, [])
 
-  // Filter products by selected category
   const filteredProducts = selectedCategory === 'Tout'
     ? allProducts
     : selectedCategory === 'Pièces uniques'
@@ -62,116 +61,130 @@ export function Creations() {
       : allProducts.filter(p => p.category?.name?.toLowerCase() === selectedCategory.toLowerCase())
 
   return (
-    <section id="creations" className="bg-secondary py-24 md:py-36">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <Reveal className="flex flex-col items-center text-center">
-          <p className="text-xs uppercase tracking-luxury text-bronze">
-            Créations disponibles
+    <section id="creations-disponibles" className="relative bg-transparent text-[#F7F4EE] py-10 md:py-16 overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        {/* Header */}
+        <Reveal className="flex flex-col items-center text-center max-w-3xl mx-auto mb-8 md:mb-12">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#3B271C]/90 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[10.5px] font-bold uppercase tracking-[0.2em] mb-3 shadow-md">
+            <Sparkles className="size-3 text-[#E6A635] animate-pulse" />
+            <span>Pièces Disponibles • Prêtes à Commander</span>
+          </div>
+          
+          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-light text-gold-gradient leading-[1.08] mb-3 drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
+            Pièces &amp; Mobilier Disponibles
+          </h1>
+          
+          <p className="text-[#EAE4D9]/90 text-xs sm:text-sm md:text-base font-light leading-relaxed max-w-2xl drop-shadow-md">
+            Découvrez nos œuvres d&apos;art sculptées en noyer massif disponibles immédiatement à l&apos;achat. Chaque pièce est unique, façonnée à la main dans notre atelier historique en Tunisie.
           </p>
-          <h2 className="mt-5 max-w-2xl text-balance font-heading text-4xl font-light leading-tight text-foreground sm:text-5xl md:text-6xl">
-            Des œuvres prêtes à rejoindre votre demeure
-          </h2>
 
-          {/* Category Tabs */}
+          {/* Category Filter Tabs */}
           {!loading && categories.length > 1 && (
-            <div className="mt-10 flex flex-wrap justify-center gap-2 max-w-4xl">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={cn(
-                    'rounded-full px-5 py-2 text-xs font-medium uppercase tracking-[0.14em] transition-all duration-300 border',
-                    selectedCategory === cat
-                      ? 'bg-[#FAF7F2] text-[#5A453A] border-walnut shadow-md'
-                      : 'bg-background/50 border-border text-muted-foreground hover:text-foreground hover:border-muted'
-                  )}
-                >
-                  {cat}
-                </button>
-              ))}
+            <div className="mt-6 flex flex-wrap justify-center gap-1.5 sm:gap-2 max-w-4xl">
+              {categories.map((cat) => {
+                const isActive = selectedCategory === cat
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={cn(
+                      'rounded-full px-4 py-2 text-[11px] sm:text-xs font-semibold uppercase tracking-wider transition-all duration-300 cursor-pointer',
+                      isActive
+                        ? 'bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold shadow-[0_0_15px_rgba(230,166,53,0.35)] scale-105'
+                        : 'bg-[#3B271C]/85 text-[#EAE4D9]/85 border border-[#E6A635]/30 hover:border-[#E6A635]/70 hover:bg-[#442E20] hover:text-white backdrop-blur-md'
+                    )}
+                  >
+                    {cat}
+                  </button>
+                )
+              })}
             </div>
           )}
         </Reveal>
 
-        <div className="mt-16">
+        {/* Product Grid */}
+        <div className="mt-8">
           {loading ? (
             <div className="flex justify-center py-20">
-              <div className="size-8 animate-spin rounded-full border-2 border-[#E8DCCB] border-t-transparent" />
+              <div className="size-8 animate-spin rounded-full border-2 border-[#E6A635] border-t-transparent" />
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
-              <p className="text-lg">Aucun produit disponible dans cette catégorie pour le moment.</p>
+            <div className="flex flex-col items-center justify-center py-20 text-center text-[#EAE4D9]/70 bg-[#3B271C]/60 rounded-3xl border border-[#E6A635]/25 p-8">
+              <p className="text-base font-light mb-3">Aucune pièce disponible dans cette catégorie pour le moment.</p>
+              <Link href="/custom-creation" className="btn-sheen px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider">
+                Commander sur-mesure
+              </Link>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-3 md:gap-8">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProducts.map((item, i) => {
                 const name = item.name
-                const image = item.images?.[0]?.imageUrl || '/placeholder.png'
-                const meta = `${item.materials || 'Bois noble'} · ${item.dimensions || 'Dimensions sur-mesure'}`
+                const image = item.images?.[0]?.imageUrl || '/placeholder.jpg'
+                const meta = `${item.materials || 'Noyer noble massif'} · ${item.dimensions || 'Dimensions sur-mesure'}`
                 const price = item.price ? `${item.price.toLocaleString('fr-FR')} DT` : 'Sur demande'
                 const link = `/produits/${item.id}`
                 const isUnique = item.type === 'PIECE_UNIQUE'
 
                 return (
-                  <Reveal key={item.id} delay={i * 100}>
-                    <article className={cn(
-                      "group relative overflow-hidden bg-background rounded-sm shadow-sm transition-all duration-500 border",
-                      isUnique 
-                        ? "border-orange-500/40 hover:border-orange-500/80 shadow-[0_0_20px_rgba(249,115,22,0.15)] hover:shadow-[0_0_30px_rgba(249,115,22,0.3)] z-10 hover:z-20 transform hover:-translate-y-1" 
-                        : "border-border hover:border-muted hover:-translate-y-1 transition-transform"
-                    )}>
-                      <div className="relative aspect-[3/4] overflow-hidden">
-                        <img
+                  <Reveal key={item.id} delay={i * 60}>
+                    <article className="group relative overflow-hidden rounded-2xl bg-[#3B271C]/90 border border-[#E6A635]/35 backdrop-blur-xl shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:border-[#E6A635]/80 hover:bg-[#442E20]/95 transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between">
+                      
+                      {/* Photo Frame */}
+                      <div className="relative aspect-[4/3] overflow-hidden bg-[#241812]">
+                        <Image
                           src={image}
                           alt={name}
-                          className="size-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110"
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-walnut/80 via-transparent to-transparent opacity-70" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#3B271C] via-transparent to-transparent opacity-80" />
                         
-                        {isUnique && (
-                          <>
-                            {/* Cadre incandescent façon feu */}
-                            <div className="absolute inset-2.5 border-[1.5px] border-orange-500/30 pointer-events-none transition-all duration-700 ease-out group-hover:inset-1.5 group-hover:border-orange-500/80 z-10 shadow-[inset_0_0_15px_rgba(249,115,22,0.2)] group-hover:shadow-[inset_0_0_30px_rgba(249,115,22,0.6)] mix-blend-screen" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-orange-600/40 via-red-500/10 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100 mix-blend-overlay pointer-events-none z-10" />
-                          </>
-                        )}
-                        
-                        {isUnique && (
-                          <span className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-600 to-red-600 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-white shadow-[0_0_15px_rgba(239,68,68,0.6)] ring-1 ring-orange-400/50 z-20 transition-transform duration-500 group-hover:scale-105">
-                            <Flame className="size-3 animate-pulse text-yellow-300" />
+                        {/* Badges */}
+                        {isUnique ? (
+                          <span className="absolute left-3.5 top-3.5 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-600 to-amber-700 px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.14em] text-white shadow-md ring-1 ring-amber-400/40">
+                            <Flame className="size-2.5 text-yellow-300" />
                             Pièce unique
                           </span>
-                        )}
-                        {item.type === 'REPRODUCTIBLE' && (
-                          <span className="absolute left-4 top-4 rounded-full bg-sand px-3 py-1 text-[0.65rem] font-medium uppercase tracking-[0.12em] text-walnut">
-                            Modèle reproductible
+                        ) : (
+                          <span className="absolute left-3.5 top-3.5 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 px-2.5 py-0.5 text-[9.5px] font-medium uppercase tracking-[0.14em] text-[#F2BD52]">
+                            Disponible
                           </span>
                         )}
                       </div>
                       
-                      <div className="absolute inset-x-0 bottom-0 p-6 text-[#3A2A21] text-left">
-                        <span className="text-[10px] uppercase tracking-widest text-[#C17D59]/80 block mb-1">
-                          {item.category?.name || 'Création'}
-                        </span>
-                        <h3 className="font-heading text-2xl font-medium">{name}</h3>
-                        <p className="mt-1 text-sm font-light text-[#3A2A21]/75">{meta}</p>
-                        
-                        {isUnique && (
-                          <p className="text-[10px] text-orange-400 font-bold uppercase tracking-wider mt-2.5 flex items-center gap-1.5 bg-gradient-to-r from-orange-900/40 to-red-900/20 px-2 py-1.5 rounded border border-orange-500/30 shadow-[0_0_10px_rgba(249,115,22,0.15)] group-hover:shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all">
-                            <Flame className="size-3 text-orange-500 animate-pulse shrink-0" />
-                            Grande opportunité · À saisir !
+                      {/* Card Content */}
+                      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between text-left">
+                        <div>
+                          <span className="text-[9.5px] uppercase tracking-[0.18em] text-[#F2BD52] font-semibold block mb-1">
+                            {item.category?.name || 'Mobilier d\'art'}
+                          </span>
+                          
+                          <h3 className="font-heading text-lg sm:text-xl font-normal text-[#F7F4EE] group-hover:text-white transition-colors leading-tight mb-1">
+                            {name}
+                          </h3>
+                          
+                          <p className="text-[11.5px] font-light text-[#EAE4D9]/85 line-clamp-1 mb-3">
+                            {meta}
                           </p>
-                        )}
-                        <div className="mt-4 flex items-center justify-between border-t border-ivory/20 pt-4">
-                          <span className="text-sm tracking-wide text-[#C17D59]">{price}</span>
-                          <div className="flex items-center gap-3">
+                        </div>
+
+                        {/* Price & Action Row */}
+                        <div className="pt-3 border-t border-[#E6A635]/25 flex items-center justify-between gap-2">
+                          <span className="font-heading text-base sm:text-lg text-gold-gradient font-medium">
+                            {price}
+                          </span>
+                          
+                          <div className="flex items-center gap-2">
                             <Link
                               href={link}
-                              className="text-xs uppercase tracking-[0.16em] text-[#3A2A21] underline-offset-4 transition-colors hover:text-[#C17D59] hover:underline font-semibold"
+                              className="text-[11px] font-semibold uppercase tracking-wider text-[#EAE4D9] hover:text-[#F2BD52] transition-colors"
                             >
                               Détails
                             </Link>
+
                             <button
                               type="button"
                               onClick={(e) => {
@@ -179,13 +192,16 @@ export function Creations() {
                                 e.stopPropagation()
                                 addToCart(item)
                               }}
-                              className="rounded-full bg-[#E8DCCB]/10 hover:bg-[#E8DCCB] border border-[#E8DCCB]/30 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#C17D59] hover:text-walnut transition-all flex items-center gap-1.5"
+                              className="btn-sheen rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#1A110B] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
                             >
-                              <ShoppingCart className="size-3" /> Acheter
+                              <ShoppingCart className="size-3" />
+                              <span>Commander</span>
                             </button>
                           </div>
                         </div>
+
                       </div>
+
                     </article>
                   </Reveal>
                 )
@@ -193,6 +209,7 @@ export function Creations() {
             </div>
           )}
         </div>
+
       </div>
     </section>
   )

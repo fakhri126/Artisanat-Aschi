@@ -276,10 +276,16 @@ export const publicApi = {
   },
 };
 
+function formatProductVariants(data: ProductRequest): void {
+  if (data.imageVariants && data.imageVariants.length > 0) {
+    data.imageUrls = data.imageVariants.map(v => `${v.imageUrl}#color=${encodeURIComponent(v.colorLabel || 'Original')}`);
+  }
+}
+
 // --- Admin Endpoints ---
 
 export const adminApi = {
-  login: (credentials: { username: string; password: String }) => {
+  login: (credentials: { username: string; password: string }) => {
     return fetchApi<LoginResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
@@ -293,7 +299,7 @@ export const adminApi = {
     return fetchApi<any>('/admin/stats');
   },
 
-  uploadProductImage: (file: File) => {
+  uploadImage: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
     return fetchApi<{ url: string }>('/admin/upload', {
@@ -302,13 +308,8 @@ export const adminApi = {
     });
   },
 
-  uploadImage: (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    return fetchApi<{ url: string }>('/admin/upload', {
-      method: 'POST',
-      body: formData,
-    });
+  uploadProductImage: (file: File) => {
+    return adminApi.uploadImage(file);
   },
 
   // Categories CRUD
@@ -328,18 +329,14 @@ export const adminApi = {
   // Products CRUD
   getProducts: () => fetchApi<Product[]>('/public/products').then(res => res.map(parseProduct)),
   createProduct: (data: ProductRequest) => {
-    if (data.imageVariants && data.imageVariants.length > 0) {
-      data.imageUrls = data.imageVariants.map(v => `${v.imageUrl}#color=${encodeURIComponent(v.colorLabel || 'Original')}`);
-    }
+    formatProductVariants(data);
     return fetchApi<Product>('/admin/products', {
       method: 'POST',
       body: JSON.stringify(data),
     }).then(parseProduct);
   },
   updateProduct: (id: number, data: ProductRequest) => {
-    if (data.imageVariants && data.imageVariants.length > 0) {
-      data.imageUrls = data.imageVariants.map(v => `${v.imageUrl}#color=${encodeURIComponent(v.colorLabel || 'Original')}`);
-    }
+    formatProductVariants(data);
     return fetchApi<Product>(`/admin/products/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),

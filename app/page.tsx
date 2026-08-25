@@ -1,13 +1,12 @@
 import { Navbar } from "@/components/site/navbar"
-import { HeroSlider } from "@/components/site/hero-slider"
 import { AboutVideo } from "@/components/site/about-video"
+import { HeroSlider } from "@/components/site/hero-slider"
+import { WhyAschi } from "@/components/site/why-aschi"
 import { Projects } from "@/components/site/projects"
-import { ExpressQuoteCTA } from "@/components/site/express-quote-cta"
-import { WeeklyDelivery } from "@/components/site/weekly-delivery"
-import { NewsSection } from "@/components/site/news-section"
-import { VideoReel } from "@/components/site/video-reel"
 import { References } from "@/components/site/references"
-import { Stats } from "@/components/site/stats"
+import { NewsSection } from "@/components/site/news-section"
+import { WeeklyDelivery } from "@/components/site/weekly-delivery"
+import { VideoReel } from "@/components/site/video-reel"
 import { Footer } from "@/components/site/footer"
 import type { Metadata } from "next"
 
@@ -19,77 +18,64 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <main className="overflow-x-hidden relative">
-      <Navbar />
+    <main className="overflow-x-hidden relative bg-[#241812] text-[#F7F4EE] min-h-screen">
+      {/* 🌟 FOND MAÎTRE SCROLLABLE (Défile naturellement avec toute la page d'accueil) */}
+      <div 
+        className="absolute inset-0 z-0 opacity-80 brightness-95 pointer-events-none bg-[url('/images/bg-stats-about.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat bg-performance-layer transform-gpu" 
+      />
+      {/* Voile d'ombrage doux pour haute lisibilité des cartes et typographies */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#241812]/80 via-black/25 to-[#241812]/85 pointer-events-none" />
       
-      {/* 1. Hero */}
-      <HeroSlider />
-      
-      {/* 2. Qui sommes nous */}
-      <div className="relative">
-        <div 
-          className="absolute inset-0 z-0 opacity-40 pointer-events-none" 
-          style={{ 
-            backgroundImage: "url('/images/bg-stats-about.jpg')",
-            backgroundSize: "100% auto",
-            backgroundPosition: "top center",
-            backgroundRepeat: "repeat"
-          }} 
-        />
-        <div className="relative z-10">
-          <AboutVideo />
+      {/* Halos d'ambiance atelier répartis sur toute la hauteur */}
+      <div className="absolute top-[8%] left-1/4 size-[450px] rounded-full bg-[#E6A635]/18 blur-[140px] pointer-events-none z-0" />
+      <div className="absolute top-[35%] right-1/4 size-[450px] rounded-full bg-[#C78318]/15 blur-[140px] pointer-events-none z-0" />
+      <div className="absolute top-[65%] left-1/3 size-[450px] rounded-full bg-[#E6A635]/15 blur-[140px] pointer-events-none z-0" />
+      <div className="absolute top-[90%] right-1/3 size-[450px] rounded-full bg-[#C78318]/15 blur-[140px] pointer-events-none z-0" />
+
+      <div className="relative z-10 w-full">
+        <Navbar />
+        
+        {/* 1. Hero : Qui Sommes-Nous & L'Héritage Aschi */}
+        <AboutVideo />
+
+        {/* 2. Carrousel des Univers & Collections d'Art */}
+        <div className="cv-auto">
+          <HeroSlider />
         </div>
-      </div>
-      
-      {/* 3. Projets / Réalisations */}
-      <Projects />
-      
-      {/* 4. Demande de devis (Express CTA) */}
-      <div className="relative">
-        <div 
-          className="absolute inset-0 z-0 opacity-50 brightness-90 pointer-events-none bg-[url('/images/bg-green-cabinet-devis.jpg')] bg-cover bg-center" 
-        />
-        <div className="relative z-10">
-          <ExpressQuoteCTA />
+
+        {/* 3. Pourquoi Artisanat Aschi (Piliers, Statistiques & Devis 3D) */}
+        <div className="cv-auto">
+          <WhyAschi />
         </div>
-      </div>
-      
-      {/* 5. Livraison */}
-      <div className="relative">
-        <div 
-          className="absolute inset-0 z-0 opacity-40 pointer-events-none" 
-          style={{ 
-            backgroundImage: "url('/images/bg-weekly-delivery-2.jpg')",
-            backgroundSize: "100% auto",
-            backgroundPosition: "top center",
-            backgroundRepeat: "repeat"
-          }} 
-        />
-        <div className="relative z-10">
+
+        {/* 4. Projets & Réalisations d'Exception */}
+        <div className="cv-auto">
+          <Projects />
+        </div>
+
+        {/* 5. Références de Prestige (Placé immédiatement après Réalisations) */}
+        <div className="cv-auto">
+          <References />
+        </div>
+
+        {/* 6. Actualités & Événements (Position C : entre Références et Livraison) */}
+        <div className="cv-auto">
+          <NewsSection />
+        </div>
+
+        {/* 7. Livraison de la semaine & Installations */}
+        <div className="cv-auto">
           <WeeklyDelivery />
         </div>
-      </div>
-      
-      {/* 6. Actualités */}
-      <NewsSection />
-      
-      {/* 7. Témoignages Vidéo (Video Reel avec avis réseaux) */}
-      <VideoReel />
-      
-      {/* 8. Références */}
-      <References />
-      
-      {/* 9. Stats + Footer */}
-      <section className="relative w-full">
-        <div 
-          className="absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none bg-[url('/images/bg-green-cabinet.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" 
-        />
-        <div className="relative z-10 w-full">
-          <Stats />
-          <Footer />
+
+        {/* 8. Témoignages (Placé immédiatement après Livraison) */}
+        <div className="cv-auto">
+          <VideoReel />
         </div>
-      </section>
+
+        {/* 9. Footer */}
+        <Footer />
+      </div>
     </main>
   )
 }
-

@@ -293,12 +293,12 @@ const CatalogProductCard = ({
   return (
     <motion.article
       variants={{
-        hidden: { opacity: 0, y: 25, scale: 0.96 },
-        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+        hidden: { opacity: 0, y: 20, scale: 0.97 },
+        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
       }}
       onHoverStart={() => setHoveredId(model.id)}
       onHoverEnd={() => setHoveredId(null)}
-      className="group relative flex flex-col p-3 sm:p-4 rounded-[1.75rem] sm:rounded-[2.25rem] bg-[#FAF8F5] hover:bg-white border border-[#E8DCCB] hover:border-[#C17D59] shadow-[0_4px_20px_rgba(58,42,33,0.05)] hover:shadow-[0_20px_45px_rgba(193,125,89,0.18)] transition-all duration-500 transform hover:-translate-y-1.5"
+      className="group relative flex flex-col p-3 sm:p-4 rounded-[1.75rem] sm:rounded-[2rem] bg-[#3B271C]/90 hover:bg-[#452E21]/95 border border-[#E6A635]/35 hover:border-[#E6A635]/80 shadow-[0_15px_35px_rgba(0,0,0,0.65)] hover:shadow-[0_20px_45px_rgba(230,166,53,0.25)] backdrop-blur-xl transition-all duration-400 transform hover:-translate-y-1"
     >
       {/* MODERN ARTISANAL PHOTO ARCH FRAME */}
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-t-[1.5rem] sm:rounded-t-[2rem] rounded-b-xl bg-[#2C1E16]/5 border border-[#E8DCCB]/60 shadow-inner group/img flex items-center justify-center">
@@ -319,9 +319,9 @@ const CatalogProductCard = ({
               animate={{ scale: isHovered ? 1.05 : 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
             />
-            <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-violet-600/95 backdrop-blur-md px-3 py-1 shadow-md border border-violet-400/50">
-              <Bot className="size-3.5 text-white" />
-              <span className="text-[9px] font-extrabold uppercase tracking-wider text-white">IA : {variantImage.colorLabel}</span>
+            <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-[#E6A635]/95 backdrop-blur-md px-3 py-1 shadow-md border border-[#F2BD52]">
+              <Bot className="size-3 text-[#1A110B]" />
+              <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#1A110B]">IA : {variantImage.colorLabel}</span>
             </div>
           </>
         ) : (
@@ -335,25 +335,25 @@ const CatalogProductCard = ({
                 initial={{ opacity: 0, scale: 1.02 }}
                 animate={{ opacity: 1, scale: isHovered ? 1.05 : 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
               />
             </AnimatePresence>
             
             {currentImage && currentImage.id !== primaryImage.id && !isOriginal(currentImage.colorLabel) && (
-              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-violet-600/95 backdrop-blur-md px-3 py-1 shadow-md border border-violet-400/50">
-                <Bot className="size-3.5 text-white" />
-                <span className="text-[9px] font-extrabold uppercase tracking-wider text-white">IA : {currentImage.colorLabel}</span>
+              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-[#E6A635]/95 backdrop-blur-md px-3 py-1 shadow-md border border-[#F2BD52]">
+                <Bot className="size-3 text-[#1A110B]" />
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#1A110B]">IA : {currentImage.colorLabel}</span>
               </div>
             )}
             
             {model.isFeatured ? (
-              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 via-[#C17D59] to-[#3A2A21] text-white px-3 py-1 shadow-md backdrop-blur-md border border-amber-300/30">
-                <Sparkles className="size-3 text-amber-200" />
-                <span className="text-[9px] uppercase tracking-widest font-extrabold">Pièce d'Art</span>
+              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-3 py-1 shadow-md backdrop-blur-md border border-[#F2BD52]/50">
+                <Sparkles className="size-3 text-[#1A110B]" />
+                <span className="text-[9px] uppercase tracking-widest font-extrabold">Pièce d&apos;Art</span>
               </div>
             ) : (
-              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 shadow-sm border border-[#E8DCCB]">
-                <span className="text-[9px] uppercase tracking-wider text-[#3A2A21] font-serif font-bold">
+              <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-[#3B271C]/90 backdrop-blur-md px-3 py-1 shadow-sm border border-[#E6A635]/40">
+                <span className="text-[9px] uppercase tracking-wider text-[#F2BD52] font-serif font-bold">
                   🏺 Atelier Signé
                 </span>
               </div>
@@ -361,39 +361,39 @@ const CatalogProductCard = ({
           </>
         )}
 
-        {/* FLOATING GLASSMORTIC ACTION BUTTONS */}
+        {/* FLOATING ACTION BUTTONS */}
         <div className="absolute top-3 right-3 z-20 flex flex-col gap-1.5">
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(e, model.id); }}
-            className={`size-9 rounded-full backdrop-blur-md transition-all shadow-md flex items-center justify-center active:scale-95 ${
+            className={`size-8 rounded-full backdrop-blur-md transition-all shadow-md flex items-center justify-center active:scale-95 cursor-pointer ${
               favorites.includes(model.id)
-                ? 'bg-white text-red-500 shadow-md'
-                : 'bg-white/85 hover:bg-white text-[#3A2A21] hover:text-red-500 border border-white/80'
+                ? 'bg-[#241812] text-red-400 border border-red-500/50'
+                : 'bg-[#241812]/90 hover:bg-[#3B271C] text-[#EAE4D9] hover:text-red-400 border border-[#E6A635]/35'
             }`}
             title="Ajouter aux favoris"
           >
-            <Heart className={`size-4 transition-colors ${favorites.includes(model.id) ? 'fill-red-500' : ''}`} />
+            <Heart className={`size-3.5 transition-colors ${favorites.includes(model.id) ? 'fill-red-400' : ''}`} />
           </button>
 
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickViewProduct(model); setQuickViewImageIndex(0); }}
-            className="size-9 rounded-full bg-white/85 hover:bg-white text-[#3A2A21] hover:text-[#C17D59] backdrop-blur-md border border-white/80 shadow-md transition-all flex items-center justify-center active:scale-95"
+            className="size-8 rounded-full bg-[#241812]/90 hover:bg-[#3B271C] text-[#EAE4D9] hover:text-[#F2BD52] backdrop-blur-md border border-[#E6A635]/35 shadow-md transition-all flex items-center justify-center active:scale-95 cursor-pointer"
             title="Aperçu rapide"
           >
-            <Eye className="size-4" />
+            <Eye className="size-3.5" />
           </button>
         </div>
 
-        {/* MODERN QUICK VIEW BAR ON HOVER */}
+        {/* HOVER EXPLORE BUTTON */}
         <div className="absolute bottom-3 inset-x-3 z-20 transition-all duration-300 opacity-0 group-hover/img:opacity-100 translate-y-2 group-hover/img:translate-y-0 hidden sm:block">
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickViewProduct(model); setQuickViewImageIndex(0); }}
-            className="w-full py-2.5 rounded-xl bg-[#2C1E16]/95 hover:bg-[#C17D59] text-white backdrop-blur-md font-bold text-[10px] uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer border border-white/20"
+            className="btn-sheen w-full py-2 rounded-xl bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold text-[10px] uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <Eye className="size-3.5" /> Explorer la création
+            <Eye className="size-3.5" /> Explorer l&apos;inspiration
           </button>
         </div>
 
@@ -453,7 +453,7 @@ const CatalogProductCard = ({
 
         {/* VIEW COUNT BADGE */}
         {hasMultipleImages && (
-          <div className="absolute bottom-3 right-3 z-20 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-[9px] font-bold text-amber-100 border border-white/20 group-hover/img:hidden">
+          <div className="absolute bottom-3 right-3 z-20 px-2.5 py-0.5 rounded-full bg-[#241812]/80 backdrop-blur-md text-[8.5px] font-bold text-[#F2BD52] border border-[#E6A635]/30 group-hover/img:hidden">
             📷 {model.images.length} vues
           </div>
         )}
@@ -474,7 +474,7 @@ const CatalogProductCard = ({
                 e.stopPropagation()
                 setActiveImageIndex(idx)
               }}
-              className={`relative size-8 sm:size-9 shrink-0 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+              className={`relative size-8 shrink-0 rounded-lg overflow-hidden border transition-all cursor-pointer ${
                 idx === activeImageIndex 
                   ? 'border-[#C17D59] opacity-100 scale-105 shadow-md ring-2 ring-[#C17D59]/30' 
                   : 'border-white opacity-60 hover:opacity-100 shadow-xs'
@@ -486,8 +486,8 @@ const CatalogProductCard = ({
         </div>
       )}
 
-      {/* MODERN ARTISANAL DETAILS SECTION */}
-      <div className="pt-3 px-1 flex flex-col flex-1 justify-between gap-3">
+      {/* DETAILS SECTION */}
+      <div className="pt-3 px-1 flex flex-col flex-1 justify-between gap-3 text-left">
         <div>
           <div className="flex items-center justify-between gap-2 mb-2">
             <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-[#C17D59] truncate min-w-0">
@@ -544,10 +544,7 @@ export function CatalogPage() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const paginatedProducts = products.slice(startIndex, startIndex + ITEMS_PER_PAGE)
   
-  // Dynamic Categories
   const [categories, setCategories] = useState<{ id: string; label: string; icon: any; count: number }[]>([])
-  
-  // Carousel Ref for auto-centering & Thumbnails
   const carouselRef = useRef<HTMLDivElement>(null)
   const thumbCarouselRef = useRef<HTMLDivElement>(null)
   const gridTopRef = useRef<HTMLDivElement>(null)
@@ -570,15 +567,11 @@ export function CatalogPage() {
     }
   }
   
-  // Favorites
   const [favorites, setFavorites] = useState<number[]>([])
   const [mounted, setMounted] = useState(false)
-
-  // Quick View
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
   const [quickViewImageIndex, setQuickViewImageIndex] = useState(0)
 
-  // Reset pagination on filter or sort change
   useEffect(() => {
     setCurrentPage(1)
   }, [category, color, dimension, aiQuery, sortBy])
@@ -649,10 +642,7 @@ export function CatalogPage() {
 
   // Derive dynamic categories from all available products & DB categories
   useEffect(() => {
-    const allProducts = dbProducts.length > 0 
-      ? [...dbProducts, ...MOCK_MODELS.filter(m => !dbProducts.some(dbP => dbP.name?.toLowerCase() === m.name?.toLowerCase() || dbP.id === m.id))]
-      : MOCK_MODELS
-
+    const allProducts = dbProducts
     const counts: Record<string, number> = {}
 
     // Seed official categories so Lampes Coffres, etc. appear consistently
@@ -684,28 +674,20 @@ export function CatalogPage() {
     ])
   }, [dbProducts, dbCategories])
 
-  // Client-side filtering on merged products
   useEffect(() => {
-    const source = dbProducts.length > 0 
-      ? [...dbProducts, ...MOCK_MODELS.filter(m => !dbProducts.some(dbP => dbP.name?.toLowerCase() === m.name?.toLowerCase() || dbP.id === m.id))]
-      : (loading ? [] : MOCK_MODELS)
+    const source = dbProducts
     let filtered = source
-
     let needsGoldCard = false
     let isAiSearchActive = false
 
     if (aiQuery.trim() !== '') {
       isAiSearchActive = true
       const q = aiQuery.trim().toLowerCase()
-      // Tokenize the query and remove common stop words to support natural language like "je cherche un miroir bleu"
       const stopWords = ['je', 'cherche', 'voudrais', 'veux', 'veut', 'un', 'une', 'des', 'le', 'la', 'les', 'de', 'en', 'avec', 'pour', 'et', 'ou', 'est', 'que', 'qui', 'dans', 'sur']
       const keywords = q.split(/\s+/).filter(word => word.length > 2 && !stopWords.includes(word))
-      
-      // If no valid keywords found after filtering, fallback to the whole string
       const searchTerms = keywords.length > 0 ? keywords : [q]
 
       let perfectMatches = filtered.filter(p => {
-        // A product matches perfectly if it satisfies ALL search terms (with typo tolerance)
         return searchTerms.every(term => {
           const matchesName = isFuzzyMatch(term, p.name)
           const matchesDesc = isFuzzyMatch(term, p.description)
@@ -765,13 +747,10 @@ export function CatalogPage() {
       filtered = filtered.filter(p => {
         const dimStr = (p.dimensions || '').toLowerCase()
         const targetDim = dimension.toLowerCase()
-        
-        // 1. Explicit text tag match ("petit", "moyen", "grand")
         if (targetDim.includes('petit') && dimStr.includes('petit')) return true
         if (targetDim.includes('moyen') && dimStr.includes('moyen')) return true
         if (targetDim.includes('grand') && dimStr.includes('grand')) return true
 
-        // 2. Image variant label match
         const hasVariantDim = p.images?.some(img => {
           const label = (img.colorLabel || '').toLowerCase()
           return (targetDim.includes('petit') && label.includes('petit')) ||
@@ -780,7 +759,6 @@ export function CatalogPage() {
         })
         if (hasVariantDim) return true
 
-        // 3. Numeric parsing fallback (e.g. 180 x 50 x 85 cm -> 180)
         const numbers = dimStr.match(/\d+/g)
         if (numbers && numbers.length > 0) {
           const mainVal = parseInt(numbers[0])
@@ -788,7 +766,6 @@ export function CatalogPage() {
           if (targetDim.includes('moyen')) return mainVal >= 80 && mainVal <= 150
           if (targetDim.includes('grand')) return mainVal > 150
         }
-        
         return false
       })
     }
@@ -798,7 +775,6 @@ export function CatalogPage() {
        needsGoldCard = true
     }
 
-    // Apply Sorting
     let sorted = [...filtered]
 
     const getColorRank = (p: Product) => {
@@ -852,7 +828,7 @@ export function CatalogPage() {
   ].filter(Boolean).length
 
   return (
-    <section className="min-h-screen bg-[#FAF7F2] py-16 text-[#5A453A] md:py-24 relative">
+    <section className="min-h-screen bg-transparent py-8 md:py-14 text-[#F7F4EE] relative">
       
       {/* QUICK VIEW MODAL */}
       <AnimatePresence>
@@ -861,21 +837,21 @@ export function CatalogPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-md overflow-y-auto"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto"
             onClick={() => setQuickViewProduct(null)}
           >
             <motion.div
-              initial={{ scale: 0.95, y: 25 }}
+              initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 25 }}
+              exit={{ scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-4xl bg-[#FAF9F5] rounded-[2.5rem] overflow-hidden shadow-2xl border border-[#E8DCCB] flex flex-col md:flex-row relative max-h-[90vh] my-auto"
+              className="w-full max-w-4xl bg-[#3B271C] rounded-[2rem] overflow-hidden shadow-2xl border border-[#E6A635]/40 flex flex-col md:flex-row relative max-h-[90vh] my-auto text-[#F7F4EE]"
             >
               {/* Close Button */}
               <button 
                 type="button"
                 onClick={() => setQuickViewProduct(null)}
-                className="absolute top-4 right-4 z-30 p-2.5 bg-black/40 hover:bg-black/70 text-white rounded-full backdrop-blur-md transition-all shadow-md transform hover:scale-105"
+                className="absolute top-4 right-4 z-30 p-2.5 bg-[#241812]/80 hover:bg-[#241812] text-[#F7F4EE] rounded-full backdrop-blur-md border border-[#E6A635]/35 transition-all shadow-md cursor-pointer"
                 title="Fermer"
               >
                 <X className="size-5" />
@@ -922,7 +898,7 @@ export function CatalogPage() {
                           className="p-3 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
                           title="Image précédente"
                         >
-                          <ChevronLeft className="size-5 transition-transform group-hover/arrow:-translate-x-0.5" />
+                          <ChevronLeft className="size-4" />
                         </button>
                         <button 
                           type="button"
@@ -930,7 +906,7 @@ export function CatalogPage() {
                           className="p-3 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
                           title="Image suivante"
                         >
-                          <ChevronRight className="size-5 transition-transform group-hover/arrow:translate-x-0.5" />
+                          <ChevronRight className="size-4" />
                         </button>
                       </div>
                     )}
@@ -957,34 +933,22 @@ export function CatalogPage() {
                         </div>
                       </div>
                     )}
-
-                    {/* Non-intrusive active color indicator if AI variant */}
-                    {(() => {
-                      const currentView = quickViewProduct.images?.[quickViewImageIndex];
-                      if (!currentView || isOriginal(currentView.colorLabel)) return null;
-                      return (
-                        <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 shadow-md border border-white/20 text-white text-[10px] font-bold">
-                          <span className="size-2.5 rounded-full border border-white/40" style={{ background: getColorHex(currentView.colorLabel) }} />
-                          <span>IA : {currentView.colorLabel}</span>
-                        </div>
-                      );
-                    })()}
                   </>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-[#FAF7F2]">
-                    <span className="text-muted-foreground font-serif">Aucune image disponible</span>
+                  <div className="w-full h-full flex items-center justify-center bg-[#241812]">
+                    <span className="text-[#EAE4D9]/60 font-light">Aucune image disponible</span>
                   </div>
                 )}
               </div>
 
-              {/* Right Side: Details & Story */}
-              <div className="w-full md:w-1/2 p-6 sm:p-10 flex flex-col overflow-y-auto">
+              {/* Right Side: Details */}
+              <div className="w-full md:w-1/2 p-6 sm:p-8 flex flex-col overflow-y-auto text-left">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div>
-                    <span className="text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#C17D59] bg-[#C17D59]/10 px-3 py-1 rounded-full border border-[#C17D59]/20 inline-block mb-2">
+                    <span className="text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#F2BD52] bg-[#241812]/90 px-3 py-1 rounded-full border border-[#E6A635]/35 inline-block mb-2">
                       {quickViewProduct.category?.name || 'Création d\'Atelier'}
                     </span>
-                    <h3 className="font-serif text-2xl sm:text-3xl font-semibold text-[#2C1E16] leading-tight">
+                    <h3 className="font-heading text-2xl sm:text-3xl font-light text-gold-gradient leading-tight">
                       {quickViewProduct.name}
                     </h3>
                   </div>
@@ -992,71 +956,20 @@ export function CatalogPage() {
                   <button 
                     type="button"
                     onClick={(e) => toggleFavorite(e, quickViewProduct.id)}
-                    className={`p-3 rounded-full border transition-all shadow-sm shrink-0 ${
+                    className={`p-2.5 rounded-full border transition-all shadow-sm shrink-0 cursor-pointer ${
                       favorites.includes(quickViewProduct.id)
-                        ? 'bg-red-50 border-red-200 text-red-500'
-                        : 'bg-white border-[#E8DCCB] text-[#3A2A21] hover:text-red-500'
+                        ? 'bg-[#241812] border-red-500/50 text-red-400'
+                        : 'bg-[#241812]/90 border-[#E6A635]/35 text-[#EAE4D9] hover:text-red-400'
                     }`}
                     title="Ajouter aux favoris"
                   >
-                    <Heart className={`size-5 ${favorites.includes(quickViewProduct.id) ? 'fill-current' : ''}`} />
+                    <Heart className={`size-4 ${favorites.includes(quickViewProduct.id) ? 'fill-current' : ''}`} />
                   </button>
                 </div>
                 
-                <p className="text-[#5A453A] font-light text-sm leading-relaxed mb-6">
+                <p className="text-[#EAE4D9]/85 font-light text-xs sm:text-sm leading-relaxed mb-6">
                   {quickViewProduct.description || "Cette pièce artisanale d'exception est fabriquée à la main dans notre atelier à partir de matériaux nobles. Chaque détail est façonné sur-mesure."}
                 </p>
-
-                {/* ELEGANT COLOR VARIANTS SELECTOR IN DETAILS COLUMN (OUTSIDE PHOTO) */}
-                {(() => {
-                  if (!quickViewProduct.images || quickViewProduct.images.length <= 1) return null;
-                  const uniqueVariants: { label: string; idx: number; id: string }[] = [];
-                  const seen = new Set();
-                  quickViewProduct.images.forEach((img: any, idx: number) => {
-                    const label = img.colorLabel || 'Original';
-                    if (!seen.has(label)) {
-                      seen.add(label);
-                      uniqueVariants.push({ label, idx, id: img.id });
-                    }
-                  });
-                  
-                  if (uniqueVariants.length <= 1) return null;
-
-                  return (
-                    <div className="mb-6 p-4 rounded-2xl bg-[#FAF7F2] border border-[#E8DCCB]/60">
-                      <p className="text-[10px] uppercase tracking-wider text-[#8C7A6B] font-bold mb-2.5 flex items-center gap-1.5">
-                        <Sparkles className="size-3.5 text-[#C17D59]" /> Finitions & Couleurs d'Atelier :
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {uniqueVariants.map(({ label, idx, id }) => {
-                          const currentLabel = quickViewProduct.images[quickViewImageIndex]?.colorLabel || 'Original';
-                          const isActive = currentLabel === label;
-                          const isOrig = isOriginal(label);
-                          
-                          return (
-                            <button
-                              key={id}
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setQuickViewImageIndex(idx);
-                              }}
-                              className={`flex items-center gap-2 px-3.5 py-2 rounded-full border text-xs font-semibold transition-all cursor-pointer shadow-xs ${
-                                isActive
-                                  ? 'border-[#C17D59] bg-[#C17D59] text-white shadow-md scale-102'
-                                  : 'border-[#E8DCCB] bg-white text-[#3A2A21] hover:border-[#C17D59] hover:bg-[#FAF7F2]'
-                              }`}
-                            >
-                              <span className="size-3 rounded-full border border-black/10 shrink-0" style={{ background: getColorHex(label) }} />
-                              <span>{label}</span>
-                              {isOrig && <span className="text-[9px] opacity-80">(Original)</span>}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })()}
 
                 {/* Specs Grid */}
                 {(() => {
@@ -1076,25 +989,25 @@ export function CatalogPage() {
                     : (quickViewProduct.dimensions || 'Sur mesure')
 
                   return (
-                    <div className="grid grid-cols-2 gap-3 mb-8 p-4 rounded-2xl bg-[#FAF7F2] border border-[#E8DCCB]/60">
-                      <div className="p-2.5 rounded-xl bg-white border border-[#E8DCCB]/40">
-                        <p className="text-[9px] uppercase tracking-wider text-[#8C7A6B] font-bold mb-0.5">Dimensions</p>
-                        <p className="text-xs font-semibold text-[#2C1E16]">📏 {actualDimension}</p>
+                    <div className="grid grid-cols-2 gap-2.5 mb-6 p-4 rounded-2xl bg-[#241812]/90 border border-[#E6A635]/30">
+                      <div className="p-2.5 rounded-xl bg-[#3B271C] border border-[#E6A635]/25">
+                        <p className="text-[9px] uppercase tracking-wider text-[#F2BD52] font-bold mb-0.5">Dimensions</p>
+                        <p className="text-xs font-semibold text-[#F7F4EE]">📏 {actualDimension}</p>
                       </div>
-                      <div className="p-2.5 rounded-xl bg-white border border-[#E8DCCB]/40">
-                        <p className="text-[9px] uppercase tracking-wider text-[#8C7A6B] font-bold mb-0.5">Matière</p>
-                        <p className="text-xs font-semibold text-[#2C1E16]">🪵 {quickViewProduct.materials || 'Bois massif'}</p>
+                      <div className="p-2.5 rounded-xl bg-[#3B271C] border border-[#E6A635]/25">
+                        <p className="text-[9px] uppercase tracking-wider text-[#F2BD52] font-bold mb-0.5">Matière</p>
+                        <p className="text-xs font-semibold text-[#F7F4EE]">🪵 {quickViewProduct.materials || 'Bois massif'}</p>
                       </div>
-                      <div className="p-2.5 rounded-xl bg-white border border-[#E8DCCB]/40">
-                        <p className="text-[9px] uppercase tracking-wider text-[#8C7A6B] font-bold mb-0.5">Finition / Teinte</p>
-                        <p className="text-xs font-semibold text-[#2C1E16] flex items-center gap-1.5">
+                      <div className="p-2.5 rounded-xl bg-[#3B271C] border border-[#E6A635]/25">
+                        <p className="text-[9px] uppercase tracking-wider text-[#F2BD52] font-bold mb-0.5">Finition / Teinte</p>
+                        <p className="text-xs font-semibold text-[#F7F4EE] flex items-center gap-1.5">
                           <span className="size-2.5 rounded-full inline-block border border-black/10 shrink-0" style={{ background: getColorHex(actualColor) }} />
                           <span className="truncate">{actualColor}</span>
                         </p>
                       </div>
-                      <div className="p-2.5 rounded-xl bg-white border border-[#E8DCCB]/40">
-                        <p className="text-[9px] uppercase tracking-wider text-[#8C7A6B] font-bold mb-0.5">Prix Indicatif</p>
-                        <p className="text-xs font-bold text-[#C17D59] font-serif">
+                      <div className="p-2.5 rounded-xl bg-[#3B271C] border border-[#E6A635]/25">
+                        <p className="text-[9px] uppercase tracking-wider text-[#F2BD52] font-bold mb-0.5">Prix Indicatif</p>
+                        <p className="text-xs font-bold text-[#F2BD52] font-heading">
                           {quickViewProduct.price ? `${quickViewProduct.price} TND` : 'Sur devis'}
                         </p>
                       </div>
@@ -1103,22 +1016,18 @@ export function CatalogPage() {
                 })()}
 
                 {/* CTAs */}
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-3 mt-auto">
                   <Link
-                    href={`/produits/${quickViewProduct.id}?action=devis&color=${encodeURIComponent(
-                      (quickViewProduct.images?.[quickViewImageIndex] && !isOriginal(quickViewProduct.images?.[quickViewImageIndex].colorLabel)) 
-                        ? quickViewProduct.images?.[quickViewImageIndex].colorLabel! 
-                        : (quickViewProduct.color || 'Naturel')
-                    )}`}
-                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#3A2A21] hover:bg-[#C17D59] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white transition-all shadow-md transform hover:-translate-y-0.5"
+                    href={`/custom-creation?model=${encodeURIComponent(quickViewProduct.name)}`}
+                    className="btn-sheen flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer"
                   >
-                    <MessageCircle className="size-4" /> Commander sur-mesure
+                    <MessageCircle className="size-4" /> Devis Sur-Mesure 3D
                   </Link>
                   <Link
                     href={`/produits/${quickViewProduct.id}`}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E8DCCB] bg-white hover:bg-[#FAF7F2] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[#3A2A21] transition-all shadow-sm"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E6A635]/35 bg-[#241812]/90 hover:bg-[#241812] px-5 py-3 text-xs font-bold uppercase tracking-wider text-[#F7F4EE] transition-all"
                   >
-                    Fiche produit <ChevronRight className="size-4" />
+                    Fiche détaillée <ChevronRight className="size-3.5" />
                   </Link>
                 </div>
               </div>
@@ -1127,93 +1036,63 @@ export function CatalogPage() {
         )}
       </AnimatePresence>
 
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-
-        {/* Header & Favorites floating bar */}
-        <div className="relative">
-          <FadeIn className="text-center mb-10">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#C17D59] font-bold">Catalogue d'inspiration</p>
-            <h1 className="mx-auto mt-5 max-w-3xl text-balance font-serif italic text-5xl font-light leading-tight sm:text-6xl md:text-7xl text-[#2C1E16]">
-              Nos créations passées, sources d'inspiration
+        {/* Header */}
+        <div className="relative text-center mb-8">
+          <FadeIn>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10.5px] uppercase tracking-[0.2em] mb-3 font-bold shadow-md">
+              <Sparkles className="size-3 text-[#E6A635] animate-pulse" />
+              <span>Création Sur-Mesure • Galerie d&apos;Inspiration</span>
+            </div>
+            <h1 className="mx-auto mt-2 max-w-3xl font-heading text-3xl sm:text-4xl md:text-5xl font-light text-gold-gradient leading-tight drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
+              Modèles &amp; Sources d&apos;Inspiration
             </h1>
+            <p className="text-[#EAE4D9]/90 max-w-xl mx-auto text-xs sm:text-sm md:text-base font-light leading-relaxed mt-2.5 drop-shadow-md">
+              Explorez nos créations passées. Choisissez un modèle pour le personnaliser ou demandez une création 100% sur-mesure à nos maîtres artisans.
+            </p>
           </FadeIn>
 
-          {/* --- AI VISION PROMPTER --- */}
-          <FadeIn delay={0.02} className="mb-14 relative z-10 mx-auto max-w-2xl px-5">
+          {/* AI VISION PROMPTER */}
+          <FadeIn delay={0.05} className="mt-8 mb-8 relative z-10 mx-auto max-w-2xl px-2">
             <div className="relative group">
-              <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-[#C17D59] via-amber-200 to-[#C17D59] opacity-30 blur-md group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-              <div className="relative flex items-center bg-white border border-[#E8DCCB] shadow-xl rounded-full px-2 py-2">
-                <div className="pl-4 pr-3">
-                  <Sparkles className="size-5 text-[#C17D59]" />
+              <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-[#E6A635] via-amber-300 to-[#C78318] opacity-25 blur-md group-hover:opacity-40 transition duration-500"></div>
+              <div className="relative flex items-center bg-[#3B271C]/90 border border-[#E6A635]/40 shadow-xl rounded-full px-2 py-1.5 backdrop-blur-md">
+                <div className="pl-3.5 pr-2.5">
+                  <Sparkles className="size-4 text-[#F2BD52]" />
                 </div>
                 <input 
                   type="text"
-                  placeholder="Décrivez le meuble de vos rêves (ex: Un grand buffet bleu)..."
+                  placeholder="Décrivez le meuble de vos rêves (ex: Un buffet sculpté noyer avec miroirs)..."
                   value={aiQuery}
                   onChange={e => setAiQuery(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      window.scrollBy({ top: 300, behavior: 'smooth' });
-                    }
-                  }}
-                  className="w-full bg-transparent border-none text-[#5A453A] text-sm md:text-base focus:outline-none focus:ring-0 placeholder:text-[#8C7A6B]/60 font-medium"
+                  className="w-full bg-transparent border-none text-[#F7F4EE] text-xs sm:text-sm focus:outline-none focus:ring-0 placeholder:text-[#EAE4D9]/40 font-light"
                 />
                 {aiQuery && (
-                  <button onClick={() => setAiQuery('')} className="p-2 text-[#8C7A6B] hover:text-[#C17D59] transition-colors">
+                  <button onClick={() => setAiQuery('')} className="p-2 text-[#EAE4D9] hover:text-[#F2BD52] transition-colors cursor-pointer">
                     <X className="size-4" />
                   </button>
                 )}
                 <button 
                   onClick={() => {
-                    // Just scroll down slightly to show results
                     window.scrollBy({ top: 300, behavior: 'smooth' })
                   }}
-                  className="ml-2 rounded-full bg-gradient-to-r from-[#C17D59] to-[#3A2A21] hover:from-[#A6694A] hover:to-[#1a120f] transition-all text-white text-[10px] font-bold uppercase tracking-wider px-5 py-3 whitespace-nowrap shadow-md hidden sm:block"
+                  className="btn-sheen ml-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-[10px] font-bold uppercase tracking-wider px-4 py-2.5 whitespace-nowrap shadow-md hidden sm:block cursor-pointer"
                 >
                   Visualiser
                 </button>
               </div>
             </div>
           </FadeIn>
-
-          {/* Favorites Widget */}
-          <AnimatePresence>
-            {mounted && favorites.length > 0 && (
-              <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="fixed bottom-6 right-6 md:absolute md:top-0 md:right-0 md:bottom-auto z-40"
-              >
-                <Link 
-                  href="/contact" 
-                  className="flex items-center gap-3 bg-white border border-red-100 shadow-xl shadow-red-900/5 rounded-full px-5 py-3 hover:scale-105 transition-transform group"
-                >
-                  <div className="relative">
-                    <Heart className="size-5 text-red-500 fill-red-500" />
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold size-4 flex items-center justify-center rounded-full border border-white">
-                      {favorites.length}
-                    </span>
-                  </div>
-                  <span className="text-xs font-semibold text-[#2C1E16] hidden sm:block group-hover:text-red-500 transition-colors">Mes favoris</span>
-                </Link>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
 
-        {/* --- CATEGORIES "STORIES" MENU --- */}
-        <FadeIn delay={0.05}>
-          <div ref={carouselRef} className="mb-12 w-full overflow-x-auto pb-4 custom-scrollbar scroll-smooth">
-            <div className="flex gap-4 sm:gap-6 min-w-max px-2">
+        {/* CATEGORIES "STORIES" MENU */}
+        <FadeIn delay={0.08}>
+          <div ref={carouselRef} className="mb-8 w-full overflow-x-auto pb-3 scrollbar-thin scroll-smooth">
+            <div className="flex gap-3 sm:gap-4 min-w-max px-1">
               {categories.map((cat) => {
                 const isSelected = category === cat.id
-                
-                // Dynamically fetch an image from dbProducts for this category
-                let displayImg = '/placeholder.png' // default fallback
+                let displayImg = '/placeholder.png'
                 if (dbProducts && dbProducts.length > 0) {
                   if (cat.id === 'Tout') {
                     const firstProd = dbProducts.find(p => p.images && p.images.length > 0)
@@ -1229,7 +1108,6 @@ export function CatalogPage() {
                     key={cat.id}
                     onClick={(e) => {
                       setCategory(cat.id)
-                      // Auto-center on mobile
                       const btn = e.currentTarget
                       if (carouselRef.current) {
                         const container = carouselRef.current
@@ -1237,22 +1115,21 @@ export function CatalogPage() {
                         container.scrollTo({ left: scrollLeft, behavior: 'smooth' })
                       }
                     }}
-                    className="group flex flex-col items-center gap-3 w-20 sm:w-24 shrink-0 transition-all relative"
+                    className="group flex flex-col items-center gap-2 w-18 sm:w-22 shrink-0 transition-all relative cursor-pointer"
                   >
-                    <div className={`relative size-16 sm:size-20 rounded-full p-1 transition-all duration-300 ${isSelected ? 'bg-gradient-to-tr from-[#C17D59] to-[#E8DCCB]' : 'bg-transparent hover:bg-[#E8DCCB]/40'}`}>
-                      <div className="size-full rounded-full overflow-hidden bg-white relative border-2 border-white shadow-inner">
+                    <div className={`relative size-14 sm:size-16 rounded-full p-0.5 transition-all duration-300 ${isSelected ? 'bg-gradient-to-tr from-[#F3C45E] to-[#E6A635] ring-2 ring-[#E6A635]' : 'bg-transparent hover:bg-[#3B271C]'}`}>
+                      <div className="size-full rounded-full overflow-hidden bg-[#241812] relative border border-[#E6A635]/30">
                         <img src={displayImg} alt={cat.label} className={`size-full object-cover transition-transform duration-500 ${isSelected ? 'scale-110' : 'group-hover:scale-110'} opacity-80`} onError={e => { (e.target as HTMLImageElement).src = '/placeholder.png' }} />
-                        <div className={`absolute inset-0 flex items-center justify-center transition-colors ${isSelected ? 'bg-black/10' : 'bg-black/30 group-hover:bg-black/10'}`}>
-                          <cat.icon className="size-6 text-white drop-shadow-md" />
+                        <div className={`absolute inset-0 flex items-center justify-center transition-colors ${isSelected ? 'bg-black/10' : 'bg-black/40 group-hover:bg-black/20'}`}>
+                          <cat.icon className="size-5 text-[#F7F4EE] drop-shadow-md" />
                         </div>
                       </div>
                       
-                      {/* Product Count Badge */}
-                      <div className="absolute -top-1 -right-1 bg-white shadow-md border border-[#E8DCCB] text-[#5A453A] font-bold text-[9px] size-5 sm:size-6 flex items-center justify-center rounded-full z-10 transition-transform group-hover:scale-110">
+                      <div className="absolute -top-1 -right-1 bg-[#241812] shadow-md border border-[#E6A635]/40 text-[#F2BD52] font-bold text-[8.5px] size-5 flex items-center justify-center rounded-full z-10">
                         {cat.count}
                       </div>
                     </div>
-                    <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider text-center transition-colors ${isSelected ? 'text-[#C17D59]' : 'text-[#8C7A6B] group-hover:text-[#2C1E16]'}`}>
+                    <span className={`text-[9.5px] sm:text-[10.5px] font-bold uppercase tracking-wider text-center transition-colors ${isSelected ? 'text-[#F2BD52]' : 'text-[#EAE4D9]/80 group-hover:text-[#F7F4EE]'}`}>
                       {cat.label}
                     </span>
                   </button>
@@ -1262,73 +1139,57 @@ export function CatalogPage() {
           </div>
         </FadeIn>
 
-        {/* IA Disclaimer banner */}
-        <FadeIn delay={0.1}>
-          <div className="mb-10 flex items-start gap-4 rounded-2xl border border-[#E8DCCB]/40 bg-white p-5 shadow-sm">
-            <div className="p-2 bg-[#FAF7F2] rounded-full">
-              <Sparkles className="size-5 text-[#C17D59]" />
-            </div>
-            <div>
-              <span className="font-bold text-[#C17D59] text-sm uppercase tracking-wider">Note Magique — </span>
-              <span className="text-sm text-[#5A453A] leading-relaxed">
-                Certains modèles de ce catalogue sont générés ou améliorés par notre intelligence artificielle à des fins d'illustration. Ils représentent les possibilités de création sur-mesure de l'Atelier.
-              </span>
-            </div>
-          </div>
-        </FadeIn>
-
         {/* Filter panel */}
-        <FadeIn delay={0.15}>
-          <div className="mb-10 rounded-3xl border border-[#E8DCCB]/60 bg-white shadow-sm overflow-hidden">
+        <FadeIn delay={0.12}>
+          <div className="mb-8 rounded-3xl border border-[#E6A635]/35 bg-[#3B271C]/90 backdrop-blur-xl shadow-lg overflow-hidden">
             <button
               type="button"
               onClick={() => setShowFilters(v => !v)}
-              className="flex w-full items-center justify-between px-6 py-5 text-left md:cursor-default"
+              className="flex w-full items-center justify-between px-5 py-4 text-left cursor-pointer"
             >
-              <div className="flex items-center gap-3">
-                <SlidersHorizontal className="size-4 text-[#C17D59]" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#2C1E16]">Filtrer les inspirations</span>
+              <div className="flex items-center gap-2.5">
+                <SlidersHorizontal className="size-4 text-[#F2BD52]" />
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#F7F4EE]">Filtrer les inspirations</span>
                 {activeFilterCount > 0 && (
-                  <span className="flex size-5 items-center justify-center rounded-full bg-[#C17D59] text-[10px] font-bold text-white shadow-sm">
+                  <span className="flex size-4.5 items-center justify-center rounded-full bg-[#E6A635] text-[9.5px] font-bold text-[#1A110B] shadow-sm">
                     {activeFilterCount}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] uppercase font-bold text-[#C17D59] md:hidden">
+              <span className="text-[10px] uppercase font-bold text-[#F2BD52]">
                 {showFilters ? 'Masquer' : 'Afficher'}
               </span>
             </button>
 
             <div className={cn(
-              'border-t border-[#E8DCCB]/20 px-6 py-6 space-y-8 transition-all duration-300 bg-[#FAF7F2]/30',
-              'md:block',
-              showFilters ? 'block' : 'hidden md:block'
+              'border-t border-[#E6A635]/20 px-5 py-5 space-y-6 transition-all duration-300 bg-[#241812]/90',
+              showFilters ? 'block' : 'hidden'
             )}>
 
               {/* Color swatches */}
               <div>
-                <p className="mb-3 text-[10px] uppercase tracking-[0.2em] text-[#8C7A6B] font-bold">Couleur du bois</p>
-                <div className="flex flex-wrap gap-4">
+                <p className="mb-2.5 text-[10px] uppercase tracking-[0.2em] text-[#F2BD52] font-bold">Teinte / Finition</p>
+                <div className="flex flex-wrap gap-3">
                   {COLORS.map(c => (
                     <button
                       key={c.label}
                       type="button"
                       onClick={() => setColor(c.label)}
                       title={c.label}
-                      className="flex flex-col items-center gap-2 group"
+                      className="flex flex-col items-center gap-1.5 group cursor-pointer"
                     >
                       <div
                         className={cn(
-                          'size-10 rounded-full border-2 transition-all duration-300 shadow-sm',
+                          'size-8 rounded-full border transition-all duration-300 shadow-sm',
                           color === c.label
-                            ? 'scale-110 border-[#C17D59] ring-2 ring-[#C17D59]/20 ring-offset-2'
-                            : 'border-white group-hover:scale-105 group-hover:border-[#E8DCCB]'
+                            ? 'scale-110 border-[#E6A635] ring-2 ring-[#E6A635]/50'
+                            : 'border-white/30 group-hover:scale-105 group-hover:border-[#E6A635]'
                         )}
                         style={c.hex ? { backgroundColor: c.hex } : { background: 'conic-gradient(red, yellow, green, cyan, blue, magenta, red)' }}
                       />
                       <span className={cn(
-                        'text-[10px] font-bold uppercase tracking-wider transition-colors',
-                        color === c.label ? 'text-[#C17D59]' : 'text-[#8C7A6B] group-hover:text-[#2C1E16]'
+                        'text-[9.5px] font-semibold uppercase tracking-wider transition-colors',
+                        color === c.label ? 'text-[#F2BD52]' : 'text-[#EAE4D9]/70 group-hover:text-[#F7F4EE]'
                       )}>
                         {c.label === 'Tout' ? 'Toutes' : c.label}
                       </span>
@@ -1338,9 +1199,9 @@ export function CatalogPage() {
               </div>
 
               {/* Dimension pills */}
-              <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                 <div>
-                  <p className="mb-3 text-[10px] uppercase tracking-[0.2em] text-[#8C7A6B] font-bold">Dimensions</p>
+                  <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-[#F2BD52] font-bold">Dimensions</p>
                   <div className="flex flex-wrap gap-2">
                     {DIMENSIONS.map(d => (
                       <button
@@ -1348,10 +1209,10 @@ export function CatalogPage() {
                         type="button"
                         onClick={() => setDimension(d)}
                         className={cn(
-                          'rounded-full px-5 py-2 text-xs font-semibold transition-all duration-200',
+                          'rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer',
                           dimension === d
-                            ? 'bg-[#E8DCCB]/30 border border-[#C17D59] text-[#C17D59]'
-                            : 'border border-[#E8DCCB] bg-white text-[#5A453A] hover:border-[#C17D59] hover:text-[#C17D59]'
+                            ? 'bg-[#E6A635] text-[#1A110B] font-bold shadow-md'
+                            : 'border border-[#E6A635]/30 bg-[#3B271C] text-[#EAE4D9] hover:border-[#E6A635]'
                         )}
                       >
                         {d}
@@ -1365,9 +1226,9 @@ export function CatalogPage() {
                   <button
                     type="button"
                     onClick={() => { setCategory('Tout'); setColor('Tout'); setDimension('Tout'); setAiQuery(''); }}
-                    className="ml-auto mt-4 sm:mt-0 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-red-400 hover:text-red-500 transition-colors"
+                    className="ml-auto flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-red-400 hover:text-red-300 transition-colors cursor-pointer"
                   >
-                    <X className="size-4" /> Réinitialiser
+                    <X className="size-3.5" /> Réinitialiser
                   </button>
                 )}
               </div>
@@ -1384,33 +1245,27 @@ export function CatalogPage() {
           </div>
         </FadeIn>
 
-        {/* Product grid */}
+        {/* Grid / Empty State */}
         <AnimatePresence mode="wait">
           {loading ? (
-            <motion.div
-              key="loading"
-              className="flex justify-center py-24"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="size-10 animate-spin rounded-full border-4 border-[#E8DCCB] border-t-[#C17D59]" />
-            </motion.div>
+            <div className="flex items-center justify-center py-24">
+              <div className="size-10 animate-spin rounded-full border-4 border-[#E6A635]/20 border-t-[#E6A635]" />
+            </div>
           ) : products.length === 0 ? (
             <motion.div
               key="empty"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-3xl border border-[#E8DCCB]/40 col-span-full"
+              className="flex flex-col items-center justify-center py-20 text-center bg-[#3B271C]/90 rounded-3xl border border-[#E6A635]/35 col-span-full shadow-xl p-8"
             >
-              <div className="p-4 rounded-full bg-[#FAF7F2] mb-4">
-                <Sparkles className="size-8 text-[#C17D59]/40" />
+              <div className="p-3.5 rounded-full bg-[#241812] border border-[#E6A635]/30 mb-3">
+                <Sparkles className="size-6 text-[#F2BD52]" />
               </div>
-              <p className="font-serif text-3xl text-[#2C1E16] mb-2">Aucun modèle trouvé</p>
-              <p className="text-sm text-[#5A453A]">Essayez d'autres critères ou laissez-nous créer votre idée sur-mesure.</p>
-              <Link href="/contact" className="mt-6 rounded-full bg-[#3A2A21] px-6 py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#C17D59] transition-colors">
-                Nous contacter
+              <p className="font-heading text-2xl text-[#F7F4EE] mb-2">Aucun modèle trouvé</p>
+              <p className="text-xs text-[#EAE4D9]/80 max-w-md">Essayez d&apos;autres critères ou transmettez-nous directement votre idée pour une étude sur-mesure.</p>
+              <Link href="/custom-creation" className="btn-sheen mt-5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-md">
+                Studio Sur-Mesure 3D
               </Link>
             </motion.div>
           ) : (
@@ -1423,7 +1278,7 @@ export function CatalogPage() {
                 className="grid gap-4 sm:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5"
                 initial="hidden"
                 animate="visible"
-                variants={{ visible: { transition: { staggerChildren: 0.08 } }, hidden: {} }}
+                variants={{ visible: { transition: { staggerChildren: 0.05 } }, hidden: {} }}
               >
                 {/* ELEGANT ALTERNATIVE BANNER */}
                 {showGoldCard && (

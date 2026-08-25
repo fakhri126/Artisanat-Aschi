@@ -6,24 +6,25 @@ import { Workshop } from '@/components/site/workshop'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "L'Atelier — Artisanat Aschi",
+  title: "L'Atelier d'Art — Artisanat Aschi",
   description: "Découvrez l'histoire de l'atelier Artisanat Aschi fondé en 1960 par Hechmi Aschi, le savoir-faire transmis de génération en génération et le processus de création sur-mesure.",
 }
 
 export default function AtelierPage() {
   return (
-    <main className="overflow-x-hidden">
+    <main className="overflow-x-hidden bg-[#241812] text-[#F7F4EE] min-h-screen">
       <Navbar />
       
-      <Story />
-      <RawMaterials />
-      <Workshop />
+      <div className="pt-20">
+        <Story />
+        <RawMaterials />
+        <Workshop />
+      </div>
       
       <section className="relative w-full">
         {/* Unified Background */}
-        <div className="absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none bg-[url('/images/bg-carved-wood.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
-        {/* Darkening Overlay */}
-        <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
+        <div className="absolute inset-0 z-0 opacity-70 pointer-events-none bg-[url('/images/bg-carved-wood.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
+        <div className="absolute inset-0 bg-[#241812]/80 pointer-events-none z-0" />
         
         <div className="relative z-10 w-full">
           <Footer />

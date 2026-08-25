@@ -43,7 +43,11 @@ public class ProductService {
     }
 
     public List<Product> getLatestProducts() {
-        return productRepository.findTop3ByOrderByIdDesc();
+        // Return latest physical workshop creations (excluding CATALOGUE and Bijoux de Porte)
+        Specification<Product> spec = Specification.where(ProductSpecification.isAvailableWorkshopProduct());
+        List<Product> available = productRepository.findAll(spec);
+        available.sort((a, b) -> b.getId().compareTo(a.getId()));
+        return available.stream().limit(5).toList();
     }
 
     public List<Product> getProductsByType(String type) {

@@ -390,31 +390,36 @@ export default function TurnkeyProjectsPage() {
   }, [selectedProject])
 
   return (
-    <main className="min-h-screen flex flex-col relative text-[#3A2A21] overflow-hidden">
+    <main className="min-h-screen flex flex-col relative text-[#F7F4EE] overflow-hidden bg-[#241812]">
       {/* Unified Background */}
-      <div className="absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none bg-[url('/images/bg-espace-exception.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
-      <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
+      <div className="absolute inset-0 z-0 opacity-80 brightness-95 pointer-events-none bg-[url('/images/bg-espace-exception.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#241812]/80 via-black/30 to-[#241812]/90 pointer-events-none z-0" />
       
+      {/* Amber Glow Halos */}
+      <div className="absolute top-1/4 left-1/4 size-[450px] rounded-full bg-[#E6A635]/18 blur-[130px] pointer-events-none z-0" />
+      <div className="absolute bottom-1/4 right-1/4 size-[450px] rounded-full bg-[#C78318]/15 blur-[130px] pointer-events-none z-0" />
+
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Navbar />
         
-        <div className="flex-1 flex flex-col items-center justify-center px-6 pt-32 pb-24 max-w-7xl mx-auto w-full">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pt-28 sm:pt-36 pb-16 max-w-7xl mx-auto w-full">
           {/* Page Header */}
-          <div className="text-center mb-16 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB]/25 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4">
-              <Briefcase className="size-3.5" /> Espaces d&apos;Exception
+          <div className="text-center mb-10 max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10.5px] uppercase tracking-[0.2em] mb-3.5 font-bold shadow-md">
+              <Briefcase className="size-3.5 text-[#E6A635]" />
+              <span>Projets Clés en Main • Espaces d&apos;Exception</span>
             </div>
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl text-white mb-6">
-              Espaces d&apos;Exception
+            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-gold-gradient mb-3 drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
+              Projets Clés en Main
             </h1>
-            <p className="text-[#3A2A21]/70 text-base sm:text-lg leading-relaxed text-pretty font-light">
-              De l&apos;étude de plans à l&apos;installation finale, l&apos;Atelier Aschi prend en charge l&apos;habillage complet en menuiserie d&apos;art et le mobilier pour les hôtels, restaurants, maisons d&apos;hôtes de prestige et espaces de direction d&apos;entreprises.
+            <p className="text-[#EAE4D9]/90 text-xs sm:text-sm md:text-base leading-relaxed text-pretty font-light drop-shadow-md">
+              De l&apos;étude technique et la modélisation 3D à l&apos;installation finale sur site : nous orchestrons l&apos;habillage monumental complet en menuiserie d&apos;art et le mobilier pour les palaces, hôtels 5★, restaurants et demeures de prestige.
             </p>
           </div>
           
         {/* Filter Bar */}
-        <Reveal delay={100} className="w-full flex justify-center mb-16 overflow-x-auto pb-4 scrollbar-thin">
-          <div className="flex gap-2 p-1.5 rounded-full bg-stone-950/40 border border-[#E8DCCB]/15 backdrop-blur-md shrink-0">
+        <Reveal delay={100} className="w-full flex justify-center mb-10 overflow-x-auto pb-3 scrollbar-thin">
+          <div className="flex gap-2 p-1.5 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/35 backdrop-blur-md shrink-0 shadow-lg">
             {FILTER_TYPES.map((type) => {
               const Icon = type.icon
               const isActive = filter === type.id
@@ -422,10 +427,10 @@ export default function TurnkeyProjectsPage() {
                 <button
                   key={type.id}
                   onClick={() => setFilter(type.id)}
-                  className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-semibold transition-all duration-300 ${
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs uppercase tracking-wider font-semibold transition-all duration-300 cursor-pointer ${
                     isActive
-                      ? 'bg-[#E8DCCB] text-walnut shadow-[0_4px_12px_rgba(212,175,55,0.2)]'
-                      : 'text-[#3A2A21]/60 hover:text-white hover:bg-white/5'
+                      ? 'bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold shadow-[0_0_15px_rgba(230,166,53,0.35)] scale-105'
+                      : 'text-[#EAE4D9]/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   {Icon && <Icon className="size-3.5" />}
@@ -450,63 +455,63 @@ export default function TurnkeyProjectsPage() {
                 Aucune réalisation trouvée pour cette catégorie.
               </motion.div>
             ) : (
-              <div className="grid gap-12 lg:gap-16">
+              <div className="grid gap-8 lg:gap-10">
                 {filteredProjects.map((project, index) => (
                   <motion.div
                     key={project.id}
                     layout
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -30 }}
-                    transition={{ duration: 0.5, ease: 'easeOut', delay: index * 0.1 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.08 }}
                     onClick={() => handleOpenProject(project)}
-                    className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center bg-stone-950/20 rounded-3xl p-6 md:p-8 border border-[#E8DCCB]/10 hover:border-[#E8DCCB]/30 hover:bg-stone-950/30 transition-all duration-300 cursor-pointer group"
+                    className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-center bg-[#3B271C]/90 rounded-3xl p-5 sm:p-7 md:p-8 border border-[#E6A635]/35 hover:border-[#E6A635]/80 hover:bg-[#452E21]/95 backdrop-blur-xl shadow-[0_15px_35px_rgba(0,0,0,0.65)] transition-all duration-300 cursor-pointer group"
                   >
                     {/* Visual image */}
-                    <div className="relative w-full lg:w-[45%] aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-[#E8DCCB]/15 shrink-0">
+                    <div className="relative w-full lg:w-[45%] aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden shadow-xl border border-[#E6A635]/30 shrink-0 bg-[#241812]">
                       <Image
                         src={project.image}
                         alt={project.title}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 pointer-events-none" />
-                      <div className="absolute inset-0 bg-white/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <span className="bg-[#E8DCCB] text-walnut text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-full shadow-lg flex items-center gap-2">
-                          <MessageSquare className="size-4" /> Voir la fiche complète
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#241812]/80 via-transparent to-transparent opacity-60 pointer-events-none" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <span className="btn-sheen bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full shadow-lg flex items-center gap-2">
+                          <MessageSquare className="size-4" /> Voir le projet
                         </span>
                       </div>
                     </div>
 
                     {/* Content Details */}
-                    <div className="flex flex-col justify-between items-start text-left flex-1 py-2">
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#C17D59] font-semibold">
-                          <MapPin className="size-3.5 text-[#C17D59]/80" />
+                    <div className="flex flex-col justify-between items-start text-left flex-1 py-1">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#F2BD52] font-semibold">
+                          <MapPin className="size-3.5 text-[#E6A635]" />
                           {project.location}
                         </div>
                         {/* Type badge */}
-                        <span className="inline-block text-[10px] uppercase tracking-widest bg-[#C17D59] text-white font-bold px-3 py-1 rounded-full">
+                        <span className="inline-block text-[9.5px] uppercase tracking-wider bg-[#241812]/90 border border-[#E6A635]/40 text-[#F2BD52] font-bold px-3 py-1 rounded-full">
                           {FILTER_TYPES.find(t => t.id === project.type)?.label || project.type}
                         </span>
 
-                        <h3 className="font-heading text-3xl sm:text-4xl text-white font-medium leading-tight group-hover:text-[#C17D59] transition-colors duration-300">
+                        <h3 className="font-heading text-2xl sm:text-3xl text-[#F7F4EE] font-light leading-tight group-hover:text-[#F2BD52] transition-colors duration-300">
                           {project.title}
                         </h3>
 
-                        <p className="text-sm font-light leading-relaxed text-[#3A2A21]/70 text-pretty">
+                        <p className="text-xs sm:text-sm font-light leading-relaxed text-[#EAE4D9]/90 text-pretty">
                           {project.description}
                         </p>
                       </div>
 
                       {/* Works Done pills */}
-                      <div className="mt-6">
-                        <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3">Réalisations incluses</p>
-                        <div className="flex flex-wrap gap-2">
+                      <div className="mt-4">
+                        <p className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-bold mb-2">Aménagements réalisés :</p>
+                        <div className="flex flex-wrap gap-1.5">
                           {project.details.map((detail, idx) => (
                             <span
                               key={idx}
-                              className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider text-[#3A2A21]/80 font-medium"
+                              className="bg-[#241812]/90 border border-[#E6A635]/25 px-2.5 py-0.5 rounded-md text-[10.5px] text-[#EAE4D9] font-light"
                             >
                               {detail}
                             </span>

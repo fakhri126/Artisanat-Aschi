@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { adminApi, publicApi, Product, Category, ProductRequest, ImageVariant } from '@/lib/api'
+import { adminApi, publicApi, Product, Category, ProductRequest, ImageVariant, QuoteRequest } from '@/lib/api'
 import { Plus, Edit2, Trash2, Eye, Bot, X, Image as ImageIcon, Upload, CheckCircle2, Palette, Search } from 'lucide-react'
 import Link from 'next/link'
 
@@ -232,9 +232,12 @@ function ImageVariantManager({
 }
 
 export default function AdminCataloguePage() {
+  const [activeTab, setActiveTab] = useState<'MODELS' | 'QUOTES'>('MODELS')
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [quotes, setQuotes] = useState<QuoteRequest[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingQuotes, setLoadingQuotes] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [modalOpen, setModalOpen] = useState(false)
@@ -258,7 +261,10 @@ export default function AdminCataloguePage() {
   const [availability, setAvailability] = useState('Disponible')
   const [imageVariants, setImageVariants] = useState<ImageVariant[]>([])
 
-  useEffect(() => { loadData() }, [])
+  useEffect(() => { 
+    loadData() 
+    loadQuotes()
+  }, [])
 
   const loadData = async () => {
     try {
@@ -346,6 +352,41 @@ export default function AdminCataloguePage() {
   const handleDimensionsChange = (newDim: string) => {
     setDimensions(newDim)
     setDescription(buildAutoDescription(name, categoryId, color, newDim, categories))
+  }
+
+  const loadQuotes = async () => {
+    try {
+      setLoadingQuotes(true)
+      const allQuotes = await adminApi.getQuotes()
+      // Filter quote requests for Catalogue models (custom creation on buffets, tables, etc.)
+      const catQuotes = allQuotes.filter(q => {
+        const pType = q.product?.type
+        const det = (q.personalizationDetails || '').toLowerCase()
+        const msg = (q.message || '').toLowerCase()
+        return pType === 'CATALOGUE' || det.includes('sur mesure') || det.includes('finition') || msg.includes('buffet') || msg.includes('table') || msg.includes('miroir') || msg.includes('console')
+      })
+      setQuotes(catQuotes)
+    } catch (err) {
+      console.error('Failed to load catalog quotes:', err)
+      setQuotes([])
+    } finally {
+      setLoadingQuotes(false)
+    }
+  }
+
+  const handleUpdateQuoteStatus = async (id: number, status: string) => {
+    try {
+      await adminApi.updateQuoteStatus(id, status as any)
+      setQuotes(quotes.map(q => q.id === id ? { ...q, status: status as any } : q))
+    } catch (err) { console.error(err) }
+  }
+
+  const handleDeleteQuote = async (id: number) => {
+    if (!confirm('Supprimer cette demande de sur-mesure ?')) return
+    try {
+      await adminApi.deleteQuoteRequest(id)
+      setQuotes(quotes.filter(q => q.id !== id))
+    } catch (err) { console.error(err) }
   }
 
   const openCreateModal = () => {
@@ -464,11 +505,125 @@ export default function AdminCataloguePage() {
         </motion.button>
       </div>
 
-      {/* AI notice */}
-      <div className="flex items-start gap-3 rounded-xl border border-[#E8DCCB]/20 bg-[#E8DCCB]/5 px-4 py-3 text-xs text-muted-foreground">
-        <Bot className="mt-0.5 size-4 shrink-0 text-[#C17D59]" />
-        <span>Les modèles du catalogue peuvent être générés ou illustrés par IA. Un avertissement est affiché aux visiteurs sur la page publique.</span>
+      {/* Navigation Tabs */}
+      <div className="flex gap-3 border-b border-[#E8DCCB]/20 pb-3">
+        <button
+          onClick={() => setActiveTab('MODELS')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+            activeTab === 'MODELS'
+              ? 'bg-[#E8DCCB] text-walnut shadow-md'
+              : 'bg-stone-900 text-stone-400 hover:text-white'
+          }`}
+        >
+          <Bot className="size-4" /> Modèles d'Inspiration
+        </button>
+
+        <button
+          onClick={() => setActiveTab('QUOTES')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+            activeTab === 'QUOTES'
+              ? 'bg-[#C17D59] text-white shadow-md'
+              : 'bg-stone-900 text-stone-400 hover:text-white'
+          }`}
+        >
+          <Palette className="size-4" /> Demandes & Sur-Mesure (Catalogue)
+          {quotes.filter(q => q.status === 'PENDING').length > 0 && (
+            <span className="bg-white text-[#C17D59] text-[10px] font-black rounded-full px-2 py-0.5 ml-1">
+              {quotes.filter(q => q.status === 'PENDING').length}
+            </span>
+          )}
+        </button>
       </div>
+
+      {/* TAB CONTENT 2: DEMANDES & SUR-MESURE CATALOGUE */}
+      {activeTab === 'QUOTES' && (
+        <div className="bg-[#FAF7F2]/80 backdrop-blur-md rounded-2xl border border-[#E8DCCB]/20 shadow-xl p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-heading text-xl text-[#3A2A21] font-semibold">Demandes de Devis & Personnalisation Catalogue</h2>
+              <p className="text-xs text-[#3A2A21]/60 mt-0.5">Demandes sur-mesure de buffets, tables TV, meubles et consoles du catalogue.</p>
+            </div>
+            <button onClick={loadQuotes} className="text-xs text-[#C17D59] hover:underline flex items-center gap-1 font-semibold">
+              Actualiser
+            </button>
+          </div>
+
+          {loadingQuotes ? (
+            <div className="p-8 text-center text-[#3A2A21]/50">Chargement des devis catalogue...</div>
+          ) : quotes.length === 0 ? (
+            <div className="p-12 text-center text-[#3A2A21]/40 bg-white/40 rounded-xl border border-dashed border-[#E8DCCB]/40">
+              <Bot className="size-10 mx-auto mb-2 opacity-40 text-[#C17D59]" />
+              <p>Aucune demande de personnalisation catalogue reçue pour le moment.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-[#E8DCCB]/20 border-b border-[#E8DCCB]/30 text-xs uppercase tracking-wider text-[#3A2A21]/70">
+                    <th className="p-4">Client</th>
+                    <th className="p-4">Contact</th>
+                    <th className="p-4">Modèle & Personnalisation</th>
+                    <th className="p-4">Date</th>
+                    <th className="p-4">Statut</th>
+                    <th className="p-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E8DCCB]/20 text-sm">
+                  {quotes.map((q) => (
+                    <tr key={q.id} className="hover:bg-white/60 transition-colors">
+                      <td className="p-4 font-semibold text-[#3A2A21]">{q.fullName}</td>
+                      <td className="p-4 text-xs text-[#3A2A21]/70 space-y-1">
+                        <p className="font-mono">{q.email}</p>
+                        <p className="font-bold text-[#C17D59]">{q.phoneNumber}</p>
+                      </td>
+                      <td className="p-4 max-w-xs">
+                        <p className="font-bold text-[#C17D59] text-xs mb-1">{q.product?.name || 'Création Catalogue'}</p>
+                        <p className="text-xs text-[#3A2A21]/80 bg-white/70 p-2.5 rounded-lg border border-[#E8DCCB]/40 leading-relaxed font-mono">
+                          {q.personalizationDetails || q.message}
+                        </p>
+                      </td>
+                      <td className="p-4 text-xs text-[#3A2A21]/60">
+                        {new Date(q.createdDate).toLocaleDateString('fr-FR')}
+                      </td>
+                      <td className="p-4">
+                        <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${
+                          q.status === 'PENDING' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                          q.status === 'CONTACTED' ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                        }`}>
+                          {q.status === 'PENDING' ? 'En attente' : q.status === 'CONTACTED' ? 'Contacté' : 'Terminé'}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleUpdateQuoteStatus(q.id, 'CONTACTED')}
+                          className="px-2.5 py-1 text-xs bg-[#E8DCCB]/30 hover:bg-[#E8DCCB] text-[#3A2A21] rounded-md font-semibold"
+                        >
+                          Contacté
+                        </button>
+                        <button
+                          onClick={() => handleDeleteQuote(q.id)}
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-md"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB CONTENT 1: CATALOG MODELS GRID */}
+      {activeTab === 'MODELS' && (
+        <>
+          {/* AI notice */}
+          <div className="flex items-start gap-3 rounded-xl border border-[#E8DCCB]/20 bg-[#E8DCCB]/5 px-4 py-3 text-xs text-muted-foreground">
+            <Bot className="mt-0.5 size-4 shrink-0 text-[#C17D59]" />
+            <span>Les modèles du catalogue peuvent être générés ou illustrés par IA. Un avertissement est affiché aux visiteurs sur la page publique.</span>
+          </div>
 
       {error && (
         <div className="p-4 rounded-xl bg-red-950/20 border border-red-500/25 text-red-400 text-sm">{error}</div>
@@ -594,6 +749,8 @@ export default function AdminCataloguePage() {
           })
         )}
       </motion.div>
+      </>
+      )}
 
       {/* Floating Action Bar for Bulk */}
       {selectedIds.length > 0 && (

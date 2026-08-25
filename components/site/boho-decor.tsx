@@ -114,8 +114,8 @@ export function BohoBand({ className, color = '#C17D59', delay = 0 }: BohoShapeP
     >
       <g stroke={color} strokeWidth="2" fill="none">
         <rect x="0" y="5" width="300" height="30" />
-        {/* Motif en zigzag intérieur */}
-        <path d="M0,20 L10,10 L30,30 L50,10 L70,30 L90,10 L110,30 L130,10 L150,30 L170,10 L190,30 L210,10 L230,30 L250,10 L270,30 L290,10 L300,20" strokeWidth="1.5" />
+        {/* Motif en arabesque ondoyante traditionnelle */}
+        <path d="M0,20 Q15,5 30,20 Q45,35 60,20 Q75,5 90,20 Q105,35 120,20 Q135,5 150,20 Q165,35 180,20 Q195,5 210,20 Q225,35 240,20 Q255,5 270,20 Q285,35 300,20" strokeWidth="1.5" />
         {/* Points décoratifs */}
         {Array.from({ length: 15 }).map((_, i) => (
           <circle key={i} cx={20 + i * 20} cy="20" r="2" fill={color} opacity="0.4" />
@@ -163,7 +163,7 @@ export function BohoZigzagDivider({ className, color = '#C17D59', opacity = 1 }:
         <pattern id={`zigzag-${safeColorId}`} width="40" height="24" patternUnits="userSpaceOnUse">
            <line x1="0" y1="1" x2="40" y2="1" stroke={color} strokeWidth="2" />
            <line x1="0" y1="23" x2="40" y2="23" stroke={color} strokeWidth="2" />
-           <path d="M0,12 L10,23 L30,1 L40,12" stroke={color} strokeWidth="1.5" fill="none" />
+           <path d="M0,12 Q10,2 20,12 Q30,22 40,12" stroke={color} strokeWidth="1.5" fill="none" />
            <circle cx="10" cy="12" r="2.5" fill={color} opacity="0.8" />
         </pattern>
       </defs>

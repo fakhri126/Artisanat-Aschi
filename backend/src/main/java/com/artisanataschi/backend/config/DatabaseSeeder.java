@@ -107,18 +107,18 @@ public class DatabaseSeeder implements CommandLineRunner {
             return categoryRepository.save(c);
         });
 
-        Category grandsRonds = categoryRepository.findByName("Grands Ronds").orElseGet(() -> {
-            Category c = cat("Grands Ronds", "BIJOUX_DE_PORTE", bijouxDePorte);
+        Category catCeramique = categoryRepository.findByName("Poignée Céramique").orElseGet(() -> {
+            Category c = cat("Poignée Céramique", "BIJOUX_DE_PORTE", bijouxDePorte);
             return categoryRepository.save(c);
         });
 
-        Category ovales = categoryRepository.findByName("Ovales").orElseGet(() -> {
-            Category c = cat("Ovales", "BIJOUX_DE_PORTE", bijouxDePorte);
+        Category catSculptee = categoryRepository.findByName("Poignée Sculptée").orElseGet(() -> {
+            Category c = cat("Poignée Sculptée", "BIJOUX_DE_PORTE", bijouxDePorte);
             return categoryRepository.save(c);
         });
 
-        Category petitesPoignees = categoryRepository.findByName("Petites Poignées").orElseGet(() -> {
-            Category c = cat("Petites Poignées", "BIJOUX_DE_PORTE", bijouxDePorte);
+        Category catCuivre = categoryRepository.findByName("Poignée en Cuivre").orElseGet(() -> {
+            Category c = cat("Poignée en Cuivre", "BIJOUX_DE_PORTE", bijouxDePorte);
             return categoryRepository.save(c);
         });
 
@@ -170,75 +170,80 @@ public class DatabaseSeeder implements CommandLineRunner {
             System.out.println("✅ Furniture products seeded.");
         }
 
-        // Ensure handle products (available products list) are seeded with exact frontend names
-        Category gr = categoryRepository.findByName("Grands Ronds").orElse(null);
-        Category ov = categoryRepository.findByName("Ovales").orElse(null);
-        Category pp = categoryRepository.findByName("Petites Poignées").orElse(null);
+        // ── Clean up any legacy unwanted parquet knobs (with new_knob_ or old grandModels names) ──
+        List<Product> legacyUnwanted = productRepository.findAll().stream()
+            .filter(p -> {
+                String name = p.getName() != null ? p.getName() : "";
+                boolean hasOldImg = p.getImages() != null && p.getImages().stream().anyMatch(img -> img.getImageUrl() != null && img.getImageUrl().contains("new_knob_"));
+                boolean hasOldName = name.startsWith("Grand Rond \"") || name.startsWith("Bouton Ovale \"") || name.startsWith("Petite Poignée \"Modèle Artisan");
+                return hasOldImg || hasOldName;
+            })
+            .toList();
+        if (!legacyUnwanted.isEmpty()) {
+            productRepository.deleteAll(legacyUnwanted);
+            System.out.println("🧹 Cleaned up " + legacyUnwanted.size() + " legacy unwanted handle items.");
+        }
 
-        // 1. Grands Ronds (6 models) - 28 TND
-        String[][] grandModels = {
-            {"Grand Rond \"Riad Bleu & Ombre\"", "Céramique de majolique traditionnelle avec touches bleu cobalt et terre d'ombre."},
-            {"Grand Rond \"Jasmin et Feuillage\"", "Motifs floraux ton sur ton peints à la main sur émail naturel ivoire."},
-            {"Grand Rond \"Lignes Ocre & Cobalt\"", "Décor géométrique aux nuances d'ocre chaud et ruban bleu méditerranéen."},
-            {"Grand Rond \"Géométrie Andalouse\"", "Tracés bleus cobalt géométriques évoquant l'architecture des palais."},
-            {"Grand Rond \"Graphisme Ocre & Noir\"", "Composition contemporaine contrastée sur fond terre cuite émaillée."},
-            {"Grand Rond \"Rameaux d'Olivier\"", "Feuillages verts et dorés stylisés inspirés de la nature méditerranéenne."}
+        // ── Seed the 32 authentic collection handles (with poignee_col... images) ──
+        String[][] genuineHandles = {
+            // COLONNE 1 (8 Poignées)
+            {"Bouton Riad Vert & Ocre", "Faïence artisanale craquelée aux teintes d'olivier et d'ocre terre cuite, sertie dans son anneau de noyer massif.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert olive & Ocre", "34", "/poignees/poignee_col1_01.png"},
+            {"Bouton Chevrons Bleu Cobalt", "Motifs géométriques en chevrons bleu de majolique d'époque et filets dorés sur faïence d'art.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu cobalt & Miel", "35", "/poignees/poignee_col1_02.png"},
+            {"Bouton Rosace Feuille d'Émeraude", "Arabesque végétale florale peinte au pinceau fin avec émail brillant sur fond blanc soyeux.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert émeraude & Blanc ivoire", "36", "/poignees/poignee_col1_03.png"},
+            {"Bouton Terre & Patine Antique", "Dégradé minéral naturel évoquant la poterie d'argile traditionnelle et les émaux cuits au feu de bois.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Terre cuite & Vert mousse", "32", "/poignees/poignee_col1_04.png"},
+            {"Bouton Soleil Rayons Ocre", "Graphisme solaire linéaire aux reflets ambrés, idéal pour tiroirs de commodes et meubles d'appoint.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Ocre solaire & Terre de Sienne", "33", "/poignees/poignee_col1_05.png"},
+            {"Bouton Majolique Émeraude Pure", "Émail vitrifié vert profond avec subtiles craquelures d'artisanat d'art et virole sculptée.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert émeraude profond", "36", "/poignees/poignee_col1_06.png"},
+            {"Bouton Raphia & Gouttes Bleues", "Finitions bicolores rythmées par des ponctuations marines et des lignes bleu nuit.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu cobalt & Blanc moucheté", "34", "/poignees/poignee_col1_07.png"},
+            {"Bouton Feuillage Printanier", "Motif végétal printanier aux couleurs chatoyantes, célébrant le renouveau et la nature méditerranéenne.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert prairie & Jaune safran", "35", "/poignees/poignee_col1_08.png"},
+
+            // COLONNE 2 (8 Poignées)
+            {"Bouton Spirale Mer Égée", "Vagues marines et volutes bleu outremer sur faïence vitrifiée aux reflets translucides.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu outremer & Blanc", "35", "/poignees/poignee_col2_01.png"},
+            {"Bouton Tourbillon Cobalt & Ivoire", "Spirale calligraphique tracée à main levée, rehaussée d'une patine ivoirine et d'un cerclage en bois d'olivier.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Cobalt & Blanc cassé", "34", "/poignees/poignee_col2_02.png"},
+            {"Bouton Tulipe Vert & Safran", "Pétale de tulipe stylisé en vert jade et fond blanc crème, bordé d'une finition ciselée à la gouge.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert jade & Blanc crème", "36", "/poignees/poignee_col2_03.png"},
+            {"Bouton Diagonales Ocre & Nuit", "Lignes graphiques obliques mêlant l'ocre jaune chaud et des nuances de bleu nuit sur émail lisse.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Ocre jaune & Bleu nuit", "33", "/poignees/poignee_col2_04.png"},
+            {"Bouton Cratère Cobalt Doré", "Céramique d'art aux émaux d'or et bleu cobalt intense, inspirée des céramiques de Kairouan et Nabeul.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu profond & Doré", "35", "/poignees/poignee_col2_05.png"},
+            {"Bouton Trame Bleue d'Andalousie", "Résille et mosaïque peinte à la plume de roseau, évoquant l'héritage arabo-andalou des maîtres potiers.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu saphir & Céleste", "36", "/poignees/poignee_col2_06.png"},
+            {"Bouton Éclosion Botanique", "Ponctuations florales vert mousse et boutons d'olivier sur faïence claire craquelée au naturel.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert mousse & Argile", "34", "/poignees/poignee_col2_07.png"},
+            {"Bouton Duo Sphères Azur & Miel", "Double orbe coloré bleu ciel et jaune miel, création contemporaine ancrée dans la tradition artisanale.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Azur & Miel", "35", "/poignees/poignee_col2_08.png"},
+
+            // COLONNE 3 (8 Poignées)
+            {"Bouton Mosaïque Ocre & Azur", "Arcs et tesselles peints aux tons d'azur et d'ocre chaud, évoquant les pavements des palais tunisiens.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Ocre & Azur", "35", "/poignees/poignee_col3_01.png"},
+            {"Bouton Cercles Solaires Cobalt", "Anneaux concentriques dorés et centre bleu roi sur émail vitrifié cuit à haute température.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Cobalt & Doré", "34", "/poignees/poignee_col3_02.png"},
+            {"Bouton Grenade & Fleurs Pourpres", "Silhouette florale pourpre et ambre inspirée de la grenade et des jardins de Sidi Bou Saïd.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Pourpre & Ambre", "36", "/poignees/poignee_col3_03.png"},
+            {"Bouton Marguerite d'Or & Bleu", "Rosace florale cobalt sur fond doré miel, alliance parfaite de noblesse et de fraîcheur artisanale.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu roi & Jaune miel", "36", "/poignees/poignee_col3_04.png"},
+            {"Bouton Marbre Ocre & Nacre", "Dégradés marbrés ambrés aux nuances nacrées et reflets chauds, posés dans un cadre en noyer massif.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Ambre & Nacre", "33", "/poignees/poignee_col3_05.png"},
+            {"Bouton Rosace Étoilée de Nabeul", "Étoile à 8 branches cobalt sur faïence blanche craquelée, emblème de la céramique d'art tunisienne.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Cobalt & Blanc pur", "36", "/poignees/poignee_col3_06.png"},
+            {"Bouton Brindilles d'Olivier", "Rameaux d'olivier vert sauge et terre cuite, hommage à la terre d'oliviers et à l'artisanat du bois.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Vert sauge & Terre cuite", "34", "/poignees/poignee_col3_07.png"},
+            {"Bouton Arabesque Royale de Tunis", "Pièce d'apparat polychrome aux motifs arabo-andalous raffinés, digne des plus belles demeures.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu, Ocre & Terre", "38", "/poignees/poignee_col3_08.png"},
+
+            // COLONNE 4 (8 Poignées)
+            {"Bouton Vague Azur & Miel", "Onde organique bleu ciel et ocre jaune sur fond crème vitrifié, subtile harmonie marine.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Azur & Miel", "35", "/poignees/poignee_col4_01.png"},
+            {"Bouton Treillis Géométrique Azur", "Motifs en treillis bleu azur et jaune miel inspirés des moucharabiehs et claustras orientaux.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu azur & Miel", "35", "/poignees/poignee_col4_02.png"},
+            {"Bouton Couronne Rayons Ocre", "Rayures verticales rythmées surmontées d'un dégradé terre cuite et virole en bois tourné.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Ocre & Terre cuite", "33", "/poignees/poignee_col4_03.png"},
+            {"Bouton Rosée Émeraude & Ambre", "Ponctuations vert émeraude et ambre chaleureux sur faïence blanche éclatante.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Émeraude & Ambre", "36", "/poignees/poignee_col4_04.png"},
+            {"Bouton Arche Marine & Volute", "Vague stylisée bleu profond et spirale blanche d'inspiration océanique, finition haute brillance.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu outremer & Blanc", "35", "/poignees/poignee_col4_05.png"},
+            {"Bouton Rosace Perles Vertes", "Cercles perlés vert olive et accents d'argile naturelle, délicatesse du travail à la main.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Vert olive & Blanc perle", "34", "/poignees/poignee_col4_06.png"},
+            {"Bouton Marbre Forêt Antique", "Émaux vert forêt profond aux reflets marbrés uniques, évoquant la richesse des marbres antiques.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Vert forêt & Patine", "36", "/poignees/poignee_col4_07.png"},
+            {"Bouton Mosaïque Andalouse Cobalt", "Géométrie étoilée bleu cobalt et blanc pur sertie dans le bois, quintessence de l'artisanat tunisien.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Cobalt & Blanc pur", "36", "/poignees/poignee_col4_08.png"}
         };
 
-        for (int i = 0; i < grandModels.length; i++) {
-            String name = grandModels[i][0];
-            String desc = grandModels[i][1];
-            String imgUrl = "/poignees/new_knob_" + (i + 1) + ".jpg";
-            if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(name))) {
+        for (String[] h : genuineHandles) {
+            String hName = h[0];
+            String hDesc = h[1];
+            String hDims = h[2];
+            String hMat = h[3];
+            String hColor = h[4];
+            String hPrice = h[5];
+            String hImg = h[6];
+
+            if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(hName))) {
                 Product hp = productWithImage(
-                    name, desc, "Diamètre 6.5 cm", "Céramique de majolique", "Multicolore", "28", "Disponible", "REPRODUCTIBLE", true, gr, imgUrl
+                    hName, hDesc, hDims, hMat, hColor, hPrice, "Disponible", "BIJOUX_DE_PORTE", true, catCeramique, hImg
                 );
                 productRepository.save(hp);
             }
         }
-
-        // 2. Ovales (7 models) - 32 TND
-        String[][] ovaleModels = {
-            {"Bouton Ovale \"Arabesque Cobalt\"", "Forme galbée ovale avec volutes bleues sur céramique ivoire émaillée."},
-            {"Bouton Ovale \"Soleil d'Or\"", "Rayons dorés et touches cobalt, courbes élégantes adaptées aux meubles de caractère."},
-            {"Bouton Ovale \"Frise Zellige\"", "Frise géométrique répétitive rappelant les carreaux traditionnels de Tunis."},
-            {"Bouton Ovale \"Bouquet Rose & Vert\"", "Motifs floraux délicats peints aux pigments naturels de rose et vert."},
-            {"Bouton Ovale \"Émail Sablé & Ombre\"", "Finition artisanale sablée douce aux nuances neutres et naturelles."},
-            {"Bouton Ovale \"Dunes Dorées\"", "Lignes diagonales ocre et bleu intense pour une touche d'originalité."},
-            {"Bouton Ovale \"Bleu Océan\"", "Gouttes et motifs marins peints à la main en dégradé de bleu."}
-        };
-
-        for (int i = 0; i < ovaleModels.length; i++) {
-            String name = ovaleModels[i][0];
-            String desc = ovaleModels[i][1];
-            String imgUrl = "/poignees/new_knob_" + (i + 7) + ".jpg";
-            if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(name))) {
-                Product hp = productWithImage(
-                    name, desc, "7 cm x 4 cm", "Céramique de majolique", "Multicolore", "32", "Disponible", "REPRODUCTIBLE", true, ov, imgUrl
-                );
-                productRepository.save(hp);
-            }
-        }
-
-        // 3. Petites Poignées (27 models) - 18 TND
-        int count = 1;
-        for (int r = 1; r <= 3; r++) {
-            for (int c = 1; c <= 9; c++) {
-                String name = "Petite Poignée \"Modèle Artisan N°" + count + "\"";
-                String desc = "Miniature céramique peinte à la main. Pièce d'artisanat unique N°" + count + ".";
-                int imgIdx = ((count - 1) % 25) + 1;
-                String imgUrl = "/poignees/new_knob_" + imgIdx + ".jpg";
-                if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(name))) {
-                    Product hp = productWithImage(
-                        name, desc, "Diamètre 3.5 cm", "Céramique de majolique", "Multicolore", "18", "Disponible", "REPRODUCTIBLE", true, pp, imgUrl
-                    );
-                    productRepository.save(hp);
-                }
-                count++;
-            }
-        }
-
-        System.out.println("✅ All 40 handle products with images properly persisted in backend.");
+        System.out.println("✅ All 32 genuine handle products seeded.");
 
         // ── 4. Seed Projects ─────────────────────────────────────────────────
         if (projectRepository.count() == 0) {
