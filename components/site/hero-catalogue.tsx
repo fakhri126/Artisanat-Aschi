@@ -1,87 +1,205 @@
 'use client'
 
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { BookOpen, Sparkles } from 'lucide-react'
-import { BohoFloralRosette, BohoBand, BohoCeilingArabesque } from './boho-decor'
-import { useRandomHeroColor } from '@/hooks/use-random-hero-color'
+import { Sparkles, ArrowRight, Check } from 'lucide-react'
+import { BohoFloralRosette } from './boho-decor'
 
+const MASTERPIECES = [
+  {
+    id: 'buffet',
+    label: 'Buffet d\'Apparat',
+    title: 'Buffet d\'Apparat Sculpté',
+    subtitle: 'Noyer Massif, Patine Bleue & Clous Laiton',
+    image: '/images/buffet-bleu-ciel.jpg',
+    tag: 'Mobilier Monumental'
+  },
+  {
+    id: 'banquette',
+    label: 'Banquette d\'Art',
+    title: 'Banquette en Noyer Noble',
+    subtitle: 'Sculpture Ciselée à la Main & Finitions Dorées',
+    image: '/images/catalog_bench_cropped.jpg',
+    tag: 'Assise d\'Exception'
+  },
+  {
+    id: 'miroir',
+    label: 'Miroir Sculpté',
+    title: 'Miroir d\'Apparat Barocco',
+    subtitle: 'Bois Doré & Ornements Ciselés à la Main',
+    image: '/images/carved_mirror_frame_final.jpg',
+    tag: 'Miroiterie d\'Art'
+  }
+]
 
 export function HeroCatalogue() {
-  const { color: titleColor, isMounted } = useRandomHeroColor()
-  
+  const [activeIndex, setActiveIndex] = useState(0)
+  const activePiece = MASTERPIECES[activeIndex]
+
   return (
-    <div className="relative h-screen min-h-[700px] w-full overflow-hidden bg-transparent flex items-center font-sans">
+    <div className="relative h-full w-full overflow-hidden bg-transparent flex items-center font-sans py-2 sm:py-4">
       
       {/* Decorative Motifs */}
-      <BohoFloralRosette className="absolute top-[60%] left-[-20%] md:top-[-10%] md:left-[-10%] lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 w-[300px] sm:w-[350px] md:w-[450px] lg:w-[600px] opacity-[0.1] pointer-events-none" delay={0.2} />
+      <BohoFloralRosette className="absolute top-[60%] left-[-20%] md:top-[-10%] md:left-[-10%] lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 w-[300px] sm:w-[350px] md:w-[450px] lg:w-[600px] opacity-[0.06] pointer-events-none" delay={0.2} />
 
-
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-y-10 lg:gap-y-0 lg:gap-x-20 pt-24 md:pt-32 pb-10 z-10 relative items-center">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-y-6 lg:gap-y-0 lg:gap-x-10 py-2 sm:py-4 z-10 relative items-center">
         
-        {/* Left Side: Elegant typography and CTA */}
-        <div className="w-full flex flex-col justify-center items-start order-2 lg:order-1 lg:col-start-1 lg:row-start-1 lg:pb-8">
+        {/* ========================================================================= */}
+        {/* Colonne Gauche (5 Colonnes) : Texte Noble, Étapes Fines & Bouton         */}
+        {/* ========================================================================= */}
+        <div className="w-full lg:col-span-5 flex flex-col justify-center items-center lg:items-start text-center lg:text-left order-1">
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
+            className="w-full max-w-lg"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#D9CEB8] text-[#C17D59] text-xs font-bold uppercase tracking-[0.2em] mb-6 shadow-sm">
-              <BookOpen className="size-4" />
-              Inspiration Sur-Mesure
+            {/* Badge "Création Sur-Mesure" */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10.5px] font-bold uppercase tracking-[0.2em] mb-3 shadow-md backdrop-blur-md">
+              <Sparkles className="size-3 text-[#E6A635] animate-pulse" />
+              <span>Création Sur-Mesure</span>
             </div>
             
-            <h2 
-              className="font-heading text-5xl md:text-6xl lg:text-7xl drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] drop-shadow-[0_0_20px_rgba(255,255,255,0.7)] mb-6 leading-none transition-colors duration-1000"
-              style={{ color: isMounted ? titleColor : '#87CEEB' }}
-            >
-              Catalogue<br/>
-              <span className="text-[#D4AF37] text-4xl md:text-5xl italic drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] drop-shadow-[0_0_20px_rgba(255,255,255,0.7)]">d&apos;Inspiration</span>
+            {/* Titre Principal */}
+            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-light text-gold-gradient mb-3 leading-[1.08] tracking-tight drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
+              Catalogue <br/>
+              <span className="italic text-white font-normal text-2xl sm:text-3xl md:text-4xl block mt-0.5">
+                d&apos;Inspiration d&apos;Art
+              </span>
             </h2>
             
-            <p className="text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] font-medium max-w-md text-lg md:text-xl mb-10 leading-relaxed">
-              Explorez nos modèles phares déclinés dans toutes les couleurs, finitions et dimensions pour inspirer et concevoir votre propre création sur-mesure.
+            {/* Paragraphe en Blanc Pur */}
+            <p className="text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)] font-normal text-xs sm:text-sm md:text-[14.5px] mb-4 leading-relaxed">
+              Explorez nos créations emblématiques déclinables dans toutes les essences de bois noble, teintes et dimensions pour concevoir votre projet unique.
             </p>
-            
-            <Link
-              href="/catalogue"
-              className="group relative inline-flex items-center justify-center bg-gradient-to-r from-[#C17D59] to-[#8C5230] hover:from-[#d4af37] hover:to-[#C17D59] text-white px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest overflow-hidden shadow-lg border border-[#E8DCCB]/30 transition-all hover:-translate-y-1 hover:shadow-xl"
-            >
-              <span className="relative z-10 flex items-center gap-3">
-                <Sparkles className="size-4" />
-                Explorer le Catalogue d&apos;Inspiration
-              </span>
-            </Link>
-          </motion.div>
-        </div>
 
-        {/* Right Side: Showcase Image */}
-        <div className="w-full relative flex justify-center lg:justify-end h-[45vh] lg:h-[65vh] max-h-[700px] order-1 lg:order-2 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="relative w-full max-w-[400px] md:max-w-[500px] aspect-[4/5] mx-auto lg:mr-0 drop-shadow-[0_25px_50px_rgba(58,42,30,0.6)] group"
-          >
-            {/* Main Frame (Mustard Yellow Border) */}
-            <div className="absolute inset-0 bg-[#DDA72D] rounded-[2rem] shadow-2xl p-4 md:p-6 overflow-hidden flex flex-col">
-              <div className="relative w-full h-full rounded-xl overflow-hidden shadow-inner">
-                <Image
-                  src="/images/catalog_bench_cropped.jpg"
-                  alt="Catalogue Artisanat Aschi"
-                  fill
-                  className="object-cover transition-transform duration-[15s] group-hover:scale-105"
-                />
-              </div>
+            {/* Ligne Fine des 3 Étapes de Création */}
+            <div className="flex items-center justify-center lg:justify-start gap-2 text-[10px] sm:text-[11px] font-medium text-white/90 bg-[#3B271C]/80 border border-[#E6A635]/30 px-3.5 py-2 rounded-full mb-6 w-fit shadow-sm backdrop-blur-md">
+              <span className="flex items-center gap-1">
+                <span className="text-[#F2BD52] font-bold font-serif">01.</span>
+                <span>Modèle &amp; Essence</span>
+              </span>
+              <span className="text-[#E6A635]/40">•</span>
+              <span className="flex items-center gap-1">
+                <span className="text-[#F2BD52] font-bold font-serif">02.</span>
+                <span>Étude 3D</span>
+              </span>
+              <span className="text-[#E6A635]/40">•</span>
+              <span className="flex items-center gap-1">
+                <span className="text-[#F2BD52] font-bold font-serif">03.</span>
+                <span>Façonnage</span>
+              </span>
+            </div>
+            
+            {/* Bouton d'Action */}
+            <div>
+              <Link
+                href="/catalogue"
+                className="btn-sheen group relative inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-[0.16em] shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+              >
+                <Sparkles className="size-3.5" />
+                <span>Explorer le Catalogue</span>
+                <ArrowRight className="size-3.5 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
           </motion.div>
         </div>
-      </div>
 
-      {/* Small floating zigzag motifs (Brown) */}
-      <BohoBand className="absolute top-10 right-10 md:right-20 w-48 opacity-[0.1]" color="#8B5E3C" />
-      <BohoBand className="absolute bottom-10 left-10 md:left-20 w-48 opacity-[0.1]" color="#8B5E3C" />
+        {/* ========================================================================= */}
+        {/* Colonne Droite (7 Colonnes) : Grande Photo d'Art + Sélecteur Interactif   */}
+        {/* ========================================================================= */}
+        <div className="w-full lg:col-span-7 flex flex-col items-center lg:items-end order-2 mt-2 lg:mt-0">
+          
+          {/* 🖼️ Grand Cadre Photo d'Art Immersif */}
+          <div className="relative w-full max-w-[560px] aspect-[4/3] sm:aspect-[16/11] rounded-3xl overflow-hidden border-2 border-[#E6A635]/50 bg-[#3B271C] shadow-[0_25px_60px_rgba(0,0,0,0.85)] group">
+            
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activePiece.id}
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.02 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="relative size-full"
+              >
+                <Image
+                  src={activePiece.image}
+                  alt={activePiece.title}
+                  fill
+                  priority
+                  className="object-cover group-hover:scale-105 transition-transform duration-1000"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/95 via-black/15 to-transparent pointer-events-none" />
+                
+                {/* Badge Tag en Haut à Droite */}
+                <div className="absolute top-3.5 right-3.5 bg-[#3B271C]/90 backdrop-blur-md border border-[#E6A635]/40 px-3 py-1 rounded-full text-[9.5px] font-bold uppercase tracking-wider text-[#F2BD52] shadow-md">
+                  {activePiece.tag}
+                </div>
+
+                {/* Étiquette d'Apparat en Bas de l'Image */}
+                <div className="absolute bottom-3.5 left-3.5 right-3.5 bg-[#3B271C]/95 backdrop-blur-xl border border-[#E6A635]/40 p-3 sm:p-3.5 rounded-2xl flex items-center justify-between text-white shadow-xl">
+                  <div>
+                    <h4 className="font-heading text-xs sm:text-sm font-semibold text-white leading-tight">
+                      {activePiece.title}
+                    </h4>
+                    <p className="text-[9.5px] sm:text-[10px] text-[#F2BD52] font-medium mt-0.5">
+                      {activePiece.subtitle}
+                    </p>
+                  </div>
+                  <Link
+                    href="/catalogue"
+                    className="shrink-0 size-7 sm:size-8 rounded-full bg-gradient-to-tr from-[#F3C45E] to-[#C78318] text-[#1A110B] flex items-center justify-center hover:scale-110 transition-transform shadow-md ml-2"
+                  >
+                    <ArrowRight className="size-3.5 sm:size-4" />
+                  </Link>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+          </div>
+
+          {/* 🔘 Sélecteur de Miniatures Interactif (En Dessous) */}
+          <div className="w-full max-w-[560px] flex items-center justify-center sm:justify-start gap-2.5 sm:gap-3 mt-3">
+            {MASTERPIECES.map((piece, idx) => {
+              const isActive = activeIndex === idx
+              return (
+                <button
+                  key={piece.id}
+                  onClick={() => setActiveIndex(idx)}
+                  className={`group relative flex-1 flex items-center gap-2 sm:gap-2.5 p-1.5 sm:p-2 rounded-xl transition-all duration-300 cursor-pointer ${
+                    isActive
+                      ? 'bg-[#3B271C] border-2 border-[#E6A635] shadow-[0_0_15px_rgba(230,166,53,0.35)] scale-[1.02]'
+                      : 'bg-[#3B271C]/70 border border-[#E6A635]/25 hover:border-[#E6A635]/60 hover:bg-[#3B271C]/90 opacity-75 hover:opacity-100'
+                  }`}
+                >
+                  {/* Miniature Photo */}
+                  <div className="relative size-7 sm:size-9 rounded-lg overflow-hidden shrink-0 border border-[#E6A635]/40">
+                    <Image
+                      src={piece.image}
+                      alt={piece.label}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  
+                  {/* Libellé */}
+                  <div className="text-left min-w-0 pr-1">
+                    <span className={`block font-heading text-[10px] sm:text-xs font-semibold leading-tight truncate ${
+                      isActive ? 'text-[#F2BD52]' : 'text-white'
+                    }`}>
+                      {piece.label}
+                    </span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+        </div>
+
+      </div>
     </div>
   )
 }

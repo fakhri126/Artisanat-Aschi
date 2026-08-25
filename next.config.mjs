@@ -28,6 +28,9 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion', '@base-ui/react'],
+    serverActions: {
+      bodySizeLimit: '100mb',
+    },
   },
 }
 

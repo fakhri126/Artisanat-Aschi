@@ -1,12 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sparkles, ShoppingBag } from 'lucide-react'
 import CatalogTab from './CatalogTab'
 import OrdersTab from './OrdersTab'
 
 export default function AdminBijouxDePorteContainer() {
   const [activeTab, setActiveTab] = useState<'CATALOG' | 'ORDERS'>('CATALOG')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('tab') === 'orders') {
+        setActiveTab('ORDERS')
+      }
+    }
+  }, [])
 
   return (
     <div className="text-ivory -m-6 md:-m-10">

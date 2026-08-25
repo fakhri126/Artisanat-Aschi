@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 580" width="100%" height="100%">
+  <defs>
+    <!-- Mustard Yellow Oval Plaque Background -->
+    <radialGradient id="plaqueMustardBg" cx="45%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#F2BE38" />
+      <stop offset="45%" stop-color="#E2A519" />
+      <stop offset="85%" stop-color="#C78809" />
+      <stop offset="100%" stop-color="#9E6800" />
+    </radialGradient>
+
+    <!-- Plaque Bevel Border -->
+    <linearGradient id="plaqueBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFEAA3" />
+      <stop offset="30%" stop-color="#D99810" />
+      <stop offset="70%" stop-color="#8F5E00" />
+      <stop offset="100%" stop-color="#4F3000" />
+    </linearGradient>
+
+    <!-- Walnut Wood for Compass Legs -->
+    <linearGradient id="walnutWood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F3322" />
+      <stop offset="50%" stop-color="#342015" />
+      <stop offset="100%" stop-color="#1C1009" />
+    </linearGradient>
+
+    <!-- Warm Light Wood / Mustard Highlights -->
+    <linearGradient id="warmGoldHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3B8" />
+      <stop offset="50%" stop-color="#E8B025" />
+      <stop offset="100%" stop-color="#B87B00" />
+    </linearGradient>
+
+    <!-- Steel Blade -->
+    <linearGradient id="bladeSteel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0ECE4" />
+      <stop offset="50%" stop-color="#BDB6AC" />
+      <stop offset="100%" stop-color="#696257" />
+    </linearGradient>
+
+    <!-- 3D Shadow for the Oval Plaque -->
+    <filter id="plaqueShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#000000" flood-opacity="0.55" />
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+
+    <!-- Inner Relief Shadow for Carved Elements -->
+    <filter id="innerCarveShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="3" dy="4" stdDeviation="3.5" flood-color="#382100" flood-opacity="0.75" />
+    </filter>
+  </defs>
+
+  <!-- ==================== OVAL WOODEN MEDALLION ==================== -->
+  <g filter="url(#plaqueShadow)">
+    <!-- Outer Rim -->
+    <ellipse cx="190" cy="290" rx="165" ry="255" fill="url(#plaqueBorder)" stroke="#4A2F00" stroke-width="2" />
+    <!-- Secondary Step Rim -->
+    <ellipse cx="190" cy="290" rx="155" ry="245" fill="url(#plaqueMustardBg)" stroke="#8A5A00" stroke-width="2.5" />
+    <!-- Inner Carved Gouged Recess Rim -->
+    <ellipse cx="190" cy="290" rx="146" ry="234" fill="url(#plaqueMustardBg)" stroke="#FFF3B8" stroke-width="1" opacity="0.65" />
+  </g>
+
+  <!-- ==================== CARVED LOGO OBJECTS ==================== -->
+  <g transform="translate(30, 20)" filter="url(#innerCarveShadow)">
+    
+    <!-- Horizontal guide rod -->
+    <line x1="120" y1="210" x2="238" y2="210" stroke="url(#walnutWood)" stroke-width="8" stroke-linecap="round" />
+    <circle cx="222" cy="210" r="10" fill="url(#warmGoldHighlight)" stroke="#5A3A00" stroke-width="1.5" />
+    <circle cx="222" cy="210" r="4" fill="url(#walnutWood)" />
+
+    <!-- Central Carpenter's Compass Legs (Letter "A") -->
+    <!-- Left Leg -->
+    <polygon points="152,118 168,118 84,488 68,488" fill="url(#walnutWood)" stroke="#FFF" stroke-width="0.5" stroke-opacity="0.3" />
+    <!-- Right Leg -->
+    <polygon points="152,118 168,118 236,488 252,488" fill="url(#walnutWood)" stroke="#FFF" stroke-width="0.5" stroke-opacity="0.3" />
+
+    <!-- Compass Head Loop -->
+    <circle cx="160" cy="74" r="30" stroke="url(#warmGoldHighlight)" stroke-width="14" fill="none" />
+    <rect x="151" y="96" width="18" height="22" rx="2" fill="url(#warmGoldHighlight)" stroke="#6B4500" stroke-width="1" />
+    <circle cx="160" cy="116" r="17" fill="url(#warmGoldHighlight)" stroke="#6B4500" stroke-width="1.2" />
+    <circle cx="160" cy="116" r="7" fill="url(#walnutWood)" />
+    <path d="M 160,44 L 160,32" stroke="url(#warmGoldHighlight)" stroke-width="9" stroke-linecap="round" />
+
+    <!-- Sculptor's Chisel -->
+    <g>
+      <!-- Chisel Handle -->
+      <path d="M 16,424 C 22,416 32,396 70,376 C 108,356 118,348 124,354 C 126,358 110,378 78,404 C 46,430 22,438 16,424 Z" 
+            fill="url(#warmGoldHighlight)" stroke="#664000" stroke-width="2" />
+      <path d="M 28,416 C 42,402 74,382 106,365" stroke="#FFFFFF" stroke-width="2.5" fill="none" opacity="0.75" stroke-linecap="round" />
+      <!-- Ferrule -->
+      <polygon points="118,350 126,344 133,353 125,359" fill="url(#warmGoldHighlight)" stroke="#573600" stroke-width="1.2" />
+      <!-- Steel Shaft -->
+      <path d="M 124,350 L 278,246" stroke="url(#bladeSteel)" stroke-width="14" stroke-linecap="round" />
+      <path d="M 128,348 L 274,248" stroke="#FFFFFF" stroke-width="2.5" opacity="0.8" stroke-linecap="round" />
+      <!-- Blade Tip -->
+      <polygon points="274,248 286,239 297,253 283,262" fill="url(#warmGoldHighlight)" stroke="#664000" stroke-width="1.5" />
+    </g>
+
+    <!-- Curving Text "artisanat" on Left -->
+    <g transform="translate(102, 305) rotate(-78)">
+      <text x="0" y="0" 
+            fill="url(#warmGoldHighlight)" 
+            stroke="#593700" 
+            stroke-width="1"
+            font-family="'Cormorant Garamond', 'Playfair Display', 'Georgia', serif" 
+            font-size="38" 
+            font-weight="900" 
+            letter-spacing="3.5">artisanat</text>
+    </g>
+
+    <!-- Calligraphic Text "aschi" at Bottom -->
+    <g stroke="url(#walnutWood)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M 104,414 L 104,486 C 104,491 107,493 110,493 M 104,438 C 91,438 86,449 86,465 C 86,480 95,490 104,482" />
+      <path d="M 142,424 C 142,416 129,416 127,429 C 124,441 143,448 141,463 C 139,479 125,481 121,471" />
+      <path d="M 172,428 C 168,417 155,417 155,451 C 155,482 168,482 172,472" />
+      <path d="M 186,390 L 186,488 M 186,442 C 193,431 206,431 206,449 L 206,488" />
+      <path d="M 220,424 L 220,488 M 220,401 A 2.4,2.4 0 1,1 220,406" />
+    </g>
+  </g>
+</svg>

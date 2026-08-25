@@ -99,30 +99,54 @@ export default function ProductDetailPage({ params }: PageProps) {
     setSelectedVariantIdx(0)
   }, [product?.id])
 
-  // ── Build UNIQUE colorVariants from product images ─────────
+  // ── Build UNIQUE colorVariants from product images + AI generated models ─────────
   const colorVariants = useMemo(() => {
-    if (!product || !product.images || product.images.length === 0) return []
+    if (!product) return []
     const variantsMap = new Map()
     
-    product.images.forEach(img => {
-      const label = img.colorLabel || 'Original'
-      if (!variantsMap.has(label)) {
-        variantsMap.set(label, {
-          label,
-          imageUrl: img.imageUrl,
-          isOriginal: label === 'Original',
+    const mainImg = product.images && product.images.length > 0 ? product.images[0].imageUrl : '/images/buffet-blanc-original.jpg'
+    
+    // 1. Original real photo
+    variantsMap.set('Original', {
+      label: 'Original',
+      imageUrl: mainImg,
+      isOriginal: true,
+    })
+
+    // 2. Real product image variants if uploaded
+    if (product.images && product.images.length > 1) {
+      product.images.forEach(img => {
+        const label = img.colorLabel || 'Variante'
+        if (!variantsMap.has(label)) {
+          variantsMap.set(label, {
+            label,
+            imageUrl: img.imageUrl,
+            isOriginal: label === 'Original',
+          })
+        }
+      })
+    }
+
+    // 3. AI Generated Models (Vert Olive, Bleu Ciel, Jaune Moutarde, Bordeaux)
+    const AI_VARIANTS = [
+      { label: 'Vert Olive', imageUrl: '/images/buffet-vert-olive.jpg' },
+      { label: 'Bleu Ciel', imageUrl: '/images/buffet-bleu-ciel.jpg' },
+      { label: 'Jaune Moutarde', imageUrl: '/images/buffet-jaune.jpg' },
+      { label: 'Bordeaux', imageUrl: '/images/buffet-bordeaux.jpg' },
+    ]
+
+    AI_VARIANTS.forEach(v => {
+      if (!variantsMap.has(v.label)) {
+        variantsMap.set(v.label, {
+          label: v.label,
+          imageUrl: v.imageUrl,
+          isOriginal: false,
+          isAIGenerated: true,
         })
       }
     })
     
-    // Ensure "Original" is always first if it exists
-    const variantsArray = Array.from(variantsMap.values())
-    const originalIdx = variantsArray.findIndex(v => v.isOriginal)
-    if (originalIdx > 0) {
-      const original = variantsArray.splice(originalIdx, 1)[0]
-      variantsArray.unshift(original)
-    }
-    return variantsArray
+    return Array.from(variantsMap.values())
   }, [product])
 
   // Initialize from URL parameters (auto-select variant & open modal)

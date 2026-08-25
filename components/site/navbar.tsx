@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Menu, X, ShoppingCart, ChevronDown } from 'lucide-react'
+import { Menu, X, ShoppingCart, ChevronDown, ArrowRight, Sparkles, MessageCircle, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -11,33 +11,33 @@ import { AnimatePresence, motion, useScroll, useMotionValueEvent } from 'framer-
 
 const LINKS = [
   { label: "L'Atelier", href: '/atelier' },
-  { label: 'Créations', href: '/creations' },
+  { label: 'Pièces Disponibles', href: '/creations' },
   { label: 'Bijoux de Porte', href: '/bijoux-de-porte' },
-  { label: 'Nos Services', isDropdown: true },
+  { label: 'Nos Savoir-Faire', isDropdown: true },
   { label: 'Contact', href: '/contact' },
 ]
 
 const SERVICES = [
   {
-    title: 'Service Catalogue',
-    description: 'Explorez notre collection de mobilier d\'art, portes et miroirs sculptés.',
+    title: 'Catalogue d\'Inspiration (Sur-Mesure)',
+    description: 'Explorez notre collection de mobilier d\'art sculpté pour concevoir votre projet sur-mesure.',
     image: '/prod1.jpg',
     href: '/catalogue',
     cta: 'Voir le catalogue'
   },
   {
-    title: 'Relooking & Restauration',
-    description: 'Offrez une nouvelle vie à vos meubles anciens grâce à notre expertise.',
-    image: '/relooking_service.jpg',
-    href: '/relooking',
-    cta: 'Découvrir le relooking'
-  },
-  {
-    title: 'Espaces d\'Exception',
-    description: 'Conception complète pour Hôtels, Maisons d\'Hôtes, Restaurants et Bureaux.',
+    title: 'Projets Clés en Main (Espaces d\'Exception)',
+    description: 'Aménagement monumental complet pour Hôtels 5★, Palaces, Riads et Demeures de prestige.',
     image: '/project-hotel.png',
     href: '/espaces-d-exception',
-    cta: 'Découvrir nos espaces'
+    cta: 'Découvrir nos réalisations'
+  },
+  {
+    title: 'Relooking & Restauration d\'Art',
+    description: 'Offrez une nouvelle vie à vos meubles anciens grâce à notre savoir-faire d\'art patrimonial.',
+    image: '/relooking_service.jpg',
+    href: '/relooking',
+    cta: 'Découvrir la restauration'
   }
 ]
 
@@ -51,7 +51,7 @@ export function Navbar() {
   const { scrollY } = useScroll()
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    setScrolled(latest > 40)
+    setScrolled(latest > 30)
   })
 
   const [rotateX, setRotateX] = useState(0)
@@ -62,8 +62,8 @@ export function Navbar() {
     const rect = el.getBoundingClientRect()
     const x = e.clientX - rect.left - rect.width / 2
     const y = e.clientY - rect.top - rect.height / 2
-    setRotateX(-y / (rect.height / 2) * 15)
-    setRotateY(x / (rect.width / 2) * 15)
+    setRotateX(-y / (rect.height / 2) * 12)
+    setRotateY(x / (rect.width / 2) * 12)
   }
 
   const handleMouseLeave = () => {
@@ -76,35 +76,36 @@ export function Navbar() {
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-500',
         scrolled || servicesOpen
-          ? 'py-3 bg-transparent border-b border-[#D4B896]/10 backdrop-blur-sm'
-          : 'py-4 bg-transparent border-b border-transparent',
+          ? 'py-3 bg-[#241812]/92 border-b border-[#E6A635]/25 backdrop-blur-xl shadow-[0_10px_35px_rgba(0,0,0,0.75)]'
+          : 'py-4.5 bg-gradient-to-b from-[#1A110B]/85 via-[#241812]/40 to-transparent border-b border-transparent',
       )}
     >
-      <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-8">
+      <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group relative z-50">
-          {/* Mobile Logo: Clean Monogram */}
-          <div className="block sm:hidden shrink-0">
-            <svg viewBox="0 0 100 100" className="size-11 text-[#C17D59] fill-none stroke-current stroke-[2.5] shrink-0">
-              <circle cx="50" cy="50" r="43" className="stroke-[#C17D59]/20" />
-              <path d="M50 22 L32 78 M50 22 L68 78 M38 60 L62 60" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="50" cy="22" r="4.5" className="fill-[#1A1512] stroke-[#C17D59] stroke-[2.5]" />
-              <path d="M26 73 L74 37" strokeLinecap="round" className="stroke-[#C17D59]/40 stroke-[2]" />
-            </svg>
+          {/* Mobile Logo: Same motif as web, bigger and bolder */}
+          <div className="block sm:hidden shrink-0 relative size-12 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+            <Image
+              src="/logo-carved-nobg.svg"
+              alt="Artisanat Aschi Logo"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
 
-          {/* Desktop Logo: Realistic 3D Plaque */}
+          {/* Desktop Logo: Realistic 3D Plaque, Bigger & Bolder */}
           <div
             style={{ perspective: 500 }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="hidden sm:block shrink-0 drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] hover:drop-shadow-[0_14px_28px_rgba(0,0,0,0.8)] transition-all duration-300"
+            className="hidden sm:block shrink-0 drop-shadow-[0_8px_20px_rgba(0,0,0,0.8)] hover:drop-shadow-[0_12px_28px_rgba(234,168,18,0.4)] transition-all duration-300"
           >
             <motion.div
               animate={{ rotateX, rotateY }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               style={{ transformStyle: 'preserve-3d' }}
-              className="relative h-32 w-18 shrink-0 overflow-hidden transition-all duration-300"
+              className="relative h-14 w-16 shrink-0 overflow-hidden transition-all duration-300"
             >
               <Image
                 src="/logo-carved-nobg.svg"
@@ -113,22 +114,14 @@ export function Navbar() {
                 className="object-contain"
                 priority
               />
-              
-              {/* Metallic Shine Overlay */}
-              <motion.div
-                className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
-                initial={{ x: '-100%' }}
-                whileHover={{ x: '100%' }}
-                transition={{ duration: 0.8, ease: 'easeInOut' }}
-              />
             </motion.div>
           </div>
           <div className="flex flex-col leading-none">
-            <span className="font-heading text-2xl font-bold tracking-wide text-[#E8DCCB]">
+            <span className="font-heading text-xl sm:text-2xl font-normal tracking-wide text-[#F7F4EE] group-hover:text-[#F2BD52] transition-colors">
               Artisanat Aschi
             </span>
-            <span className="mt-1 text-[0.68rem] uppercase tracking-[0.2em] text-[#D4B896] font-medium">
-              Maison fondée en 1960
+            <span className="mt-0.5 text-[0.65rem] uppercase tracking-[0.24em] text-[#EAA812] font-bold">
+              Maison Fondée en 1960
             </span>
           </div>
         </Link>
@@ -137,7 +130,7 @@ export function Navbar() {
         <ul className="hidden items-center gap-7 lg:flex h-full">
           {LINKS.map((link) => {
             if (link.isDropdown) {
-              const isActive = pathname === '/catalogue' || pathname === '/relooking'
+              const isActive = pathname === '/catalogue' || pathname === '/custom-creation' || pathname === '/relooking' || pathname === '/espaces-d-exception'
               return (
                 <li
                   key={link.label}
@@ -147,16 +140,16 @@ export function Navbar() {
                 >
                   <button
                     className={cn(
-                      'group flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.15em] transition-colors py-4',
-                      isActive || servicesOpen ? 'text-[#C17D59]' : 'text-[#E8DCCB] hover:text-[#C17D59]',
+                      'group flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors py-4 cursor-pointer',
+                      isActive || servicesOpen ? 'text-[#F2BD52]' : 'text-[#EAE4D9]/90 hover:text-[#F2BD52]',
                     )}
                   >
                     {link.label}
-                    <ChevronDown className={cn("size-4 transition-transform duration-300", servicesOpen && "rotate-180")} />
+                    <ChevronDown className={cn("size-3.5 transition-transform duration-300", servicesOpen && "rotate-180 text-[#E6A635]")} />
                     <span
                       className={cn(
-                        'absolute bottom-2 left-0 h-px bg-[#C17D59] transition-all duration-300',
-                        isActive ? 'w-full' : 'w-0 group-hover:w-full',
+                        'absolute bottom-2 left-0 h-px bg-gradient-to-r from-[#F3C45E] to-[#E6A635] transition-all duration-300',
+                        isActive || servicesOpen ? 'w-full' : 'w-0 group-hover:w-full',
                       )}
                     />
                   </button>
@@ -170,14 +163,14 @@ export function Navbar() {
                 <Link
                   href={link.href!}
                   className={cn(
-                    'group relative text-xs font-semibold uppercase tracking-[0.15em] transition-colors py-4',
-                    isActive ? 'text-[#C17D59]' : 'text-[#E8DCCB] hover:text-[#C17D59]',
+                    'group relative text-xs font-semibold uppercase tracking-[0.16em] transition-colors py-4',
+                    isActive ? 'text-[#F2BD52]' : 'text-[#EAE4D9]/90 hover:text-[#F2BD52]',
                   )}
                 >
                   {link.label}
                   <span
                     className={cn(
-                      'absolute bottom-2 left-0 h-px bg-[#C17D59] transition-all duration-300',
+                      'absolute bottom-2 left-0 h-px bg-gradient-to-r from-[#F3C45E] to-[#E6A635] transition-all duration-300',
                       isActive ? 'w-full' : 'w-0 group-hover:w-full',
                     )}
                   />
@@ -187,36 +180,37 @@ export function Navbar() {
           })}
         </ul>
 
-        <div className="flex items-center gap-4 relative z-50">
+        <div className="flex items-center gap-3 sm:gap-4 relative z-50">
           {/* Cart Icon Desktop/Mobile */}
           <button
             type="button"
             onClick={() => setIsCartOpen(true)}
             aria-label="Ouvrir le panier"
-            className="relative rounded-full p-2.5 text-[#E8DCCB] transition-colors hover:text-[#C17D59]"
+            className="relative rounded-full p-2 text-[#EAE4D9] transition-colors hover:text-[#E6A635] cursor-pointer"
           >
-            <ShoppingCart className="size-5 sm:size-6" />
+            <ShoppingCart className="size-5" />
             {isMounted && cartCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full bg-[#C17D59] text-[9px] font-bold text-white animate-pulse shadow-sm">
+              <span className="absolute -right-0.5 -top-0.5 flex size-4.5 items-center justify-center rounded-full bg-[#E6A635] text-[9px] font-bold text-[#1A110B] shadow-[0_0_8px_#E6A635]">
                 {cartCount}
               </span>
             )}
           </button>
 
+          {/* Primary CTA: Studio Sur-Mesure 3D */}
           <Link
-            href="/contact"
-            className="hidden rounded-full border border-[#E8DCCB] bg-white px-6 py-2.5 text-xs font-bold uppercase tracking-[0.15em] text-[#C17D59] transition-all duration-300 hover:bg-[#FAF7F2] hover:border-[#C17D59] hover:shadow-sm lg:inline-block"
+            href="/custom-creation"
+            className="hidden rounded-full border border-[#E6A635]/40 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[#1A110B] transition-all duration-300 hover:shadow-[0_0_20px_rgba(230,166,53,0.4)] btn-sheen lg:inline-block shadow-md"
           >
-            Demander un devis
+            Devis Sur-Mesure 3D
           </Link>
 
           <button
             type="button"
             aria-label="Ouvrir le menu"
             onClick={() => setOpen((v) => !v)}
-            className="text-[#E8DCCB] lg:hidden"
+            className="text-[#EAE4D9] lg:hidden cursor-pointer p-1"
           >
-            {open ? <X className="size-7" /> : <Menu className="size-7" />}
+            {open ? <X className="size-6 text-[#E6A635]" /> : <Menu className="size-6" />}
           </button>
         </div>
       </nav>
@@ -225,27 +219,33 @@ export function Navbar() {
       <AnimatePresence>
         {servicesOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="absolute top-full left-0 w-full bg-[#1A1512]/95 backdrop-blur-xl border-t border-[#D4B896]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden hidden lg:block"
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="absolute top-full left-0 w-full bg-[#241812]/98 backdrop-blur-2xl border-t border-[#E6A635]/25 shadow-[0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden hidden lg:block"
             onMouseEnter={() => setServicesOpen(true)}
             onMouseLeave={() => setServicesOpen(false)}
           >
-            <div className="mx-auto max-w-5xl px-8 py-10 flex gap-8">
+            <div className="mx-auto max-w-5xl px-8 py-7 flex gap-5">
               {SERVICES.map((service, idx) => (
-                <Link href={service.href} key={idx} className="flex-1 group relative overflow-hidden rounded-[2rem] border border-[#D4B896]/30 bg-[#2C1E16] transition-all hover:border-[#C17D59]/50 hover:shadow-[0_10px_30px_rgba(193,125,89,0.1)] flex flex-col">
-                  <div className="h-40 relative overflow-hidden bg-[#1A1512]">
+                <Link 
+                  href={service.href} 
+                  key={idx} 
+                  className="flex-1 group relative overflow-hidden rounded-2xl border border-[#E6A635]/30 bg-[#3B271C]/85 transition-all hover:border-[#E6A635]/75 hover:bg-[#452E21] hover:shadow-[0_10px_30px_rgba(230,166,53,0.2)] flex flex-col hover:-translate-y-1"
+                >
+                  <div className="h-32 relative overflow-hidden bg-[#241812]">
                     <Image src={service.image} alt={service.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#3B271C] via-transparent to-transparent" />
                   </div>
-                  <div className="p-6 flex-1 flex flex-col bg-[#2C1E16]">
-                    <h3 className="font-serif text-2xl text-[#E8DCCB] mb-2">{service.title}</h3>
-                    <p className="text-[#D4B896] text-sm font-light leading-relaxed mb-6 flex-1">
+                  <div className="p-4 flex-1 flex flex-col bg-[#3B271C]">
+                    <h3 className="font-heading text-lg text-[#F7F4EE] mb-1.5 group-hover:text-[#F2BD52] transition-colors">{service.title}</h3>
+                    <p className="text-[#EAE4D9]/80 text-xs font-light leading-relaxed mb-3 flex-1">
                       {service.description}
                     </p>
-                    <span className="inline-flex items-center text-xs uppercase tracking-[0.15em] text-[#C17D59] font-bold group-hover:translate-x-2 transition-transform duration-300">
-                      {service.cta} &rarr;
+                    <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-[#F2BD52] font-bold group-hover:translate-x-1.5 transition-transform duration-300">
+                      <span>{service.cta}</span>
+                      <ArrowRight className="size-3" />
                     </span>
                   </div>
                 </Link>
@@ -255,82 +255,133 @@ export function Navbar() {
         )}
       </AnimatePresence>
 
-      <div
-        className={cn(
-          'overflow-y-auto bg-[#1A1512]/95 backdrop-blur-md transition-all duration-500 lg:hidden absolute top-full left-0 w-full shadow-[0_20px_50px_rgba(0,0,0,0.5)]',
-          open ? 'max-h-screen border-t border-[#D4B896]/20 py-5' : 'max-h-0 py-0',
-        )}
-      >
-        <ul className="flex flex-col gap-1 px-6">
-          {LINKS.map((link) => {
-            if (link.isDropdown) {
-              return (
-                <li key={link.label} className="border-b border-[#D4B896]/20 pb-2 mb-2">
-                  <button
-                    onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                    className="flex w-full items-center justify-between py-2.5 font-serif text-xl text-[#E8DCCB] transition-colors hover:text-[#C17D59]"
-                  >
-                    {link.label}
-                    <ChevronDown className={cn("size-5 transition-transform duration-300", mobileServicesOpen && "rotate-180")} />
-                  </button>
-                  <AnimatePresence>
-                    {mobileServicesOpen && (
-                      <motion.ul
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden flex flex-col gap-4 pt-2 pb-4"
-                      >
-                        {SERVICES.map((service, idx) => (
-                          <li key={idx}>
-                            <Link
-                              href={service.href}
-                              onClick={() => setOpen(false)}
-                              className="group flex gap-4 items-center rounded-2xl bg-[#2C1E16]/50 border border-[#D4B896]/30 p-3"
-                            >
-                              <div className="relative size-16 rounded-xl overflow-hidden shrink-0">
-                                <Image src={service.image} alt={service.title} fill className="object-cover" />
-                              </div>
-                              <div>
-                                <h4 className="font-serif text-lg text-[#E8DCCB] group-hover:text-[#C17D59] transition-colors">{service.title}</h4>
-                                <p className="text-xs text-[#D4B896] line-clamp-1">{service.description}</p>
-                              </div>
-                            </Link>
-                          </li>
-                        ))}
-                      </motion.ul>
-                    )}
-                  </AnimatePresence>
-                </li>
-              )
-            }
-
-            const isActive = pathname === link.href
-            return (
-              <li key={link.href} className="border-b border-[#D4B896]/20 pb-2 mb-2">
-                <Link
-                  href={link.href!}
-                  onClick={() => setOpen(false)}
-                  className="block py-2.5 font-serif text-xl text-[#E8DCCB] transition-colors hover:text-[#C17D59]"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
-        
-        <div className="mt-8 mb-12 flex justify-center">
-          <Link
-            href="/contact"
-            onClick={() => setOpen(false)}
-            className="inline-block rounded-full bg-[#C17D59] px-8 py-3.5 text-sm font-bold uppercase tracking-[0.15em] text-white transition-all duration-300 hover:bg-[#A66645] hover:shadow-lg"
+      {/* Mobile Luxury Curtain Drawer */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-x-0 top-0 h-[100dvh] bg-[#20150F]/98 backdrop-blur-2xl z-50 flex flex-col justify-between overflow-y-auto px-5 pt-5 pb-8 lg:hidden border-b border-[#E6A635]/30 shadow-[0_25px_70px_rgba(0,0,0,0.95)]"
           >
-            Demander un devis
-          </Link>
-        </div>
-      </div>
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between pb-5 border-b border-[#E6A635]/20">
+              <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3">
+                <div className="relative size-11 shrink-0 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+                  <Image
+                    src="/logo-carved-nobg.svg"
+                    alt="Artisanat Aschi Logo"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+                <div className="flex flex-col leading-none">
+                  <span className="font-heading text-xl text-[#F7F4EE]">Artisanat Aschi</span>
+                  <span className="text-[8px] uppercase tracking-[0.24em] text-[#EAA812] font-bold mt-0.5">Depuis 1960 • Tunisie</span>
+                </div>
+              </Link>
+              
+              <button
+                type="button"
+                aria-label="Fermer le menu"
+                onClick={() => setOpen(false)}
+                className="size-9 rounded-full border border-[#E6A635]/40 bg-[#2E1E16] flex items-center justify-center text-[#F2BD52] shadow-lg active:scale-95 transition-transform cursor-pointer"
+              >
+                <X className="size-4.5" />
+              </button>
+            </div>
+
+            {/* Navigation Links */}
+            <ul className="flex flex-col gap-1 py-4 flex-1">
+              {LINKS.map((link) => {
+                if (link.isDropdown) {
+                  return (
+                    <li key={link.label} className="border-b border-[#E6A635]/15 pb-1">
+                      <button
+                        onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                        className="flex w-full items-center justify-between py-2.5 font-heading text-xl text-[#F7F4EE] transition-colors active:text-[#F2BD52]"
+                      >
+                        <span>{link.label}</span>
+                        <ChevronDown className={cn("size-4 text-[#E6A635] transition-transform duration-300", mobileServicesOpen && "rotate-180")} />
+                      </button>
+                      <AnimatePresence>
+                        {mobileServicesOpen && (
+                          <motion.ul
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden flex flex-col gap-2 pt-1 pb-2"
+                          >
+                            {SERVICES.map((service, sIdx) => (
+                              <li key={sIdx}>
+                                <Link
+                                  href={service.href}
+                                  onClick={() => setOpen(false)}
+                                  className="flex gap-3 items-center rounded-xl bg-[#3B271C]/90 border border-[#E6A635]/30 p-2.5 active:border-[#E6A635]"
+                                >
+                                  <div className="relative size-10 rounded-lg overflow-hidden shrink-0 border border-[#E6A635]/30">
+                                    <Image src={service.image} alt={service.title} fill className="object-cover" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-heading text-sm text-[#F7F4EE]">{service.title}</h4>
+                                    <p className="text-[9.5px] text-[#EAE4D9]/75 line-clamp-1">{service.description}</p>
+                                  </div>
+                                </Link>
+                              </li>
+                            ))}
+                          </motion.ul>
+                        )}
+                      </AnimatePresence>
+                    </li>
+                  )
+                }
+
+                const isActive = pathname === link.href
+                return (
+                  <li key={link.href} className="border-b border-[#E6A635]/15 pb-0.5">
+                    <Link
+                      href={link.href!}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex items-center justify-between py-2.5 font-heading text-xl transition-colors",
+                        isActive ? "text-[#F2BD52]" : "text-[#F7F4EE] active:text-[#F2BD52]"
+                      )}
+                    >
+                      <span>{link.label}</span>
+                      <span className="text-[#E6A635]/40 text-xs">❖</span>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+
+            {/* Drawer Bottom VIP Actions & Quick Call */}
+            <div className="pt-3 border-t border-[#E6A635]/20 flex flex-col gap-3">
+              <div className="flex items-center justify-between text-xs text-[#EAE4D9]/80 font-light">
+                <a href="https://wa.me/21655743760" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                  <MessageCircle className="size-3.5" />
+                  <span>WhatsApp VIP</span>
+                </a>
+                <span className="text-[#E6A635]/40">•</span>
+                <a href="tel:+21655743760" className="flex items-center gap-1.5 text-[#F2BD52] font-medium">
+                  <Phone className="size-3.5" />
+                  <span>+216 55 743 760</span>
+                </a>
+              </div>
+
+              <Link
+                href="/custom-creation"
+                onClick={() => setOpen(false)}
+                className="btn-sheen w-full text-center rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#1A110B] shadow-lg"
+              >
+                Studio Sur-Mesure 3D
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   )
 }
-

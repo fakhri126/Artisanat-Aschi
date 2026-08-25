@@ -1,9 +1,9 @@
 'use client'
-import Link from 'next/link';
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { adminApi, publicApi, Product, Category, ProductRequest, ImageVariant } from '@/lib/api'
-import { Plus, Edit2, Trash2, Eye, Star, X, Image as ImageIcon, Upload, CheckCircle2, Bot, Palette, ChevronDown, ChevronUp } from 'lucide-react'
+import { adminApi, publicApi, Product, Category, ProductRequest, ImageVariant, QuoteRequest } from '@/lib/api'
+import { Plus, Edit2, Trash2, Eye, Star, X, Image as ImageIcon, Upload, CheckCircle2, Bot, Palette, ChevronDown, ChevronUp, ShoppingBag, Mail, Phone, RefreshCw } from 'lucide-react'
 
 // ─── Preset variant labels for quick selection ─────────────────────────────
 const VARIANTS_PRESETS = [
@@ -224,9 +224,12 @@ function ImageVariantManager({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AdminProductsPage() {
+  const [activeTab, setActiveTab] = useState<'PRODUCTS' | 'ORDERS'>('PRODUCTS')
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [orders, setOrders] = useState<QuoteRequest[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingOrders, setLoadingOrders] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Modal states
@@ -247,7 +250,14 @@ export default function AdminProductsPage() {
   const [imageVariants, setImageVariants] = useState<ImageVariant[]>([])
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('tab') === 'orders') {
+        setActiveTab('ORDERS')
+      }
+    }
     loadData()
+    loadOrders()
   }, [])
 
   const loadData = async () => {
@@ -267,20 +277,57 @@ export default function AdminProductsPage() {
           catName.includes("ronds") ||
           catName.includes("ovales") ||
           catName.includes("poignée") ||
+          catName.includes("bijou") ||
           mat.includes("céramique") ||
           mat.includes("majolique") ||
           name.includes("bouton") ||
-          name.includes("poignée")
+          name.includes("poignée") ||
+          name.includes("bijou")
         )
       }
 
-      setProducts(prodData.filter(p => !isHandleProduct(p)))
+      // Strictly available workshop products (exclude CATALOGUE and exclude Bijoux de Porte)
+      setProducts(prodData.filter(p => p.type !== 'CATALOGUE' && !isHandleProduct(p)))
       setCategories(catData)
     } catch (err: any) {
       setError(err.message || 'Erreur lors du chargement des produits.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadOrders = async () => {
+    try {
+      setLoadingOrders(true)
+      const allQuotes = await adminApi.getQuotes()
+      // Filter product orders / purchases (available products / unique pieces)
+      const prodOrders = allQuotes.filter(q => {
+        const pType = q.product?.type
+        const msg = (q.message || '').toLowerCase()
+        return pType === 'PIECE_UNIQUE' || pType === 'REPRODUCTIBLE' || msg.includes('panier') || msg.includes('commande produit') || msg.includes('achat')
+      })
+      setOrders(prodOrders)
+    } catch (err) {
+      console.error('Failed to load product orders:', err)
+      setOrders([])
+    } finally {
+      setLoadingOrders(false)
+    }
+  }
+
+  const handleUpdateOrderStatus = async (id: number, status: string) => {
+    try {
+      await adminApi.updateQuoteStatus(id, status as any)
+      setOrders(orders.map(o => o.id === id ? { ...o, status: status as any } : o))
+    } catch (err) { console.error(err) }
+  }
+
+  const handleDeleteOrder = async (id: number) => {
+    if (!confirm('Supprimer cette commande ?')) return
+    try {
+      await adminApi.deleteQuoteRequest(id)
+      setOrders(orders.filter(o => o.id !== id))
+    } catch (err) { console.error(err) }
   }
 
   const openCreateModal = () => {
@@ -397,16 +444,124 @@ export default function AdminProductsPage() {
         </motion.button>
       </div>
 
-      {error && (
-        <div className="p-4 rounded-xl bg-red-950/40 border border-red-500/20 text-red-400 text-sm backdrop-blur-md">
-          {error}
+      {/* Navigation Tabs */}
+      <div className="flex gap-3 border-b border-[#E8DCCB]/20 pb-3">
+        <button
+          onClick={() => setActiveTab('PRODUCTS')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+            activeTab === 'PRODUCTS'
+              ? 'bg-[#E8DCCB] text-walnut shadow-md'
+              : 'bg-stone-900 text-stone-400 hover:text-white'
+          }`}
+        >
+          <Bot className="size-4" /> Créations & Pièces Disponibles
+        </button>
+
+        <button
+          onClick={() => setActiveTab('ORDERS')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+            activeTab === 'ORDERS'
+              ? 'bg-[#C17D59] text-white shadow-md'
+              : 'bg-stone-900 text-stone-400 hover:text-white'
+          }`}
+        >
+          <ShoppingBag className="size-4" /> Commandes de Produits
+          {orders.filter(o => o.status === 'PENDING').length > 0 && (
+            <span className="bg-white text-[#C17D59] text-[10px] font-black rounded-full px-2 py-0.5 ml-1">
+              {orders.filter(o => o.status === 'PENDING').length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* TAB CONTENT 2: COMMANDES PRODUITS DISPONIBLES */}
+      {activeTab === 'ORDERS' && (
+        <div className="bg-[#FAF7F2]/80 backdrop-blur-md rounded-2xl border border-[#E8DCCB]/20 shadow-xl p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-heading text-xl text-[#3A2A21] font-semibold">Commandes Reçues - Produits Disponibles & Pièces Uniques</h2>
+              <p className="text-xs text-[#3A2A21]/60 mt-0.5">Commandes directes et demandes d'achat des produits en stock.</p>
+            </div>
+            <button onClick={loadOrders} className="text-xs text-[#C17D59] hover:underline flex items-center gap-1 font-semibold">
+              <RefreshCw className="size-3.5" /> Actualiser
+            </button>
+          </div>
+
+          {loadingOrders ? (
+            <div className="p-8 text-center text-[#3A2A21]/50">Chargement des commandes...</div>
+          ) : orders.length === 0 ? (
+            <div className="p-12 text-center text-[#3A2A21]/40 bg-white/40 rounded-xl border border-dashed border-[#E8DCCB]/40">
+              <ShoppingBag className="size-10 mx-auto mb-2 opacity-40 text-[#C17D59]" />
+              <p>Aucune commande reçue pour les produits disponibles.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-[#E8DCCB]/20 border-b border-[#E8DCCB]/30 text-xs uppercase tracking-wider text-[#3A2A21]/70">
+                    <th className="p-4">Client</th>
+                    <th className="p-4">Contact</th>
+                    <th className="p-4">Produit Commandé</th>
+                    <th className="p-4">Message</th>
+                    <th className="p-4">Date</th>
+                    <th className="p-4">Statut</th>
+                    <th className="p-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E8DCCB]/20 text-sm">
+                  {orders.map((o) => (
+                    <tr key={o.id} className="hover:bg-white/60 transition-colors">
+                      <td className="p-4 font-semibold text-[#3A2A21]">{o.fullName}</td>
+                      <td className="p-4 text-xs text-[#3A2A21]/70 space-y-1">
+                        <p className="font-mono">{o.email}</p>
+                        <p className="font-bold text-[#C17D59]">{o.phoneNumber}</p>
+                      </td>
+                      <td className="p-4">
+                        <p className="font-bold text-[#C17D59] text-xs">{o.product?.name || 'Produit Artisanal'}</p>
+                        {o.product?.price && <p className="text-xs text-[#3A2A21]/60 font-semibold">{o.product.price} DT</p>}
+                      </td>
+                      <td className="p-4 max-w-xs">
+                        <p className="text-xs text-[#3A2A21]/80 bg-white/70 p-2.5 rounded-lg border border-[#E8DCCB]/40 leading-relaxed font-mono">{o.message}</p>
+                      </td>
+                      <td className="p-4 text-xs text-[#3A2A21]/60">
+                        {new Date(o.createdDate).toLocaleDateString('fr-FR')}
+                      </td>
+                      <td className="p-4">
+                        <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${
+                          o.status === 'PENDING' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                          o.status === 'CONTACTED' ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                        }`}>
+                          {o.status === 'PENDING' ? 'En attente' : o.status === 'CONTACTED' ? 'Contacté' : 'Terminé'}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleUpdateOrderStatus(o.id, 'CONTACTED')}
+                          className="px-2.5 py-1 text-xs bg-[#E8DCCB]/30 hover:bg-[#E8DCCB] text-[#3A2A21] rounded-md font-semibold"
+                        >
+                          Contacté
+                        </button>
+                        <button
+                          onClick={() => handleDeleteOrder(o.id)}
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-md"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Products list */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
+      {/* TAB CONTENT 1: PRODUCTS TABLE */}
+      {activeTab === 'PRODUCTS' && (
+        <motion.div
+          initial="hidden"
+          animate="visible"
         variants={{
           hidden: { opacity: 0, y: 20 },
           visible: { opacity: 1, y: 0, transition: { duration: 0.5, staggerChildren: 0.05 } }
@@ -532,6 +687,7 @@ export default function AdminProductsPage() {
           </table>
         </div>
       </motion.div>
+      )}
 
       {/* Modal Dialog */}
       {modalOpen && (

@@ -83,6 +83,30 @@ export default function AdminLayout({
     )
   }
 
+  const renderNavItems = (onItemClick?: () => void) => (
+    <nav className="flex-1 p-4 space-y-1">
+      {SIDEBAR_ITEMS.map((item) => {
+        const isActive = pathname === item.href
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onItemClick}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+              isActive 
+                ? "bg-[#E8DCCB] text-walnut shadow-md" 
+                : "text-[#3A2A21]/70 hover:bg-white/5 hover:text-[#3A2A21]"
+            )}
+          >
+            <item.icon className="size-4" />
+            {item.label}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+
   return (
     <div className="min-h-screen bg-[#1a1512] text-[#3A2A21] flex">
       {/* Desktop Sidebar */}
@@ -92,26 +116,7 @@ export default function AdminLayout({
           <span className="font-heading text-lg font-semibold tracking-wide">Artisanat Aschi</span>
           <span className="text-[10px] bg-[#E8DCCB]/20 text-[#C17D59] px-1.5 py-0.5 rounded font-mono uppercase">Admin</span>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {SIDEBAR_ITEMS.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                  isActive 
-                    ? "bg-[#E8DCCB] text-walnut shadow-md" 
-                    : "text-[#3A2A21]/70 hover:bg-white/5 hover:text-[#3A2A21]"
-                )}
-              >
-                <item.icon className="size-4" />
-                {item.label}
-              </Link>
-            )
-          })}
-        </nav>
+        {renderNavItems()}
         <div className="p-4 border-t border-[#E8DCCB]/10">
           <button
             onClick={handleLogout}
@@ -145,27 +150,7 @@ export default function AdminLayout({
             <X className="size-5 text-[#C17D59]" />
           </button>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {SIDEBAR_ITEMS.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                  isActive 
-                    ? "bg-[#E8DCCB] text-walnut shadow-md" 
-                    : "text-[#3A2A21]/70 hover:bg-white/5 hover:text-[#3A2A21]"
-                )}
-              >
-                <item.icon className="size-4" />
-                {item.label}
-              </Link>
-            )
-          })}
-        </nav>
+        {renderNavItems(() => setSidebarOpen(false))}
         <div className="p-4 border-t border-[#E8DCCB]/10">
           <button
             onClick={handleLogout}

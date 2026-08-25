@@ -40,4 +40,32 @@ public class ProductSpecification {
             return cb.equal(root.get("type"), type);
         };
     }
+
+    /**
+     * Filters ONLY physical workshop creations (excluding CATALOGUE items and Bijoux de Porte / door handles).
+     */
+    public static Specification<Product> isAvailableWorkshopProduct() {
+        return (root, query, cb) -> {
+            var notCatalogue = cb.notEqual(root.get("type"), "CATALOGUE");
+            var catNameLower = cb.lower(root.get("category").get("name"));
+            var prodNameLower = cb.lower(root.get("name"));
+
+            var notPoigneeCat = cb.not(cb.like(catNameLower, "%poignée%"));
+            var notBoutonCat  = cb.not(cb.like(catNameLower, "%bouton%"));
+            var notBijouCat   = cb.not(cb.like(catNameLower, "%bijou%"));
+            var notRondsCat   = cb.not(cb.like(catNameLower, "%ronds%"));
+            var notOvalesCat  = cb.not(cb.like(catNameLower, "%ovales%"));
+
+            var notPoigneeProd = cb.not(cb.like(prodNameLower, "%poignée%"));
+            var notBoutonProd  = cb.not(cb.like(prodNameLower, "%bouton%"));
+            var notBijouProd   = cb.not(cb.like(prodNameLower, "%bijou%"));
+
+            return cb.and(
+                notCatalogue,
+                notPoigneeCat, notBoutonCat, notBijouCat, notRondsCat, notOvalesCat,
+                notPoigneeProd, notBoutonProd, notBijouProd
+            );
+        };
+    }
 }
+

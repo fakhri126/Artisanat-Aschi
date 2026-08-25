@@ -35,6 +35,7 @@ export const viewport: Viewport = {
 
 import { CartProvider } from '@/lib/cart-context'
 import { CartSheet } from '@/components/site/cart-sheet'
+import { MobileFloatingVIP } from '@/components/site/mobile-floating-vip'
 import { Toaster } from 'sonner'
 
 export default function RootLayout({
@@ -53,6 +54,7 @@ export default function RootLayout({
             {children}
           </PageTransitionWrapper>
           <CartSheet />
+          <MobileFloatingVIP />
         </CartProvider>
         <Toaster position="bottom-right" theme="dark" toastOptions={{
           style: {

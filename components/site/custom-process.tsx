@@ -31,11 +31,7 @@ const STEPS = [
 
 export function CustomProcess() {
   return (
-    <section id="sur-mesure" className="relative bg-transparent py-24 md:py-36 overflow-hidden">
-      {/* Unified Background */}
-      <div className="absolute inset-0 z-0 opacity-60 brightness-50 pointer-events-none bg-[url('/images/bg-carved-wood.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
-      {/* Darkening Overlay */}
-      <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
+    <section id="sur-mesure" className="relative py-24 md:py-36">
       <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal className="mx-auto max-w-3xl text-center">
           <p className="text-sm md:text-base font-bold uppercase tracking-[0.2em] text-[#C17D59]">

@@ -17,13 +17,13 @@ import { BohoCarvedKnob } from './boho-decor'
 
 const SLIDES = [
   {
-    id: 'livraison',
+    id: 'nouveautes',
     image: '/placeholder.jpg',
-    subtitle: 'Livraison de la semaine',
-    title: 'Réalisation Client',
-    description: 'Découvrez notre dernière livraison chez nos clients',
-    cta: 'Découvrir',
-    href: '#livraison'
+    subtitle: 'Créations Récentes',
+    title: 'Nouvelle Création d\'Art',
+    description: 'Découvrez les dernières pièces sorties de notre atelier.',
+    cta: 'Voir les nouveautés',
+    href: '#nouveautes'
   },
   {
     id: 'bijoux-porte',
@@ -36,8 +36,8 @@ const SLIDES = [
   },
   {
     id: 'catalogue',
-    title: 'Catalogue',
-    subtitle: 'Luminaire et Artisanat Aschi',
+    title: 'Catalogue Sur-Mesure',
+    subtitle: 'Inspiration & Haute Ébénisterie',
     description: 'Explorez notre collection intemporelle de mobilier d\'art sculpté à la main.',
     image: '/herochaise.png',
     cta: 'Voir le catalogue',
@@ -52,18 +52,18 @@ const SLIDES = [
     href: '/relooking',
   },
   {
-    id: 'nouveautes',
+    id: 'livraison',
     image: '/placeholder.jpg',
-    subtitle: 'Créations Récentes',
-    title: 'Nouveautés',
-    description: 'Découvrez les dernières pièces sorties de notre atelier.',
-    cta: 'Voir les nouveautés',
-    href: '#nouveautes'
+    subtitle: 'Livraison de la semaine',
+    title: 'Réalisation Client',
+    description: 'Découvrez notre dernière livraison chez nos clients',
+    cta: 'Découvrir',
+    href: '#livraison'
   },
   {
     id: 'evenement',
     image: '/placeholder.jpg',
-    subtitle: 'Événement',
+    subtitle: 'Événement & Salons',
     title: 'Actualité',
     description: 'Dernier événement en date',
     cta: 'Voir l\'événement',
@@ -145,30 +145,63 @@ export function HeroSlider() {
   }
 
   // Safe bounds check to prevent crash during hot reload
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX)
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart === null) return
+    const touchEnd = e.changedTouches[0].clientX
+    const diff = touchStart - touchEnd
+    if (Math.abs(diff) > 45) {
+      if (diff > 0) {
+        paginate(1) // swipe left -> next
+      } else {
+        paginate(-1) // swipe right -> prev
+      }
+    }
+    setTouchStart(null)
+  }
+
   const slide = SLIDES[current] || SLIDES[0]
 
   return (
-    <section id="top" className="relative h-screen min-h-[40rem] w-full overflow-hidden grain">
-      {/* Wood Background Overlay (Mobile) */}
-      <div 
-        className="md:hidden absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none" 
-        style={{ 
-          backgroundImage: "url('/images/hero-mobile-portrait.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat"
-        }} 
-      />
-      {/* Wood Background Overlay (Desktop) */}
-      <div 
-        className="hidden md:block absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none" 
-        style={{ 
-          backgroundImage: "url('/images/hero-colorful-wood-fixed.jpg?v=3')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat"
-        }} 
-      />
+    <section 
+      id="collections" 
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="relative min-h-[720px] sm:min-h-[720px] lg:min-h-[640px] w-full overflow-hidden bg-transparent select-none py-8 sm:py-12 lg:py-16"
+    >
+
+      {/* Floating Golden Dust Particles (Ambient Craft Glow) */}
+      <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+        {[...Array(14)].map((_, i) => (
+          <motion.div
+            key={`hero-dust-${i}`}
+            className="absolute rounded-full bg-[#D4AF37]/40 blur-[1px]"
+            style={{
+              width: `${(i % 3) * 2 + 2}px`,
+              height: `${(i % 3) * 2 + 2}px`,
+              top: `${(i * 17) % 100}%`,
+              left: `${(i * 23) % 100}%`,
+            }}
+            animate={{
+              opacity: [0.2, 0.9, 0.2],
+              scale: [0.8, 1.5, 0.8],
+              y: [0, -25, 0],
+            }}
+            transition={{
+              duration: 4 + (i % 5),
+              repeat: Infinity,
+              delay: i * 0.3,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
+      </div>
+
       <ZellijScatter type="hero" />
       {/* Slideshow */}
       <AnimatePresence initial={false} custom={direction}>
@@ -299,7 +332,7 @@ export function HeroSlider() {
               style={{ transform: `translateY(${offset * 0.3}px)` }}
             >
               <Image
-                src={slide.image}
+                src={slide.image || '/placeholder.jpg'}
                 alt={slide.title}
                 fill
                 priority
@@ -394,9 +427,9 @@ export function HeroSlider() {
                 {/* Direct High-Conversion Button */}
                 <Link
                   href="/custom-creation"
-                  className="group flex items-center gap-3 bg-gradient-to-r from-[#C17D59] to-[#8C5230] hover:from-[#d4af37] hover:to-[#C17D59] text-white font-semibold text-xs uppercase tracking-[0.16em] px-7 py-4 rounded-full shadow-[0_10px_25px_rgba(193,125,89,0.4)] border border-[#E8DCCB]/30 transition-all duration-300 transform hover:-translate-y-1"
+                  className="group flex items-center gap-3 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold text-xs uppercase tracking-[0.16em] px-7 py-4 rounded-full shadow-[0_10px_25px_rgba(0,0,0,0.5),0_0_20px_rgba(230,166,53,0.35)] border border-[#E6A635]/40 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] btn-sheen"
                 >
-                  <FileText className="size-4 text-white group-hover:scale-110 transition-transform" />
+                  <FileText className="size-4 text-[#1A110B] group-hover:scale-110 transition-transform" />
                   <span>Devis Sur-Mesure Express</span>
                 </Link>
               </div>
@@ -405,20 +438,20 @@ export function HeroSlider() {
         </div>
       )}
 
-      {/* Slider Controls & Trust Badges Bar (Bottom) */}
-      <div className="absolute bottom-4 sm:bottom-8 left-1/2 z-40 flex flex-col items-center -translate-x-1/2 gap-4 w-full max-w-4xl px-4">
+      {/* Slider Controls Bar (Bottom) */}
+      <div className="absolute bottom-3 sm:bottom-6 left-1/2 z-40 flex flex-col items-center -translate-x-1/2 w-full max-w-md px-4">
         
         {/* Controls Bar */}
-        <div className="flex items-center gap-6 sm:gap-8 bg-[#1A1512]/75 backdrop-blur-md px-6 sm:px-8 py-2.5 sm:py-3 rounded-full border border-[#D4AF37]/25 shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
+        <div className="flex items-center gap-5 sm:gap-6 bg-[#3B271C]/90 backdrop-blur-xl px-5 sm:px-7 py-2 sm:py-2.5 rounded-full border border-[#E6A635]/40 shadow-[0_10px_30px_rgba(0,0,0,0.75)]">
           <button
             onClick={() => paginate(-1)}
-            className="p-1.5 rounded-full bg-[#F7F3EC]/10 text-[#F7F3EC] hover:bg-[#D4AF37] hover:text-[#1A1512] hover:scale-110 transition-all duration-300"
-            aria-label="Previous slide"
+            className="p-1 rounded-full bg-[#F7F4EE]/10 text-white hover:bg-[#E6A635] hover:text-[#1A110B] hover:scale-110 transition-all duration-300 cursor-pointer"
+            aria-label="Diapositive précédente"
           >
-            <ChevronLeft className="size-4 sm:size-5" />
+            <ChevronLeft className="size-3.5 sm:size-4" />
           </button>
 
-          <div className="flex gap-2.5 items-center">
+          <div className="flex gap-2 items-center">
             {SLIDES.map((_, idx) => (
               <button
                 key={idx}
@@ -426,45 +459,23 @@ export function HeroSlider() {
                   setDirection(idx > current ? 1 : -1)
                   setCurrent(idx)
                 }}
-                className={`h-1.5 transition-all duration-500 rounded-full ${
-                  idx === current ? 'w-8 sm:w-10 bg-[#D4AF37]' : 'w-2 bg-[#F7F3EC]/50 hover:bg-[#F7F3EC]/80 hover:w-4'
+                className={`h-1.5 transition-all duration-500 rounded-full cursor-pointer ${
+                  idx === current ? 'w-7 sm:w-9 bg-[#E6A635] shadow-[0_0_8px_#E6A635]' : 'w-2 bg-white/40 hover:bg-white/80 hover:w-3.5'
                 }`}
-                aria-label={`Go to slide ${idx + 1}`}
+                aria-label={`Aller à la diapositive ${idx + 1}`}
               />
             ))}
           </div>
 
           <button
             onClick={() => paginate(1)}
-            className="p-1.5 rounded-full bg-[#F7F3EC]/10 text-[#F7F3EC] hover:bg-[#D4AF37] hover:text-[#1A1512] hover:scale-110 transition-all duration-300"
-            aria-label="Next slide"
+            className="p-1 rounded-full bg-[#F7F4EE]/10 text-white hover:bg-[#E6A635] hover:text-[#1A110B] hover:scale-110 transition-all duration-300 cursor-pointer"
+            aria-label="Diapositive suivante"
           >
-            <ChevronRight className="size-4 sm:size-5" />
+            <ChevronRight className="size-3.5 sm:size-4" />
           </button>
         </div>
 
-        {/* Reassurance Trust Badges */}
-        <div className="hidden md:flex items-center justify-center gap-6 text-[10px] tracking-wider uppercase text-[#E8DCCB]/90 bg-[#1A1512]/60 backdrop-blur-md px-6 py-2 rounded-full border border-[#E8DCCB]/10">
-          <div className="flex items-center gap-1.5">
-            <TreePine className="size-3.5 text-[#D4AF37]" />
-            <span>100% Bois Noble (Noyer & Olivier)</span>
-          </div>
-          <span className="text-[#D4AF37]/40">•</span>
-          <div className="flex items-center gap-1.5">
-            <Ruler className="size-3.5 text-[#D4AF37]" />
-            <span>Création Sur-Mesure & Plan 3D</span>
-          </div>
-          <span className="text-[#D4AF37]/40">•</span>
-          <div className="flex items-center gap-1.5">
-            <ShieldCheck className="size-3.5 text-[#D4AF37]" />
-            <span>Livraison & Restauration d&apos;Art</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Scroll cue */}
-      <div className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 text-[#F7F3EC]/80">
-        <ArrowDown className="size-6 animate-bounce" />
       </div>
     </section>
   )

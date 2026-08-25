@@ -80,17 +80,17 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
   const progress = (step / 4) * 100
 
   return (
-    <div className="w-full max-w-3xl mx-auto bg-stone-900/60 backdrop-blur-md rounded-2xl border border-[#E8DCCB]/20 p-6 md:p-10 shadow-2xl text-[#3A2A21]">
+    <div className="w-full max-w-3xl mx-auto bg-[#3B271C]/95 backdrop-blur-2xl rounded-3xl border border-[#E6A635]/40 p-6 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.7)] text-[#F7F4EE]">
       
       {/* Progress Header */}
-      <div className="mb-10">
-        <div className="flex justify-between items-center text-xs uppercase tracking-widest text-[#C17D59]/80 mb-3 font-semibold">
-          <span>Création Sur Mesure</span>
+      <div className="mb-8">
+        <div className="flex justify-between items-center text-xs uppercase tracking-widest text-[#F2BD52] mb-3 font-bold">
+          <span>Création Sur-Mesure 3D</span>
           <span>Étape {step} sur 4</span>
         </div>
-        <div className="w-full h-1 bg-stone-800 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-[#241812] rounded-full overflow-hidden border border-[#E6A635]/25">
           <motion.div 
-            className="h-full bg-[#E8DCCB]"
+            className="h-full bg-gradient-to-r from-[#F3C45E] to-[#E6A635] shadow-[0_0_10px_#E6A635]"
             initial={{ width: '25%' }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
@@ -99,8 +99,8 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-lg bg-red-950/40 border border-red-500/30 flex gap-3 text-sm text-red-300 items-start">
-          <AlertCircle className="size-5 shrink-0" />
+        <div className="mb-6 p-4 rounded-xl bg-red-950/60 border border-red-500/40 flex gap-3 text-xs text-red-300 items-start">
+          <AlertCircle className="size-4.5 shrink-0" />
           <p>{error}</p>
         </div>
       )}
@@ -111,12 +111,12 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center py-12 flex flex-col items-center"
         >
-          <div className="w-16 h-16 rounded-full bg-[#E8DCCB]/10 border border-[#E8DCCB] text-[#C17D59] flex items-center justify-center mb-6">
+          <div className="size-16 rounded-full bg-[#E6A635]/20 border-2 border-[#E6A635] text-[#F2BD52] flex items-center justify-center mb-6">
             <Check className="size-8" />
           </div>
-          <h3 className="font-heading text-3xl text-[#C17D59] mb-4">Demande transmise</h3>
-          <p className="text-[#3A2A21]/70 max-w-md leading-relaxed font-light mb-8">
-            Hechmi, Adel et l&apos;équipe de l&apos;Atelier Aschi ont bien reçu votre projet de création sur-mesure. Nous allons étudier vos choix et vous recontacter par e-mail ou téléphone très rapidement.
+          <h3 className="font-heading text-2xl sm:text-3xl text-gold-gradient mb-3">Demande transmise avec succès</h3>
+          <p className="text-[#EAE4D9]/85 text-xs sm:text-sm max-w-md leading-relaxed font-light mb-8">
+            Adel, Ismail et l&apos;équipe de l&apos;Atelier Aschi ont bien reçu votre projet. Nous allons étudier vos choix et vous recontacter avec une proposition et des plans 3D sous 24h ouvrées.
           </p>
           <button
             onClick={() => {
@@ -133,7 +133,7 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
                 message: ''
               })
             }}
-            className="rounded-full border border-[#E8DCCB] px-6 py-3 text-xs uppercase tracking-widest text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut transition-colors"
+            className="btn-sheen rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] px-7 py-3.5 text-xs uppercase tracking-widest text-[#1A110B] font-bold shadow-lg cursor-pointer"
           >
             Faire une autre demande
           </button>
@@ -151,28 +151,28 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="flex flex-col gap-6"
+                className="flex flex-col gap-5 text-left"
               >
                 <div>
-                  <h3 className="font-heading text-2xl text-white mb-2 flex items-center gap-2">
-                    <Hammer className="size-5 text-[#C17D59]" /> Quelle pièce souhaitez-vous créer ?
+                  <h3 className="font-heading text-xl sm:text-2xl text-[#F7F4EE] mb-1.5 flex items-center gap-2">
+                    <Hammer className="size-5 text-[#F2BD52]" /> Quelle pièce souhaitez-vous créer ?
                   </h3>
-                  <p className="text-sm text-[#3A2A21]/50 font-light">Sélectionnez le type d&apos;ouvrage pour votre demeure.</p>
+                  <p className="text-xs text-[#EAE4D9]/80 font-light">Sélectionnez le type d&apos;ouvrage pour votre intérieur.</p>
                 </div>
                 
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {TYPES.map((t) => (
                     <div
                       key={t.id}
                       onClick={() => setFormData({ ...formData, type: t.id })}
-                      className={`p-5 rounded-xl border cursor-pointer transition-all duration-300 flex flex-col justify-between min-h-[140px] ${
+                      className={`p-4 sm:p-5 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col justify-between min-h-[130px] ${
                         formData.type === t.id
-                          ? 'border-[#E8DCCB] bg-[#E8DCCB]/5 shadow-[0_4px_15px_rgba(212,175,55,0.15)]'
-                          : 'border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10'
+                          ? 'border-[#E6A635] bg-[#E6A635] text-[#1A110B] shadow-[0_4px_15px_rgba(230,166,53,0.35)] scale-[1.02]'
+                          : 'border-[#E6A635]/25 bg-[#241812]/80 text-[#F7F4EE] hover:border-[#E6A635]/60 hover:bg-[#2E1E16]'
                       }`}
                     >
-                      <h4 className="font-heading text-lg text-white font-medium">{t.label}</h4>
-                      <p className="text-xs text-[#3A2A21]/60 leading-relaxed font-light mt-3">{t.desc}</p>
+                      <h4 className={`font-heading text-base font-medium ${formData.type === t.id ? 'text-[#1A110B] font-bold' : 'text-[#F7F4EE]'}`}>{t.label}</h4>
+                      <p className={`text-[11px] leading-relaxed font-light mt-2 ${formData.type === t.id ? 'text-[#1A110B]/85' : 'text-[#EAE4D9]/75'}`}>{t.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -187,33 +187,33 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="flex flex-col gap-6"
+                className="flex flex-col gap-5 text-left"
               >
                 <div>
-                  <h3 className="font-heading text-2xl text-white mb-2 flex items-center gap-2">
-                    <Sparkles className="size-5 text-[#C17D59]" /> Quelle essence de bois préférez-vous ?
+                  <h3 className="font-heading text-xl sm:text-2xl text-[#F7F4EE] mb-1.5 flex items-center gap-2">
+                    <Sparkles className="size-5 text-[#F2BD52]" /> Quelle essence de bois préférez-vous ?
                   </h3>
-                  <p className="text-sm text-[#3A2A21]/50 font-light">Le choix de la matière détermine la couleur naturelle et le caractère de la pièce.</p>
+                  <p className="text-xs text-[#EAE4D9]/80 font-light">Le choix de la matière détermine la couleur naturelle et la patine de la pièce.</p>
                 </div>
                 
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-3">
                   {WOODS.map((w) => (
                     <div
                       key={w.id}
                       onClick={() => setFormData({ ...formData, wood: w.id })}
-                      className={`p-5 rounded-xl border cursor-pointer transition-all duration-300 flex flex-col justify-between min-h-[160px] ${
+                      className={`p-4 sm:p-5 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col justify-between min-h-[140px] ${
                         formData.wood === w.id
-                          ? 'border-[#E8DCCB] bg-[#E8DCCB]/5 shadow-[0_4px_15px_rgba(212,175,55,0.15)]'
-                          : 'border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10'
+                          ? 'border-[#E6A635] bg-[#E6A635] text-[#1A110B] shadow-[0_4px_15px_rgba(230,166,53,0.35)] scale-[1.02]'
+                          : 'border-[#E6A635]/25 bg-[#241812]/80 text-[#F7F4EE] hover:border-[#E6A635]/60 hover:bg-[#2E1E16]'
                       }`}
                     >
                       <div>
-                        <h4 className="font-heading text-lg text-white font-medium">{w.label}</h4>
-                        <span className="text-[9px] uppercase tracking-wider text-[#C17D59]/80 bg-[#E8DCCB]/10 px-2 py-0.5 rounded-full mt-1.5 inline-block">
+                        <h4 className={`font-heading text-base font-medium ${formData.wood === w.id ? 'text-[#1A110B] font-bold' : 'text-[#F7F4EE]'}`}>{w.label}</h4>
+                        <span className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full mt-1.5 inline-block ${formData.wood === w.id ? 'bg-[#1A110B]/20 text-[#1A110B] font-bold' : 'bg-[#241812] text-[#F2BD52] border border-[#E6A635]/30'}`}>
                           Densité : {w.density}
                         </span>
                       </div>
-                      <p className="text-xs text-[#3A2A21]/60 leading-relaxed font-light mt-4">{w.desc}</p>
+                      <p className={`text-[11px] leading-relaxed font-light mt-3 ${formData.wood === w.id ? 'text-[#1A110B]/85' : 'text-[#EAE4D9]/75'}`}>{w.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -228,47 +228,47 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="flex flex-col gap-6"
+                className="flex flex-col gap-5 text-left"
               >
                 <div>
-                  <h3 className="font-heading text-2xl text-white mb-2">Style &amp; Dimensions</h3>
-                  <p className="text-sm text-[#3A2A21]/50 font-light">Déterminez l&apos;esthétique générale de l&apos;ouvrage.</p>
+                  <h3 className="font-heading text-xl sm:text-2xl text-[#F7F4EE] mb-1.5">Style &amp; Dimensions</h3>
+                  <p className="text-xs text-[#EAE4D9]/80 font-light">Déterminez l&apos;esthétique générale de l&apos;ouvrage.</p>
                 </div>
                 
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                   {/* Style of sculpture */}
-                  <div className="flex flex-col gap-3">
-                    <label className="text-xs uppercase tracking-wider text-[#C17D59] font-semibold">Style de Sculpture</label>
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold">Style de Sculpture</label>
                     <div className="grid gap-3 sm:grid-cols-3">
                       {STYLES.map((s) => (
                         <div
                           key={s.id}
                           onClick={() => setFormData({ ...formData, style: s.id })}
-                          className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 text-left ${
+                          className={`p-4 rounded-2xl border cursor-pointer transition-all duration-300 text-left ${
                             formData.style === s.id
-                              ? 'border-[#E8DCCB] bg-[#E8DCCB]/5 shadow-[0_4px_12px_rgba(212,175,55,0.1)]'
-                              : 'border-white/10 bg-white/5 hover:border-white/30'
+                              ? 'border-[#E6A635] bg-[#E6A635] text-[#1A110B] shadow-[0_4px_12px_rgba(230,166,53,0.3)]'
+                              : 'border-[#E6A635]/25 bg-[#241812]/80 text-[#F7F4EE] hover:border-[#E6A635]/60'
                           }`}
                         >
-                          <h5 className="font-heading text-base text-white font-medium">{s.label}</h5>
-                          <p className="text-xs text-[#3A2A21]/50 font-light mt-2">{s.desc}</p>
+                          <h5 className={`font-heading text-sm font-medium ${formData.style === s.id ? 'text-[#1A110B] font-bold' : 'text-[#F7F4EE]'}`}>{s.label}</h5>
+                          <p className={`text-[10.5px] font-light mt-1.5 ${formData.style === s.id ? 'text-[#1A110B]/85' : 'text-[#EAE4D9]/75'}`}>{s.desc}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Dimensions input */}
-                  <div className="flex flex-col gap-2">
-                    <label htmlFor="dimensions" className="text-xs uppercase tracking-wider text-[#C17D59] font-semibold text-left">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="dimensions" className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold text-left">
                       Dimensions Approximatives (ex: L 180 x H 90 x P 45 cm)
                     </label>
                     <input
                       id="dimensions"
                       type="text"
-                      placeholder="Laisser vide si vous ne savez pas"
+                      placeholder="Laisser vide si vous souhaitez notre conseil"
                       value={formData.dimensions}
                       onChange={(e) => setFormData({ ...formData, dimensions: e.target.value })}
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#E8DCCB] transition-colors text-left"
+                      className="w-full rounded-xl border border-[#E6A635]/30 bg-[#241812]/90 px-4 py-3 outline-none focus:border-[#E6A635] transition-colors text-left text-xs text-[#F7F4EE] placeholder:text-[#EAE4D9]/40"
                     />
                   </div>
                 </div>
@@ -283,59 +283,63 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="flex flex-col gap-5"
+                className="flex flex-col gap-4 text-left"
               >
                 <div>
-                  <h3 className="font-heading text-2xl text-white mb-2">Finalisons votre projet</h3>
-                  <p className="text-sm text-[#3A2A21]/50 font-light">Saisissez vos coordonnées pour recevoir votre étude gratuite.</p>
+                  <h3 className="font-heading text-xl sm:text-2xl text-[#F7F4EE] mb-1.5">Finalisons votre projet</h3>
+                  <p className="text-xs text-[#EAE4D9]/80 font-light">Saisissez vos coordonnées pour recevoir votre étude 3D et votre devis.</p>
                 </div>
                 
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="fullName" className="text-xs uppercase tracking-wider text-[#C17D59] font-semibold text-left">Nom complet *</label>
+                <div className="flex flex-col gap-3.5">
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="fullName" className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold text-left">Nom complet *</label>
                     <input
                       id="fullName"
                       type="text"
                       required
+                      placeholder="Ex: Mohamed Trabelsi"
                       value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                      className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#E8DCCB] transition-colors text-left"
+                      className="rounded-xl border border-[#E6A635]/30 bg-[#241812]/90 px-4 py-2.5 outline-none focus:border-[#E6A635] transition-colors text-left text-xs text-[#F7F4EE] placeholder:text-[#EAE4D9]/40"
                     />
                   </div>
                   
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="flex flex-col gap-1.5">
-                      <label htmlFor="email" className="text-xs uppercase tracking-wider text-[#C17D59] font-semibold text-left">Email *</label>
+                  <div className="grid gap-3.5 sm:grid-cols-2">
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="email" className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold text-left">Email *</label>
                       <input
                         id="email"
                         type="email"
                         required
+                        placeholder="Ex: contact@exemple.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#E8DCCB] transition-colors text-left"
+                        className="rounded-xl border border-[#E6A635]/30 bg-[#241812]/90 px-4 py-2.5 outline-none focus:border-[#E6A635] transition-colors text-left text-xs text-[#F7F4EE] placeholder:text-[#EAE4D9]/40"
                       />
                     </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label htmlFor="phone" className="text-xs uppercase tracking-wider text-[#C17D59] font-semibold text-left">Téléphone</label>
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="phone" className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold text-left">Téléphone *</label>
                       <input
                         id="phone"
                         type="tel"
+                        required
+                        placeholder="Ex: +216 55 000 000"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#E8DCCB] transition-colors text-left"
+                        className="rounded-xl border border-[#E6A635]/30 bg-[#241812]/90 px-4 py-2.5 outline-none focus:border-[#E6A635] transition-colors text-left text-xs text-[#F7F4EE] placeholder:text-[#EAE4D9]/40"
                       />
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="message" className="text-xs uppercase tracking-wider text-[#C17D59] font-semibold text-left">Détails ou demandes particulières</label>
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="message" className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold text-left">Détails ou demandes particulières</label>
                     <textarea
                       id="message"
-                      rows={4}
+                      rows={3}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="resize-none rounded-lg border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#E8DCCB] transition-colors text-left"
-                      placeholder="Décrivez votre projet..."
+                      className="resize-none rounded-xl border border-[#E6A635]/30 bg-[#241812]/90 px-4 py-2.5 outline-none focus:border-[#E6A635] transition-colors text-left text-xs text-[#F7F4EE] placeholder:text-[#EAE4D9]/40"
+                      placeholder="Décrivez vos préférences de patine, lieu de livraison..."
                     />
                   </div>
                 </div>
@@ -345,15 +349,15 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
           </AnimatePresence>
 
           {/* Navigation buttons */}
-          <div className="flex justify-between items-center mt-10 border-t border-white/10 pt-6">
+          <div className="flex justify-between items-center mt-8 border-t border-[#E6A635]/20 pt-5">
             <button
               type="button"
               onClick={handlePrev}
               disabled={step === 1 || loading}
-              className={`inline-flex items-center gap-2 text-xs uppercase tracking-wider font-semibold py-2 px-4 rounded-full transition-colors ${
+              className={`inline-flex items-center gap-1.5 text-xs uppercase tracking-wider font-semibold py-2 px-4 rounded-full transition-colors cursor-pointer ${
                 step === 1
-                  ? 'text-[#3A2A21]/20 cursor-not-allowed'
-                  : 'text-[#3A2A21]/60 hover:text-white hover:bg-white/5'
+                  ? 'text-[#EAE4D9]/30 cursor-not-allowed'
+                  : 'text-[#EAE4D9]/80 hover:text-white hover:bg-white/5'
               }`}
             >
               <ArrowLeft className="size-3.5" /> Précédent
@@ -363,17 +367,18 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
               <button
                 type="button"
                 onClick={handleNext}
-                className="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-semibold py-3 px-6 bg-[#E8DCCB] text-walnut rounded-full hover:scale-[1.03] transition-all"
+                className="btn-sheen inline-flex items-center gap-2 text-xs uppercase tracking-wider font-bold py-3 px-7 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] rounded-full hover:scale-[1.02] transition-all shadow-md cursor-pointer"
               >
-                Suivant <ArrowRight className="size-3.5" />
+                <span>Suivant</span>
+                <ArrowRight className="size-3.5" />
               </button>
             ) : (
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-semibold py-3 px-8 bg-[#E8DCCB] text-walnut rounded-full hover:scale-[1.03] transition-all disabled:opacity-50"
+                className="btn-sheen inline-flex items-center gap-2 text-xs uppercase tracking-wider font-bold py-3 px-8 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] rounded-full hover:scale-[1.02] transition-all shadow-lg disabled:opacity-50 cursor-pointer"
               >
-                {loading ? 'Envoi en cours...' : 'Soumettre le projet'}
+                <span>{loading ? 'Envoi en cours...' : 'Demander mon Devis 3D'}</span>
               </button>
             )}
           </div>

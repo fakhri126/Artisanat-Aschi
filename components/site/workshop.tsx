@@ -13,7 +13,7 @@ const PROCESS_STEPS = [
     startTime: 0,
     endTime: 5,
     subtitle: 'Étape 1 • Sélection Noble',
-    script: "Tout commence par le choix du noyer massif. L'artisan étudie le grain, devine la veine et écoute la matière. Seules les pièces d'exception sont retenues pour la création.",
+    script: "Tout commence par le choix du noyer massif centenaire. L'artisan étudie le fil du bois, devine la veine et écoute la matière. Seules les pièces d'exception sont retenues pour la création.",
   },
   {
     num: '02',
@@ -22,7 +22,7 @@ const PROCESS_STEPS = [
     startTime: 5,
     endTime: 10,
     subtitle: 'Étape 2 • Le Ciseau & La Gravure',
-    script: "Le ciseau danse sur le bois. Arabesques, motifs floraux et géométries traditionnelles : chaque entaille est sculptée à la main avec une précision transmise depuis 1960.",
+    script: "Le ciseau danse sur le bois. Arabesques, entrelacs et géométries traditionnelles : chaque relief est sculpté à la main avec une précision transmise depuis 1960.",
   },
   {
     num: '03',
@@ -40,7 +40,7 @@ const PROCESS_STEPS = [
     startTime: 15,
     endTime: 20,
     subtitle: 'Étape 4 • La Révélation Ultime',
-    script: "Huilé, poli et caressé : le bois noble prend vie. La pièce d'artisanat achevée conserve la chaleur de la main qui l'a façonnée pour des générations.",
+    script: "Huilé, poli et caressé : le bois noble prend vie. La pièce achevée conserve la chaleur de la main qui l'a façonnée pour traverser les générations.",
   },
 ]
 
@@ -82,31 +82,31 @@ export function Workshop() {
   const activeStep = PROCESS_STEPS[activeStepIndex]
 
   return (
-    <section id="atelier" className="relative bg-transparent py-24 md:py-36 overflow-hidden">
-      {/* Unified Background */}
+    <section id="atelier" className="relative bg-transparent py-10 sm:py-24 md:py-36 overflow-hidden">
+      {/* Unified Original Background */}
       <div className="absolute inset-0 z-0 opacity-60 brightness-75 pointer-events-none bg-[url('/images/bg-carved-wood.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
       {/* Darkening Overlay */}
       <div className="absolute inset-0 bg-black/30 pointer-events-none z-0" />
       
-      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-3 sm:px-8">
         
         {/* Header */}
-        <Reveal className="mx-auto max-w-3xl text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1A1512]/60 backdrop-blur-md border border-[#D4AF37]/40 text-[#D4AF37] text-xs font-bold uppercase tracking-[0.25em] shadow-md mb-6">
-            <Sparkles className="size-3.5 animate-pulse" />
+        <Reveal className="mx-auto max-w-3xl text-center mb-6 sm:mb-16">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#1A120B]/80 backdrop-blur-md border border-[#D4AF37]/40 text-[#D4AF37] text-[9px] sm:text-xs font-bold uppercase tracking-[0.18em] sm:tracking-[0.25em] shadow-lg mb-2 sm:mb-4">
+            <Sparkles className="size-2.5 sm:size-3.5 animate-pulse text-[#D4AF37]" />
             <span>Film Immersion Savoir-Faire</span>
           </div>
-          <h2 className="text-balance font-heading text-4xl font-light leading-tight text-[#E8DCCB] sm:text-5xl md:text-6xl">
+          <h2 className="text-balance font-heading text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-gold-gradient drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] leading-tight">
             Le geste, transmis et répété, devient un art
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-pretty text-base font-light leading-relaxed text-[#D4B896]">
+          <p className="mx-auto mt-1.5 sm:mt-4 max-w-2xl text-pretty text-[11px] sm:text-base font-light leading-relaxed text-[#E8DCCB] drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] px-2">
             Suivez en direct les 4 grandes séquences de création de notre atelier. Chaque étape est expliquée au rythme du geste de nos artisans.
           </p>
         </Reveal>
 
-        {/* Single Full-Width Video Frame with Synchronized Script Overlay */}
-        <Reveal delay={120} className="relative w-full max-w-6xl mx-auto">
-          <div className="relative aspect-[16/9] min-h-[420px] md:min-h-[550px] rounded-[2.5rem] overflow-hidden border-[6px] border-white/20 shadow-[0_25px_60px_rgba(0,0,0,0.85)] bg-[#1A1512]">
+        {/* 100% Fluid Responsive Video Frame on Mobile & Desktop */}
+        <Reveal delay={100} className="relative w-full max-w-6xl mx-auto">
+          <div className="relative w-full aspect-video min-h-[200px] sm:min-h-[420px] md:min-h-[550px] rounded-xl sm:rounded-3xl md:rounded-[2.5rem] overflow-hidden border-2 sm:border-4 border-[#D4AF37]/40 shadow-[0_20px_50px_rgba(0,0,0,0.85)] bg-[#1A1512]">
             
             {/* Background Video */}
             <video
@@ -120,49 +120,49 @@ export function Workshop() {
               className="absolute inset-0 size-full object-cover opacity-90 transition-opacity duration-1000"
             />
 
-            {/* Gradient Overlays for readable text without background box */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/50 pointer-events-none" />
+            {/* Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-black/40 pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent pointer-events-none" />
 
             {/* Sound Toggle Button (Top Right) */}
             <button
               onClick={toggleSound}
-              className="absolute top-6 right-6 z-30 group flex items-center gap-2.5 bg-[#1A1512]/80 hover:bg-[#C17D59] text-white backdrop-blur-md px-4 py-2.5 rounded-full border border-[#D4AF37]/40 shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="absolute top-2.5 right-2.5 sm:top-6 sm:right-6 z-30 group flex items-center gap-1.5 sm:gap-2.5 bg-[#1A1512]/85 hover:bg-[#C17D59] text-white backdrop-blur-md px-2.5 sm:px-4 py-1 sm:py-2 rounded-full border border-[#D4AF37]/40 shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
               aria-label={isMuted ? "Activer le son" : "Couper le son"}
             >
               {isMuted ? (
                 <>
-                  <VolumeX className="size-4 text-[#D4AF37] group-hover:text-white" />
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#E8DCCB] group-hover:text-white hidden sm:inline">Activer le son de l&apos;atelier</span>
+                  <VolumeX className="size-3 sm:size-4 text-[#D4AF37] group-hover:text-white" />
+                  <span className="text-[8px] sm:text-[10px] uppercase font-bold tracking-widest text-[#E8DCCB] group-hover:text-white hidden sm:inline">Activer le son de l&apos;atelier</span>
                 </>
               ) : (
                 <>
-                  <Volume2 className="size-4 text-emerald-400 group-hover:text-white animate-pulse" />
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-400 group-hover:text-white hidden sm:inline">Son de l&apos;atelier actif</span>
+                  <Volume2 className="size-3 sm:size-4 text-emerald-400 group-hover:text-white animate-pulse" />
+                  <span className="text-[8px] sm:text-[10px] uppercase font-bold tracking-widest text-emerald-400 group-hover:text-white hidden sm:inline">Son de l&apos;atelier actif</span>
                 </>
               )}
             </button>
 
-            {/* Synchronized Script Overlay — Completely Transparent without Background Box */}
-            <div className="absolute bottom-6 left-6 right-6 md:right-auto md:left-12 md:bottom-12 z-20 max-w-xl">
+            {/* Synchronized Script Overlay */}
+            <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:left-12 sm:bottom-12 z-20 max-w-xl">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeStep.num}
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                  className="space-y-2 pointer-events-none"
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="space-y-0.5 sm:space-y-2 pointer-events-none"
                 >
-                  <p className="text-xs md:text-sm font-semibold tracking-[0.25em] uppercase text-[#D4AF37] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                  <p className="text-[8.5px] sm:text-xs font-semibold tracking-[0.18em] sm:tracking-[0.25em] uppercase text-[#D4AF37] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                     {activeStep.subtitle}
                   </p>
 
-                  <h3 className="font-heading text-3xl md:text-4xl text-white font-light tracking-wide leading-tight drop-shadow-[0_3px_10px_rgba(0,0,0,0.9)]">
+                  <h3 className="font-heading text-sm sm:text-3xl md:text-4xl text-white font-normal tracking-wide leading-tight drop-shadow-[0_3px_10px_rgba(0,0,0,0.9)]">
                     {activeStep.title}
                   </h3>
 
-                  <p className="text-sm md:text-base font-extralight text-[#F7F3EC]/95 leading-relaxed tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] max-w-lg">
+                  <p className="text-[9.5px] sm:text-sm md:text-base font-extralight text-[#F7F3EC]/95 leading-relaxed tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] max-w-lg line-clamp-2 sm:line-clamp-none">
                     {activeStep.script}
                   </p>
                 </motion.div>
@@ -172,9 +172,9 @@ export function Workshop() {
           </div>
         </Reveal>
 
-        {/* 4 Interactive Chapter Timeline Cards below the Video */}
-        <Reveal delay={200} className="mt-10 max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* 4 Interactive Chapter Timeline Cards below the Video (Grid 2x2 on Mobile) */}
+        <Reveal delay={150} className="mt-3 sm:mt-10 max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
             {PROCESS_STEPS.map((step, idx) => {
               const IconComp = step.icon
               const isActive = idx === activeStepIndex
@@ -183,38 +183,38 @@ export function Workshop() {
                 <button
                   key={step.num}
                   onClick={() => jumpToStep(idx)}
-                  className={`group relative flex flex-col text-left p-5 rounded-2xl border transition-all duration-300 cursor-pointer ${
+                  className={`group relative flex flex-col text-left p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border transition-all duration-300 cursor-pointer ${
                     isActive
-                      ? 'bg-[#1A1512] border-[#D4AF37] shadow-[0_10px_25px_rgba(212,175,55,0.25)] scale-[1.02]'
+                      ? 'bg-[#1A1512] border-[#D4AF37] shadow-[0_8px_25px_rgba(212,175,55,0.25)] scale-[1.02]'
                       : 'bg-[#1A1512]/60 border-[#E8DCCB]/15 hover:border-[#D4AF37]/50 hover:bg-[#1A1512]/80'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className={`size-9 rounded-xl flex items-center justify-center transition-colors ${
+                  <div className="flex items-center justify-between mb-1.5 sm:mb-3">
+                    <div className={`size-6 sm:size-9 rounded-lg sm:rounded-xl flex items-center justify-center transition-colors ${
                       isActive ? 'bg-[#C17D59] text-white' : 'bg-[#C17D59]/20 text-[#D4AF37]'
                     }`}>
-                      <IconComp className="size-4" />
+                      <IconComp className="size-3 sm:size-4" />
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      {isActive && <Play className="size-3 text-[#D4AF37] animate-pulse" />}
-                      <span className={`font-mono text-xs font-bold ${isActive ? 'text-[#D4AF37]' : 'text-[#D4AF37]/60'}`}>
+                    <div className="flex items-center gap-1">
+                      {isActive && <Play className="size-2 sm:size-3 text-[#D4AF37] animate-pulse" />}
+                      <span className={`font-mono text-[10px] sm:text-xs font-bold ${isActive ? 'text-[#D4AF37]' : 'text-[#D4AF37]/60'}`}>
                         {step.num}
                       </span>
                     </div>
                   </div>
 
-                  <h3 className={`font-heading text-base font-medium mb-1.5 transition-colors ${
+                  <h3 className={`font-heading text-[10.5px] sm:text-base font-medium mb-0.5 sm:mb-1.5 transition-colors leading-tight line-clamp-1 ${
                     isActive ? 'text-[#D4AF37]' : 'text-[#E8DCCB]'
                   }`}>
                     {step.title}
                   </h3>
                   
-                  <p className="text-[11px] text-[#D4B896]/70 leading-relaxed font-light line-clamp-2">
-                    {step.desc}
+                  <p className="hidden sm:block text-[11px] text-[#D4B896]/70 leading-relaxed font-light line-clamp-2">
+                    {step.script}
                   </p>
 
                   {/* Active progress indicator line */}
-                  <div className={`mt-3 h-1 w-full rounded-full transition-all duration-500 ${
+                  <div className={`mt-1.5 sm:mt-3 h-0.5 sm:h-1 w-full rounded-full transition-all duration-500 ${
                     isActive ? 'bg-[#D4AF37]' : 'bg-white/10 group-hover:bg-white/20'
                   }`} />
                 </button>
@@ -227,5 +227,3 @@ export function Workshop() {
     </section>
   )
 }
-
-

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { adminApi, Relooking } from '@/lib/api'
-import { Plus, Edit2, Trash2, X, Image as ImageIcon, ArrowLeftRight } from 'lucide-react'
+import { adminApi, Relooking, QuoteRequest } from '@/lib/api'
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, ArrowLeftRight, InboxIcon, Phone, Mail, Clock, CheckCircle2, RefreshCw } from 'lucide-react'
 import { ImageUploader } from '@/components/site/image-uploader'
 
 const FALLBACK_RELOOKINGS: Relooking[] = [
@@ -13,6 +13,7 @@ const FALLBACK_RELOOKINGS: Relooking[] = [
     description: 'Restauration complète d\'une commode en placage de noyer desséchée. Décapage, comblement des fentes et vernissage traditionnel au tampon.',
     imageAvantUrl: '/relooking-before.jpg',
     imageApresUrl: '/relooking-after.jpg',
+    category: 'Meubles Anciens',
     createdDate: new Date().toISOString()
   },
   {
@@ -21,6 +22,7 @@ const FALLBACK_RELOOKINGS: Relooking[] = [
     description: 'Reconstitution des ornements sculptés endommagés sur un cadre en bois doré d\'époque et dorure fine à la feuille d\'or.',
     imageAvantUrl: '/mirror-before.jpg',
     imageApresUrl: '/mirror-after.jpg',
+    category: 'Miroirs & Cadres',
     createdDate: new Date().toISOString()
   },
   {
@@ -29,13 +31,17 @@ const FALLBACK_RELOOKINGS: Relooking[] = [
     description: 'Rénovation esthétique et protectrice d\'une porte d\'entrée en bois massif exposée aux intempéries.',
     imageAvantUrl: '/door-before.jpg',
     imageApresUrl: '/door-after.jpg',
+    category: 'Portes & Boiseries',
     createdDate: new Date().toISOString()
   }
 ]
 
 export default function AdminRelookingPage() {
+  const [activeTab, setActiveTab] = useState<'RELOOKINGS' | 'QUOTES'>('RELOOKINGS')
   const [relookings, setRelookings] = useState<Relooking[]>(FALLBACK_RELOOKINGS)
+  const [quotes, setQuotes] = useState<QuoteRequest[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingQuotes, setLoadingQuotes] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
   // Modal states
@@ -52,6 +58,7 @@ export default function AdminRelookingPage() {
 
   useEffect(() => {
     loadRelookings()
+    loadQuotes()
   }, [])
 
   const loadRelookings = async () => {
@@ -68,6 +75,44 @@ export default function AdminRelookingPage() {
       setRelookings(FALLBACK_RELOOKINGS)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadQuotes = async () => {
+    try {
+      setLoadingQuotes(true)
+      const allQuotes = await adminApi.getQuotes()
+      // Filter quote requests relating to Relooking / Restauration
+      const relookingQuotes = allQuotes.filter(q => {
+        const msg = (q.message || '').toLowerCase()
+        const det = (q.personalizationDetails || '').toLowerCase()
+        return msg.includes('relooking') || msg.includes('restauration') || msg.includes('rénovation') || det.includes('relooking') || det.includes('restauration')
+      })
+      setQuotes(relookingQuotes)
+    } catch (err) {
+      console.error('Failed to load relooking quotes:', err)
+      setQuotes([])
+    } finally {
+      setLoadingQuotes(false)
+    }
+  }
+
+  const handleUpdateQuoteStatus = async (id: number, status: string) => {
+    try {
+      await adminApi.updateQuoteStatus(id, status as any)
+      setQuotes(quotes.map(q => q.id === id ? { ...q, status: status as any } : q))
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleDeleteQuote = async (id: number) => {
+    if (!confirm('Supprimer cette demande de devis ?')) return
+    try {
+      await adminApi.deleteQuoteRequest(id)
+      setQuotes(quotes.filter(q => q.id !== id))
+    } catch (err) {
+      console.error(err)
     }
   }
 
@@ -141,19 +186,127 @@ export default function AdminRelookingPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-heading text-stone-800">Gestion des Relookings</h1>
-          <p className="text-stone-500 mt-1">Ajoutez vos projets Avant / Après</p>
+          <p className="text-stone-500 mt-1">Gérez les projets Avant / Après et les demandes de devis de restauration.</p>
         </div>
+        {activeTab === 'RELOOKINGS' && (
+          <button
+            onClick={() => openModal()}
+            className="flex items-center gap-2 bg-stone-900 text-white px-4 py-2 rounded-md hover:bg-stone-800 transition-colors"
+          >
+            <Plus className="size-4" />
+            Nouveau Relooking
+          </button>
+        )}
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="flex gap-3 border-b border-stone-200 pb-3">
         <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 bg-stone-900 text-white px-4 py-2 rounded-md hover:bg-stone-800 transition-colors"
+          onClick={() => setActiveTab('RELOOKINGS')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+            activeTab === 'RELOOKINGS'
+              ? 'bg-stone-900 text-white shadow-md'
+              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+          }`}
         >
-          <Plus className="size-4" />
-          Nouveau Relooking
+          <ArrowLeftRight className="size-4" /> Mes Restauration (Avant / Après)
+        </button>
+
+        <button
+          onClick={() => setActiveTab('QUOTES')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+            activeTab === 'QUOTES'
+              ? 'bg-[#C17D59] text-white shadow-md'
+              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+          }`}
+        >
+          <InboxIcon className="size-4" /> Demandes de Devis Relooking
+          {quotes.filter(q => q.status === 'PENDING').length > 0 && (
+            <span className="bg-white text-[#C17D59] text-[10px] font-black rounded-full px-2 py-0.5 ml-1">
+              {quotes.filter(q => q.status === 'PENDING').length}
+            </span>
+          )}
         </button>
       </div>
 
-      {/* List */}
-      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+      {/* TAB CONTENT 2: DEMANDES DE DEVIS RELOOKING */}
+      {activeTab === 'QUOTES' && (
+        <div className="bg-white rounded-xl border shadow-sm p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-xl text-stone-800 font-semibold">Demandes de Devis - Relooking & Restauration</h2>
+            <button onClick={loadQuotes} className="text-xs text-stone-500 hover:text-stone-800 flex items-center gap-1">
+              <RefreshCw className="size-3.5" /> Actualiser
+            </button>
+          </div>
+
+          {loadingQuotes ? (
+            <div className="p-8 text-center text-stone-500">Chargement des devis...</div>
+          ) : quotes.length === 0 ? (
+            <div className="p-12 text-center text-stone-400 bg-stone-50 rounded-xl border border-dashed border-stone-200">
+              <InboxIcon className="size-10 mx-auto mb-2 opacity-40 text-stone-400" />
+              <p>Aucune demande de devis reçue spécifiquement pour le Relooking.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-stone-50 border-b text-xs uppercase tracking-wider text-stone-600">
+                    <th className="p-4">Client</th>
+                    <th className="p-4">Contact</th>
+                    <th className="p-4">Message / Détails</th>
+                    <th className="p-4">Date</th>
+                    <th className="p-4">Statut</th>
+                    <th className="p-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y text-sm">
+                  {quotes.map((q) => (
+                    <tr key={q.id} className="hover:bg-stone-50/50">
+                      <td className="p-4 font-semibold text-stone-800">{q.fullName}</td>
+                      <td className="p-4 text-xs text-stone-600 space-y-1">
+                        <p className="flex items-center gap-1"><Mail className="size-3 text-[#C17D59]" /> {q.email}</p>
+                        <p className="flex items-center gap-1"><Phone className="size-3 text-[#C17D59]" /> {q.phoneNumber}</p>
+                      </td>
+                      <td className="p-4 max-w-xs">
+                        <p className="text-xs text-stone-700 bg-stone-100 p-2.5 rounded-lg border border-stone-200 leading-relaxed">{q.message}</p>
+                      </td>
+                      <td className="p-4 text-xs text-stone-500">
+                        {new Date(q.createdDate).toLocaleDateString('fr-FR')}
+                      </td>
+                      <td className="p-4">
+                        <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${
+                          q.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                          q.status === 'CONTACTED' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'
+                        }`}>
+                          {q.status === 'PENDING' ? 'En attente' : q.status === 'CONTACTED' ? 'Contacté' : 'Terminé'}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleUpdateQuoteStatus(q.id, 'CONTACTED')}
+                          className="px-2.5 py-1 text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md font-medium"
+                        >
+                          Contacté
+                        </button>
+                        <button
+                          onClick={() => handleDeleteQuote(q.id)}
+                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-md"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB CONTENT 1: RELOOKINGS LIST */}
+      {activeTab === 'RELOOKINGS' && (
+        <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-stone-500">Chargement...</div>
         ) : relookings.length === 0 ? (
@@ -225,6 +378,7 @@ export default function AdminRelookingPage() {
           </div>
         )}
       </div>
+      )}
 
       {/* Modal */}
       {modalOpen && (

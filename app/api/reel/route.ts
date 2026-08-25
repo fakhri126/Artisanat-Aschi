@@ -6,7 +6,7 @@ const dataFilePath = path.join(process.cwd(), 'public', 'reel-data.json')
 
 // Default data in case file doesn't exist
 const DEFAULT_DATA = {
-  videoUrl: '/Video.mp4',
+  videoUrl: '/Video-art.mp4',
   reviews: [
     {
       id: 1,
