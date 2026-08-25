@@ -75,19 +75,46 @@ const isOriginal = (label: string | null | undefined) => {
   return !label || label.trim().toLowerCase() === 'original'
 }
 
-const getDimensionBadge = (dim: string | null | undefined) => {
+const renderDimensionGauge = (dim: string | null | undefined) => {
   if (!dim) return null
   const d = dim.toLowerCase()
+  let level = 2
+  let label = 'Moyen'
+  let range = '80–150 cm'
+
   if (d.includes('petit')) {
-    return { label: 'Petit Format', size: '< 80 cm' }
+    level = 1
+    label = 'Petit'
+    range = '< 80 cm'
+  } else if (d.includes('grand')) {
+    level = 3
+    label = 'Grand'
+    range = '> 150 cm'
+  } else if (!d.includes('moyen')) {
+    label = dim
+    range = ''
+    level = 0
   }
-  if (d.includes('moyen')) {
-    return { label: 'Format Moyen', size: '80–150 cm' }
-  }
-  if (d.includes('grand')) {
-    return { label: 'Grand Format', size: '> 150 cm' }
-  }
-  return { label: dim, size: '' }
+
+  return (
+    <div className="inline-flex items-center gap-1.5 bg-[#FAF6F0] border border-[#DFCBB5] px-2 py-0.5 rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.03)] shrink-0 whitespace-nowrap" title={`Format ${label} ${range ? `(${range})` : ''}`}>
+      {level > 0 ? (
+        <div className="flex items-end gap-[2px] h-3 shrink-0" aria-hidden="true">
+          <span className={`w-[3px] rounded-xs transition-all ${level >= 1 ? 'h-1.5 bg-[#C17D59]' : 'h-1.5 bg-[#D8C7B4]'}`} />
+          <span className={`w-[3px] rounded-xs transition-all ${level >= 2 ? 'h-2.5 bg-[#C17D59]' : 'h-2.5 bg-[#D8C7B4]'}`} />
+          <span className={`w-[3px] rounded-xs transition-all ${level >= 3 ? 'h-3.5 bg-[#C17D59]' : 'h-3.5 bg-[#D8C7B4]'}`} />
+        </div>
+      ) : (
+        <Ruler className="size-3 text-[#C17D59] stroke-[2.4]" />
+      )}
+      <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#4A3222]">{label}</span>
+      {range && (
+        <span className="text-[8.5px] text-[#8C7A6B] font-medium opacity-85 border-l border-[#D5C2AD] pl-1 ml-0.5 lowercase font-mono">
+          {range}
+        </span>
+      )}
+    </div>
+  )
 }
 
 // ─── Utils ───────────────────────────────────────────────────────────────────
@@ -462,30 +489,15 @@ const CatalogProductCard = ({
       {/* MODERN ARTISANAL DETAILS SECTION */}
       <div className="pt-3 px-1 flex flex-col flex-1 justify-between gap-3">
         <div>
-          <div className="flex items-center justify-between gap-1.5 mb-2">
-            <span className="text-[9px] uppercase tracking-[0.2em] font-extrabold text-[#C17D59] bg-[#C17D59]/10 px-2.5 py-0.5 rounded-full border border-[#C17D59]/20 truncate">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-[#C17D59] truncate min-w-0">
               {model.category?.name || 'Création Unique'}
             </span>
-            
-            {(() => {
-              const dimBadge = getDimensionBadge(model.dimensions)
-              if (!dimBadge) return null
-              return (
-                <span className="inline-flex items-center gap-1.5 text-[9.5px] font-bold tracking-wider uppercase bg-gradient-to-r from-[#FAF6F0] to-[#F5EFEB] text-[#5A3E2B] border border-[#E2D2BE] px-2.5 py-1 rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.03)] shrink-0">
-                  <Ruler className="size-3 text-[#C17D59] stroke-[2.4]" />
-                  <span>{dimBadge.label}</span>
-                  {dimBadge.size && (
-                    <span className="text-[8.5px] text-[#8C7A6B] font-medium opacity-80 border-l border-[#D5C2AD] pl-1.5 ml-0.5">
-                      {dimBadge.size}
-                    </span>
-                  )}
-                </span>
-              )
-            })()}
+            {renderDimensionGauge(model.dimensions)}
           </div>
           
-          <h3 className="font-serif text-base sm:text-lg font-bold leading-snug text-[#2C1E16] group-hover:text-[#C17D59] transition-colors truncate">
-            {model.name}
+          <h3 className="font-serif text-[15px] sm:text-base md:text-lg font-bold leading-snug text-[#2C1E16] group-hover:text-[#C17D59] transition-colors line-clamp-1" title={model.name}>
+            {model.name ? model.name.replace(/--+/g, '—').trim() : 'Création Exclusive'}
           </h3>
 
           <p className="text-[11px] text-[#8C7A6B] font-medium tracking-wide line-clamp-1 mt-0.5">
@@ -643,13 +655,13 @@ export function CatalogPage() {
 
     const counts: Record<string, number> = {}
 
-    // Seed official categories so Lampes & Coffres, etc. appear consistently
+    // Seed official categories so Lampes Coffres, etc. appear consistently
     dbCategories.forEach(c => {
       counts[c.name] = 0
     })
     
     // Core categories guarantee
-    const coreCats = ['Buffets', 'Meubles TV', 'Miroirs', 'Lampes & Coffres', 'Portes', 'Tables']
+    const coreCats = ['Buffets', 'Meubles TV', 'Miroirs', 'Lampes Coffres', 'Portes', 'Tables']
     coreCats.forEach(c => {
       if (counts[c] === undefined) counts[c] = 0
     })

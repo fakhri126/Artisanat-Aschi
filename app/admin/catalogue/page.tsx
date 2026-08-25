@@ -284,7 +284,7 @@ export default function AdminCataloguePage() {
     
     let singular = catName
     if (singular.toLowerCase().includes('lampe') || singular.toLowerCase().includes('coffre')) {
-      singular = 'Lampe & Coffre'
+      singular = 'Lampe Coffre'
     } else if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
       singular = singular.slice(0, -1)
     }
@@ -311,7 +311,7 @@ export default function AdminCataloguePage() {
     const cat = allCats.find(c => c.id.toString() === catId)
     let singular = cat?.name || 'Création'
     if (singular.toLowerCase().includes('lampe') || singular.toLowerCase().includes('coffre')) {
-      singular = 'Lampe / Coffre'
+      singular = 'Lampe Coffre'
     } else if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
       singular = singular.slice(0, -1)
     }

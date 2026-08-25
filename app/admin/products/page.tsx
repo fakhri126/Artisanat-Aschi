@@ -291,7 +291,9 @@ export default function AdminProductsPage() {
     const catName = cat?.name || 'Création'
     
     let singular = catName
-    if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
+    if (singular.toLowerCase().includes('lampe') || singular.toLowerCase().includes('coffre')) {
+      singular = 'Lampe Coffre'
+    } else if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
       singular = singular.slice(0, -1)
     }
     if (singular.toLowerCase().includes('meuble')) {
@@ -316,7 +318,9 @@ export default function AdminProductsPage() {
   const buildAutoDescription = (modelName: string, catId: string, itemColor: string, itemDim: string, allCats: Category[]) => {
     const cat = allCats.find(c => c.id.toString() === catId)
     let singular = cat?.name || 'Création'
-    if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
+    if (singular.toLowerCase().includes('lampe') || singular.toLowerCase().includes('coffre')) {
+      singular = 'Lampe Coffre'
+    } else if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
       singular = singular.slice(0, -1)
     }
     if (singular.toLowerCase().includes('meuble')) {
