@@ -97,16 +97,18 @@ export default function BijouxDePortePage() {
           const mat = (p.materials || '').toLowerCase()
           const name = (p.name || '').toLowerCase()
           const pType = (p.type || '').toLowerCase()
+          if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux") || name.includes("porte bijou") || name.includes("porte-bijou") || name.includes("porte bijoux")) {
+            return false
+          }
           return (
-            catName.includes('porte') || 
-            catName.includes('bijou') || 
+            catName.includes('bijoux de porte') || 
             catName.includes('poign') || 
             catName.includes('bouton') || 
             catName.includes('tirant') || 
             catName.includes('rond') || 
             catName.includes('ovale') ||
             catType.includes('bijou') ||
-            pType.includes('bijou') ||
+            pType.includes('bijou de porte') ||
             pType.includes('poign') ||
             name.includes('bouton') || 
             name.includes('tirant') || 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass, Lamp, Folder } from 'lucide-react'
+import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass, Lamp, Folder, Gem } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { FadeIn } from '@/components/motion/fade-in'
 import { publicApi, Product, Category } from '@/lib/api'
@@ -38,7 +38,9 @@ const getCategoryIcon = (name: string) => {
   if (norm.includes('buffet')) return GripHorizontal
   if (norm.includes('tv')) return Tv
   if (norm.includes('miroir')) return Frame
+  if (norm.includes('porte bijou') || norm.includes('porte-bijou') || norm.includes('porte bijoux') || norm.includes('porte-bijoux')) return Gem
   if (norm.includes('porte')) return DoorClosed
+  if (norm.includes('lustre')) return Lamp
   if (norm.includes('lampe') || norm.includes('coffre') || norm.includes('luminaire')) return Lamp
   if (norm.includes('décoration') || norm.includes('deco')) return Sparkles
   if (norm.includes('table')) return LayoutDashboard
@@ -97,19 +99,19 @@ const renderDimensionGauge = (dim: string | null | undefined) => {
   }
 
   return (
-    <div className="inline-flex items-center gap-1.5 bg-[#FAF6F0] border border-[#DFCBB5] px-2 py-0.5 rounded-md shadow-[0_1px_2px_rgba(0,0,0,0.03)] shrink-0 whitespace-nowrap" title={`Format ${label} ${range ? `(${range})` : ''}`}>
+    <div className="inline-flex items-center gap-1.5 bg-[#241812]/95 border border-[#E6A635]/40 px-2 py-0.5 rounded-md shadow-sm shrink-0 whitespace-nowrap" title={`Format ${label} ${range ? `(${range})` : ''}`}>
       {level > 0 ? (
         <div className="flex items-end gap-[2px] h-3 shrink-0" aria-hidden="true">
-          <span className={`w-[3px] rounded-xs transition-all ${level >= 1 ? 'h-1.5 bg-[#C17D59]' : 'h-1.5 bg-[#D8C7B4]'}`} />
-          <span className={`w-[3px] rounded-xs transition-all ${level >= 2 ? 'h-2.5 bg-[#C17D59]' : 'h-2.5 bg-[#D8C7B4]'}`} />
-          <span className={`w-[3px] rounded-xs transition-all ${level >= 3 ? 'h-3.5 bg-[#C17D59]' : 'h-3.5 bg-[#D8C7B4]'}`} />
+          <span className={`w-[3px] rounded-xs transition-all ${level >= 1 ? 'h-1.5 bg-[#F2BD52]' : 'h-1.5 bg-[#E6A635]/25'}`} />
+          <span className={`w-[3px] rounded-xs transition-all ${level >= 2 ? 'h-2.5 bg-[#F2BD52]' : 'h-2.5 bg-[#E6A635]/25'}`} />
+          <span className={`w-[3px] rounded-xs transition-all ${level >= 3 ? 'h-3.5 bg-[#F2BD52]' : 'h-3.5 bg-[#E6A635]/25'}`} />
         </div>
       ) : (
-        <Ruler className="size-3 text-[#C17D59] stroke-[2.4]" />
+        <Ruler className="size-3 text-[#F2BD52] stroke-[2.4]" />
       )}
-      <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#4A3222]">{label}</span>
+      <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#F7F4EE]">{label}</span>
       {range && (
-        <span className="text-[8.5px] text-[#8C7A6B] font-medium opacity-85 border-l border-[#D5C2AD] pl-1 ml-0.5 lowercase font-mono">
+        <span className="text-[8.5px] text-[#D8C7B4] font-medium border-l border-[#E6A635]/30 pl-1 ml-0.5 lowercase font-mono">
           {range}
         </span>
       )}
@@ -366,23 +368,25 @@ const CatalogProductCard = ({
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(e, model.id); }}
-            className={`size-8 rounded-full backdrop-blur-md transition-all shadow-md flex items-center justify-center active:scale-95 cursor-pointer ${
+            aria-label={favorites.includes(model.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+            className={`size-9 rounded-full backdrop-blur-md transition-all shadow-md flex items-center justify-center active:scale-95 cursor-pointer ${
               favorites.includes(model.id)
-                ? 'bg-[#241812] text-red-400 border border-red-500/50'
-                : 'bg-[#241812]/90 hover:bg-[#3B271C] text-[#EAE4D9] hover:text-red-400 border border-[#E6A635]/35'
+                ? 'bg-[#241812] text-red-400 border border-red-500/60 ring-2 ring-red-500/20'
+                : 'bg-[#241812]/90 hover:bg-[#3B271C] text-[#EAE4D9] hover:text-red-400 border border-[#E6A635]/40'
             }`}
             title="Ajouter aux favoris"
           >
-            <Heart className={`size-3.5 transition-colors ${favorites.includes(model.id) ? 'fill-red-400' : ''}`} />
+            <Heart className={`size-4 transition-colors ${favorites.includes(model.id) ? 'fill-red-400' : ''}`} />
           </button>
 
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickViewProduct(model); setQuickViewImageIndex(0); }}
-            className="size-8 rounded-full bg-[#241812]/90 hover:bg-[#3B271C] text-[#EAE4D9] hover:text-[#F2BD52] backdrop-blur-md border border-[#E6A635]/35 shadow-md transition-all flex items-center justify-center active:scale-95 cursor-pointer"
+            aria-label="Aperçu rapide du modèle"
+            className="size-9 rounded-full bg-[#241812]/90 hover:bg-[#3B271C] text-[#EAE4D9] hover:text-[#F2BD52] backdrop-blur-md border border-[#E6A635]/40 shadow-md transition-all flex items-center justify-center active:scale-95 cursor-pointer"
             title="Aperçu rapide"
           >
-            <Eye className="size-3.5" />
+            <Eye className="size-4" />
           </button>
         </div>
 
@@ -391,7 +395,7 @@ const CatalogProductCard = ({
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickViewProduct(model); setQuickViewImageIndex(0); }}
-            className="btn-sheen w-full py-2 rounded-xl bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold text-[10px] uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="btn-sheen w-full py-2.5 rounded-xl bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold text-[10px] uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <Eye className="size-3.5" /> Explorer l&apos;inspiration
           </button>
@@ -407,7 +411,7 @@ const CatalogProductCard = ({
                 e.stopPropagation()
                 setActiveImageIndex(i => i === 0 ? model.images.length - 1 : i - 1)
               }}
-              className="size-8 rounded-full bg-[#2C1E16]/85 hover:bg-[#C17D59] text-white backdrop-blur-md transition-all pointer-events-auto shadow-lg flex items-center justify-center border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+              className="size-8 rounded-full bg-[#2C1E16]/90 hover:bg-[#E6A635] hover:text-[#1A110B] text-white backdrop-blur-md transition-all pointer-events-auto shadow-lg flex items-center justify-center border border-white/20 hover:scale-110 active:scale-95 group/arrow"
               title="Photo précédente"
             >
               <ChevronLeft className="size-4 transition-transform group-hover/arrow:-translate-x-0.5" />
@@ -420,7 +424,7 @@ const CatalogProductCard = ({
                 e.stopPropagation()
                 setActiveImageIndex(i => i === model.images.length - 1 ? 0 : i + 1)
               }}
-              className="size-8 rounded-full bg-[#2C1E16]/85 hover:bg-[#C17D59] text-white backdrop-blur-md transition-all pointer-events-auto shadow-lg flex items-center justify-center border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+              className="size-8 rounded-full bg-[#2C1E16]/90 hover:bg-[#E6A635] hover:text-[#1A110B] text-white backdrop-blur-md transition-all pointer-events-auto shadow-lg flex items-center justify-center border border-white/20 hover:scale-110 active:scale-95 group/arrow"
               title="Photo suivante"
             >
               <ChevronRight className="size-4 transition-transform group-hover/arrow:translate-x-0.5" />
@@ -442,7 +446,7 @@ const CatalogProductCard = ({
                 }}
                 className={`transition-all rounded-full cursor-pointer ${
                   idx === activeImageIndex
-                    ? 'w-3.5 h-1.5 bg-[#C17D59]'
+                    ? 'w-3.5 h-1.5 bg-[#F2BD52]'
                     : 'w-1.5 h-1.5 bg-white/60 hover:bg-white'
                 }`}
                 title={`Vue ${idx + 1}`}
@@ -453,7 +457,7 @@ const CatalogProductCard = ({
 
         {/* VIEW COUNT BADGE */}
         {hasMultipleImages && (
-          <div className="absolute bottom-3 right-3 z-20 px-2.5 py-0.5 rounded-full bg-[#241812]/80 backdrop-blur-md text-[8.5px] font-bold text-[#F2BD52] border border-[#E6A635]/30 group-hover/img:hidden">
+          <div className="absolute bottom-3 right-3 z-20 px-2.5 py-0.5 rounded-full bg-[#241812]/85 backdrop-blur-md text-[8.5px] font-bold text-[#F2BD52] border border-[#E6A635]/30 group-hover/img:hidden">
             📷 {model.images.length} vues
           </div>
         )}
@@ -476,11 +480,11 @@ const CatalogProductCard = ({
               }}
               className={`relative size-8 shrink-0 rounded-lg overflow-hidden border transition-all cursor-pointer ${
                 idx === activeImageIndex 
-                  ? 'border-[#C17D59] opacity-100 scale-105 shadow-md ring-2 ring-[#C17D59]/30' 
-                  : 'border-white opacity-60 hover:opacity-100 shadow-xs'
+                  ? 'border-[#F2BD52] opacity-100 scale-105 shadow-md ring-2 ring-[#F2BD52]/40' 
+                  : 'border-white/30 opacity-60 hover:opacity-100 shadow-xs'
               }`}
             >
-              <img src={img.imageUrl} alt="" className="size-full object-cover" />
+              <img src={img.imageUrl} alt="" loading="lazy" decoding="async" className="size-full object-cover" />
             </button>
           ))}
         </div>
@@ -490,29 +494,35 @@ const CatalogProductCard = ({
       <div className="pt-3 px-1 flex flex-col flex-1 justify-between gap-3 text-left">
         <div>
           <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-[#C17D59] truncate min-w-0">
+            <span className="text-[10px] uppercase tracking-[0.2em] font-extrabold text-[#F2BD52] truncate min-w-0">
               {model.category?.name || 'Création Unique'}
             </span>
-            {renderDimensionGauge(model.dimensions)}
+            {!model.category?.name?.toLowerCase().includes('lustre') && renderDimensionGauge(model.dimensions)}
           </div>
           
-          <h3 className="font-serif text-[15px] sm:text-base md:text-lg font-bold leading-snug text-[#2C1E16] group-hover:text-[#C17D59] transition-colors line-clamp-1" title={model.name}>
+          <h3 className="font-serif text-[15px] sm:text-base md:text-lg font-bold leading-snug text-[#F7F4EE] group-hover:text-[#F2BD52] transition-colors line-clamp-1" title={model.name}>
             {model.name ? model.name.replace(/--+/g, '—').trim() : 'Création Exclusive'}
           </h3>
 
-          <p className="text-[11px] text-[#8C7A6B] font-medium tracking-wide line-clamp-1 mt-0.5">
+          <p className="text-[11.5px] text-[#D8C7B4]/85 font-medium tracking-wide line-clamp-1 mt-0.5">
             {model.materials || 'Bois massif noble & Céramique artisanale'}
           </p>
         </div>
 
-        <div className="pt-2.5 border-t border-[#E8DCCB]/60 flex items-center justify-between gap-1.5">
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-[#5A453A] font-bold uppercase tracking-wider truncate">
-            <span className="size-3 rounded-full border border-black/15 shrink-0 shadow-sm" style={{ background: getColorHex(displayColor) }} />
-            <span className="truncate max-w-[100px]">{displayColor}</span>
-          </div>
+        <div className="pt-2.5 border-t border-[#E6A635]/25 flex items-center justify-between gap-1.5">
+          {displayColor && displayColor.toLowerCase() !== 'original' && displayColor.toLowerCase() !== 'non spécifié' && !model.category?.name?.toLowerCase().includes('lustre') ? (
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-[#EAE4D9] font-bold uppercase tracking-wider truncate">
+              <span className="size-3 rounded-full border border-black/20 shrink-0 shadow-sm" style={{ background: getColorHex(displayColor) }} />
+              <span className="truncate max-w-[100px]">{displayColor}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 text-[10px] text-[#F2BD52] font-semibold tracking-wider uppercase truncate">
+              <span>✦ Atelier Signé</span>
+            </div>
+          )}
 
-          <div className="flex items-center gap-1 bg-gradient-to-r from-[#2C1E16] via-[#5C3317] to-[#C17D59] text-white px-3.5 py-1.5 rounded-full shadow-md shrink-0">
-            <span className="font-serif text-xs sm:text-sm font-bold tracking-wide">
+          <div className="flex items-center gap-1 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-3.5 py-1.5 rounded-full shadow-md shrink-0">
+            <span className="font-serif text-xs sm:text-sm font-extrabold tracking-wide">
               {model.price ? `${model.price} TND` : 'Sur devis'}
             </span>
           </div>
@@ -530,6 +540,7 @@ export function CatalogPage() {
   const [dimension, setDimension] = useState('Tout')
   const [aiQuery, setAiQuery] = useState('')
   const [sortBy, setSortBy] = useState('featured')
+  const [viewDensity, setViewDensity] = useState<'standard' | 'spacious'>('standard')
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 12
 
@@ -606,6 +617,9 @@ export function CatalogPage() {
         const isHandleProduct = (p: Product) => {
           const catName = p.category?.name?.toLowerCase() || ''
           const name = p.name?.toLowerCase() || ''
+          if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux") || name.includes("porte bijou") || name.includes("porte-bijou") || name.includes("porte bijoux")) {
+            return false
+          }
           return (
             catName.includes("bijoux de porte") || 
             catName.includes("ronds") || 
@@ -622,6 +636,9 @@ export function CatalogPage() {
         
         const isHandleCat = (c: Category) => {
           const catName = c.name?.toLowerCase() || ''
+          if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux")) {
+            return false
+          }
           return (
             catName.includes("bijoux de porte") || 
             catName.includes("ronds") || 
@@ -630,7 +647,14 @@ export function CatalogPage() {
             catName.includes("poignee")
           )
         }
-        setDbCategories(catData.filter(c => !isHandleCat(c)))
+        const rawCats = catData.filter(c => !isHandleCat(c))
+        if (!rawCats.some(c => c.name.toLowerCase().includes('lustre'))) {
+          rawCats.push({ id: 999, name: 'Lustres', description: 'Lustres et suspensions artisanales' } as any)
+        }
+        if (!rawCats.some(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux'))) {
+          rawCats.push({ id: 998, name: 'Porte Bijoux', description: 'Porte-bijoux et présentoirs artisanaux' } as any)
+        }
+        setDbCategories(rawCats)
       } catch (err) {
         console.error("Failed to load catalog products:", err)
       } finally {
@@ -645,13 +669,13 @@ export function CatalogPage() {
     const allProducts = dbProducts
     const counts: Record<string, number> = {}
 
-    // Seed official categories so Lampes Coffres, etc. appear consistently
+    // Seed official categories so Lampes Coffres, Lustres, Porte Bijoux, etc. appear consistently
     dbCategories.forEach(c => {
       counts[c.name] = 0
     })
     
     // Core categories guarantee
-    const coreCats = ['Buffets', 'Meubles TV', 'Miroirs', 'Lampes Coffres', 'Portes', 'Tables']
+    const coreCats = ['Buffets', 'Meubles TV', 'Miroirs', 'Lampes Coffres', 'Lustres', 'Porte Bijoux', 'Portes', 'Tables']
     coreCats.forEach(c => {
       if (counts[c] === undefined) counts[c] = 0
     })
@@ -989,7 +1013,7 @@ export function CatalogPage() {
                     : (quickViewProduct.dimensions || 'Sur mesure')
 
                   return (
-                    <div className="grid grid-cols-2 gap-2.5 mb-6 p-4 rounded-2xl bg-[#241812]/90 border border-[#E6A635]/30">
+                    <div className="grid grid-cols-2 gap-2.5 mb-4 p-4 rounded-2xl bg-[#241812]/90 border border-[#E6A635]/30">
                       <div className="p-2.5 rounded-xl bg-[#3B271C] border border-[#E6A635]/25">
                         <p className="text-[9px] uppercase tracking-wider text-[#F2BD52] font-bold mb-0.5">Dimensions</p>
                         <p className="text-xs font-semibold text-[#F7F4EE]">📏 {actualDimension}</p>
@@ -1015,19 +1039,33 @@ export function CatalogPage() {
                   )
                 })()}
 
+                {/* Artisan Trust & Lead-Time Badge */}
+                <div className="mb-5 flex items-center gap-2 p-2.5 rounded-xl bg-[#241812]/80 border border-[#E6A635]/25 text-[11px] text-[#D8C7B4]">
+                  <Sparkles className="size-4 text-[#F2BD52] shrink-0" />
+                  <span><strong className="text-[#F2BD52]">Confection d&apos;Atelier :</strong> Pièce unique faite main. Délai estimé 2 à 3 semaines.</span>
+                </div>
+
                 {/* CTAs */}
-                <div className="flex flex-col sm:flex-row gap-3 mt-auto">
+                <div className="flex flex-col sm:flex-row gap-2.5 mt-auto">
                   <Link
                     href={`/custom-creation?model=${encodeURIComponent(quickViewProduct.name)}`}
-                    className="btn-sheen flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer"
+                    className="btn-sheen flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-5 py-3 text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer"
                   >
                     <MessageCircle className="size-4" /> Devis Sur-Mesure 3D
                   </Link>
+                  <a
+                    href={`https://wa.me/21698338166?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite des informations sur le modèle : ${quickViewProduct.name}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[#25D366]/40 bg-[#241812]/90 hover:bg-[#25D366]/20 px-4 py-3 text-xs font-bold uppercase tracking-wider text-[#25D366] transition-all cursor-pointer"
+                  >
+                    WhatsApp
+                  </a>
                   <Link
                     href={`/produits/${quickViewProduct.id}`}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E6A635]/35 bg-[#241812]/90 hover:bg-[#241812] px-5 py-3 text-xs font-bold uppercase tracking-wider text-[#F7F4EE] transition-all"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#E6A635]/35 bg-[#241812]/90 hover:bg-[#241812] px-4 py-3 text-xs font-bold uppercase tracking-wider text-[#F7F4EE] transition-all"
                   >
-                    Fiche détaillée <ChevronRight className="size-3.5" />
+                    Détails <ChevronRight className="size-3.5" />
                   </Link>
                 </div>
               </div>
@@ -1236,12 +1274,101 @@ export function CatalogPage() {
           </div>
         </FadeIn>
 
-        {/* Results count bar */}
+        {/* Results count & Interactive Toolbar */}
         <FadeIn delay={0.2}>
-          <div className="mb-8 flex items-center justify-between border-b border-[#E8DCCB]/40 pb-4">
-            <p className="text-sm font-medium text-[#8C7A6B]">
-              Affichage de <span className="text-[#2C1E16] font-bold">{products.length > 0 ? startIndex + 1 : 0} à {Math.min(startIndex + ITEMS_PER_PAGE, products.length)}</span> sur <span className="text-[#C17D59] font-bold">{products.length}</span> création{products.length !== 1 ? 's' : ''}
-            </p>
+          <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#E6A635]/25 pb-4 bg-[#3B271C]/50 p-4 rounded-2xl border border-[#E6A635]/30 backdrop-blur-md">
+            <div>
+              <p className="text-xs sm:text-sm font-medium text-[#D8C7B4]">
+                Affichage de <span className="text-[#F2BD52] font-bold">{products.length > 0 ? startIndex + 1 : 0} à {Math.min(startIndex + ITEMS_PER_PAGE, products.length)}</span> sur <span className="text-[#F2BD52] font-bold">{products.length}</span> création{products.length !== 1 ? 's' : ''} d&apos;artisanat
+              </p>
+              {activeFilterCount > 0 && (
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  <span className="text-[10px] uppercase font-bold text-[#F2BD52] tracking-wider">Filtres actifs :</span>
+                  {category !== 'Tout' && (
+                    <span className="inline-flex items-center gap-1 bg-[#241812] border border-[#E6A635]/40 text-[#F7F4EE] px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                      {category}
+                      <button onClick={() => setCategory('Tout')} className="hover:text-red-400 cursor-pointer"><X className="size-3" /></button>
+                    </span>
+                  )}
+                  {color !== 'Tout' && (
+                    <span className="inline-flex items-center gap-1 bg-[#241812] border border-[#E6A635]/40 text-[#F7F4EE] px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                      {color}
+                      <button onClick={() => setColor('Tout')} className="hover:text-red-400 cursor-pointer"><X className="size-3" /></button>
+                    </span>
+                  )}
+                  {dimension !== 'Tout' && (
+                    <span className="inline-flex items-center gap-1 bg-[#241812] border border-[#E6A635]/40 text-[#F7F4EE] px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                      {dimension}
+                      <button onClick={() => setDimension('Tout')} className="hover:text-red-400 cursor-pointer"><X className="size-3" /></button>
+                    </span>
+                  )}
+                  {aiQuery && (
+                    <span className="inline-flex items-center gap-1 bg-[#241812] border border-[#E6A635]/40 text-[#F7F4EE] px-2.5 py-0.5 rounded-full text-[10px] font-semibold max-w-[150px] truncate">
+                      « {aiQuery} »
+                      <button onClick={() => setAiQuery('')} className="hover:text-red-400 cursor-pointer shrink-0"><X className="size-3" /></button>
+                    </span>
+                  )}
+                  <button
+                    onClick={() => { setCategory('Tout'); setColor('Tout'); setDimension('Tout'); setAiQuery(''); }}
+                    className="text-[10px] font-bold text-red-400 hover:text-red-300 underline uppercase ml-1 cursor-pointer"
+                  >
+                    Tout effacer
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Sort & Grid Controls */}
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+              <div className="flex items-center gap-2">
+                <label htmlFor="catalog-sort-select" className="text-xs text-[#D8C7B4] font-medium flex items-center gap-1">
+                  <ArrowUpDown className="size-3.5 text-[#F2BD52]" />
+                  <span className="hidden md:inline">Trier par :</span>
+                </label>
+                <select
+                  id="catalog-sort-select"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-[#241812] text-[#F7F4EE] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#E6A635]/40 focus:border-[#F2BD52] focus:outline-none cursor-pointer shadow-sm"
+                >
+                  <option value="featured">✨ Sélection Atelier</option>
+                  <option value="newest">🆕 Dernières Créations</option>
+                  <option value="price-asc">💰 Prix : Moins cher au plus cher</option>
+                  <option value="price-desc">💎 Prix : Plus cher au moins cher</option>
+                  <option value="name">🔤 Nom (A → Z)</option>
+                </select>
+              </div>
+
+              {/* Grid Density Toggle */}
+              <div className="hidden lg:flex items-center gap-1 bg-[#241812] border border-[#E6A635]/35 p-1 rounded-full shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => setViewDensity('standard')}
+                  aria-label="Grille compacte"
+                  className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                    viewDensity === 'standard'
+                      ? 'bg-[#E6A635] text-[#1A110B] shadow-sm'
+                      : 'text-[#D8C7B4] hover:text-[#F7F4EE]'
+                  }`}
+                  title="Grille compacte"
+                >
+                  <Columns3 className="size-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewDensity('spacious')}
+                  aria-label="Grille spacieuse"
+                  className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                    viewDensity === 'spacious'
+                      ? 'bg-[#E6A635] text-[#1A110B] shadow-sm'
+                      : 'text-[#D8C7B4] hover:text-[#F7F4EE]'
+                  }`}
+                  title="Grille spacieuse"
+                >
+                  <Columns2 className="size-3.5" />
+                </button>
+              </div>
+            </div>
           </div>
         </FadeIn>
 
@@ -1274,8 +1401,12 @@ export function CatalogPage() {
               <div ref={gridTopRef} className="scroll-mt-32 -mb-2" />
 
               <motion.div
-                key={`${category}-${color}-${dimension}-${aiQuery}-${sortBy}-${currentPage}`}
-                className="grid gap-4 sm:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5"
+                key={`${category}-${color}-${dimension}-${aiQuery}-${sortBy}-${viewDensity}-${currentPage}`}
+                className={`grid gap-4 sm:gap-6 ${
+                  viewDensity === 'spacious'
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                    : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5'
+                }`}
                 initial="hidden"
                 animate="visible"
                 variants={{ visible: { transition: { staggerChildren: 0.05 } }, hidden: {} }}

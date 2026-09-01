@@ -122,6 +122,17 @@ public class DatabaseSeeder implements CommandLineRunner {
             return categoryRepository.save(c);
         });
 
+        // Ensure "Porte Bijoux" and "Lustres" categories are seeded
+        Category porteBijoux = categoryRepository.findByName("Porte Bijoux").orElseGet(() -> {
+            Category c = cat("Porte Bijoux", "CATALOGUE");
+            return categoryRepository.save(c);
+        });
+
+        Category lustres = categoryRepository.findByName("Lustres").orElseGet(() -> {
+            Category c = cat("Lustres", "CATALOGUE");
+            return categoryRepository.save(c);
+        });
+
         // ── 3. Seed Products ─────────────────────────────────────────────────
         if (productRepository.count() == 0) {
             Category buffets = categoryRepository.findByName("Buffets").orElse(null);

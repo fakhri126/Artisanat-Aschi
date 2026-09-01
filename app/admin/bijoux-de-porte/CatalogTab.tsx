@@ -100,9 +100,11 @@ export default function CatalogTab() {
         const mat = p.materials?.toLowerCase() || ''
         const name = p.name?.toLowerCase() || ''
         const pType = (p.type || '').toLowerCase()
+        if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux") || name.includes("porte bijou") || name.includes("porte-bijou") || name.includes("porte bijoux")) {
+          return false
+        }
         return (
-          catName.includes("porte") || 
-          catName.includes("bijou") ||
+          catName.includes("bijoux de porte") || 
           catName.includes("ronds") || 
           catName.includes("ovales") || 
           catName.includes("poignée") ||
@@ -110,7 +112,7 @@ export default function CatalogTab() {
           catName.includes("bouton") ||
           catType.includes("bijou") ||
           pType === 'bijoux_de_porte' ||
-          pType.includes("bijou") ||
+          pType.includes("bijou de porte") ||
           pType.includes("poign") ||
           name.includes("bouton") || 
           name.includes("poignée") ||

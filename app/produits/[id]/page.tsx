@@ -99,12 +99,12 @@ export default function ProductDetailPage({ params }: PageProps) {
     setSelectedVariantIdx(0)
   }, [product?.id])
 
-  // ── Build UNIQUE colorVariants from product images + AI generated models ─────────
+  // ── Build UNIQUE colorVariants strictly from product images configured in admin ─────────
   const colorVariants = useMemo(() => {
     if (!product) return []
     const variantsMap = new Map()
     
-    const mainImg = product.images && product.images.length > 0 ? product.images[0].imageUrl : '/images/buffet-blanc-original.jpg'
+    const mainImg = product.images && product.images.length > 0 ? product.images[0].imageUrl : '/placeholder.png'
     
     // 1. Original real photo
     variantsMap.set('Original', {
@@ -113,7 +113,7 @@ export default function ProductDetailPage({ params }: PageProps) {
       isOriginal: true,
     })
 
-    // 2. Real product image variants if uploaded
+    // 2. Real product image variants uploaded from admin
     if (product.images && product.images.length > 1) {
       product.images.forEach(img => {
         const label = img.colorLabel || 'Variante'
@@ -126,25 +126,6 @@ export default function ProductDetailPage({ params }: PageProps) {
         }
       })
     }
-
-    // 3. AI Generated Models (Vert Olive, Bleu Ciel, Jaune Moutarde, Bordeaux)
-    const AI_VARIANTS = [
-      { label: 'Vert Olive', imageUrl: '/images/buffet-vert-olive.jpg' },
-      { label: 'Bleu Ciel', imageUrl: '/images/buffet-bleu-ciel.jpg' },
-      { label: 'Jaune Moutarde', imageUrl: '/images/buffet-jaune.jpg' },
-      { label: 'Bordeaux', imageUrl: '/images/buffet-bordeaux.jpg' },
-    ]
-
-    AI_VARIANTS.forEach(v => {
-      if (!variantsMap.has(v.label)) {
-        variantsMap.set(v.label, {
-          label: v.label,
-          imageUrl: v.imageUrl,
-          isOriginal: false,
-          isAIGenerated: true,
-        })
-      }
-    })
     
     return Array.from(variantsMap.values())
   }, [product])

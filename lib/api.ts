@@ -299,7 +299,24 @@ export const adminApi = {
     return fetchApi<any>('/admin/stats');
   },
 
-  uploadImage: (file: File) => {
+  uploadImage: async (file: File) => {
+    // 1. Direct reliable upload via Next.js API route
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.url) return json;
+      }
+    } catch (e) {
+      console.warn('Next.js direct upload fallback:', e);
+    }
+
+    // 2. Fallback to Spring Boot backend /admin/upload
     const formData = new FormData();
     formData.append('file', file);
     return fetchApi<{ url: string }>('/admin/upload', {

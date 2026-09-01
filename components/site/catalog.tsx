@@ -12,6 +12,9 @@ const FILTERS_CAT = [
   'Buffets',
   'Meubles TV',
   'Miroirs',
+  'Lampes Coffres',
+  'Lustres',
+  'Porte Bijoux',
   'Portes',
   'Coffres',
   'Décoration',
@@ -36,69 +39,6 @@ const FILTERS_DIM = [
   '90 x 50 x 55 cm'
 ]
 
-const MOCK_MODELS = [
-  {
-    id: 5,
-    name: 'Buffet ',
-    category: { name: 'Buffets' },
-    images: [{ imageUrl: '/prod1.jpg' }],
-    description: "Buffet en noyer massif aux portes finement sculptées de motifs arabesques. Une pièce maîtresse pour salle à manger d'exception.",
-    materials: 'Noyer massif',
-    dimensions: '180 x 50 x 85 cm',
-    color: 'Noyer'
-  },
-  {
-    id: 6,
-    name: 'Meuble TV',
-    category: { name: 'Meubles TV' },
-    images: [{ imageUrl: '/prod3.jpg' }],
-    description: 'Meuble bas tout en élégance, alliant rangements discrets et sculptures traditionnelles. Disponible en plusieurs dimensions.',
-    materials: 'Bois de frêne',
-    dimensions: '160 x 40 x 55 cm',
-    color: 'Blanc Cérusé'
-  },
-  {
-    id: 4,
-    name: 'Miroir Sidi Bou',
-    category: { name: 'Miroirs' },
-    images: [{ imageUrl: '/creation-model.png' }],
-    description: "Miroir au cadre sculpté rehaussé de feuille d'or. Reflète la lumière et la noblesse de l'artisanat tunisien.",
-    materials: 'Bois d\'olivier',
-    dimensions: '80 x 120 cm',
-    color: 'Or'
-  },
-  {
-    id: 3,
-    name: 'Porte Dar El Bey',
-    category: { name: 'Portes' },
-    images: [{ imageUrl: '/cat-door.png' }],
-    description: 'Porte artistique aux gravures géométriques profondes. Une entrée qui raconte une histoire dès le premier regard.',
-    materials: 'Chêne',
-    dimensions: '220 x 140 cm',
-    color: 'Noyer'
-  },
-  {
-    id: 2,
-    name: 'Table Basse Majorelle',
-    category: { name: 'Tables' },
-    images: [{ imageUrl: '/creation-model.png' }],
-    description: 'Table de salon aux pieds tournés à la main et plateau richement ouvragé. Patine naturelle satinée.',
-    materials: 'Noyer massif',
-    dimensions: '120 x 45 x 160 cm',
-    color: 'Bleu'
-  },
-  {
-    id: 1,
-    name: 'Coffre d\'Apparat',
-    category: { name: 'Coffres' },
-    images: [{ imageUrl: '/prod2.jpg' }],
-    description: 'Coffre traditionnel aux pentures métalliques vieillies et panneaux de bois massif gravés d\'arabesques.',
-    materials: 'Noyer massif',
-    dimensions: '90 x 50 x 55 cm',
-    color: 'Naturel'
-  }
-]
-
 export function Catalog() {
   const [category, setCategory] = useState('Tout')
   const [color, setColor] = useState('Tout')
@@ -116,34 +56,10 @@ export function Catalog() {
         if (dimensions !== 'Tout') queryParams.dimensions = dimensions
 
         const data = await publicApi.getProducts(queryParams)
-        if (data && data.length > 0) {
-          setProducts(data)
-        } else {
-          let filtered = MOCK_MODELS
-          if (category !== 'Tout') {
-            filtered = filtered.filter(p => p.category.name === category)
-          }
-          if (color !== 'Tout') {
-            filtered = filtered.filter(p => p.color === color)
-          }
-          if (dimensions !== 'Tout') {
-            filtered = filtered.filter(p => p.dimensions.includes(dimensions))
-          }
-          setProducts(filtered as any)
-        }
+        setProducts(data || [])
       } catch (err) {
-        console.error('Error querying catalog from API, using fallback data:', err)
-        let filtered = MOCK_MODELS
-        if (category !== 'Tout') {
-          filtered = filtered.filter(p => p.category.name === category)
-        }
-        if (color !== 'Tout') {
-          filtered = filtered.filter(p => p.color === color)
-        }
-        if (dimensions !== 'Tout') {
-          filtered = filtered.filter(p => p.dimensions.includes(dimensions))
-        }
-        setProducts(filtered as any)
+        console.error('Error querying catalog from API:', err)
+        setProducts([])
       } finally {
         setLoading(false)
       }

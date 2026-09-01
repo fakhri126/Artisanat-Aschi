@@ -1,0 +1,467 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R] /Count 2 >>
+endobj
+3 0 obj
+<<
+  /Type /Page
+  /Parent 2 0 R
+  /MediaBox [0 0 595.28 841.89]
+  /Contents 4 0 R
+  /Resources <<
+    /Font <<
+      /F1 7 0 R
+      /F2 8 0 R
+      /F3 9 0 R
+    >>
+  >>
+>>
+endobj
+4 0 obj
+<< /Length 5190 >>
+stream
+q
+0.141 0.094 0.071 rg
+36 710 523.28 95 re f
+0.902 0.651 0.208 RG
+1.5 w
+36 710 523.28 95 re S
+Q
+q
+0.902 0.651 0.208 rg
+50 780 180 14 re f
+Q
+BT
+/F2 8 Tf
+0.102 0.067 0.043 rg
+56 784 Td (ARCHITECTURE & INFRASTRUCTURE) Tj
+ET
+BT
+/F2 18 Tf
+0.98 0.968 0.949 rg
+50 754 Td (Guide d Hebergement - Artisanat Aschi) Tj
+/F1 9.5 Tf
+0.917 0.894 0.851 rg
+50 726 Td (Recommandations strategiques, couts, securite et plan de deploiement.) Tj
+ET
+BT
+/F2 13 Tf
+0.231 0.153 0.11 rg
+36 678 Td (1. Analyse de la Stack Technique) Tj
+ET
+q
+0.902 0.651 0.208 RG 1.5 w
+36 672 m 559.28 672 l S
+Q
+q
+0.98 0.968 0.949 rg
+36 575 523.28 88 re f
+0.91 0.863 0.796 RG 1 w
+36 575 523.28 88 re S
+Q
+BT
+/F1 9.5 Tf
+0.176 0.137 0.114 rg
+48 646 Td (L application Artisanat Aschi est composee de 4 elements majeurs a heberger :) Tj
+48 630 Td (- Frontend : Next.js 16 (React 19, TypeScript, Tailwind CSS, SSR, animations, 3D).) Tj
+48 614 Td (- Backend : Spring Boot 3+ (Java 17/21, API REST sous /api, securite JWT, port 8081).) Tj
+48 598 Td (- Base de donnees : PostgreSQL (produits, devis, categories, livraisons, avis, admin).) Tj
+48 582 Td (- Medias & Videos : Photos HD atelier, boutons/poignees et videos reels jusqu a 500 Mo.) Tj
+ET
+BT
+/F2 13 Tf
+0.231 0.153 0.11 rg
+36 545 Td (2. Les 2 Solutions d Hebergement) Tj
+ET
+q
+0.902 0.651 0.208 RG 1.5 w
+36 539 m 559.28 539 l S
+Q
+q
+0.992 0.984 0.968 rg
+36 345 523.28 180 re f
+0.902 0.651 0.208 RG 1.5 w
+36 345 523.28 180 re S
+0.902 0.651 0.208 rg
+36 345 5 180 re f
+Q
+BT
+/F2 11 Tf
+0.141 0.094 0.071 rg
+48 506 Td ([OPTION 1 RECOMMANDEE] Architecture Cloud Decouplee) Tj
+/F2 8.5 Tf
+0.024 0.373 0.275 rg
+420 506 Td (GRATUIT puis ~5 $/mois) Tj
+/F1 9 Tf
+0.2 0.15 0.12 rg
+48 488 Td (Chaque composant est heberge sur la plateforme specialiste la plus performante :) Tj
+/F2 9.5 Tf
+0.141 0.094 0.071 rg
+48 470 Td (1. Frontend Next.js -> VERCEL (Plan Gratuit)) Tj
+/F1 8.5 Tf
+0.35 0.27 0.23 rg
+60 458 Td (Editeur de Next.js. Vitesse mondiale via Edge CDN, SSL automatique, deploiement Git.) Tj
+/F2 9.5 Tf
+0.141 0.094 0.071 rg
+48 440 Td (2. Backend Spring Boot -> RENDER.com ou RAILWAY.app (~5 $/mois)) Tj
+/F1 8.5 Tf
+0.35 0.27 0.23 rg
+60 428 Td (Deploiement Java Maven automatique, redemarrage auto en cas de panne, HTTPS inclus.) Tj
+/F2 9.5 Tf
+0.141 0.094 0.071 rg
+48 410 Td (3. Base PostgreSQL -> NEON.tech ou SUPABASE (Plan Gratuit)) Tj
+/F1 8.5 Tf
+0.35 0.27 0.23 rg
+60 398 Td (PostgreSQL manage haute performance avec sauvegardes automatiques quotidiennes.) Tj
+/F2 9.5 Tf
+0.141 0.094 0.071 rg
+48 380 Td (4. Medias & Videos lourdes -> CLOUDINARY ou SUPABASE STORAGE) Tj
+/F1 8.5 Tf
+0.35 0.27 0.23 rg
+60 368 Td (Streaming video ultra-fluide et compression automatique des photos en WebP / AVIF.) Tj
+ET
+q
+0.98 0.968 0.949 rg
+36 215 523.28 115 re f
+0.91 0.863 0.796 RG 1 w
+36 215 523.28 115 re S
+Q
+BT
+/F2 11 Tf
+0.141 0.094 0.071 rg
+48 310 Td ([OPTION 2] Serveur Dedie VPS Unique avec Docker) Tj
+/F2 8.5 Tf
+0.573 0.251 0.055 rg
+410 310 Td (4,50 a 6,00 EUR / mois fixe) Tj
+/F1 9 Tf
+0.2 0.15 0.12 rg
+48 292 Td (Tous les services tournent sur une seule machine Linux (Hetzner CX22 ou OVHcloud).) Tj
+48 276 Td (- Structure : Docker Next.js + Docker Spring Boot + Docker PostgreSQL + Nginx SSL.) Tj
+48 260 Td (- Avantages : Cout mensuel fixe, controle total, pas de limite de requetes ni de bande passante.) Tj
+48 244 Td (- Inconvenients : Maintenance manuelle requise (mises a jour Linux, securite, certificats).) Tj
+ET
+BT
+/F2 12 Tf
+0.231 0.153 0.11 rg
+36 185 Td (3. Tableau Comparatif) Tj
+ET
+q
+0.231 0.153 0.11 rg
+36 150 523.28 20 re f
+Q
+BT
+/F2 8.5 Tf
+1 1 1 rg
+44 156 Td (Critere) Tj
+160 156 Td (Option 1 : Cloud Decouple (Vercel+Render)) Tj
+380 156 Td (Option 2 : VPS Unique (Hetzner Docker)) Tj
+ET
+q
+0.98 0.968 0.949 rg
+36 132 523.28 16 re f
+0.91 0.863 0.796 RG 0.5 w
+36 132 523.28 16 re S
+Q
+BT
+/F2 8 Tf
+0.141 0.094 0.071 rg
+44 136 Td (Cout mensuel) Tj
+/F1 8 Tf
+0.2 0.15 0.12 rg
+160 136 Td (0 EUR au lancement, puis ~5 $/mois) Tj
+380 136 Td (4,50 EUR a 6,00 EUR / mois fixe) Tj
+ET
+q
+1 1 1 rg
+36 116 523.28 16 re f
+0.91 0.863 0.796 RG 0.5 w
+36 116 523.28 16 re S
+Q
+BT
+/F2 8 Tf
+0.141 0.094 0.071 rg
+44 120 Td (Facilite deploiement) Tj
+/F1 8 Tf
+0.2 0.15 0.12 rg
+160 120 Td (Tres facile (Zero ligne Linux)) Tj
+380 120 Td (Moyenne (Docker Compose & Nginx)) Tj
+ET
+q
+0.98 0.968 0.949 rg
+36 100 523.28 16 re f
+0.91 0.863 0.796 RG 0.5 w
+36 100 523.28 16 re S
+Q
+BT
+/F2 8 Tf
+0.141 0.094 0.071 rg
+44 104 Td (Vitesse Next.js) Tj
+/F1 8 Tf
+0.2 0.15 0.12 rg
+160 104 Td (Maximale (CDN Edge Vercel)) Tj
+380 104 Td (Tres bonne (selon localisation VPS)) Tj
+ET
+q
+1 1 1 rg
+36 84 523.28 16 re f
+0.91 0.863 0.796 RG 0.5 w
+36 84 523.28 16 re S
+Q
+BT
+/F2 8 Tf
+0.141 0.094 0.071 rg
+44 88 Td (Gestion videos (500 Mo)) Tj
+/F1 8 Tf
+0.2 0.15 0.12 rg
+160 88 Td (Cloudinary / Supabase (CDN dedie)) Tj
+380 88 Td (Disque SSD NVMe du serveur) Tj
+ET
+q
+0.98 0.968 0.949 rg
+36 68 523.28 16 re f
+0.91 0.863 0.796 RG 0.5 w
+36 68 523.28 16 re S
+Q
+BT
+/F2 8 Tf
+0.141 0.094 0.071 rg
+44 72 Td (Maintenance) Tj
+/F1 8 Tf
+0.2 0.15 0.12 rg
+160 72 Td (0 maintenance (gere par hebergeurs)) Tj
+380 72 Td (Mises a jour Linux manuelles) Tj
+ET
+BT
+/F3 8 Tf
+0.55 0.48 0.42 rg
+200 24 Td (Artisanat Aschi - Document Technique de Mise en Production (Page 1/2)) Tj
+ET
+
+endstream
+endobj
+5 0 obj
+<<
+  /Type /Page
+  /Parent 2 0 R
+  /MediaBox [0 0 595.28 841.89]
+  /Contents 6 0 R
+  /Resources <<
+    /Font <<
+      /F1 7 0 R
+      /F2 8 0 R
+      /F3 9 0 R
+    >>
+  >>
+>>
+endobj
+6 0 obj
+<< /Length 4197 >>
+stream
+q
+0.141 0.094 0.071 rg
+36 780 523.28 35 re f
+0.902 0.651 0.208 RG 1 w
+36 780 523.28 35 re S
+Q
+BT
+/F2 12 Tf
+0.98 0.968 0.949 rg
+50 792 Td (Guide de Deploiement & Checklist Technique - Artisanat Aschi) Tj
+ET
+BT
+/F2 13 Tf
+0.231 0.153 0.11 rg
+36 745 Td (4. Checklist des Fichiers de Configuration a Adapter) Tj
+ET
+q
+0.902 0.651 0.208 RG 1.5 w
+36 739 m 559.28 739 l S
+Q
+BT
+/F2 10.5 Tf
+0.757 0.49 0.349 rg
+36 718 Td (A. Configuration CORS du Backend (SecurityConfig.java)) Tj
+/F1 8.5 Tf
+0.2 0.15 0.12 rg
+36 704 Td (Autoriser votre domaine de production pour que le frontend communique avec l API :) Tj
+ET
+q
+0.102 0.067 0.043 rg
+36 620 523.28 74 re f
+0.231 0.153 0.11 RG 1 w
+36 620 523.28 74 re S
+Q
+BT
+/F1 8 Tf
+0.95 0.95 0.95 rg
+46 678 Td (// Dans backend/src/main/java/.../config/SecurityConfig.java) Tj
+46 664 Td (configuration.setAllowedOrigins(Arrays.asList() Tj
+46 650 Td (    "https://artisanataschi.com",) Tj
+46 636 Td (    "https://www.artisanataschi.com") Tj
+46 624 Td ());) Tj
+ET
+BT
+/F2 10.5 Tf
+0.757 0.49 0.349 rg
+36 595 Td (B. URL de Production du Frontend (.env.production)) Tj
+/F1 8.5 Tf
+0.2 0.15 0.12 rg
+36 581 Td (Definir l adresse de votre API hebergee dans le frontend Next.js :) Tj
+ET
+q
+0.102 0.067 0.043 rg
+36 530 523.28 42 re f
+0.231 0.153 0.11 RG 1 w
+36 530 523.28 42 re S
+Q
+BT
+/F1 8 Tf
+0.95 0.95 0.95 rg
+46 556 Td (NEXT_PUBLIC_API_URL=https://api.artisanataschi.com/api) Tj
+46 540 Td (NEXT_PUBLIC_SITE_URL=https://artisanataschi.com) Tj
+ET
+BT
+/F2 10.5 Tf
+0.757 0.49 0.349 rg
+36 505 Td (C. Variables Backend de Production (application.yml)) Tj
+/F1 8.5 Tf
+0.2 0.15 0.12 rg
+36 491 Td (Connecter la base de donnees distante et securiser les tokens JWT :) Tj
+ET
+q
+0.102 0.067 0.043 rg
+36 395 523.28 86 re f
+0.231 0.153 0.11 RG 1 w
+36 395 523.28 86 re S
+Q
+BT
+/F1 8 Tf
+0.95 0.95 0.95 rg
+46 465 Td (spring:) Tj
+46 451 Td (  datasource:) Tj
+46 437 Td (    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://ep-xyz.neon.tech/artisanat_aschi}) Tj
+46 423 Td (    username: ${SPRING_DATASOURCE_USERNAME:postgres}) Tj
+46 409 Td (    password: ${SPRING_DATASOURCE_PASSWORD:votre_mot_de_passe}) Tj
+ET
+BT
+/F2 13 Tf
+0.231 0.153 0.11 rg
+36 365 Td (5. Plan d Action : Les 4 Etapes de Lancement) Tj
+ET
+q
+0.902 0.651 0.208 RG 1.5 w
+36 359 m 559.28 359 l S
+Q
+q
+0.98 0.968 0.949 rg
+36 305 523.28 38 re f
+0.91 0.863 0.796 RG 0.5 w
+36 305 523.28 38 re S
+0.902 0.651 0.208 rg
+36 305 4 38 re f
+Q
+BT
+/F2 9.5 Tf
+0.141 0.094 0.071 rg
+48 329 Td (Etape 1 : Creer la base PostgreSQL sur Neon.tech ou Supabase) Tj
+/F1 8.5 Tf
+0.35 0.27 0.23 rg
+48 313 Td (Creer un compte gratuit sur neon.tech, creer la base 'artisanat_aschi' et copier la chaine de connexion JDBC.) Tj
+ET
+q
+0.98 0.968 0.949 rg
+36 259 523.28 38 re f
+0.91 0.863 0.796 RG 0.5 w
+36 259 523.28 38 re S
+0.902 0.651 0.208 rg
+36 259 4 38 re f
+Q
+BT
+/F2 9.5 Tf
+0.141 0.094 0.071 rg
+48 283 Td (Etape 2 : Deployer le Backend Spring Boot sur Render ou Railway) Tj
+/F1 8.5 Tf
+0.35 0.27 0.23 rg
+48 267 Td (Connecter votre depot GitHub. Definir les variables d environnement (SPRING_DATASOURCE_URL, JWT_SECRET).) Tj
+ET
+q
+0.98 0.968 0.949 rg
+36 213 523.28 38 re f
+0.91 0.863 0.796 RG 0.5 w
+36 213 523.28 38 re S
+0.902 0.651 0.208 rg
+36 213 4 38 re f
+Q
+BT
+/F2 9.5 Tf
+0.141 0.094 0.071 rg
+48 237 Td (Etape 3 : Deployer le Frontend sur Vercel) Tj
+/F1 8.5 Tf
+0.35 0.27 0.23 rg
+48 221 Td (Importer le projet sur vercel.com. Configurer NEXT_PUBLIC_API_URL avec l URL Render de l etape 2.) Tj
+ET
+q
+0.98 0.968 0.949 rg
+36 167 523.28 38 re f
+0.91 0.863 0.796 RG 0.5 w
+36 167 523.28 38 re S
+0.902 0.651 0.208 rg
+36 167 4 38 re f
+Q
+BT
+/F2 9.5 Tf
+0.141 0.094 0.071 rg
+48 191 Td (Etape 4 : Lier le Nom de Domaine (artisanataschi.com)) Tj
+/F1 8.5 Tf
+0.35 0.27 0.23 rg
+48 175 Td (Chez votre registrar (OVH, Namecheap, GoDaddy), pointer le domaine vers Vercel et api. vers Render.) Tj
+ET
+q
+0.902 0.651 0.208 rg
+36 100 523.28 35 re f
+Q
+BT
+/F2 9.5 Tf
+0.102 0.067 0.043 rg
+48 120 Td (CONCLUSION & RECOMMANDATION FINALE) Tj
+/F1 8.5 Tf
+0.141 0.094 0.071 rg
+48 108 Td (L Option 1 (Vercel + Render + Neon) garantit une vitesse de pointe, 0 panne et 0 EUR au lancement.) Tj
+ET
+BT
+/F3 8 Tf
+0.55 0.48 0.42 rg
+200 24 Td (Artisanat Aschi - Document Technique de Mise en Production (Page 2/2)) Tj
+ET
+
+endstream
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+8 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+9 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000311 00000 n 
+0000005553 00000 n 
+0000005743 00000 n 
+0000009992 00000 n 
+0000010089 00000 n 
+0000010191 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+10296
+%%EOF

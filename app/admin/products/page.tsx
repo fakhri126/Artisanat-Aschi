@@ -64,8 +64,8 @@ function ImageVariantManager({
     try {
       const res = await uploadFn(file)
       updateUrl(idx, res.url)
-    } catch {
-      alert("Erreur lors de l'envoi de l'image.")
+    } catch (err: any) {
+      alert(err.message || "Erreur lors de l'envoi de l'image.")
     } finally {
       setUploading(null)
     }
@@ -274,23 +274,56 @@ export default function AdminProductsPage() {
         const catName = p.category?.name?.toLowerCase() || ''
         const mat = p.materials?.toLowerCase() || ''
         const name = p.name?.toLowerCase() || ''
+        if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux") || name.includes("porte bijou") || name.includes("porte-bijou") || name.includes("porte bijoux")) {
+          return false
+        }
         return (
-          catName.includes("porte") ||
+          catName.includes("bijoux de porte") ||
           catName.includes("ronds") ||
           catName.includes("ovales") ||
           catName.includes("poignée") ||
-          catName.includes("bijou") ||
-          mat.includes("céramique") ||
-          mat.includes("majolique") ||
+          catName.includes("poignee") ||
           name.includes("bouton") ||
           name.includes("poignée") ||
-          name.includes("bijou")
+          name.includes("poignee") ||
+          name.includes("bijou de porte")
         )
       }
 
       // Strictly available workshop products (exclude CATALOGUE and exclude Bijoux de Porte)
       setProducts(prodData.filter(p => p.type !== 'CATALOGUE' && !isHandleProduct(p)))
-      setCategories(catData)
+      let finalCats = [...catData]
+      let lustresCat = finalCats.find(c => c.name.toLowerCase().includes('lustre'))
+      if (!lustresCat) {
+        try {
+          const created = await adminApi.createCategory({
+            name: 'Lustres',
+            type: 'CATALOGUE'
+          })
+          finalCats.push(created)
+        } catch (e) {
+          console.warn("Could not auto-create Lustres category:", e)
+          if (!finalCats.some(c => c.name.toLowerCase().includes('lustre'))) {
+            finalCats.push({ id: 999, name: 'Lustres', type: 'CATALOGUE' } as any)
+          }
+        }
+      }
+      let porteBijouxCat = finalCats.find(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux') || c.name.toLowerCase().includes('porte-bijou'))
+      if (!porteBijouxCat) {
+        try {
+          const created = await adminApi.createCategory({
+            name: 'Porte Bijoux',
+            type: 'CATALOGUE'
+          })
+          finalCats.push(created)
+        } catch (e) {
+          console.warn("Could not auto-create Porte Bijoux category:", e)
+          if (!finalCats.some(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux'))) {
+            finalCats.push({ id: 998, name: 'Porte Bijoux', type: 'CATALOGUE' } as any)
+          }
+        }
+      }
+      setCategories(finalCats)
     } catch (err: any) {
       setError(err.message || 'Erreur lors du chargement des produits.')
     } finally {
@@ -304,7 +337,11 @@ export default function AdminProductsPage() {
     const catName = cat?.name || 'Création'
     
     let singular = catName
-    if (singular.toLowerCase().includes('lampe') || singular.toLowerCase().includes('coffre')) {
+    if (singular.toLowerCase().includes('lustre')) {
+      singular = 'Lustre'
+    } else if (singular.toLowerCase().includes('porte bijou') || singular.toLowerCase().includes('porte bijoux') || singular.toLowerCase().includes('porte-bijou')) {
+      singular = 'Porte-Bijoux'
+    } else if (singular.toLowerCase().includes('lampe') || singular.toLowerCase().includes('coffre')) {
       singular = 'Lampe Coffre'
     } else if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
       singular = singular.slice(0, -1)
@@ -331,7 +368,11 @@ export default function AdminProductsPage() {
   const buildAutoDescription = (modelName: string, catId: string, itemColor: string, itemDim: string, allCats: Category[]) => {
     const cat = allCats.find(c => c.id.toString() === catId)
     let singular = cat?.name || 'Création'
-    if (singular.toLowerCase().includes('lampe') || singular.toLowerCase().includes('coffre')) {
+    if (singular.toLowerCase().includes('lustre')) {
+      singular = 'Lustre'
+    } else if (singular.toLowerCase().includes('porte bijou') || singular.toLowerCase().includes('porte bijoux') || singular.toLowerCase().includes('porte-bijou')) {
+      singular = 'Porte-Bijoux'
+    } else if (singular.toLowerCase().includes('lampe') || singular.toLowerCase().includes('coffre')) {
       singular = 'Lampe Coffre'
     } else if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
       singular = singular.slice(0, -1)
@@ -342,6 +383,14 @@ export default function AdminProductsPage() {
 
     const match = modelName.match(/(?:Modèle|N°|#|\s)(\d+)/i)
     const modelPart = match ? `(Modèle ${match[1].padStart(2, '0')}) ` : ''
+
+    if (singular === 'Lustre') {
+      return `Lustre artisanal d'art fait-main sur-mesure ${modelPart}— Suspension noble en bois sculpté et faïence artisanale.`
+    }
+    if (singular === 'Porte-Bijoux') {
+      return `Porte-bijoux artisanal d'art fait-main sur-mesure ${modelPart}— Écrin et support noble en bois sculpté et céramique d'art.`
+    }
+
     const colorPart = itemColor ? `Finition ${itemColor}` : 'Finition au choix'
     const dimPart = itemDim ? `, format ${itemDim}` : ''
 
@@ -466,10 +515,33 @@ export default function AdminProductsPage() {
       return
     }
 
+    let finalCatId = parseInt(categoryId)
+
+    // If categoryId is a virtual/placeholder id (e.g. 999 or 998), create or find the real category in DB first
+    if (finalCatId === 999 || finalCatId === 998 || isNaN(finalCatId)) {
+      try {
+        const selectedCat = categories.find(c => c.id.toString() === categoryId)
+        const catName = selectedCat?.name || (finalCatId === 998 ? 'Porte Bijoux' : 'Lustres')
+        const dbCats = await adminApi.getCategories()
+        const existing = dbCats.find(c => c.name.toLowerCase() === catName.toLowerCase())
+        if (existing) {
+          finalCatId = existing.id
+        } else {
+          const createdCat = await adminApi.createCategory({
+            name: catName,
+            type: 'CATALOGUE'
+          })
+          finalCatId = createdCat.id
+        }
+      } catch (catErr) {
+        console.error("Error creating/resolving category:", catErr)
+      }
+    }
+
     const payload: ProductRequest = {
       name,
       description,
-      categoryId: parseInt(categoryId),
+      categoryId: finalCatId,
       dimensions,
       materials,
       color,
