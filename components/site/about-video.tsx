@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { Reveal } from './reveal'
 import { Award, ArrowRight, Sparkles, Compass, MessageCircle } from 'lucide-react'
 import { MagneticCard } from '../motion/magnetic-card'
-import { HeritageSeal } from './heritage-seal'
 
 export function AboutVideo() {
   return (
@@ -77,33 +76,28 @@ export function AboutVideo() {
                     <span className="text-[9.5px] uppercase tracking-[0.14em] text-[#F2BD52] font-semibold mt-0.5 block truncate">Noyer Noble</span>
                   </div>
                   <div className="px-2">
-                    <span className="font-heading text-base sm:text-lg font-light text-gold-gradient block leading-tight">Sur-Mesure</span>
-                    <span className="text-[9.5px] uppercase tracking-[0.14em] text-[#F2BD52] font-semibold mt-0.5 block truncate">Conception 3D</span>
+                    <span className="font-heading text-base sm:text-lg font-light text-gold-gradient block leading-tight">Projets</span>
+                    <span className="text-[9.5px] uppercase tracking-[0.14em] text-[#F2BD52] font-semibold mt-0.5 block truncate">Sur-Mesure</span>
                   </div>
                 </div>
               </div>
             </Reveal>
           </div>
 
-          {/* Colonne Droite (5 Colonnes) : Cadre Photo d'Art & Sceau */}
+          {/* Colonne Droite (5 Colonnes) : Cadre Photo d'Art Agrandie */}
           <div className="lg:col-span-5 relative flex justify-end">
-            <Reveal delay={150} className="relative w-full max-w-[440px]">
-              {/* Sceau d'Héritage Tournant */}
-              <div className="absolute -top-6 -right-5 z-30 pointer-events-none">
-                <HeritageSeal size={105} />
-              </div>
-
+            <Reveal delay={150} className="relative w-full max-w-[480px]">
               {/* Lueur d'ambiance */}
               <div className="absolute inset-0 bg-[#E6A635]/18 blur-2xl rounded-3xl -z-10" />
 
               <MagneticCard intensity={3} glareOpacity={0.1}>
-                <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border-2 border-[#E6A635]/45 bg-[#3B271C] shadow-[0_20px_50px_rgba(0,0,0,0.85)] group">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border-2 border-[#E6A635]/50 bg-[#3B271C] shadow-[0_25px_60px_rgba(0,0,0,0.9)] group">
                   <Image
                     src="/images/about-atelier-stand.jpg"
                     alt="Stand d'exposition & mobilier d'art - Artisanat Aschi"
                     fill
                     priority
-                    className="object-cover object-center transition-transform duration-1000 group-hover:scale-105"
+                    className="object-cover object-top transition-transform duration-1000 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/95 via-black/15 to-transparent z-10 pointer-events-none" />
 
@@ -127,7 +121,7 @@ export function AboutVideo() {
         </div>
 
         {/* ========================================================================= */}
-        {/* 📱 MOBILE LAYOUT (< lg:) : Séquence Linéaire (Texte ➔ Image ➔ Piliers ➔ Boutons) */}
+        {/* 📱 MOBILE LAYOUT (< lg:) : Image Agrandie & Dégagée sans Sceau            */}
         {/* ========================================================================= */}
         <div className="flex flex-col lg:hidden items-center text-center">
           
@@ -139,7 +133,7 @@ export function AboutVideo() {
                 <span>Maison Fondée en 1960 • Tunisie</span>
               </div>
 
-              <h1 className="font-heading text-[1.85rem] sm:text-4xl font-light text-gold-gradient leading-[1.1] tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] mb-2.5">
+              <h1 className="font-heading text-[1.95rem] sm:text-4xl font-light text-gold-gradient leading-[1.1] tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] mb-2.5">
                 Maison Artisanat Aschi <br />
                 <span className="font-serif italic text-white font-normal text-xl sm:text-2xl block mt-0.5">
                   Haute Ébénisterie &amp; Sculpture d&apos;Art
@@ -152,42 +146,37 @@ export function AboutVideo() {
             </Reveal>
           </div>
 
-          {/* 2. L'Image Agrandie avec enseigne "ARTISANAT ASCHI" bien visible */}
-          <Reveal delay={100} className="relative w-full max-w-[360px] sm:max-w-[420px] mx-auto mb-5">
-            {/* Sceau décalé à gauche pour dégager l'enseigne */}
-            <div className="absolute -top-3.5 -left-2 z-30 pointer-events-none scale-75 origin-top-left">
-              <HeritageSeal size={90} />
-            </div>
-
+          {/* 2. L'Image Agrandie, Nette et 100% Dégagée */}
+          <Reveal delay={100} className="relative w-full max-w-[420px] sm:max-w-[460px] mx-auto mb-5">
             <div className="absolute inset-0 bg-[#E6A635]/18 blur-xl rounded-2xl -z-10" />
 
-            <div className="relative aspect-[4/5] min-h-[350px] w-full overflow-hidden rounded-2xl border-2 border-[#E6A635]/45 bg-[#3B271C] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group">
+            <div className="relative aspect-[4/4.8] min-h-[380px] sm:min-h-[420px] w-full overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-[#E6A635]/50 bg-[#3B271C] shadow-[0_20px_50px_rgba(0,0,0,0.9)] group">
               <Image
                 src="/images/about-atelier-stand.jpg"
                 alt="Stand d'exposition & mobilier d'art - Artisanat Aschi"
                 fill
                 priority
-                className="object-cover object-top"
+                className="object-cover object-top transition-transform duration-1000 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/95 via-black/10 to-transparent z-10 pointer-events-none" />
 
-              <div className="absolute bottom-2.5 left-2.5 right-2.5 z-20 bg-[#3B271C]/95 backdrop-blur-xl border border-[#E6A635]/40 p-2.5 rounded-xl flex items-center justify-between text-white shadow-lg">
+              <div className="absolute bottom-3 left-3 right-3 z-20 bg-[#3B271C]/95 backdrop-blur-xl border border-[#E6A635]/40 p-3 rounded-xl flex items-center justify-between text-white shadow-lg">
                 <div className="flex items-center gap-2.5">
                   <div className="size-8 rounded-lg bg-gradient-to-tr from-[#F3C45E] via-[#E6A635] to-[#C78318] flex items-center justify-center text-[#1A110B] shrink-0 shadow-md">
                     <Award className="size-4 text-[#1A110B]" />
                   </div>
                   <div className="text-left">
                     <h4 className="font-heading text-xs font-semibold text-white leading-tight">Mobilier &amp; Boiserie D&apos;Art</h4>
-                    <p className="text-[9px] text-[#F2BD52] uppercase font-bold tracking-[0.12em] mt-0.5">Sculpture sur Bois Noble &amp; Noyer</p>
+                    <p className="text-[9.5px] text-[#F2BD52] uppercase font-bold tracking-[0.12em] mt-0.5">Sculpture sur Bois Noble &amp; Noyer</p>
                   </div>
                 </div>
               </div>
             </div>
           </Reveal>
 
-          {/* 3. Les 3 Piliers (Sous l'image) */}
+          {/* 3. Les 3 Piliers */}
           <Reveal delay={150} className="w-full max-w-sm sm:max-w-md mx-auto mb-5">
-            <div className="py-2 px-3 rounded-xl bg-[#3B271C]/85 backdrop-blur-md border border-[#E6A635]/30 shadow-md">
+            <div className="py-2.5 px-3 rounded-xl bg-[#3B271C]/85 backdrop-blur-md border border-[#E6A635]/30 shadow-md">
               <div className="grid grid-cols-3 divide-x divide-[#E6A635]/20 text-center">
                 <div className="px-1">
                   <span className="font-heading text-base font-light text-gold-gradient block leading-tight">1960</span>
@@ -198,14 +187,14 @@ export function AboutVideo() {
                   <span className="text-[8.5px] uppercase tracking-[0.12em] text-[#F2BD52] font-semibold mt-0.5 block truncate">Noyer Noble</span>
                 </div>
                 <div className="px-1">
-                  <span className="font-heading text-sm font-light text-gold-gradient block leading-tight">Sur-Mesure</span>
-                  <span className="text-[8.5px] uppercase tracking-[0.12em] text-[#F2BD52] font-semibold mt-0.5 block truncate">Conception 3D</span>
+                  <span className="font-heading text-sm font-light text-gold-gradient block leading-tight">Projets</span>
+                  <span className="text-[8.5px] uppercase tracking-[0.12em] text-[#F2BD52] font-semibold mt-0.5 block truncate">Sur-Mesure</span>
                 </div>
               </div>
             </div>
           </Reveal>
 
-          {/* 4. Les 2 Boutons (En dessous des piliers) */}
+          {/* 4. Les 2 Boutons */}
           <Reveal delay={200} className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 w-full max-w-sm sm:max-w-md mx-auto">
             <Link
               href="/contact"

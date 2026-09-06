@@ -8,6 +8,7 @@ import { NewsSection } from "@/components/site/news-section"
 import { WeeklyDelivery } from "@/components/site/weekly-delivery"
 import { VideoReel } from "@/components/site/video-reel"
 import { Footer } from "@/components/site/footer"
+import { MobileFloatingVIP } from "@/components/site/mobile-floating-vip"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -43,7 +44,7 @@ export default function Page() {
           <HeroSlider />
         </div>
 
-        {/* 3. Pourquoi Artisanat Aschi (Piliers, Statistiques & Devis 3D) */}
+        {/* 3. Pourquoi Artisanat Aschi (Piliers, Statistiques & Devis Sur-Mesure) */}
         <div className="cv-auto">
           <WhyAschi />
         </div>
@@ -73,7 +74,10 @@ export default function Page() {
           <VideoReel />
         </div>
 
-        {/* 9. Footer */}
+        {/* 9. Barre Flottante VIP Mobile (Devis 3D & WhatsApp) */}
+        <MobileFloatingVIP />
+
+        {/* 10. Footer */}
         <Footer />
       </div>
     </main>

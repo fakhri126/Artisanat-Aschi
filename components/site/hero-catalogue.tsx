@@ -84,7 +84,7 @@ export function HeroCatalogue() {
               <span className="text-[#E6A635]/40">•</span>
               <span className="flex items-center gap-1">
                 <span className="text-[#F2BD52] font-bold font-serif">02.</span>
-                <span>Étude 3D</span>
+                <span>Étude Sur-Mesure</span>
               </span>
               <span className="text-[#E6A635]/40">•</span>
               <span className="flex items-center gap-1">

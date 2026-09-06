@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { adminApi, publicApi, Product, Category, ProductRequest, ImageVariant, QuoteRequest } from '@/lib/api'
+import { isBijouxOrHandleCategory, isBijouxOrHandleProduct } from '@/lib/utils'
 import { Plus, Edit2, Trash2, Eye, Bot, X, Image as ImageIcon, Upload, CheckCircle2, Palette, Search } from 'lucide-react'
 import Link from 'next/link'
 
@@ -271,9 +272,9 @@ export default function AdminCataloguePage() {
         adminApi.getProducts(),
         publicApi.getCategories(),
       ])
-      // Filter only CATALOGUE type
-      setProducts(prodData.filter(p => p.type === 'CATALOGUE'))
-      setCategories(catData)
+      // Filter only furniture CATALOGUE type (strictly exclude Bijoux de Porte / Poignées)
+      setProducts(prodData.filter(p => p.type === 'CATALOGUE' && !isBijouxOrHandleProduct(p)))
+      setCategories(catData.filter(c => !isBijouxOrHandleCategory(c.name)))
     } catch (err: any) {
       setError(err.message || 'Erreur de chargement.')
     } finally {
@@ -290,7 +291,8 @@ export default function AdminCataloguePage() {
         const pType = q.product?.type
         const det = (q.personalizationDetails || '').toLowerCase()
         const msg = (q.message || '').toLowerCase()
-        return pType === 'CATALOGUE' || det.includes('sur mesure') || det.includes('finition') || msg.includes('buffet') || msg.includes('table') || msg.includes('miroir') || msg.includes('console')
+        const isBijoux = q.product ? isBijouxOrHandleProduct(q.product) : false
+        return !isBijoux && (pType === 'CATALOGUE' || det.includes('sur mesure') || det.includes('finition') || msg.includes('buffet') || msg.includes('table') || msg.includes('miroir') || msg.includes('console'))
       })
       setQuotes(catQuotes)
     } catch (err) {

@@ -85,7 +85,7 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
       {/* Progress Header */}
       <div className="mb-8">
         <div className="flex justify-between items-center text-xs uppercase tracking-widest text-[#F2BD52] mb-3 font-bold">
-          <span>Création Sur-Mesure 3D</span>
+          <span>Création Sur-Mesure</span>
           <span>Étape {step} sur 4</span>
         </div>
         <div className="w-full h-1.5 bg-[#241812] rounded-full overflow-hidden border border-[#E6A635]/25">
@@ -116,7 +116,7 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
           </div>
           <h3 className="font-heading text-2xl sm:text-3xl text-gold-gradient mb-3">Demande transmise avec succès</h3>
           <p className="text-[#EAE4D9]/85 text-xs sm:text-sm max-w-md leading-relaxed font-light mb-8">
-            Adel, Ismail et l&apos;équipe de l&apos;Atelier Aschi ont bien reçu votre projet. Nous allons étudier vos choix et vous recontacter avec une proposition et des plans 3D sous 24h ouvrées.
+            Adel, Ismail et l&apos;équipe de l&apos;Atelier Aschi ont bien reçu votre projet. Nous allons étudier vos choix et vous recontacter avec une proposition et des plans sur-mesure sous 24h ouvrées.
           </p>
           <button
             onClick={() => {
@@ -287,7 +287,7 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
               >
                 <div>
                   <h3 className="font-heading text-xl sm:text-2xl text-[#F7F4EE] mb-1.5">Finalisons votre projet</h3>
-                  <p className="text-xs text-[#EAE4D9]/80 font-light">Saisissez vos coordonnées pour recevoir votre étude 3D et votre devis.</p>
+                  <p className="text-xs text-[#EAE4D9]/80 font-light">Saisissez vos coordonnées pour recevoir votre étude et votre devis sur-mesure.</p>
                 </div>
                 
                 <div className="flex flex-col gap-3.5">
@@ -378,7 +378,7 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
                 disabled={loading}
                 className="btn-sheen inline-flex items-center gap-2 text-xs uppercase tracking-wider font-bold py-3 px-8 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] rounded-full hover:scale-[1.02] transition-all shadow-lg disabled:opacity-50 cursor-pointer"
               >
-                <span>{loading ? 'Envoi en cours...' : 'Demander mon Devis 3D'}</span>
+                <span>{loading ? 'Envoi en cours...' : 'Demander mon Devis Sur-Mesure'}</span>
               </button>
             )}
           </div>

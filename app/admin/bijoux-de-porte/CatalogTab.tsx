@@ -279,7 +279,7 @@ export default function CatalogTab() {
         description: product.description || '',
         categoryType: getProductType(product),
         sizeType: getProductSize(product),
-        price: product.price,
+        price: product.price ?? 35,
         availability: product.availability || 'Disponible',
         imageUrl: pImg
       })
@@ -751,6 +751,7 @@ export default function CatalogTab() {
                       <img
                         src={pImg}
                         alt={product.name}
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/poignees/hq_knob_1.jpg' }}
                         className="max-h-full max-w-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.85)] filter contrast-105"
                       />
                     ) : (

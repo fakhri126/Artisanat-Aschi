@@ -196,12 +196,12 @@ export function Navbar() {
             )}
           </button>
 
-          {/* Primary CTA: Studio Sur-Mesure 3D */}
+          {/* Primary CTA: Studio Sur-Mesure */}
           <Link
             href="/custom-creation"
             className="hidden rounded-full border border-[#E6A635]/40 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[#1A110B] transition-all duration-300 hover:shadow-[0_0_20px_rgba(230,166,53,0.4)] btn-sheen lg:inline-block shadow-md"
           >
-            Devis Sur-Mesure 3D
+            Devis Sur-Mesure
           </Link>
 
           <button
@@ -376,7 +376,7 @@ export function Navbar() {
                 onClick={() => setOpen(false)}
                 className="btn-sheen w-full text-center rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#1A110B] shadow-lg"
               >
-                Studio Sur-Mesure 3D
+                Studio Sur-Mesure
               </Link>
             </div>
           </motion.div>

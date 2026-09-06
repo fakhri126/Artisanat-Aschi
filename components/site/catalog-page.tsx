@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, isBijouxOrHandleCategory, isBijouxOrHandleProduct } from '@/lib/utils'
 import { FadeIn } from '@/components/motion/fade-in'
 import { publicApi, Product } from '@/lib/api'
 import Link from 'next/link'
@@ -411,22 +411,7 @@ export function CatalogPage() {
     async function loadProducts() {
       try {
         const data = await publicApi.getProducts({ type: 'CATALOGUE' })
-        const isHandleProduct = (p: Product) => {
-          const catName = p.category?.name?.toLowerCase() || ''
-          const mat = p.materials?.toLowerCase() || ''
-          const name = p.name?.toLowerCase() || ''
-          return (
-            catName.includes("bijoux de porte") || 
-            catName.includes("ronds") || 
-            catName.includes("ovales") || 
-            catName.includes("poignée") ||
-            mat.includes("céramique") || 
-            mat.includes("majolique") ||
-            name.includes("bouton") || 
-            name.includes("poignée")
-          )
-        }
-        setDbProducts(data.filter(p => !isHandleProduct(p)))
+        setDbProducts(data.filter(p => !isBijouxOrHandleProduct(p)))
       } catch (err) {
         console.error("Failed to load catalog products:", err)
       } finally {
@@ -441,15 +426,20 @@ export function CatalogPage() {
     const counts: Record<string, number> = {}
     allProducts.forEach(p => {
       const catName = p.category?.name || 'Autre'
-      counts[catName] = (counts[catName] || 0) + 1
+      if (!isBijouxOrHandleCategory(catName)) {
+        counts[catName] = (counts[catName] || 0) + 1
+      }
     })
 
-    const dynamicCategories = Object.keys(counts).map(catName => ({
-      id: catName,
-      label: catName,
-      icon: getCategoryIcon(catName),
-      count: counts[catName]
-    })).sort((a, b) => a.label.localeCompare(b.label))
+    const dynamicCategories = Object.keys(counts)
+      .filter(catName => !isBijouxOrHandleCategory(catName))
+      .map(catName => ({
+        id: catName,
+        label: catName,
+        icon: getCategoryIcon(catName),
+        count: counts[catName]
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label))
 
     setCategories([
       { id: 'Tout', label: 'Tout', icon: Grid2X2, count: allProducts.length },
@@ -753,7 +743,7 @@ export function CatalogPage() {
                     href={`/custom-creation?model=${encodeURIComponent(quickViewProduct.name)}`}
                     className="btn-sheen flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer"
                   >
-                    <MessageCircle className="size-4" /> Devis Sur-Mesure 3D
+                    <MessageCircle className="size-4" /> Devis Sur-Mesure
                   </Link>
                   <Link
                     href={`/produits/${quickViewProduct.id}`}
@@ -997,7 +987,7 @@ export function CatalogPage() {
               <p className="font-heading text-2xl text-[#F7F4EE] mb-2">Aucun modèle trouvé</p>
               <p className="text-xs text-[#EAE4D9]/80 max-w-md">Essayez d&apos;autres critères ou transmettez-nous directement votre idée pour une étude sur-mesure.</p>
               <Link href="/custom-creation" className="btn-sheen mt-5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-md">
-                Studio Sur-Mesure 3D
+                Studio Sur-Mesure
               </Link>
             </motion.div>
           ) : (

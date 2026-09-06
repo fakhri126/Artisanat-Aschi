@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Eye, MessageCircle, Sparkles, AlertCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, isBijouxOrHandleProduct } from '@/lib/utils'
 import { Reveal } from './reveal'
 import { publicApi, Product, Category } from '@/lib/api'
 import Link from 'next/link'
@@ -117,7 +117,7 @@ export function Catalog() {
 
         const data = await publicApi.getProducts(queryParams)
         if (data && data.length > 0) {
-          setProducts(data)
+          setProducts(data.filter(p => !isBijouxOrHandleProduct(p)))
         } else {
           let filtered = MOCK_MODELS
           if (category !== 'Tout') {
@@ -205,7 +205,7 @@ export function Catalog() {
             {/* AI Disclaimer */}
             <div className="pt-2 border-t border-[#E6A635]/20 flex items-start gap-2 text-[10px] text-[#EAE4D9]/70 italic text-left leading-normal">
               <AlertCircle className="size-3.5 text-[#F2BD52] shrink-0 mt-0.5" />
-              <span>Certaines variantes visuelles sont générées par modélisation 3D pour illustrer les possibilités de personnalisation.</span>
+              <span>Certaines variantes visuelles sont présentées en modélisation sur-mesure pour illustrer les possibilités de personnalisation.</span>
             </div>
           </div>
         </Reveal>

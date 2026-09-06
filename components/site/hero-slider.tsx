@@ -21,7 +21,7 @@ const SLIDES = [
     image: '/placeholder.jpg',
     subtitle: 'Créations Récentes',
     title: 'Nouvelle Création d\'Art',
-    description: 'Découvrez les dernières pièces sorties de notre atelier.',
+    description: 'Découvrez les dernières pièces d\'art sorties de notre atelier.',
     cta: 'Voir les nouveautés',
     href: '#nouveautes'
   },
@@ -50,24 +50,6 @@ const SLIDES = [
     description: 'Offrez une seconde vie à vos meubles familiaux grâce à la magie de notre savoir-faire ancestral.',
     cta: 'Découvrir la Restauration',
     href: '/relooking',
-  },
-  {
-    id: 'livraison',
-    image: '/placeholder.jpg',
-    subtitle: 'Livraison de la semaine',
-    title: 'Réalisation Client',
-    description: 'Découvrez notre dernière livraison chez nos clients',
-    cta: 'Découvrir',
-    href: '#livraison'
-  },
-  {
-    id: 'evenement',
-    image: '/placeholder.jpg',
-    subtitle: 'Événement & Salons',
-    title: 'Actualité',
-    description: 'Dernier événement en date',
-    cta: 'Voir l\'événement',
-    href: '#news'
   }
 ]
 

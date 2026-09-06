@@ -5,8 +5,8 @@ import { Catalog } from '@/components/site/catalog'
 import { Sparkles } from 'lucide-react'
 
 export const metadata = {
-  title: 'Studio Sur-Mesure 3D — Artisanat Aschi',
-  description: 'Concevez votre meuble d\'art sur-mesure avec l\'Atelier Aschi. Étude 3D et devis personnalisé.',
+  title: 'Studio Sur-Mesure — Artisanat Aschi',
+  description: 'Concevez votre meuble d\'art sur-mesure avec l\'Atelier Aschi. Étude personnalisée et devis sur-mesure.',
 }
 
 export default function CustomCreationPage() {
@@ -28,13 +28,13 @@ export default function CustomCreationPage() {
           <div className="text-center mb-8 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10.5px] uppercase tracking-[0.2em] mb-3 font-bold shadow-md">
               <Sparkles className="size-3 text-[#E6A635] animate-pulse" />
-              <span>Studio Sur-Mesure 3D</span>
+              <span>Studio Sur-Mesure</span>
             </div>
             <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-light text-gold-gradient mb-3 drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
               Votre Pièce d&apos;Art Sur-Mesure
             </h1>
             <p className="text-[#EAE4D9]/90 text-xs sm:text-sm md:text-base leading-relaxed font-light drop-shadow-md">
-              De l&apos;esquisse initiale et la modélisation 3D à la sculpture ciselée à la main : nous façonnons l&apos;ouvrage d&apos;art qui s&apos;intégrera avec distinction dans votre espace de vie.
+              De l&apos;esquisse initiale et la conception sur-mesure à la sculpture ciselée à la main : nous façonnons l&apos;ouvrage d&apos;art qui s&apos;intégrera avec distinction dans votre espace de vie.
             </p>
           </div>
           

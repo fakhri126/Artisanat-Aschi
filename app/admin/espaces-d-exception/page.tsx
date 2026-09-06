@@ -14,6 +14,8 @@ import {
   MapPin,
   Star,
   Video,
+  Play,
+  Film,
   InboxIcon,
   Phone,
   Mail,
@@ -30,14 +32,26 @@ import { adminApi, Project, QuoteRequest } from '@/lib/api'
 // Tab types
 type Tab = 'projets' | 'demandes'
 
+function normalizeCategory(cat?: string): string {
+  if (!cat) return 'autre'
+  const c = cat.toLowerCase()
+  if (c.includes('hotel') || c.includes('palace') || c.includes('hôtel')) return 'hotel'
+  if (c.includes('guest') || c.includes('hôte') || c.includes('riad') || c.includes('lodge')) return 'guesthouse'
+  if (c.includes('villa') || c.includes('demeure') || c.includes('résidence privée') || c.includes('residence privee')) return 'villa'
+  if (c.includes('immo') || c.includes('promoteur') || c.includes('résidence') || c.includes('batiment')) return 'immobilier'
+  if (c.includes('pro') || c.includes('bureau') || c.includes('commercial') || c.includes('restaurant') || c.includes('lounge') || c.includes('showroom')) return 'pro_commercial'
+  return c
+}
+
 export default function AdminEspacesDExceptionPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('demandes')
+  const [activeTab, setActiveTab] = useState<Tab>('projets')
 
   // --- Projects state ---
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('ALL')
+  const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null)
 
   // --- Demandes state ---
   const [demandes, setDemandes] = useState<QuoteRequest[]>([])
@@ -48,13 +62,15 @@ export default function AdminEspacesDExceptionPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
   const [formData, setFormData] = useState<Omit<Project, 'id'>>({
     title: '',
     description: '',
     category: 'hotel',
     location: '',
     details: 'Portes monumentales, Boiseries d\'art',
-    imageUrl: '/project-hotel.png'
+    imageUrl: '/project-hotel.png',
+    videoUrl: ''
   })
 
   useEffect(() => {
@@ -77,7 +93,8 @@ export default function AdminEspacesDExceptionPage() {
           category: 'hotel',
           location: 'Médina de Tunis',
           details: 'Portes monumentales, Boiseries d\'art, Salons de réception',
-          imageUrl: '/project-hotel.png'
+          imageUrl: '/project-hotel.png',
+          videoUrl: '/Video.mp4'
         },
         {
           id: 2,
@@ -86,7 +103,8 @@ export default function AdminEspacesDExceptionPage() {
           category: 'guesthouse',
           location: 'Sidi Bou Saïd',
           details: 'Mobilier de chambre, Miroirs sculptés, Consoles',
-          imageUrl: '/project-guesthouse.png'
+          imageUrl: '/project-guesthouse.png',
+          videoUrl: '/test-video.mp4'
         }
       ])
     } finally {
@@ -152,7 +170,8 @@ export default function AdminEspacesDExceptionPage() {
         category: project.category || 'hotel',
         location: project.location || '',
         details: project.details || '',
-        imageUrl: project.imageUrl || '/project-hotel.png'
+        imageUrl: project.imageUrl || '/project-hotel.png',
+        videoUrl: project.videoUrl || project.video || ''
       })
     } else {
       setEditingProject(null)
@@ -162,7 +181,8 @@ export default function AdminEspacesDExceptionPage() {
         category: 'hotel',
         location: '',
         details: 'Portes monumentales, Boiseries d\'art',
-        imageUrl: '/project-hotel.png'
+        imageUrl: '/project-hotel.png',
+        videoUrl: ''
       })
     }
     setIsModalOpen(true)
@@ -180,6 +200,22 @@ export default function AdminEspacesDExceptionPage() {
       alert('Erreur d\'envoi de l\'image.')
     } finally {
       setUploading(false)
+    }
+  }
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+    const file = e.target.files[0]
+    try {
+      setUploadingVideo(true)
+      const res = await adminApi.uploadVideo(file)
+      setFormData(prev => ({ ...prev, videoUrl: res.url }))
+    } catch (err) {
+      console.error('Error uploading video:', err)
+      alert('Erreur lors du téléchargement de la vidéo.')
+    } finally {
+      setUploadingVideo(false)
+      e.target.value = ''
     }
   }
 
@@ -213,7 +249,10 @@ export default function AdminEspacesDExceptionPage() {
   const filteredProjects = projects.filter(p => {
     const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) || 
                           p.location?.toLowerCase().includes(search.toLowerCase())
-    const matchesCat = categoryFilter === 'ALL' || p.category === categoryFilter
+    const normP = normalizeCategory(p.category)
+    const matchesCat = categoryFilter === 'ALL' || 
+                       p.category?.toLowerCase() === categoryFilter.toLowerCase() ||
+                       normP === categoryFilter
     return matchesSearch && matchesCat
   })
 
@@ -476,10 +515,11 @@ export default function AdminEspacesDExceptionPage() {
             <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
               {[
                 { id: 'ALL', label: 'Tous' },
-                { id: 'hotel', label: 'Hôtels' },
+                { id: 'immobilier', label: 'Projets Immobiliers' },
+                { id: 'hotel', label: 'Hôtels & Palaces' },
                 { id: 'guesthouse', label: 'Maisons d\'Hôtes' },
-                { id: 'restaurant', label: 'Restaurants' },
-                { id: 'entreprise', label: 'Entreprises' }
+                { id: 'villa', label: 'Villas & Résidences' },
+                { id: 'pro_commercial', label: 'Espaces Pro & Commerciaux' }
               ].map((cat) => (
                 <button
                   key={cat.id}
@@ -506,67 +546,119 @@ export default function AdminEspacesDExceptionPage() {
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2">
-              {filteredProjects.map((project) => (
-                <div 
-                  key={project.id}
-                  className="bg-[#FAF7F2] rounded-2xl border border-[#E8DCCB]/10 overflow-hidden hover:border-[#E8DCCB]/30 transition-all flex flex-col justify-between"
-                >
-                  <div className="relative aspect-[16/9] w-full bg-stone-900 border-b border-[#E8DCCB]/10">
-                    <Image
-                      src={project.imageUrl || '/project-hotel.png'}
-                      alt={project.title}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute top-3 left-3 bg-stone-950/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#C17D59] border border-[#E8DCCB]/20">
-                      {project.category}
-                    </div>
-                  </div>
+              {filteredProjects.map((project) => {
+                const categoryLabels: Record<string, string> = {
+                  immobilier: 'Projets Immobiliers',
+                  hotel: 'Hôtels & Palaces',
+                  guesthouse: "Maisons d'Hôtes",
+                  villa: 'Villas & Résidences Privées',
+                  pro_commercial: 'Espaces Pro & Commerciaux',
+                  restaurant: 'Restaurants',
+                  entreprise: 'Entreprises'
+                }
+                const displayCat = categoryLabels[project.category] || project.category
 
-                  <div className="p-5 space-y-3 flex-1">
-                    <div className="flex items-center gap-1.5 text-xs text-[#C17D59]/80 font-semibold">
-                      <MapPin className="size-3.5" /> {project.location || 'Tunis'}
-                    </div>
-                    <h3 className="font-heading text-2xl text-white font-medium">{project.title}</h3>
-                    <p className="text-xs text-[#3A2A21]/70 font-light leading-relaxed line-clamp-3">
-                      {project.description}
-                    </p>
-                    {project.details && (
-                      <div className="flex flex-wrap gap-1.5 pt-2">
-                        {project.details.split(',').map((tag, idx) => (
-                          <span key={idx} className="bg-white/5 border border-white/5 px-2.5 py-0.5 rounded text-[9px] text-[#3A2A21]/60">
-                            {tag.trim()}
-                          </span>
-                        ))}
+                return (
+                  <div 
+                    key={project.id}
+                    className="bg-[#FAF7F2] rounded-2xl border border-[#E8DCCB]/10 overflow-hidden hover:border-[#E8DCCB]/30 transition-all flex flex-col justify-between"
+                  >
+                    <div className="relative aspect-[16/9] w-full bg-stone-900 border-b border-[#E8DCCB]/10">
+                      <Image
+                        src={project.imageUrl || '/project-hotel.png'}
+                        alt={project.title}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute top-3 left-3 bg-stone-950/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#C17D59] border border-[#E8DCCB]/20">
+                        {displayCat}
                       </div>
-                    )}
-                  </div>
 
-                  <div className="px-5 py-3.5 bg-stone-950/60 border-t border-white/5 flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => handleOpenModal(project)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut text-xs font-semibold transition-colors"
-                    >
-                      <Edit className="size-3.5" /> Modifier
-                    </button>
-                    <button
-                      onClick={() => handleDelete(project.id)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white text-xs font-semibold transition-colors"
-                    >
-                      <Trash2 className="size-3.5" /> Supprimer
-                    </button>
+                      {(project.videoUrl || project.video) && (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewVideoUrl(project.videoUrl || project.video || null)}
+                          className="absolute bottom-3 right-3 bg-[#E8DCCB] text-walnut px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md hover:scale-105 transition-transform"
+                        >
+                          <Play className="size-3 fill-current" /> Vidéo
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="p-5 space-y-3 flex-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs text-[#C17D59]/80 font-semibold">
+                          <MapPin className="size-3.5" /> {project.location || 'Tunis'}
+                        </div>
+                        {(project.videoUrl || project.video) && (
+                          <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-wider text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                            <Video className="size-2.5" /> Vidéo incluse
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="font-heading text-2xl text-white font-medium">{project.title}</h3>
+                      <p className="text-xs text-[#3A2A21]/70 font-light leading-relaxed line-clamp-3">
+                        {project.description}
+                      </p>
+                      {project.details && (
+                        <div className="flex flex-wrap gap-1.5 pt-2">
+                          {project.details.split(',').map((tag, idx) => (
+                            <span key={idx} className="bg-white/5 border border-white/5 px-2.5 py-0.5 rounded text-[9px] text-[#3A2A21]/60">
+                              {tag.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="px-5 py-3.5 bg-stone-950/60 border-t border-white/5 flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => handleOpenModal(project)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut text-xs font-semibold transition-colors"
+                      >
+                        <Edit className="size-3.5" /> Modifier
+                      </button>
+                      <button
+                        onClick={() => handleDelete(project.id)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white text-xs font-semibold transition-colors"
+                      >
+                        <Trash2 className="size-3.5" /> Supprimer
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Video Preview Modal */}
+      {previewVideoUrl && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="relative w-full max-w-3xl bg-stone-900 border border-[#E8DCCB]/30 rounded-2xl overflow-hidden shadow-2xl">
+            <button
+              onClick={() => setPreviewVideoUrl(null)}
+              className="absolute top-4 right-4 z-10 size-9 rounded-full bg-black/70 border border-white/20 text-white hover:text-amber-400 flex items-center justify-center transition-colors"
+            >
+              <X className="size-5" />
+            </button>
+            <div className="aspect-video w-full bg-black">
+              <video
+                src={previewVideoUrl}
+                controls
+                autoPlay
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </div>
         </div>
       )}
 
       {/* Editor Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-white/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-stone-900 border border-[#E8DCCB]/30 rounded-2xl max-w-lg w-full p-6 md:p-8 space-y-6 shadow-2xl relative text-left">
+          <div className="bg-stone-900 border border-[#E8DCCB]/30 rounded-2xl max-w-xl w-full p-6 md:p-8 space-y-5 shadow-2xl relative text-left max-h-[92vh] overflow-y-auto">
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 text-[#3A2A21]/40 hover:text-white"
@@ -574,7 +666,7 @@ export default function AdminEspacesDExceptionPage() {
               <X className="size-5" />
             </button>
 
-            <div className="border-b border-white/10 pb-4">
+            <div className="border-b border-white/10 pb-3">
               <h3 className="font-heading text-2xl text-white">
                 {editingProject ? 'Modifier le Projet' : 'Nouveau Projet d\'Exception'}
               </h3>
@@ -595,16 +687,17 @@ export default function AdminEspacesDExceptionPage() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Type d&apos;Établissement *</label>
+                  <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Type d&apos;Établissement / Espace *</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="rounded-lg border border-white/10 bg-stone-950 px-4 py-2.5 outline-none focus:border-[#E8DCCB] transition-colors text-white text-xs"
                   >
-                    <option value="hotel">Hôtel de luxe</option>
-                    <option value="guesthouse">Maison d&apos;Hôtes</option>
-                    <option value="restaurant">Restaurant / Bar</option>
-                    <option value="entreprise">Siège d&apos;Entreprise</option>
+                    <option value="immobilier">Projets Immobiliers</option>
+                    <option value="hotel">Hôtels &amp; Palaces</option>
+                    <option value="guesthouse">Maisons d&apos;Hôtes</option>
+                    <option value="villa">Villas &amp; Résidences Privées</option>
+                    <option value="pro_commercial">Espaces Professionnels &amp; Commerciaux</option>
                   </select>
                 </div>
 
@@ -632,6 +725,7 @@ export default function AdminEspacesDExceptionPage() {
                 />
               </div>
 
+              {/* Photo de couverture */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Photo de couverture *</label>
                 <div className="flex gap-2">
@@ -645,16 +739,75 @@ export default function AdminEspacesDExceptionPage() {
                   />
                   <label className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-[#E8DCCB] hover:text-walnut px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
                     <Upload className="size-3.5" />
-                    {uploading ? '...' : 'Fichier'}
+                    {uploading ? '...' : 'Photo'}
                     <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                   </label>
                 </div>
               </div>
 
+              {/* Vidéo du projet */}
+              <div className="flex flex-col gap-1.5 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] uppercase tracking-widest text-amber-400 font-bold flex items-center gap-1.5">
+                    <Film className="size-3.5" /> Vidéo du projet (Atelier / Visite 3D / Chantier)
+                  </label>
+                  {formData.videoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, videoUrl: '' })}
+                      className="text-[10px] text-red-400 hover:text-red-300 transition-colors"
+                    >
+                      Supprimer la vidéo
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={formData.videoUrl || ''}
+                    onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                    placeholder="Ex: /Video.mp4 ou importer un fichier MP4..."
+                    className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-xs outline-none focus:border-amber-400 text-white font-mono"
+                  />
+                  <label className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
+                    uploadingVideo 
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' 
+                      : 'bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] hover:opacity-90 font-bold shadow'
+                  }`}>
+                    {uploadingVideo ? (
+                      <RefreshCw className="size-3.5 animate-spin" />
+                    ) : (
+                      <Video className="size-3.5" />
+                    )}
+                    {uploadingVideo ? 'Envoi...' : 'Importer Vidéo'}
+                    <input 
+                      type="file" 
+                      accept="video/mp4,video/webm,video/quicktime" 
+                      className="hidden" 
+                      onChange={handleVideoUpload}
+                      disabled={uploadingVideo}
+                    />
+                  </label>
+                </div>
+
+                {/* Video Live Preview */}
+                {formData.videoUrl && (
+                  <div className="relative aspect-video w-full rounded-lg overflow-hidden border border-amber-500/30 bg-black mt-2">
+                    <video
+                      src={formData.videoUrl}
+                      controls
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
+                <p className="text-[10px] text-white/40">Formats acceptés : MP4, WEBM, MOV (ou fichier vidéo local /Video.mp4)</p>
+              </div>
+
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] uppercase tracking-widest text-[#C17D59] font-bold">Description du Projet</label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Décrivez l'intervention de l'atelier, l'ébénisterie et la sculpture..."
@@ -664,7 +817,7 @@ export default function AdminEspacesDExceptionPage() {
 
               <button
                 type="submit"
-                className="w-full bg-[#E8DCCB] text-walnut py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:scale-[1.02] transition-transform mt-4 shadow-lg"
+                className="w-full bg-[#E8DCCB] text-walnut py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:scale-[1.02] transition-transform mt-2 shadow-lg"
               >
                 {editingProject ? 'Enregistrer les modifications' : 'Créer le projet'}
               </button>

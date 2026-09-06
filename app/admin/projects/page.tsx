@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { adminApi, Project } from '@/lib/api'
-import { Plus, Edit2, Trash2, X, MapPin, Folder, Image as ImageIcon } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, MapPin, Folder, Image as ImageIcon, Video, Play, RefreshCw, Film } from 'lucide-react'
 import { ImageUploader } from '@/components/site/image-uploader'
 
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null)
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false)
@@ -17,11 +18,13 @@ export default function AdminProjectsPage() {
   // Form fields
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [category, setCategory] = useState('Villas')
+  const [category, setCategory] = useState('Projets Immobiliers')
   const [location, setLocation] = useState('')
   const [details, setDetails] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [videoUrl, setVideoUrl] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
 
   useEffect(() => {
     loadProjects()
@@ -43,10 +46,11 @@ export default function AdminProjectsPage() {
     setEditingProject(null)
     setTitle('')
     setDescription('')
-    setCategory('Villas')
+    setCategory('Projets Immobiliers')
     setLocation('')
     setDetails('')
     setImageUrl('')
+    setVideoUrl('')
     setModalOpen(true)
   }
 
@@ -58,7 +62,23 @@ export default function AdminProjectsPage() {
     setLocation(proj.location || '')
     setDetails(proj.details || '')
     setImageUrl(proj.imageUrl || '')
+    setVideoUrl(proj.videoUrl || proj.video || '')
     setModalOpen(true)
+  }
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+    const file = e.target.files[0]
+    try {
+      setUploadingVideo(true)
+      const res = await adminApi.uploadVideo(file)
+      setVideoUrl(res.url)
+    } catch (err: any) {
+      alert(err.message || 'Erreur de téléchargement de la vidéo.')
+    } finally {
+      setUploadingVideo(false)
+      e.target.value = ''
+    }
   }
 
   const handleDelete = async (id: number) => {
@@ -79,7 +99,8 @@ export default function AdminProjectsPage() {
       category,
       location,
       details,
-      imageUrl: imageUrl || '/placeholder.png'
+      imageUrl: imageUrl || '/placeholder.png',
+      videoUrl: videoUrl || null
     }
 
     try {
@@ -134,17 +155,39 @@ export default function AdminProjectsPage() {
               <div>
                 <div className="h-56 bg-secondary overflow-hidden relative border-b border-border">
                   {proj.imageUrl ? (
-                    <img src={proj.imageUrl} alt={proj.title} className="size-full object-cover" />
+                    <img 
+                      src={proj.imageUrl} 
+                      alt={proj.title} 
+                      className="size-full object-cover" 
+                      onError={(e) => { (e.target as HTMLImageElement).src = '/project-hotel.png' }}
+                    />
                   ) : (
                     <div className="size-full flex items-center justify-center text-muted-foreground"><ImageIcon className="size-10" /></div>
                   )}
                   <span className="absolute top-4 left-4 bg-[#FAF7F2] text-[#C17D59] text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-[#E8DCCB]/20">
                     <Folder className="size-3" /> {proj.category}
                   </span>
+
+                  {(proj.videoUrl || proj.video) && (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewVideoUrl(proj.videoUrl || proj.video || null)}
+                      className="absolute bottom-3 right-3 bg-[#E8DCCB] text-walnut px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md hover:scale-105 transition-transform"
+                    >
+                      <Play className="size-3 fill-current" /> Vidéo
+                    </button>
+                  )}
                 </div>
                 <div className="p-6 space-y-3">
-                  <div className="flex items-center gap-1 text-xs text-[#C17D59] font-medium">
-                    <MapPin className="size-3.5" /> {proj.location || 'Tunisie'}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-xs text-[#C17D59] font-medium">
+                      <MapPin className="size-3.5" /> {proj.location || 'Tunisie'}
+                    </div>
+                    {(proj.videoUrl || proj.video) && (
+                      <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-wider text-amber-500 font-semibold bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                        <Video className="size-2.5" /> Vidéo
+                      </span>
+                    )}
                   </div>
                   <h3 className="font-heading text-2xl font-light text-foreground text-left">{proj.title}</h3>
                   <p className="text-sm font-light text-muted-foreground leading-relaxed text-left line-clamp-3">{proj.description}</p>
@@ -168,6 +211,28 @@ export default function AdminProjectsPage() {
           ))
         )}
       </div>
+
+      {/* Video Preview Modal */}
+      {previewVideoUrl && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="relative w-full max-w-3xl bg-background border border-border rounded-2xl overflow-hidden shadow-2xl">
+            <button
+              onClick={() => setPreviewVideoUrl(null)}
+              className="absolute top-4 right-4 z-10 size-9 rounded-full bg-black/70 border border-white/20 text-white hover:text-amber-400 flex items-center justify-center transition-colors"
+            >
+              <X className="size-5" />
+            </button>
+            <div className="aspect-video w-full bg-black">
+              <video
+                src={previewVideoUrl}
+                controls
+                autoPlay
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Form Modal */}
       {modalOpen && (
@@ -203,11 +268,11 @@ export default function AdminProjectsPage() {
                     onChange={(e) => setCategory(e.target.value)}
                     className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none"
                   >
-                    <option value="Villas">Villas</option>
+                    <option value="Projets Immobiliers">Projets Immobiliers</option>
                     <option value="Hôtels">Hôtels</option>
                     <option value="Maisons d'hôtes">Maisons d&apos;hôtes</option>
-                    <option value="Restaurants">Restaurants</option>
-                    <option value="Entreprises">Entreprises</option>
+                    <option value="Villas &amp; Résidences Privées">Villas &amp; Résidences Privées</option>
+                    <option value="Espaces Professionnels &amp; Commerciaux">Espaces Professionnels &amp; Commerciaux</option>
                   </select>
                 </div>
 
@@ -223,6 +288,7 @@ export default function AdminProjectsPage() {
                 </div>
               </div>
 
+              {/* Photo Upload */}
               <ImageUploader
                 label="Image principale de la réalisation"
                 imageUrl={imageUrl}
@@ -232,6 +298,64 @@ export default function AdminProjectsPage() {
                 setUploading={setUploading}
                 uploadFn={adminApi.uploadImage}
               />
+
+              {/* Video Upload & Preview */}
+              <div className="space-y-2 rounded-xl border border-border bg-secondary/20 p-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs uppercase tracking-wider text-[#C17D59] font-bold flex items-center gap-1.5">
+                    <Film className="size-3.5" /> Vidéo de la réalisation
+                  </label>
+                  {videoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setVideoUrl('')}
+                      className="text-xs text-red-500 hover:underline"
+                    >
+                      Supprimer la vidéo
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    placeholder="Ex: /Video.mp4 ou importer un fichier MP4..."
+                    className="flex-1 bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-2.5 text-xs text-foreground outline-none font-mono"
+                  />
+                  <label className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
+                    uploadingVideo
+                      ? 'bg-secondary text-muted-foreground'
+                      : 'bg-[#E8DCCB] text-walnut hover:bg-[#E8DCCB]/90 shadow-sm'
+                  }`}>
+                    {uploadingVideo ? (
+                      <RefreshCw className="size-3.5 animate-spin" />
+                    ) : (
+                      <Video className="size-3.5" />
+                    )}
+                    {uploadingVideo ? 'Envoi...' : 'Importer Vidéo'}
+                    <input
+                      type="file"
+                      accept="video/mp4,video/webm,video/quicktime"
+                      className="hidden"
+                      onChange={handleVideoUpload}
+                      disabled={uploadingVideo}
+                    />
+                  </label>
+                </div>
+
+                {videoUrl && (
+                  <div className="relative aspect-video w-full rounded-lg overflow-hidden border border-border bg-black mt-2">
+                    <video
+                      src={videoUrl}
+                      controls
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
+                <p className="text-[10px] text-muted-foreground">Formats acceptés : MP4, WEBM, MOV</p>
+              </div>
 
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Description courte</label>

@@ -96,9 +96,9 @@ export function WhyAschi() {
     {
       id: 3,
       tag: "03 • Le Sur-Mesure",
-      tabTitle: "Plans 3D Gratuits",
-      title: "Meubles Sur-Mesure avec Plan 3D sous 24h",
-      desc: "Vous choisissez vos dimensions, vos formes et vos couleurs. Nous réalisons un plan 3D réaliste pour que vous puissiez voir votre futur meuble avant sa fabrication.",
+      tabTitle: "Plans Sur-Mesure",
+      title: "Meubles Sur-Mesure avec Plans sous 24h",
+      desc: "Vous choisissez vos dimensions, vos formes et vos couleurs. Nous réalisons une étude sur-mesure réaliste pour que vous puissiez voir votre futur meuble avant sa fabrication.",
       image: "/project-villa.png",
       icon: <Compass className="size-4 text-[#F2BD52]" />
     },
@@ -341,7 +341,7 @@ export function WhyAschi() {
         </div>
 
         {/* ========================================================================= */}
-        {/* 4. CONSOLE DE CONVERSION (Devis 3D & WhatsApp)                            */}
+        {/* 4. CONSOLE DE CONVERSION (Devis Sur-Mesure & WhatsApp)                    */}
         {/* ========================================================================= */}
         <Reveal delay={140}>
           <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#3B271C]/95 backdrop-blur-2xl p-4 sm:p-6 shadow-xl">
@@ -351,7 +351,7 @@ export function WhyAschi() {
                   Vous avez une idée ou un meuble en tête ?
                 </h3>
                 <p className="text-white/90 text-xs sm:text-sm font-normal">
-                  Contactez-nous pour étudier votre projet. Devis gratuit et modèle 3D sous 24h.
+                  Contactez-nous pour étudier votre projet. Devis gratuit et étude sur-mesure sous 24h.
                 </p>
               </div>
 
@@ -361,7 +361,7 @@ export function WhyAschi() {
                   className="btn-sheen inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-3 rounded-full text-xs font-bold uppercase tracking-[0.14em] shadow-lg transition-all hover:scale-105 w-full sm:w-auto text-center"
                 >
                   <FileText className="size-3.5 text-[#1A110B]" />
-                  <span>Demander un Devis 3D</span>
+                  <span>Demander un Devis Sur-Mesure</span>
                   <ArrowRight className="size-3.5" />
                 </Link>
 

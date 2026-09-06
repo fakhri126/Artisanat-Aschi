@@ -39,6 +39,8 @@ export interface Project {
   location: string;
   details: string;
   imageUrl: string;
+  videoUrl?: string | null;
+  video?: string | null;
 }
 
 export interface News {
@@ -121,6 +123,7 @@ export interface ProductRequest {
   availability: string;
   type: 'PIECE_UNIQUE' | 'REPRODUCTIBLE' | 'CATALOGUE';
   isFeatured: boolean;
+  style?: string;
   imageUrls?: string[];         // legacy fallback
   imageVariants?: ImageVariant[]; // new: structured variants with colorLabel
 }
@@ -306,6 +309,25 @@ export const adminApi = {
       method: 'POST',
       body: formData,
     });
+  },
+
+  uploadVideo: async (file: File) => {
+    try {
+      // Prioritize uploading to the Spring Boot backend
+      return await adminApi.uploadImage(file);
+    } catch (backendError) {
+      console.warn('Backend upload failed, falling back to Next.js upload-video:', backendError);
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload-video', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        throw new Error('Erreur lors du téléchargement de la vidéo');
+      }
+      return res.json() as Promise<{ url: string }>;
+    }
   },
 
   uploadProductImage: (file: File) => {

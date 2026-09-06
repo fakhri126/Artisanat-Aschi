@@ -41,6 +41,7 @@ public class ProjectService {
         project.setLocation(projectDetails.getLocation());
         project.setDetails(projectDetails.getDetails());
         project.setImageUrl(projectDetails.getImageUrl());
+        project.setVideoUrl(projectDetails.getVideoUrl());
         return projectRepository.save(project);
     }
 

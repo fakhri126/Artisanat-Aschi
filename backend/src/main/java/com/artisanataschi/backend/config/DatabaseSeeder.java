@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,6 +24,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Autowired private NewsRepository newsRepository;
     @Autowired private ReferenceRepository referenceRepository;
     @Autowired private TestimonialRepository testimonialRepository;
+    @Autowired private DeliveryRepository deliveryRepository;
+    @Autowired private RelookingRepository relookingRepository;
     @Autowired private PasswordEncoder passwordEncoder;
 
     private Category cat(String name, String type) {
@@ -246,27 +249,31 @@ public class DatabaseSeeder implements CommandLineRunner {
         System.out.println("✅ All 32 genuine handle products seeded.");
 
         // ── 4. Seed Projects ─────────────────────────────────────────────────
+        // ── 4. Seed Projects ─────────────────────────────────────────────────
         if (projectRepository.count() == 0) {
             Project pr1 = new Project();
             pr1.setTitle("Villa Didon");
             pr1.setDescription("Restauration et fabrication de portes monumentales et plafonds sculptés d'une villa de maître à Carthage.");
-            pr1.setCategory("Villas"); pr1.setLocation("Carthage");
+            pr1.setCategory("villa"); pr1.setLocation("Carthage");
             pr1.setDetails("Mobilier en noyer massif, portes cloutées traditionnelles, miroirs monumentaux.");
-            pr1.setImageUrl("/project-1.jpg");
+            pr1.setImageUrl("/project-villa.png");
+            pr1.setVideoUrl("http://localhost:8081/api/uploads/Video.mp4");
 
             Project pr2 = new Project();
             pr2.setTitle("Maison d'Hôtes Dar El Jeld");
             pr2.setDescription("Aménagement complet des suites d'exception de la célèbre maison d'hôtes dans la Médina de Tunis.");
-            pr2.setCategory("Maisons d'hôtes"); pr2.setLocation("Médina de Tunis");
+            pr2.setCategory("hotel"); pr2.setLocation("Médina de Tunis");
             pr2.setDetails("Coffres sculptés, lits à baldaquin en bois d'olivier, consoles et miroirs d'inspiration andalouse.");
-            pr2.setImageUrl("/project-2.jpg");
+            pr2.setImageUrl("/project-hotel.png");
+            pr2.setVideoUrl("http://localhost:8081/api/uploads/Video.mp4");
 
             Project pr3 = new Project();
             pr3.setTitle("Hôtel Royal Mansour");
             pr3.setDescription("Création de portes intérieures sculptées et de buffets beylicaux pour le hall de réception.");
-            pr3.setCategory("Hôtels"); pr3.setLocation("Hammamet");
+            pr3.setCategory("hotel"); pr3.setLocation("Hammamet");
             pr3.setDetails("Sculpture sur noyer de première qualité, ornements de feuilles d'or.");
-            pr3.setImageUrl("/project-3.jpg");
+            pr3.setImageUrl("/project-restaurant.png");
+            pr3.setVideoUrl("http://localhost:8081/api/uploads/test-video.mp4");
 
             projectRepository.saveAll(Arrays.asList(pr1, pr2, pr3));
             System.out.println("✅ Projects seeded.");
@@ -316,6 +323,54 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             testimonialRepository.saveAll(Arrays.asList(t1, t2));
             System.out.println("✅ Testimonials seeded.");
+        }
+
+        // ── 8. Seed Deliveries ────────────────────────────────────────────────
+        if (deliveryRepository.count() == 0) {
+            Delivery d1 = new Delivery("Suite Parentale & Tête de Lit Sculptée — Villa Gammarth",
+                "Installation complète d'une suite de prestige comprenant une tête de lit monumentale ciselée à la main aux motifs andalous, tables de chevet marquetées et console d'entrée en noyer noble.",
+                "http://localhost:8081/api/uploads/1788412722399-villacarthage.mp4",
+                LocalDate.now().minusDays(1));
+            Delivery d2 = new Delivery("Salon d'Apparat & Boiserie Andalouse — Résidence Carthage",
+                "Aménagement complet sur-mesure avec boiserie murale ciselée, portes intérieures à claustra traditionnel et finitions en laiton vieilli pour une demeure de maître.",
+                "http://localhost:8081/api/uploads/1788370150280-villasoukra.mp4",
+                LocalDate.now().minusDays(5));
+            Delivery d3 = new Delivery("Porte d'Apparat Cloutée & Moucharabiehs — Demeure Sidi Bou Saïd",
+                "Pose clé en main d'une porte monumentale en noyer massif avec clous forgés traditionnels et moucharabieh d'inspiration beylicale.",
+                "/project-villa.png",
+                LocalDate.now().minusDays(12));
+            deliveryRepository.saveAll(Arrays.asList(d1, d2, d3));
+            System.out.println("✅ Deliveries seeded.");
+        }
+
+        // ── 9. Seed Relookings ────────────────────────────────────────────────
+        if (relookingRepository.count() == 0) {
+            Relooking r1 = new Relooking();
+            r1.setTitle("Commode de Style Louis XVI");
+            r1.setDescription("Restauration complète d'une commode en placage de noyer desséchée. Décapage, comblement des fentes et vernissage traditionnel au tampon.");
+            r1.setCategory("Meubles Anciens");
+            r1.setImageAvantUrl("/relooking-before.jpg");
+            r1.setImageApresUrl("/relooking-after.jpg");
+            r1.setCreatedDate(LocalDateTime.now().minusDays(7));
+
+            Relooking r2 = new Relooking();
+            r2.setTitle("Cadre de Miroir Ottoman");
+            r2.setDescription("Reconstitution des ornements sculptés endommagés sur un cadre en bois doré d'époque et dorure fine à la feuille d'or.");
+            r2.setCategory("Miroirs & Cadres");
+            r2.setImageAvantUrl("/mirror-before.jpg");
+            r2.setImageApresUrl("/mirror-after.jpg");
+            r2.setCreatedDate(LocalDateTime.now().minusDays(14));
+
+            Relooking r3 = new Relooking();
+            r3.setTitle("Porte d'Entrée de Demeure");
+            r3.setDescription("Rénovation esthétique et protectrice d'une porte d'entrée en bois massif exposée aux intempéries.");
+            r3.setCategory("Portes & Boiseries");
+            r3.setImageAvantUrl("/door-before.jpg");
+            r3.setImageApresUrl("/door-after.jpg");
+            r3.setCreatedDate(LocalDateTime.now().minusDays(21));
+
+            relookingRepository.saveAll(Arrays.asList(r1, r2, r3));
+            System.out.println("✅ Relookings seeded.");
         }
     }
 }

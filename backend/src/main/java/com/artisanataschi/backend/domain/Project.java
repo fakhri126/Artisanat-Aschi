@@ -26,10 +26,12 @@ public class Project {
 
     private String imageUrl;
 
+    private String videoUrl;
+
     public Project() {
     }
 
-    public Project(Long id, String title, String description, String category, String location, String details, String imageUrl) {
+    public Project(Long id, String title, String description, String category, String location, String details, String imageUrl, String videoUrl) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -37,6 +39,7 @@ public class Project {
         this.location = location;
         this.details = details;
         this.imageUrl = imageUrl;
+        this.videoUrl = videoUrl;
     }
 
     public Long getId() {
@@ -93,5 +96,13 @@ public class Project {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }

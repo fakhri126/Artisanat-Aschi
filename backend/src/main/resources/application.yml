@@ -5,9 +5,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/artisanat_aschi
-    username: postgres
-    password: adminpassword
+    url: jdbc:postgresql://aws-1-eu-west-3.pooler.supabase.com:5432/postgres?sslmode=require
+    username: postgres.uerbqswgxsinayfyntsm
+    password: Aqwzsx 126002
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect

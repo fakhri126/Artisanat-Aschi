@@ -29,10 +29,12 @@ import {
   Check,
   Send,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  MessageCircle
 } from 'lucide-react'
 import Link from 'next/link'
 import { publicApi, Product } from '@/lib/api'
+import { MobileFloatingVIP } from '@/components/site/mobile-floating-vip'
 
 export type HandleType = 'ceramique' | 'sculptee' | 'cuivre'
 export type HandleSize = 'all' | 'petit' | 'moyen' | 'grand'
@@ -992,6 +994,7 @@ export default function BijouxDePortePage() {
                               src={handle.image}
                               alt={handle.name}
                               loading="lazy"
+                              onError={(e) => { (e.target as HTMLImageElement).src = '/poignees/hq_knob_1.jpg' }}
                               className="max-h-full max-w-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.85)] filter contrast-105 group-hover:scale-108 group-hover:-translate-y-1 transition-all duration-500 ease-out"
                             />
                           </div>
@@ -1127,68 +1130,68 @@ export default function BijouxDePortePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 6. SECTION RÉASSURANCE & ENGAGEMENT DE L'ATELIER (COMPACT MOBILE)          */}
+      {/* 6. SECTION RÉASSURANCE TECHNIQUE & VISSERIE FOURNIE                       */}
       {/* ========================================================================= */}
       <section className="w-full max-w-7xl mx-auto px-3 sm:px-6 mb-16 sm:mb-24 relative z-10">
-        <div className="p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#3B271C]/90 to-[#241812]/95 backdrop-blur-xl border border-[#E6A635]/35 shadow-xl">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#3B271C]/90 to-[#241812]/95 backdrop-blur-xl border border-[#E6A635]/40 shadow-xl">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             
             {/* Pillar 1 */}
-            <div className="flex items-start gap-2.5">
-              <div className="size-8 sm:size-10 rounded-lg sm:rounded-xl bg-[#241812] border border-[#E6A635]/40 flex items-center justify-center text-[#F2BD52] shrink-0 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="size-9 sm:size-10 rounded-xl bg-[#241812] border border-[#E6A635]/40 flex items-center justify-center text-[#F2BD52] shrink-0 shadow-md">
                 <Hammer className="size-4 sm:size-5" />
               </div>
               <div>
-                <h4 className="font-heading text-xs sm:text-base font-normal text-white mb-0.5">
-                  Artisanat Pur
+                <h4 className="font-heading text-xs sm:text-base font-medium text-white mb-0.5">
+                  100% Fait Main
                 </h4>
-                <p className="text-[9.5px] sm:text-[11px] text-white/70 font-light leading-tight">
-                  Noyer massif &amp; faïence d&apos;époque.
+                <p className="text-[9.5px] sm:text-[11px] text-white/80 font-light leading-tight">
+                  Noyer noble sculpté &amp; faïence d&apos;art cuite au four.
                 </p>
               </div>
             </div>
 
             {/* Pillar 2 */}
-            <div className="flex items-start gap-2.5">
-              <div className="size-8 sm:size-10 rounded-lg sm:rounded-xl bg-[#241812] border border-[#E6A635]/40 flex items-center justify-center text-[#F2BD52] shrink-0 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="size-9 sm:size-10 rounded-xl bg-[#241812] border border-[#E6A635]/40 flex items-center justify-center text-[#F2BD52] shrink-0 shadow-md">
                 <Wrench className="size-4 sm:size-5" />
               </div>
               <div>
-                <h4 className="font-heading text-xs sm:text-base font-normal text-white mb-0.5">
-                  Fixation Inox
+                <h4 className="font-heading text-xs sm:text-base font-medium text-white mb-0.5">
+                  Visserie Inox Fournie
                 </h4>
-                <p className="text-[9.5px] sm:text-[11px] text-white/70 font-light leading-tight">
-                  Visserie fournie (bois 18-40 mm).
+                <p className="text-[9.5px] sm:text-[11px] text-white/80 font-light leading-tight">
+                  Tige filetée M4 universelle prête à poser (panneaux 18-40 mm).
                 </p>
               </div>
             </div>
 
             {/* Pillar 3 */}
-            <div className="flex items-start gap-2.5">
-              <div className="size-8 sm:size-10 rounded-lg sm:rounded-xl bg-[#241812] border border-[#E6A635]/40 flex items-center justify-center text-[#F2BD52] shrink-0 shadow-sm">
-                <Award className="size-4 sm:size-5" />
+            <div className="flex items-start gap-3">
+              <div className="size-9 sm:size-10 rounded-xl bg-[#241812] border border-[#E6A635]/40 flex items-center justify-center text-[#F2BD52] shrink-0 shadow-md">
+                <Shield className="size-4 sm:size-5" />
               </div>
               <div>
-                <h4 className="font-heading text-xs sm:text-base font-normal text-white mb-0.5">
-                  Sur-Mesure
+                <h4 className="font-heading text-xs sm:text-base font-medium text-white mb-0.5">
+                  Résistant à l&apos;Eau
                 </h4>
-                <p className="text-[9.5px] sm:text-[11px] text-white/70 font-light leading-tight">
-                  Création sur plan et séries d&apos;architecte.
+                <p className="text-[9.5px] sm:text-[11px] text-white/80 font-light leading-tight">
+                  Émaux inaltérables à 1000°C adaptés aux cuisines et bains.
                 </p>
               </div>
             </div>
 
             {/* Pillar 4 */}
-            <div className="flex items-start gap-2.5">
-              <div className="size-8 sm:size-10 rounded-lg sm:rounded-xl bg-[#241812] border border-[#E6A635]/40 flex items-center justify-center text-[#F2BD52] shrink-0 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="size-9 sm:size-10 rounded-xl bg-[#241812] border border-[#E6A635]/40 flex items-center justify-center text-[#F2BD52] shrink-0 shadow-md">
                 <Truck className="size-4 sm:size-5" />
               </div>
               <div>
-                <h4 className="font-heading text-xs sm:text-base font-normal text-white mb-0.5">
-                  Livraison Soignée
+                <h4 className="font-heading text-xs sm:text-base font-medium text-white mb-0.5">
+                  Livraison Express
                 </h4>
-                <p className="text-[9.5px] sm:text-[11px] text-white/70 font-light leading-tight">
-                  Colis sécurisé Tunisie &amp; Export.
+                <p className="text-[9.5px] sm:text-[11px] text-white/80 font-light leading-tight">
+                  Colis sécurisé sous 24-48h partout en Tunisie &amp; Export.
                 </p>
               </div>
             </div>
@@ -1205,7 +1208,7 @@ export default function BijouxDePortePage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.25 }}
               className="relative w-full max-w-lg bg-[#3B271C] border-2 border-[#E6A635]/50 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.95)] max-h-[94vh] overflow-y-auto"
@@ -1243,7 +1246,12 @@ export default function BijouxDePortePage() {
                     <div className="size-12 sm:size-16 rounded-lg sm:rounded-xl bg-[#1A110B] border border-[#E6A635]/40 p-1 flex items-center justify-center shrink-0 relative overflow-hidden">
                       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(230,166,53,0.25)_0%,transparent_70%)]" />
                       {selectedHandle.image ? (
-                        <img src={selectedHandle.image} alt="" className="size-full object-contain relative z-10" />
+                        <img 
+                          src={selectedHandle.image} 
+                          alt="" 
+                          onError={(e) => { (e.target as HTMLImageElement).src = '/poignees/hq_knob_1.jpg' }}
+                          className="size-full object-contain relative z-10" 
+                        />
                       ) : (
                         <Sparkles className="size-4 text-[#E6A635]" />
                       )}
@@ -1420,22 +1428,40 @@ export default function BijouxDePortePage() {
                     />
                   </div>
 
-                  {/* Submit Button */}
-                  <div className="pt-1.5">
+                  {/* Primary WhatsApp Direct Button + Form Confirmation */}
+                  <div className="pt-2 space-y-2">
+                    <a
+                      href={`https://wa.me/21655743760?text=${encodeURIComponent(
+                        `Bonjour Maison Aschi, je souhaite commander ${inquiryData.qty} pièce(s) du modèle "${selectedHandle.name}" (${selectedHandle.typeLabel}, Taille: ${selectedHandle.sizeLabel}${selectedHandle.type === 'sculptee' ? `, Finition: ${inquiryData.finish}, Longueur: ${inquiryData.length}` : ''}) au prix total de ${((selectedHandle.price || 24) * inquiryData.qty)} TND.\n\nNom: ${inquiryData.fullName || 'Client'}${inquiryData.phone ? `\nTél: ${inquiryData.phone}` : ''}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-sheen w-full py-3 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white text-xs font-bold uppercase tracking-wider shadow-lg hover:scale-[1.01] transition-all cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <MessageCircle className="size-4 fill-white/20 text-white" />
+                      <span>Commander sur WhatsApp en 1 Clic</span>
+                    </a>
+
+                    <div className="flex items-center gap-2 my-1.5 opacity-60">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#E6A635]/40 to-transparent" />
+                      <span className="text-[8.5px] uppercase font-bold text-[#F2BD52]">ou par formulaire atelier</span>
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#E6A635]/40 to-transparent" />
+                    </div>
+
                     <button
                       type="submit"
                       disabled={submitLoading}
-                      className="btn-sheen w-full py-2.5 sm:py-3.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow-lg hover:scale-[1.01] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                      className="w-full py-2.5 rounded-full bg-[#241812] border border-[#E6A635]/45 text-white hover:text-[#F2BD52] text-xs font-semibold uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
                     >
                       {submitLoading ? (
                         <>
-                          <div className="size-3.5 border-2 border-[#1A110B] border-t-transparent rounded-full animate-spin" />
+                          <div className="size-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                           <span>Transmission...</span>
                         </>
                       ) : (
                         <>
-                          <Send className="size-3 text-[#1A110B]" />
-                          <span>Confirmer Ma Réservation</span>
+                          <Send className="size-3 text-[#E6A635]" />
+                          <span>Envoyer Ma Demande de Réservation</span>
                         </>
                       )}
                     </button>
@@ -1478,6 +1504,9 @@ export default function BijouxDePortePage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Barre Flottante VIP Mobile */}
+      <MobileFloatingVIP />
 
       <Footer />
     </main>
