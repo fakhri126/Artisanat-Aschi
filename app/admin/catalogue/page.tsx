@@ -32,7 +32,9 @@ import {
   DoorClosed,
   Lamp,
   LayoutDashboard,
-  Folder
+  Folder,
+  RotateCcw,
+  Hash
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -327,6 +329,8 @@ export default function AdminCataloguePage() {
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState('')
   const [filterCategory, setFilterCategory] = useState('Tout')
+  const [filterColor, setFilterColor] = useState('Tout')
+  const [filterDimension, setFilterDimension] = useState('Tout')
   const [filterStatus, setFilterStatus] = useState('Tout')
   
   // Bulk Selection
@@ -430,18 +434,22 @@ export default function AdminCataloguePage() {
       singular = 'Meuble TV'
     }
 
-    const inCat = allProds.filter(p => p.category?.id.toString() === catId || p.category?.name === catName)
+    const inCat = allProds.filter(p => 
+      p.category?.id.toString() === catId || 
+      (p.category?.name && p.category.name.trim().toLowerCase() === catName.trim().toLowerCase())
+    )
     
     let maxNum = 0
     for (const p of inCat) {
-      const match = p.name.match(/(?:Modèle|N°|#|\s)(\d+)/i)
+      const match = p.name.match(/(?:Modèle|Modele|N°|#|\s)(\d+)/i)
       if (match) {
         const num = parseInt(match[1], 10)
         if (num > maxNum) maxNum = num
       }
     }
     
-    const nextNum = (maxNum + 1).toString().padStart(2, '0')
+    // Always start at 1 (Modèle 01) if maxNum is 0 or less
+    const nextNum = Math.max(1, maxNum + 1).toString().padStart(2, '0')
     return `${singular} — Modèle ${nextNum}`
   }
 
@@ -645,14 +653,42 @@ export default function AdminCataloguePage() {
   // Filtered products calculation
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
-      const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          (p.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (p.materials || '').toLowerCase().includes(searchQuery.toLowerCase())
-      const matchCat = filterCategory === 'Tout' || p.category?.name === filterCategory
+      const q = searchQuery.trim().toLowerCase()
+      let matchSearch = true
+      if (q) {
+        const cleanId = q.replace(/^#/, '').trim()
+        const matchId = cleanId !== '' && p.id.toString() === cleanId
+        const matchText = p.name.toLowerCase().includes(q) || 
+                          (p.description || '').toLowerCase().includes(q) ||
+                          (p.materials || '').toLowerCase().includes(q)
+        matchSearch = matchId || matchText
+      }
+      
+      const matchCat = filterCategory === 'Tout' || (p.category?.name || '').toLowerCase() === filterCategory.toLowerCase()
       const matchStatus = filterStatus === 'Tout' || (p.availability || 'Disponible') === filterStatus
-      return matchSearch && matchCat && matchStatus
+      
+      let matchColor = true
+      if (filterColor !== 'Tout') {
+        const fc = filterColor.toLowerCase()
+        const pc = (p.color || '').toLowerCase()
+        const hasVariant = p.images?.some(img => (img.colorLabel || '').toLowerCase().includes(fc))
+        matchColor = pc.includes(fc) || hasVariant
+      }
+
+      let matchDim = true
+      if (filterDimension !== 'Tout') {
+        const fd = filterDimension.toLowerCase()
+        const pd = (p.dimensions || '').toLowerCase()
+        if (fd.includes('petit')) matchDim = pd.includes('petit')
+        else if (fd.includes('moyen')) matchDim = pd.includes('moyen')
+        else if (fd.includes('grand')) matchDim = pd.includes('grand')
+        else if (fd.includes('sur-mesure')) matchDim = pd.includes('sur-mesure') || pd.includes('personnalisé')
+        else matchDim = pd.includes(fd)
+      }
+
+      return matchSearch && matchCat && matchStatus && matchColor && matchDim
     })
-  }, [products, searchQuery, filterCategory, filterStatus])
+  }, [products, searchQuery, filterCategory, filterStatus, filterColor, filterDimension])
 
   const toggleSelectAll = () => {
     if (selectedIds.length === filteredProducts.length && filteredProducts.length > 0) setSelectedIds([])
@@ -762,72 +798,152 @@ export default function AdminCataloguePage() {
             </div>
           )}
 
-          {/* Filters & Search Bar */}
-          <div className="bg-[#2E2018]/90 p-4 rounded-2xl border border-[#E6A635]/25 shadow-xl backdrop-blur-md flex flex-col md:flex-row gap-3.5 items-center justify-between">
-            <div className="flex flex-col sm:flex-row flex-1 items-center gap-3 w-full">
-              {/* Search Box */}
-              <div className="relative flex-1 w-full">
+          {/* Filters & Search Bar with Icons */}
+          <div className="bg-[#2E2018]/95 p-3.5 sm:p-4 rounded-2xl border border-[#E6A635]/25 shadow-xl backdrop-blur-md flex flex-col gap-3">
+            {/* Top Line: Search & Primary Filters */}
+            <div className="flex flex-col lg:flex-row gap-2.5 items-stretch lg:items-center justify-between w-full">
+              
+              {/* Search Box with Model & ID support */}
+              <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#F2BD52]" />
                 <input 
                   type="text" 
-                  placeholder="Rechercher par nom, essence, dimensions..." 
+                  placeholder="Recherche : nom, N° (#12), essence, style..." 
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#1A110B]/85 border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl pl-10 pr-9 py-2.5 text-xs sm:text-sm text-[#FAF7F2] placeholder:text-[#EAE4D9]/40 outline-none transition-all"
+                  className="w-full bg-[#1A110B]/85 border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl pl-10 pr-9 py-2 text-xs sm:text-sm text-[#FAF7F2] placeholder:text-[#EAE4D9]/40 outline-none transition-all"
                 />
                 {searchQuery && (
                   <button 
                     onClick={() => setSearchQuery('')}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#EAE4D9]/60 hover:text-white"
                   >
-                    <X className="size-4" />
+                    <X className="size-3.5" />
                   </button>
                 )}
               </div>
 
-              {/* Category Filter */}
-              <div className="w-full sm:w-auto shrink-0">
-                <select 
-                  value={filterCategory}
-                  onChange={e => setFilterCategory(e.target.value)}
-                  className="w-full sm:w-auto bg-[#1A110B]/85 border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-[#FAF7F2] font-medium outline-none cursor-pointer"
-                >
-                  <option value="Tout">Toutes les catégories ({categories.length})</option>
-                  {categories.map(c => (
-                    <option key={c.id} value={c.name}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
+              {/* Icon-based Dropdown Filters */}
+              <div className="flex flex-wrap items-center gap-2">
+                {/* 1. Category Filter */}
+                <div className="relative flex items-center bg-[#1A110B]/85 border border-[#E6A635]/30 focus-within:border-[#F2BD52] rounded-xl px-2.5 py-1.5 shrink-0">
+                  <Layers className="size-3.5 text-[#F2BD52] mr-1.5 shrink-0" />
+                  <select 
+                    value={filterCategory}
+                    onChange={e => setFilterCategory(e.target.value)}
+                    className="bg-transparent text-xs text-[#FAF7F2] font-medium outline-none cursor-pointer pr-2"
+                  >
+                    <option value="Tout" className="bg-[#241812] text-[#FAF7F2]">Catégorie : Toutes ({categories.length})</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.name} className="bg-[#241812] text-[#FAF7F2]">{c.name}</option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Status Filter */}
-              <div className="w-full sm:w-auto shrink-0">
-                <select 
-                  value={filterStatus}
-                  onChange={e => setFilterStatus(e.target.value)}
-                  className="w-full sm:w-auto bg-[#1A110B]/85 border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-[#FAF7F2] font-medium outline-none cursor-pointer"
-                >
-                  <option value="Tout">Tous les statuts</option>
-                  <option value="Disponible">Disponible</option>
-                  <option value="Sur commande">Sur commande</option>
-                  <option value="Épuisé">Épuisé / Rupture</option>
-                </select>
+                {/* 2. Color Filter */}
+                <div className="relative flex items-center bg-[#1A110B]/85 border border-[#E6A635]/30 focus-within:border-[#F2BD52] rounded-xl px-2.5 py-1.5 shrink-0">
+                  <Palette className="size-3.5 text-[#F2BD52] mr-1.5 shrink-0" />
+                  <select 
+                    value={filterColor}
+                    onChange={e => setFilterColor(e.target.value)}
+                    className="bg-transparent text-xs text-[#FAF7F2] font-medium outline-none cursor-pointer pr-2"
+                  >
+                    <option value="Tout" className="bg-[#241812] text-[#FAF7F2]">Couleur : Toutes</option>
+                    <option value="Blanc" className="bg-[#241812] text-[#FAF7F2]">⚪ Blanc</option>
+                    <option value="Blanc Cérusé" className="bg-[#241812] text-[#FAF7F2]">📜 Blanc Cérusé</option>
+                    <option value="Noir" className="bg-[#241812] text-[#FAF7F2]">⚫ Noir</option>
+                    <option value="Noyer" className="bg-[#241812] text-[#FAF7F2]">🟤 Noyer</option>
+                    <option value="Bleu" className="bg-[#241812] text-[#FAF7F2]">🔵 Bleu</option>
+                    <option value="Or" className="bg-[#241812] text-[#FAF7F2]">🟡 Or / Doré</option>
+                    <option value="Naturel" className="bg-[#241812] text-[#FAF7F2]">🪵 Bois Naturel</option>
+                    <option value="Vert Olivier" className="bg-[#241812] text-[#FAF7F2]">🟢 Vert Olivier</option>
+                    <option value="Bordeaux" className="bg-[#241812] text-[#FAF7F2]">🔴 Bordeaux</option>
+                  </select>
+                </div>
+
+                {/* 3. Dimension Filter */}
+                <div className="relative flex items-center bg-[#1A110B]/85 border border-[#E6A635]/30 focus-within:border-[#F2BD52] rounded-xl px-2.5 py-1.5 shrink-0">
+                  <Ruler className="size-3.5 text-[#F2BD52] mr-1.5 shrink-0" />
+                  <select 
+                    value={filterDimension}
+                    onChange={e => setFilterDimension(e.target.value)}
+                    className="bg-transparent text-xs text-[#FAF7F2] font-medium outline-none cursor-pointer pr-2"
+                  >
+                    <option value="Tout" className="bg-[#241812] text-[#FAF7F2]">Dimension : Toutes</option>
+                    <option value="Petit" className="bg-[#241812] text-[#FAF7F2]">Petit (&lt; 80 cm)</option>
+                    <option value="Moyen" className="bg-[#241812] text-[#FAF7F2]">Moyen (80–150 cm)</option>
+                    <option value="Grand" className="bg-[#241812] text-[#FAF7F2]">Grand (&gt; 150 cm)</option>
+                    <option value="Sur-mesure" className="bg-[#241812] text-[#FAF7F2]">Sur-mesure</option>
+                  </select>
+                </div>
+
+                {/* 4. Status Filter */}
+                <div className="relative flex items-center bg-[#1A110B]/85 border border-[#E6A635]/30 focus-within:border-[#F2BD52] rounded-xl px-2.5 py-1.5 shrink-0">
+                  <Filter className="size-3.5 text-[#F2BD52] mr-1.5 shrink-0" />
+                  <select 
+                    value={filterStatus}
+                    onChange={e => setFilterStatus(e.target.value)}
+                    className="bg-transparent text-xs text-[#FAF7F2] font-medium outline-none cursor-pointer pr-2"
+                  >
+                    <option value="Tout" className="bg-[#241812] text-[#FAF7F2]">Statut : Tous</option>
+                    <option value="Disponible" className="bg-[#241812] text-[#FAF7F2]">Disponible</option>
+                    <option value="Sur commande" className="bg-[#241812] text-[#FAF7F2]">Sur commande</option>
+                    <option value="Épuisé" className="bg-[#241812] text-[#FAF7F2]">Épuisé</option>
+                  </select>
+                </div>
+
+                {/* Reset Filters */}
+                {(searchQuery || filterCategory !== 'Tout' || filterColor !== 'Tout' || filterDimension !== 'Tout' || filterStatus !== 'Tout') && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('')
+                      setFilterCategory('Tout')
+                      setFilterColor('Tout')
+                      setFilterDimension('Tout')
+                      setFilterStatus('Tout')
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#EAE4D9] text-xs font-semibold transition-colors cursor-pointer shrink-0"
+                    title="Réinitialiser tous les filtres"
+                  >
+                    <RotateCcw className="size-3 text-[#F2BD52]" />
+                    <span className="hidden sm:inline">Effacer filtres</span>
+                  </button>
+                )}
               </div>
             </div>
             
-            {/* Selection & Counter */}
-            <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end pt-2 md:pt-0 border-t md:border-t-0 border-white/10">
-              <span className="text-xs text-[#EAE4D9]/70 font-medium whitespace-nowrap">
-                {filteredProducts.length} modèle{filteredProducts.length > 1 ? 's' : ''}
-              </span>
-              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#F2BD52] bg-[#1A110B]/80 border border-[#E6A635]/35 px-3 py-1.5 rounded-xl hover:bg-[#3B271C] transition-colors">
-                <input 
-                  type="checkbox" 
-                  className="rounded text-[#E6A635] focus:ring-[#E6A635] border-[#E6A635]/40 size-4 cursor-pointer" 
-                  checked={selectedIds.length > 0 && selectedIds.length === filteredProducts.length} 
-                  onChange={toggleSelectAll} 
-                />
-                <span>Tout sélectionner</span>
-              </label>
+            {/* Bottom Sub-bar: Counter, Select All & Bulk Actions */}
+            <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs text-[#EAE4D9]/80">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-[#F2BD52] bg-[#1A110B]/80 px-2 py-0.5 rounded-md border border-[#E6A635]/25">
+                  {filteredProducts.length} modèle{filteredProducts.length > 1 ? 's' : ''}
+                </span>
+                {selectedIds.length > 0 && (
+                  <span className="text-[11px] text-[#EAE4D9]/60">
+                    ({selectedIds.length} sélectionné{selectedIds.length > 1 ? 's' : ''})
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                {selectedIds.length > 0 && (
+                  <button
+                    onClick={handleBulkDelete}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-950/60 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-xs font-bold transition-all cursor-pointer"
+                  >
+                    <Trash2 className="size-3" /> Supprimer ({selectedIds.length})
+                  </button>
+                )}
+                <label className="flex items-center gap-2 cursor-pointer font-semibold text-[#F2BD52] bg-[#1A110B]/80 border border-[#E6A635]/35 px-3 py-1 rounded-xl hover:bg-[#3B271C] transition-colors">
+                  <input 
+                    type="checkbox" 
+                    className="rounded text-[#E6A635] focus:ring-[#E6A635] border-[#E6A635]/40 size-3.5 cursor-pointer" 
+                    checked={selectedIds.length > 0 && selectedIds.length === filteredProducts.length} 
+                    onChange={toggleSelectAll} 
+                  />
+                  <span className="text-[11px]">Tout sélectionner</span>
+                </label>
+              </div>
             </div>
           </div>
 
@@ -853,10 +969,10 @@ export default function AdminCataloguePage() {
             </div>
           ) : (
             <motion.div
-              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3.5"
               initial="hidden"
               animate="visible"
-              variants={{ visible: { transition: { staggerChildren: 0.05 } }, hidden: {} }}
+              variants={{ visible: { transition: { staggerChildren: 0.03 } }, hidden: {} }}
             >
               {filteredProducts.map((product) => {
                 const primaryImage = product.images?.[0]?.imageUrl || '/placeholder.png'
@@ -870,139 +986,124 @@ export default function AdminCataloguePage() {
                   <motion.article
                     key={product.id}
                     variants={{
-                      hidden: { opacity: 0, y: 15 },
-                      visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+                      hidden: { opacity: 0, scale: 0.95 },
+                      visible: { opacity: 1, scale: 1, transition: { duration: 0.25 } },
                     }}
-                    className={`group bg-[#2E2018]/90 backdrop-blur-md border rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:border-[#E6A635]/60 transition-all duration-300 flex flex-col justify-between relative ${
+                    className={`group bg-[#2E2018]/90 backdrop-blur-md border rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:border-[#E6A635]/70 transition-all duration-200 flex flex-col justify-between relative ${
                       isSelected 
-                        ? 'border-[#F2BD52] ring-2 ring-[#F2BD52]/40 bg-[#3B271C]' 
-                        : 'border-[#E6A635]/25 hover:-translate-y-1'
+                        ? 'border-[#F2BD52] ring-2 ring-[#F2BD52]/50 bg-[#3B271C]' 
+                        : 'border-[#E6A635]/25 hover:-translate-y-0.5'
                     }`}
                   >
-                    {/* Top Image Container with Overlaid Badges (NO OVERLAPPING ON TITLE) */}
-                    <div className="relative aspect-[16/11] overflow-hidden bg-[#1A110B]">
+                    {/* Compact Image Container with Clean Badges */}
+                    <div className="relative aspect-[4/3] overflow-hidden bg-[#1A110B]">
                       <img 
                         src={primaryImage} 
                         alt={product.name} 
-                        className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        loading="lazy"
+                        className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                         onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B] via-transparent to-black/40 opacity-80" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/80 via-transparent to-black/30 pointer-events-none" />
 
-                      {/* 1. Category Badge - Floating Top Left */}
-                      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-[#1A110B]/85 border border-[#E6A635]/40 px-3 py-1 backdrop-blur-md shadow-md">
-                        <CatIcon className="size-3 text-[#F2BD52]" />
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#FAF7F2]">
-                          {catName}
+                      {/* Top-Left: Model ID Badge */}
+                      <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-1">
+                        <span className="font-mono text-[9px] font-extrabold bg-[#1A110B]/90 text-[#F2BD52] px-1.5 py-0.5 rounded border border-[#E6A635]/40 shadow-xs">
+                          #{product.id}
                         </span>
                       </div>
 
-                      {/* 2. Status Badge & Select Checkbox - Floating Top Right */}
-                      <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9.5px] uppercase font-bold tracking-wider backdrop-blur-md shadow-md border ${
-                          isAvailable 
-                            ? 'bg-emerald-950/85 text-emerald-300 border-emerald-500/40' 
-                            : isSurCommande 
-                            ? 'bg-amber-950/85 text-amber-300 border-amber-500/40'
-                            : 'bg-rose-950/85 text-rose-300 border-rose-500/40'
-                        }`}>
-                          <span className={`size-1.5 rounded-full ${isAvailable ? 'bg-emerald-400 animate-pulse' : isSurCommande ? 'bg-amber-400' : 'bg-rose-400'}`} />
-                          {product.availability || 'Disponible'}
-                        </span>
-
+                      {/* Top-Right: Select Checkbox */}
+                      <div className="absolute top-1.5 right-1.5 z-10">
                         <input 
                           type="checkbox" 
                           checked={isSelected}
                           onChange={() => toggleSelect(product.id)}
-                          className="size-4.5 rounded border-[#E6A635]/60 bg-black/60 text-[#E6A635] focus:ring-[#E6A635] focus:ring-offset-0 cursor-pointer shadow-md backdrop-blur-md"
+                          className="size-4 rounded border-[#E6A635]/60 bg-black/70 text-[#E6A635] focus:ring-[#E6A635] cursor-pointer shadow-sm"
                           title="Sélectionner"
                         />
                       </div>
 
-                      {/* 3. Variants Preview Indicator - Bottom of Image */}
-                      {product.images && product.images.length > 1 && (
-                        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 bg-[#1A110B]/85 border border-[#E6A635]/30 px-2.5 py-1 rounded-full backdrop-blur-md">
-                          <Layers className="size-3 text-[#F2BD52]" />
-                          <span className="text-[10px] text-[#FAF7F2] font-semibold">
-                            {product.images.length} visuels
+                      {/* Bottom Overlay: Category name & Variants Count */}
+                      <div className="absolute bottom-1.5 left-1.5 right-1.5 z-10 flex items-center justify-between text-[9px] text-[#FAF7F2] pointer-events-none">
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#1A110B]/85 border border-[#E6A635]/30 font-semibold truncate max-w-[65%]">
+                          <CatIcon className="size-2.5 text-[#F2BD52] shrink-0" />
+                          <span className="truncate">{catName}</span>
+                        </span>
+                        {product.images && product.images.length > 1 && (
+                          <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded bg-[#1A110B]/85 border border-[#E6A635]/30 font-semibold text-[#F2BD52]">
+                            <Layers className="size-2.5" />
+                            <span>{product.images.length}</span>
                           </span>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
 
-                    {/* Card Content (Clean unconstrained Title & Specs) */}
-                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                    {/* Compact Card Content */}
+                    <div className="p-2 sm:p-2.5 flex-1 flex flex-col justify-between gap-1.5">
                       <div>
-                        {/* Title (Full Width, High Contrast, No Badge Collisions) */}
-                        <h3 className="font-heading text-lg font-semibold text-[#FAF7F2] group-hover:text-[#F2BD52] transition-colors leading-snug">
+                        {/* Title */}
+                        <h3 
+                          className="font-heading text-xs font-semibold text-[#FAF7F2] group-hover:text-[#F2BD52] transition-colors line-clamp-1 leading-snug" 
+                          title={product.name}
+                        >
                           {product.name}
                         </h3>
 
-                        {/* Description */}
-                        <p className="mt-1.5 text-xs text-[#EAE4D9]/75 line-clamp-2 leading-relaxed font-normal">
-                          {product.description || 'Création artisanale sur-mesure en bois noble.'}
-                        </p>
-
-                        {/* Specs Pills */}
-                        <div className="mt-3.5 flex flex-wrap items-center gap-2 text-[11px]">
-                          {product.materials && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#1A110B]/60 border border-[#E6A635]/20 text-[#EAE4D9]/90 font-medium">
-                              <Sparkles className="size-3 text-[#E6A635]" />
-                              {product.materials}
+                        {/* Specs row: Color & Dimension chips */}
+                        <div className="flex items-center gap-1 text-[9.5px] text-[#EAE4D9]/75 mt-1 overflow-hidden">
+                          {product.color && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#1A110B]/60 border border-[#E6A635]/20 truncate max-w-[50%]">
+                              <span className="size-1.5 rounded-full bg-[#F2BD52] shrink-0" />
+                              <span className="truncate">{product.color}</span>
                             </span>
                           )}
                           {product.dimensions && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#1A110B]/60 border border-[#E6A635]/20 text-[#EAE4D9]/90 font-medium">
-                              <Ruler className="size-3 text-[#E6A635]" />
-                              {product.dimensions}
-                            </span>
-                          )}
-                          {product.color && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#1A110B]/60 border border-[#E6A635]/20 text-[#EAE4D9]/90 font-medium">
-                              <Palette className="size-3 text-[#E6A635]" />
-                              {product.color}
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#1A110B]/60 border border-[#E6A635]/20 truncate max-w-[50%]">
+                              <Ruler className="size-2 text-[#E6A635] shrink-0" />
+                              <span className="truncate">{product.dimensions}</span>
                             </span>
                           )}
                         </div>
                       </div>
 
-                      {/* Card Footer: Price & Actions */}
-                      <div className="pt-3.5 border-t border-[#E6A635]/20 flex items-center justify-between gap-2">
+                      {/* Card Footer: Price & Quick Action Buttons */}
+                      <div className="pt-1.5 border-t border-[#E6A635]/15 flex items-center justify-between gap-1">
                         <div>
                           {product.price ? (
-                            <span className="font-heading text-base font-bold text-[#F2BD52]">
-                              {product.price.toLocaleString('fr-FR')} <span className="text-xs font-normal text-[#EAE4D9]/70">DT</span>
+                            <span className="font-heading text-xs font-bold text-[#F2BD52] whitespace-nowrap">
+                              {product.price.toLocaleString('fr-FR')} <span className="text-[9px] font-normal text-[#EAE4D9]/60">DT</span>
                             </span>
                           ) : (
-                            <span className="text-[11px] text-[#EAE4D9]/60 italic">
+                            <span className="text-[10px] text-[#EAE4D9]/60 italic whitespace-nowrap">
                               Sur devis
                             </span>
                           )}
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1 shrink-0">
                           <Link 
                             href={`/produits/${product.id}`} 
                             target="_blank" 
-                            className="p-2 rounded-xl bg-[#1A110B]/80 hover:bg-[#3B271C] text-[#EAE4D9] hover:text-[#F2BD52] border border-[#E6A635]/20 transition-all cursor-pointer" 
+                            className="p-1 rounded-md bg-[#1A110B]/80 hover:bg-[#3B271C] text-[#EAE4D9] hover:text-[#F2BD52] border border-[#E6A635]/20 transition-all" 
                             title="Voir sur le site public"
                           >
-                            <Eye className="size-4" />
+                            <Eye className="size-3" />
                           </Link>
                           <button 
                             onClick={() => openEditModal(product)} 
-                            className="p-2 rounded-xl bg-[#1A110B]/80 hover:bg-[#E6A635]/20 text-[#EAE4D9] hover:text-[#F2BD52] border border-[#E6A635]/20 transition-all cursor-pointer" 
-                            title="Modifier ce modèle"
+                            className="p-1 rounded-md bg-[#1A110B]/80 hover:bg-[#E6A635]/20 text-[#EAE4D9] hover:text-[#F2BD52] border border-[#E6A635]/20 transition-all cursor-pointer" 
+                            title="Modifier"
                           >
-                            <Edit2 className="size-4" />
+                            <Edit2 className="size-3" />
                           </button>
                           <button 
                             onClick={() => handleDelete(product.id)} 
-                            className="p-2 rounded-xl bg-[#1A110B]/80 hover:bg-rose-950/40 text-[#EAE4D9] hover:text-rose-400 border border-[#E6A635]/20 hover:border-rose-500/40 transition-all cursor-pointer" 
+                            className="p-1 rounded-md bg-[#1A110B]/80 hover:bg-rose-950/40 text-[#EAE4D9] hover:text-rose-400 border border-[#E6A635]/20 hover:border-rose-500/40 transition-all cursor-pointer" 
                             title="Supprimer"
                           >
-                            <Trash2 className="size-4" />
+                            <Trash2 className="size-3" />
                           </button>
                         </div>
                       </div>
@@ -1194,9 +1295,23 @@ export default function AdminCataloguePage() {
                     
                     {/* Model Name */}
                     <div className="space-y-1.5">
-                      <label className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold flex items-center gap-1">
-                        <span>Nom du modèle</span> <span className="text-red-400">*</span>
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold flex items-center gap-1">
+                          <span>Nom du modèle</span> <span className="text-red-400">*</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const nextName = getNextModelName(categoryId, products, categories)
+                            setName(nextName)
+                            setDescription(buildAutoDescription(nextName, categoryId, color, dimensions, categories))
+                          }}
+                          className="text-[10.5px] text-[#F2BD52] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                          title="Générer automatiquement le numéro de modèle suivant"
+                        >
+                          <RefreshCw className="size-3" /> N° suivant auto
+                        </button>
+                      </div>
                       <div className="relative">
                         <input 
                           type="text" 

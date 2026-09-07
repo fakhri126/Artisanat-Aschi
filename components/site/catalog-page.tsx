@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass, Lamp, Folder, Gem } from 'lucide-react'
+import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass, Lamp, Folder, Gem, Palette } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { FadeIn } from '@/components/motion/fade-in'
 import { publicApi, Product, Category } from '@/lib/api'
@@ -1039,8 +1039,18 @@ export function CatalogPage() {
                   )
                 })()}
 
-                {/* Artisan Trust & Lead-Time Badge */}
-                <div className="mb-5 flex items-center gap-2 p-2.5 rounded-xl bg-[#241812]/80 border border-[#E6A635]/25 text-[11px] text-[#D8C7B4]">
+                {/* Artisan Trust & Bespoke Color Realization Callout */}
+                <div className="mb-3 p-3 rounded-2xl bg-[#241812]/90 border border-[#E6A635]/40 text-[11px] text-[#FAF7F2] space-y-1.5 shadow-md">
+                  <div className="flex items-center gap-2 text-[#F2BD52] font-bold">
+                    <Palette className="size-3.5" />
+                    <span>Réalisable dans la couleur de votre choix</span>
+                  </div>
+                  <p className="text-[#EAE4D9]/80 text-[10.5px] leading-relaxed">
+                    Vous aimez ce modèle ? Même s&apos;il est présenté ici en <strong className="text-[#FAF7F2]">{quickViewProduct.color || 'cette teinte'}</strong>, nos artisans peuvent le façonner pour vous en <strong>Bleu, Noyer noble, Vert Olive, Noir profond</strong> ou selon vos cotes exactes sur simple demande.
+                  </p>
+                </div>
+
+                <div className="mb-4 flex items-center gap-2 p-2.5 rounded-xl bg-[#241812]/80 border border-[#E6A635]/25 text-[11px] text-[#D8C7B4]">
                   <Sparkles className="size-4 text-[#F2BD52] shrink-0" />
                   <span><strong className="text-[#F2BD52]">Confection d&apos;Atelier :</strong> Pièce unique faite main. Délai estimé 2 à 3 semaines.</span>
                 </div>
@@ -1177,197 +1187,97 @@ export function CatalogPage() {
           </div>
         </FadeIn>
 
-        {/* Filter panel */}
-        <FadeIn delay={0.12}>
-          <div className="mb-8 rounded-3xl border border-[#E6A635]/35 bg-[#3B271C]/90 backdrop-blur-xl shadow-lg overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setShowFilters(v => !v)}
-              className="flex w-full items-center justify-between px-5 py-4 text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <SlidersHorizontal className="size-4 text-[#F2BD52]" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#F7F4EE]">Filtrer les inspirations</span>
-                {activeFilterCount > 0 && (
-                  <span className="flex size-4.5 items-center justify-center rounded-full bg-[#E6A635] text-[9.5px] font-bold text-[#1A110B] shadow-sm">
-                    {activeFilterCount}
-                  </span>
-                )}
+        {/* DIRECT FILTERS: TEINTES & DIMENSIONS */}
+        <FadeIn delay={0.1}>
+          <div className="mb-8 flex flex-col items-center gap-2.5">
+            {/* 1. TEINTES DE COULEURS */}
+            <div className="w-full flex items-center justify-start md:justify-center gap-2 overflow-x-auto pb-1 pt-1 scrollbar-none px-1">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#241812]/90 border border-[#E6A635]/30 text-[#F2BD52] text-[11px] font-bold uppercase tracking-wider shrink-0 mr-1 shadow-sm">
+                <Palette className="size-3.5 text-[#F2BD52]" />
+                <span className="hidden sm:inline">Teintes :</span>
               </div>
-              <span className="text-[10px] uppercase font-bold text-[#F2BD52]">
-                {showFilters ? 'Masquer' : 'Afficher'}
-              </span>
-            </button>
-
-            <div className={cn(
-              'border-t border-[#E6A635]/20 px-5 py-5 space-y-6 transition-all duration-300 bg-[#241812]/90',
-              showFilters ? 'block' : 'hidden'
-            )}>
-
-              {/* Color swatches */}
-              <div>
-                <p className="mb-2.5 text-[10px] uppercase tracking-[0.2em] text-[#F2BD52] font-bold">Teinte / Finition</p>
-                <div className="flex flex-wrap gap-3">
-                  {COLORS.map(c => (
-                    <button
-                      key={c.label}
-                      type="button"
-                      onClick={() => setColor(c.label)}
-                      title={c.label}
-                      className="flex flex-col items-center gap-1.5 group cursor-pointer"
-                    >
-                      <div
-                        className={cn(
-                          'size-8 rounded-full border transition-all duration-300 shadow-sm',
-                          color === c.label
-                            ? 'scale-110 border-[#E6A635] ring-2 ring-[#E6A635]/50'
-                            : 'border-white/30 group-hover:scale-105 group-hover:border-[#E6A635]'
-                        )}
-                        style={c.hex ? { backgroundColor: c.hex } : { background: 'conic-gradient(red, yellow, green, cyan, blue, magenta, red)' }}
+              {COLORS.map((c) => {
+                const isActive = color === c.label
+                return (
+                  <button
+                    key={c.label}
+                    onClick={() => setColor(c.label)}
+                    className={`group inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all shrink-0 cursor-pointer shadow-sm ${
+                      isActive
+                        ? 'bg-gradient-to-r from-[#F3C45E]/20 to-[#E6A635]/30 text-[#F2BD52] border border-[#E6A635] ring-2 ring-[#E6A635]/40 scale-105'
+                        : 'bg-[#241812]/80 hover:bg-[#3B271C] text-[#EAE4D9]/85 border border-[#E6A635]/25 hover:border-[#E6A635]/50'
+                    }`}
+                  >
+                    {c.hex ? (
+                      <span
+                        className={`size-3 rounded-full shrink-0 shadow-sm border ${
+                          c.label === 'Blanc' || c.label === 'Blanc Cérusé'
+                            ? 'border-stone-400'
+                            : 'border-white/30'
+                        } ${isActive ? 'ring-2 ring-[#F2BD52]' : ''}`}
+                        style={{ backgroundColor: c.hex }}
                       />
-                      <span className={cn(
-                        'text-[9.5px] font-semibold uppercase tracking-wider transition-colors',
-                        color === c.label ? 'text-[#F2BD52]' : 'text-[#EAE4D9]/70 group-hover:text-[#F7F4EE]'
-                      )}>
-                        {c.label === 'Tout' ? 'Toutes' : c.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Dimension pills */}
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                <div>
-                  <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-[#F2BD52] font-bold">Dimensions</p>
-                  <div className="flex flex-wrap gap-2">
-                    {DIMENSIONS.map(d => (
-                      <button
-                        key={d}
-                        type="button"
-                        onClick={() => setDimension(d)}
-                        className={cn(
-                          'rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer',
-                          dimension === d
-                            ? 'bg-[#E6A635] text-[#1A110B] font-bold shadow-md'
-                            : 'border border-[#E6A635]/30 bg-[#3B271C] text-[#EAE4D9] hover:border-[#E6A635]'
-                        )}
-                      >
-                        {d}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Reset */}
-                {activeFilterCount > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => { setCategory('Tout'); setColor('Tout'); setDimension('Tout'); setAiQuery(''); }}
-                    className="ml-auto flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-red-400 hover:text-red-300 transition-colors cursor-pointer"
-                  >
-                    <X className="size-3.5" /> Réinitialiser
+                    ) : (
+                      <Sparkles className={`size-3 shrink-0 ${isActive ? 'text-[#F2BD52]' : 'text-[#E6A635]/70'}`} />
+                    )}
+                    <span className="text-[11px] sm:text-xs whitespace-nowrap">{c.label}</span>
                   </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </FadeIn>
-
-        {/* Results count & Interactive Toolbar */}
-        <FadeIn delay={0.2}>
-          <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#E6A635]/25 pb-4 bg-[#3B271C]/50 p-4 rounded-2xl border border-[#E6A635]/30 backdrop-blur-md">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-[#D8C7B4]">
-                Affichage de <span className="text-[#F2BD52] font-bold">{products.length > 0 ? startIndex + 1 : 0} à {Math.min(startIndex + ITEMS_PER_PAGE, products.length)}</span> sur <span className="text-[#F2BD52] font-bold">{products.length}</span> création{products.length !== 1 ? 's' : ''} d&apos;artisanat
-              </p>
-              {activeFilterCount > 0 && (
-                <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <span className="text-[10px] uppercase font-bold text-[#F2BD52] tracking-wider">Filtres actifs :</span>
-                  {category !== 'Tout' && (
-                    <span className="inline-flex items-center gap-1 bg-[#241812] border border-[#E6A635]/40 text-[#F7F4EE] px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
-                      {category}
-                      <button onClick={() => setCategory('Tout')} className="hover:text-red-400 cursor-pointer"><X className="size-3" /></button>
-                    </span>
-                  )}
-                  {color !== 'Tout' && (
-                    <span className="inline-flex items-center gap-1 bg-[#241812] border border-[#E6A635]/40 text-[#F7F4EE] px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
-                      {color}
-                      <button onClick={() => setColor('Tout')} className="hover:text-red-400 cursor-pointer"><X className="size-3" /></button>
-                    </span>
-                  )}
-                  {dimension !== 'Tout' && (
-                    <span className="inline-flex items-center gap-1 bg-[#241812] border border-[#E6A635]/40 text-[#F7F4EE] px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
-                      {dimension}
-                      <button onClick={() => setDimension('Tout')} className="hover:text-red-400 cursor-pointer"><X className="size-3" /></button>
-                    </span>
-                  )}
-                  {aiQuery && (
-                    <span className="inline-flex items-center gap-1 bg-[#241812] border border-[#E6A635]/40 text-[#F7F4EE] px-2.5 py-0.5 rounded-full text-[10px] font-semibold max-w-[150px] truncate">
-                      « {aiQuery} »
-                      <button onClick={() => setAiQuery('')} className="hover:text-red-400 cursor-pointer shrink-0"><X className="size-3" /></button>
-                    </span>
-                  )}
-                  <button
-                    onClick={() => { setCategory('Tout'); setColor('Tout'); setDimension('Tout'); setAiQuery(''); }}
-                    className="text-[10px] font-bold text-red-400 hover:text-red-300 underline uppercase ml-1 cursor-pointer"
-                  >
-                    Tout effacer
-                  </button>
-                </div>
+                )
+              })}
+              {color !== 'Tout' && (
+                <button
+                  onClick={() => setColor('Tout')}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium text-[#EAE4D9]/60 hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer ml-1"
+                  title="Effacer le filtre couleur"
+                >
+                  <RotateCcw className="size-3" />
+                  <span className="hidden sm:inline">Réinitialiser</span>
+                </button>
               )}
             </div>
 
-            {/* Sort & Grid Controls */}
-            <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-              <div className="flex items-center gap-2">
-                <label htmlFor="catalog-sort-select" className="text-xs text-[#D8C7B4] font-medium flex items-center gap-1">
-                  <ArrowUpDown className="size-3.5 text-[#F2BD52]" />
-                  <span className="hidden md:inline">Trier par :</span>
-                </label>
-                <select
-                  id="catalog-sort-select"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-[#241812] text-[#F7F4EE] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#E6A635]/40 focus:border-[#F2BD52] focus:outline-none cursor-pointer shadow-sm"
-                >
-                  <option value="featured">✨ Sélection Atelier</option>
-                  <option value="newest">🆕 Dernières Créations</option>
-                  <option value="price-asc">💰 Prix : Moins cher au plus cher</option>
-                  <option value="price-desc">💎 Prix : Plus cher au moins cher</option>
-                  <option value="name">🔤 Nom (A → Z)</option>
-                </select>
+            {/* 2. DIMENSIONS (PETIT, MOYEN, GRAND) */}
+            <div className="w-full flex items-center justify-start md:justify-center gap-2 overflow-x-auto pb-1 scrollbar-none px-1">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#241812]/90 border border-[#E6A635]/30 text-[#F2BD52] text-[11px] font-bold uppercase tracking-wider shrink-0 mr-1 shadow-sm">
+                <Ruler className="size-3.5 text-[#F2BD52]" />
+                <span className="hidden sm:inline">Dimensions :</span>
               </div>
-
-              {/* Grid Density Toggle */}
-              <div className="hidden lg:flex items-center gap-1 bg-[#241812] border border-[#E6A635]/35 p-1 rounded-full shadow-inner">
+              {[
+                { label: 'Toutes les tailles', value: 'Tout', range: '' },
+                { label: 'Petit', value: 'Petit (< 80 cm)', range: '< 80 cm' },
+                { label: 'Moyen', value: 'Moyen (80–150 cm)', range: '80–150 cm' },
+                { label: 'Grand', value: 'Grand (> 150 cm)', range: '> 150 cm' },
+              ].map((d) => {
+                const isActive = dimension === d.value
+                return (
+                  <button
+                    key={d.value}
+                    onClick={() => setDimension(d.value)}
+                    className={`group inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all shrink-0 cursor-pointer shadow-sm ${
+                      isActive
+                        ? 'bg-gradient-to-r from-[#F3C45E]/20 to-[#E6A635]/30 text-[#F2BD52] border border-[#E6A635] ring-2 ring-[#E6A635]/40 scale-105'
+                        : 'bg-[#241812]/80 hover:bg-[#3B271C] text-[#EAE4D9]/85 border border-[#E6A635]/25 hover:border-[#E6A635]/50'
+                    }`}
+                  >
+                    <span>{d.label}</span>
+                    {d.range && (
+                      <span className={`text-[10px] ${isActive ? 'text-[#F7F4EE]' : 'text-[#EAE4D9]/60'} font-normal border-l border-white/20 pl-1.5`}>
+                        {d.range}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+              {dimension !== 'Tout' && (
                 <button
-                  type="button"
-                  onClick={() => setViewDensity('standard')}
-                  aria-label="Grille compacte"
-                  className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                    viewDensity === 'standard'
-                      ? 'bg-[#E6A635] text-[#1A110B] shadow-sm'
-                      : 'text-[#D8C7B4] hover:text-[#F7F4EE]'
-                  }`}
-                  title="Grille compacte"
+                  onClick={() => setDimension('Tout')}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium text-[#EAE4D9]/60 hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer ml-1"
+                  title="Effacer le filtre dimension"
                 >
-                  <Columns3 className="size-3.5" />
+                  <RotateCcw className="size-3" />
+                  <span className="hidden sm:inline">Réinitialiser</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setViewDensity('spacious')}
-                  aria-label="Grille spacieuse"
-                  className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                    viewDensity === 'spacious'
-                      ? 'bg-[#E6A635] text-[#1A110B] shadow-sm'
-                      : 'text-[#D8C7B4] hover:text-[#F7F4EE]'
-                  }`}
-                  title="Grille spacieuse"
-                >
-                  <Columns2 className="size-3.5" />
-                </button>
-              </div>
+              )}
             </div>
           </div>
         </FadeIn>

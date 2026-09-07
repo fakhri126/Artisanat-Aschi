@@ -241,20 +241,36 @@ export const publicApi = {
     return fetchApi<Project[]>(`/public/projects${category ? '?category=' + encodeURIComponent(category) : ''}`);
   },
   
-  getNews: () => {
-    return fetchApi<News[]>('/public/news');
+  getNews: async () => {
+    try {
+      return await fetchApi<News[]>('/public/news');
+    } catch {
+      return [];
+    }
   },
 
-  getRelookings: () => {
-    return fetchApi<Relooking[]>('/public/relookings');
+  getRelookings: async () => {
+    try {
+      return await fetchApi<Relooking[]>('/public/relookings');
+    } catch {
+      return [];
+    }
   },
 
-  getReferences: () => {
-    return fetchApi<Reference[]>('/public/references');
+  getReferences: async () => {
+    try {
+      return await fetchApi<Reference[]>('/public/references');
+    } catch {
+      return [];
+    }
   },
   
-  getTestimonials: () => {
-    return fetchApi<Testimonial[]>('/public/testimonials');
+  getTestimonials: async () => {
+    try {
+      return await fetchApi<Testimonial[]>('/public/testimonials');
+    } catch {
+      return [];
+    }
   },
   
   submitQuoteRequest: (data: {
@@ -271,8 +287,12 @@ export const publicApi = {
     });
   },
 
-  getDeliveries: () => {
-    return fetchApi<Delivery[]>('/public/deliveries');
+  getDeliveries: async () => {
+    try {
+      return await fetchApi<Delivery[]>('/public/deliveries');
+    } catch {
+      return [];
+    }
   },
 };
 
