@@ -72,7 +72,7 @@ export default function AdminLayout({
     return <>{children}</>
   }
 
-  if (authenticated === null) {
+  if (!authenticated) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#FAF7F2] text-[#3A2A21]">
         <div className="text-center">

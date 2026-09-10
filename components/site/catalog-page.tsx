@@ -820,10 +820,30 @@ export function CatalogPage() {
       return 4
     }
 
+    const getModelNum = (p: Product) => {
+      const match = (p.name || '').match(/(?:Modèle|Modele|N°|#|\s)(\d+)/i)
+      return match ? parseInt(match[1], 10) : 999999
+    }
+
     if (sortBy === 'featured') {
       sorted.sort((a, b) => {
-        const colorDiff = getColorRank(a) - getColorRank(b)
-        if (colorDiff !== 0) return colorDiff
+        // Group by category if viewing all
+        const catA = (a.category?.name || '').toLowerCase()
+        const catB = (b.category?.name || '').toLowerCase()
+        if (category === 'Tout' && catA !== catB) {
+          return catA.localeCompare(catB)
+        }
+
+        // Group by color if color filter is 'Tout'
+        if (color === 'Tout') {
+          const colorDiff = getColorRank(a) - getColorRank(b)
+          if (colorDiff !== 0) return colorDiff
+        }
+
+        // Within the same category & color: order strictly by Model number (Modèle 01, 02, 03...)
+        const numA = getModelNum(a)
+        const numB = getModelNum(b)
+        if (numA !== numB) return numA - numB
 
         const sizeDiff = getSizeRank(a) - getSizeRank(b)
         if (sizeDiff !== 0) return sizeDiff
@@ -837,7 +857,16 @@ export function CatalogPage() {
     } else if (sortBy === 'price-desc') {
       sorted.sort((a, b) => (b.price || 0) - (a.price || 0))
     } else if (sortBy === 'name') {
-      sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+      sorted.sort((a, b) => {
+        const numA = getModelNum(a)
+        const numB = getModelNum(b)
+        const baseA = (a.name || '').replace(/(?:Modèle|Modele|N°|#)\s*\d+/i, '').trim().toLowerCase()
+        const baseB = (b.name || '').replace(/(?:Modèle|Modele|N°|#)\s*\d+/i, '').trim().toLowerCase()
+        if (baseA === baseB && numA !== numB) {
+          return numA - numB
+        }
+        return (a.name || '').localeCompare(b.name || '', 'fr', { numeric: true })
+      })
     }
 
     setShowGoldCard(needsGoldCard)

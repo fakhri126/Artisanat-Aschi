@@ -127,9 +127,39 @@ export interface ProductRequest {
 
 // --- Auth Helper ---
 
+export function isTokenExpired(token: string): boolean {
+  if (!token) return true;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const jsonStr = typeof window !== 'undefined'
+      ? decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        )
+      : Buffer.from(base64, 'base64').toString('utf-8');
+    const payload = JSON.parse(jsonStr);
+    if (payload.exp && typeof payload.exp === 'number') {
+      return Date.now() >= payload.exp * 1000;
+    }
+    return false;
+  } catch {
+    return true;
+  }
+}
+
 export function getAuthToken(): string | null {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    if (isTokenExpired(token)) {
+      localStorage.removeItem('token');
+      return null;
+    }
+    return token;
   }
   return null;
 }
@@ -160,7 +190,9 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     headers.set('Content-Type', 'application/json');
   }
   
-  if (token) {
+  // Attach token only for protected endpoints (never for /public/ or /auth/)
+  const isPublicOrAuth = endpoint.startsWith('/public/') || endpoint.startsWith('/auth/');
+  if (token && !isPublicOrAuth) {
     headers.set('Authorization', `Bearer ${token}`);
   }
 

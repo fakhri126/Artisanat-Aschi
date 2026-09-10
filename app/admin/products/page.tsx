@@ -878,12 +878,11 @@ export default function AdminProductsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Type de produit</label>
+                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Type de pièce disponible</label>
                   <select value={type} onChange={e => setType(e.target.value as any)}
                     className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none">
-                    <option value="PIECE_UNIQUE">Pièce unique</option>
-                    <option value="REPRODUCTIBLE">Modèle reproductible</option>
-                    <option value="CATALOGUE">Inspiration (Catalogue)</option>
+                    <option value="PIECE_UNIQUE">Pièce unique (En stock)</option>
+                    <option value="REPRODUCTIBLE">Modèle reproductible en atelier</option>
                   </select>
                 </div>
 
