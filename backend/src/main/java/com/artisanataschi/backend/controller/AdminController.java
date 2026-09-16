@@ -6,6 +6,7 @@ import com.artisanataschi.backend.dto.ProductRequest;
 import com.artisanataschi.backend.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -57,7 +57,7 @@ public class AdminController {
     // --- Categories CRUD ---
     @PostMapping("/categories")
     public ResponseEntity<Category> createCategory(@Valid @RequestBody Category category) {
-        return ResponseEntity.ok(categoryService.createCategory(category));
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(category));
     }
 
     @PutMapping("/categories/{id}")
@@ -68,13 +68,13 @@ public class AdminController {
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     // --- Products CRUD ---
     @PostMapping("/products")
     public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductRequest productRequest) {
-        return ResponseEntity.ok(productService.createProduct(productRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(productRequest));
     }
 
     @PutMapping("/products/{id}")
@@ -85,13 +85,13 @@ public class AdminController {
     @DeleteMapping("/products/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     // --- Relooking CRUD ---
     @PostMapping("/relookings")
     public ResponseEntity<Relooking> createRelooking(@Valid @RequestBody Relooking relooking) {
-        return ResponseEntity.ok(relookingService.createRelooking(relooking));
+        return ResponseEntity.status(HttpStatus.CREATED).body(relookingService.createRelooking(relooking));
     }
 
     @PutMapping("/relookings/{id}")
@@ -102,7 +102,7 @@ public class AdminController {
     @DeleteMapping("/relookings/{id}")
     public ResponseEntity<Void> deleteRelooking(@PathVariable Long id) {
         relookingService.deleteRelooking(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @Autowired
@@ -125,7 +125,7 @@ public class AdminController {
     // --- Projects CRUD ---
     @PostMapping("/projects")
     public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) {
-        return ResponseEntity.ok(projectService.createProject(project));
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(project));
     }
 
     @PutMapping("/projects/{id}")
@@ -136,13 +136,13 @@ public class AdminController {
     @DeleteMapping("/projects/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     // --- News CRUD ---
     @PostMapping("/news")
     public ResponseEntity<News> createNews(@Valid @RequestBody News news) {
-        return ResponseEntity.ok(newsService.createNews(news));
+        return ResponseEntity.status(HttpStatus.CREATED).body(newsService.createNews(news));
     }
 
     @PutMapping("/news/{id}")
@@ -153,13 +153,13 @@ public class AdminController {
     @DeleteMapping("/news/{id}")
     public ResponseEntity<Void> deleteNews(@PathVariable Long id) {
         newsService.deleteNews(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     // --- Delivery CRUD ---
     @PostMapping("/deliveries")
     public ResponseEntity<Delivery> createDelivery(@Valid @RequestBody Delivery delivery) {
-        return ResponseEntity.ok(deliveryService.saveDelivery(delivery));
+        return ResponseEntity.status(HttpStatus.CREATED).body(deliveryService.saveDelivery(delivery));
     }
 
     @PutMapping("/deliveries/{id}")
@@ -170,13 +170,13 @@ public class AdminController {
     @DeleteMapping("/deliveries/{id}")
     public ResponseEntity<Void> deleteDelivery(@PathVariable Long id) {
         deliveryService.deleteDelivery(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     // --- References CRUD ---
     @PostMapping("/references")
     public ResponseEntity<Reference> createReference(@Valid @RequestBody Reference reference) {
-        return ResponseEntity.ok(referenceService.createReference(reference));
+        return ResponseEntity.status(HttpStatus.CREATED).body(referenceService.createReference(reference));
     }
 
     @PutMapping("/references/{id}")
@@ -187,13 +187,13 @@ public class AdminController {
     @DeleteMapping("/references/{id}")
     public ResponseEntity<Void> deleteReference(@PathVariable Long id) {
         referenceService.deleteReference(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     // --- Testimonials CRUD ---
     @PostMapping("/testimonials")
     public ResponseEntity<Testimonial> createTestimonial(@Valid @RequestBody Testimonial testimonial) {
-        return ResponseEntity.ok(testimonialService.createTestimonial(testimonial));
+        return ResponseEntity.status(HttpStatus.CREATED).body(testimonialService.createTestimonial(testimonial));
     }
 
     @PutMapping("/testimonials/{id}")
@@ -204,7 +204,7 @@ public class AdminController {
     @DeleteMapping("/testimonials/{id}")
     public ResponseEntity<Void> deleteTestimonial(@PathVariable Long id) {
         testimonialService.deleteTestimonial(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     // --- Quote Requests View & Management ---
@@ -221,6 +221,6 @@ public class AdminController {
     @DeleteMapping("/quotes/{id}")
     public ResponseEntity<Void> deleteQuoteRequest(@PathVariable Long id) {
         quoteRequestService.deleteQuoteRequest(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

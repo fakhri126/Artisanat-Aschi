@@ -18,30 +18,6 @@ const isRecent = (dateStr: string) => {
   return diff < 7 * 24 * 60 * 60 * 1000
 }
 
-const MOCK_NEWS: News[] = [
-  {
-    id: 0,
-    title: 'Nouvelle Création : Armoire aux Céramiques Andalouses',
-    content: "Découvrez notre toute dernière création sortie de l'atelier : une magnifique armoire en bois de noyer cérusé, ornée de quatre panneaux décoratifs uniques. Chaque panneau met en valeur notre savoir-faire : incrustations de céramique andalouse peinte à la main, boiseries minutieusement sculptées et cuir repoussé.\n\nCette pièce d'exception aux lignes épurées et aux détails d'art (poignées rondes peintes, entrées de serrure en laiton massif) est désormais disponible dans notre showroom. Une fusion parfaite entre l'héritage artisanal tunisien et le design contemporain.",
-    imageUrl: '/images/bg-references.png',
-    createdDate: new Date().toISOString()
-  },
-  {
-    id: 1,
-    title: 'Exposition Artisanale de Tunis — Le Salon National',
-    content: "L'atelier Artisanat Aschi est fier d'annoncer sa participation officielle au Salon National de l'Artisanat au Kram. Venez découvrir nos nouvelles pièces uniques sculptées à la main et échanger avec nos maîtres artisans sculpteurs.\n\nPendant toute la durée de l'exposition, notre stand présentera nos dernières créations en noyer massif, nos miroirs d'époque dorés à la feuille d'or fin ainsi qu'une collection exclusive de poignées en céramique de majolique.\n\n📍 Rendez-vous au Parc des Expositions du Kram — Stand N° 42 (Hall Central).\n🔨 Démonstration de ciselage en direct tous les jours à 15h00 par Adel & Ismail Aschi.",
-    imageUrl: '/news-exposition.jpg',
-    createdDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 2,
-    title: 'Transmission de Savoir-Faire : Nos Jeunes Compagnons',
-    content: "Depuis sa fondation en 1960, la transmission des gestes nobles est au cœur des valeurs de l'Atelier Aschi. Ce mois-ci, nous célébrons le parcours de nos deux nouveaux apprentis sculpteurs.\n\nFormés quotidiennement par les compagnons de la maison, ils apprennent l'art exigeant du traçage au compas, du maniement de la gouge et de la sélection du bois de noyer noble séché au grand air.\n\nUne fierté pour notre maison d'artisanat qui préserve vivante la tradition ébéniste tunisienne.",
-    imageUrl: '/news-apprentis.jpg',
-    createdDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString()
-  }
-]
-
 export function NewsSection() {
   const [news, setNews] = useState<News[]>([])
   const [loading, setLoading] = useState(true)
@@ -59,9 +35,9 @@ export function NewsSection() {
           publicApi.getProducts().catch(() => null)
         ])
         
-        let finalNews = newsData && newsData.length > 0 
+        let finalNews: News[] = newsData && Array.isArray(newsData)
           ? newsData.sort((a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime())
-          : [...MOCK_NEWS].filter(n => n.id !== 0)
+          : []
 
         if (productsData && productsData.length > 0) {
           const availableProds = productsData.filter((p) => {
@@ -93,7 +69,7 @@ export function NewsSection() {
         setNews(finalNews)
       } catch (err) {
         console.error('Error loading dynamic news:', err)
-        setNews(MOCK_NEWS)
+        setNews([])
       } finally {
         setLoading(false)
       }

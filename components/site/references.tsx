@@ -5,28 +5,6 @@ import { Reveal } from './reveal'
 import { publicApi, Reference } from '@/lib/api'
 import { Sparkles } from 'lucide-react'
 
-const MOCK_BRANDS_ROW1 = [
-  'Hôtel La Badira 5★',
-  'Dar El Jeld Hotel & Spa',
-  'Villa Carthage',
-  'Dar El Medina',
-  'Résidence Gammarth',
-  'Sidi Bou Palace',
-  'Le Golfe Royal',
-  'Hasdrubal Prestige',
-]
-
-const MOCK_BRANDS_ROW2 = [
-  'Dar Said Sidi Bou Saïd',
-  'Dar Hammamet',
-  'Maison Sophonisbe',
-  'Riad El Jasmin',
-  'Résidence Les Oliviers',
-  'Château Bleu Gammarth',
-  'Domaine Sidi Slim',
-  'Palais Ennejma Ezzahra',
-]
-
 export function References() {
   const [references, setReferences] = useState<Reference[]>([])
 
@@ -34,15 +12,17 @@ export function References() {
     async function loadReferences() {
       try {
         const data = await publicApi.getReferences()
-        if (data && data.length > 0) setReferences(data)
+        if (data && Array.isArray(data)) setReferences(data)
       } catch (err) {
-        console.error('Error fetching references from API, using fallback data:', err)
+        console.error('Error fetching references from API:', err)
       }
     }
     loadReferences()
   }, [])
 
-  const brandsList = references.length > 0 ? references.map(r => r.name) : [...MOCK_BRANDS_ROW1, ...MOCK_BRANDS_ROW2]
+  if (references.length === 0) return null
+
+  const brandsList = references.map(r => r.name)
   const halfLength = Math.ceil(brandsList.length / 2)
   const row1 = brandsList.slice(0, halfLength)
   const row2 = brandsList.slice(halfLength)

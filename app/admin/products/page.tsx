@@ -200,11 +200,22 @@ function WorkshopPhotosManager({
   )
 }
 
+// ─── Default Fallback Categories for Furniture Pieces in Stock ────────────────
+const DEFAULT_FURNITURE_CATEGORIES: Category[] = [
+  { id: 1, name: 'Buffets', type: 'MOBILIER' },
+  { id: 2, name: 'Meubles TV', type: 'MOBILIER' },
+  { id: 3, name: 'Miroirs', type: 'DECORATION' },
+  { id: 4, name: 'Portes', type: 'PORTES' },
+  { id: 5, name: 'Coffres', type: 'MOBILIER' },
+  { id: 6, name: 'Décoration', type: 'DECORATION' },
+  { id: 7, name: 'Tables', type: 'MOBILIER' },
+]
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AdminProductsPage() {
   const [activeTab, setActiveTab] = useState<'PRODUCTS' | 'ORDERS'>('PRODUCTS')
   const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_FURNITURE_CATEGORIES)
   const [orders, setOrders] = useState<QuoteRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingOrders, setLoadingOrders] = useState(false)
@@ -221,7 +232,7 @@ export default function AdminProductsPage() {
   // Form fields
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [categoryId, setCategoryId] = useState('')
+  const [categoryId, setCategoryId] = useState('1')
   const [dimensions, setDimensions] = useState('')
   const [materials, setMaterials] = useState('')
   const [color, setColor] = useState('')
@@ -230,6 +241,11 @@ export default function AdminProductsPage() {
   const [type, setType] = useState<'PIECE_UNIQUE' | 'REPRODUCTIBLE'>('PIECE_UNIQUE')
   const [isFeatured, setIsFeatured] = useState(false)
   const [imageVariants, setImageVariants] = useState<ImageVariant[]>([])
+
+  // Quick category creation states
+  const [isAddingNewCat, setIsAddingNewCat] = useState(false)
+  const [newCatName, setNewCatName] = useState('')
+  const [creatingCat, setCreatingCat] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -245,17 +261,53 @@ export default function AdminProductsPage() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [prodData, catData] = await Promise.all([
-        adminApi.getProducts(),
-        publicApi.getCategories()
-      ])
-      // Strictly available furniture pieces in stock (exclude CATALOGUE and exclude ALL Bijoux de Porte / Poignées)
-      setProducts(prodData.filter(p => p.type !== 'CATALOGUE' && !isBijouxOrHandleProduct(p)))
-      setCategories(catData.filter(c => !isBijouxOrHandleCategory(c.name)))
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors du chargement des produits.')
+
+      // 1. Charge les catégories de façon isolée et sécurisée
+      try {
+        const catData = await publicApi.getCategories()
+        if (Array.isArray(catData)) {
+          const pureCats = catData.filter(c => !isBijouxOrHandleCategory(c.name))
+          if (pureCats.length > 0) {
+            setCategories(pureCats)
+            setCategoryId(prev => prev || pureCats[0].id.toString())
+          }
+        }
+      } catch (catErr) {
+        console.warn('Erreur chargement catégories API, utilisation des catégories par défaut:', catErr)
+      }
+
+      // 2. Charge les pièces en stock disponibles
+      try {
+        const prodData = await adminApi.getProducts()
+        if (Array.isArray(prodData)) {
+          setProducts(prodData.filter(p => p.type !== 'CATALOGUE' && !isBijouxOrHandleProduct(p)))
+        }
+      } catch (prodErr: any) {
+        console.warn('Erreur chargement produits:', prodErr)
+        setError(prodErr.message || 'Erreur lors du chargement des produits.')
+      }
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleCreateQuickCategory = async () => {
+    const trimmed = newCatName.trim()
+    if (!trimmed) return
+    try {
+      setCreatingCat(true)
+      const created = await adminApi.createCategory({
+        name: trimmed,
+        type: 'MOBILIER',
+      })
+      setCategories(prev => [...prev, created])
+      setCategoryId(created.id.toString())
+      setNewCatName('')
+      setIsAddingNewCat(false)
+    } catch (err: any) {
+      alert(err.message || 'Erreur lors de la création de la catégorie.')
+    } finally {
+      setCreatingCat(false)
     }
   }
 
@@ -298,7 +350,10 @@ export default function AdminProductsPage() {
     setEditingProduct(null)
     setName('')
     setDescription('')
-    setCategoryId(categories[0]?.id.toString() || '')
+    const defaultCatId = categories[0]?.id?.toString() || '1'
+    setCategoryId(defaultCatId)
+    setIsAddingNewCat(false)
+    setNewCatName('')
     setDimensions('')
     setMaterials('')
     setColor('')
@@ -315,7 +370,10 @@ export default function AdminProductsPage() {
     setEditingProduct(product)
     setName(product.name)
     setDescription(product.description || '')
-    setCategoryId(product.category.id.toString())
+    const catId = product.category?.id ? product.category.id.toString() : (categories[0]?.id?.toString() || '1')
+    setCategoryId(catId)
+    setIsAddingNewCat(false)
+    setNewCatName('')
     setDimensions(product.dimensions || '')
     setMaterials(product.materials || '')
     setColor(product.color || '')
@@ -325,7 +383,7 @@ export default function AdminProductsPage() {
     setIsFeatured(product.isFeatured)
 
     // Rebuild photos from existing images
-    const variants: ImageVariant[] = product.images.map((img, i) => ({
+    const variants: ImageVariant[] = (product.images || []).map((img, i) => ({
       imageUrl: img.imageUrl,
       colorLabel: img.colorLabel ?? (i === 0 ? 'Original' : null),
     }))
@@ -730,11 +788,52 @@ export default function AdminProductsPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs uppercase tracking-wider text-[#3A2A21]/70 font-bold">Catégorie *</label>
-                  <select value={categoryId} onChange={e => setCategoryId(e.target.value)}
-                    className="w-full bg-white border border-[#E8DCCB] focus:border-[#C17D59] rounded-lg p-2.5 text-sm text-[#3A2A21] outline-none cursor-pointer">
-                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-                  </select>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs uppercase tracking-wider text-[#3A2A21]/70 font-bold">Catégorie *</label>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingNewCat(!isAddingNewCat)}
+                      className="text-[11px] text-[#C17D59] hover:underline font-semibold cursor-pointer"
+                    >
+                      {isAddingNewCat ? '← Choisir dans la liste' : '+ Nouvelle catégorie'}
+                    </button>
+                  </div>
+
+                  {isAddingNewCat ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Ex: Consoles, Fauteuils, Chaises..."
+                        value={newCatName}
+                        onChange={e => setNewCatName(e.target.value)}
+                        className="flex-1 bg-white border border-[#C17D59] focus:ring-1 focus:ring-[#C17D59] rounded-lg p-2 text-sm text-[#3A2A21] outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleCreateQuickCategory}
+                        disabled={creatingCat || !newCatName.trim()}
+                        className="px-3 py-2 bg-[#C17D59] text-white rounded-lg text-xs font-semibold hover:bg-[#A86442] disabled:opacity-50 cursor-pointer shrink-0"
+                      >
+                        {creatingCat ? '...' : 'Ajouter'}
+                      </button>
+                    </div>
+                  ) : (
+                    <select
+                      value={categoryId}
+                      onChange={e => setCategoryId(e.target.value)}
+                      className="w-full bg-white border border-[#E8DCCB] focus:border-[#C17D59] rounded-lg p-2.5 text-sm text-[#3A2A21] outline-none cursor-pointer"
+                    >
+                      {categories.length === 0 ? (
+                        <option value="" disabled>Chargement des catégories...</option>
+                      ) : (
+                        categories.map(cat => (
+                          <option key={cat.id} value={cat.id.toString()}>
+                            {cat.name}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">

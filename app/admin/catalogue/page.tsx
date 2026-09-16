@@ -230,10 +230,21 @@ function ImageVariantManager({
   )
 }
 
+// ─── Default Fallback Categories for Furniture Catalogue ──────────────────────
+const DEFAULT_FURNITURE_CATEGORIES: Category[] = [
+  { id: 1, name: 'Buffets', type: 'MOBILIER' },
+  { id: 2, name: 'Meubles TV', type: 'MOBILIER' },
+  { id: 3, name: 'Miroirs', type: 'DECORATION' },
+  { id: 4, name: 'Portes', type: 'PORTES' },
+  { id: 5, name: 'Coffres', type: 'MOBILIER' },
+  { id: 6, name: 'Décoration', type: 'DECORATION' },
+  { id: 7, name: 'Tables', type: 'MOBILIER' },
+]
+
 export default function AdminCataloguePage() {
   const [activeTab, setActiveTab] = useState<'MODELS' | 'QUOTES'>('MODELS')
   const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_FURNITURE_CATEGORIES)
   const [quotes, setQuotes] = useState<QuoteRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingQuotes, setLoadingQuotes] = useState(false)
@@ -252,7 +263,7 @@ export default function AdminCataloguePage() {
   // Form fields
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [categoryId, setCategoryId] = useState('')
+  const [categoryId, setCategoryId] = useState('1')
   const [dimensions, setDimensions] = useState('')
   const [materials, setMaterials] = useState('')
   const [color, setColor] = useState('')
@@ -268,15 +279,31 @@ export default function AdminCataloguePage() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [prodData, catData] = await Promise.all([
-        adminApi.getProducts(),
-        publicApi.getCategories(),
-      ])
-      // Filter only furniture CATALOGUE type (strictly exclude Bijoux de Porte / Poignées)
-      setProducts(prodData.filter(p => p.type === 'CATALOGUE' && !isBijouxOrHandleProduct(p)))
-      setCategories(catData.filter(c => !isBijouxOrHandleCategory(c.name)))
-    } catch (err: any) {
-      setError(err.message || 'Erreur de chargement.')
+
+      // 1. Charge les catégories de façon isolée et sécurisée
+      try {
+        const catData = await publicApi.getCategories()
+        if (Array.isArray(catData)) {
+          const pureCats = catData.filter(c => !isBijouxOrHandleCategory(c.name))
+          if (pureCats.length > 0) {
+            setCategories(pureCats)
+            setCategoryId(prev => prev || pureCats[0].id.toString())
+          }
+        }
+      } catch (catErr) {
+        console.warn('Erreur chargement catégories API, utilisation des catégories par défaut:', catErr)
+      }
+
+      // 2. Charge les modèles du catalogue
+      try {
+        const prodData = await adminApi.getProducts()
+        if (Array.isArray(prodData)) {
+          setProducts(prodData.filter(p => p.type === 'CATALOGUE' && !isBijouxOrHandleProduct(p)))
+        }
+      } catch (prodErr: any) {
+        console.warn('Erreur chargement modèles catalogue:', prodErr)
+        setError(prodErr.message || 'Erreur de chargement.')
+      }
     } finally {
       setLoading(false)
     }
@@ -320,7 +347,8 @@ export default function AdminCataloguePage() {
 
   const openCreateModal = () => {
     setEditingProduct(null)
-    setName(''); setDescription(''); setCategoryId(categories[0]?.id.toString() || '')
+    setName(''); setDescription('')
+    setCategoryId(categories[0]?.id?.toString() || '1')
     setDimensions(''); setMaterials(''); setColor(''); setPrice('')
     setAvailability('Disponible'); setImageVariants([{ imageUrl: '', colorLabel: 'Original' }])
     setModalOpen(true)
@@ -329,7 +357,9 @@ export default function AdminCataloguePage() {
   const openEditModal = (product: Product) => {
     setEditingProduct(product)
     setName(product.name); setDescription(product.description || '')
-    setCategoryId(product.category.id.toString()); setDimensions(product.dimensions || '')
+    const catId = product.category?.id ? product.category.id.toString() : (categories[0]?.id?.toString() || '1')
+    setCategoryId(catId)
+    setDimensions(product.dimensions || '')
     setMaterials(product.materials || ''); setColor(product.color || '')
     setPrice(product.price ? product.price.toString() : '')
     setAvailability(product.availability || 'Disponible')

@@ -209,21 +209,27 @@ export function parseProduct(product: Product): Product {
 // --- Public Endpoints ---
 
 export const publicApi = {
-  getProducts: (params?: { category?: string; color?: string; dimensions?: string; type?: string }) => {
+  getProducts: (params?: { category?: string; color?: string; dimensions?: string; type?: string; page?: number; size?: number }) => {
     const query = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, val]) => {
-        if (val) query.append(key, val);
+        if (val !== undefined && val !== null) query.append(key, String(val));
       });
     }
     const queryString = query.toString();
-    return fetchApi<Product[]>(`/public/products${queryString ? '?' + queryString : ''}`)
-      .then(res => res.map(parseProduct));
+    return fetchApi<any>(`/public/products${queryString ? '?' + queryString : ''}`)
+      .then(res => {
+        const items: Product[] = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : []);
+        return items.map(parseProduct);
+      });
   },
   
   getFeaturedProducts: () => {
-    return fetchApi<Product[]>('/public/products/featured')
-      .then(res => res.map(parseProduct));
+    return fetchApi<any>('/public/products/featured')
+      .then(res => {
+        const items: Product[] = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : []);
+        return items.map(parseProduct);
+      });
   },
   
   getProductById: (id: number) => {
@@ -232,8 +238,11 @@ export const publicApi = {
   },
   
   getLatestProducts: () => {
-    return fetchApi<Product[]>('/public/products/latest')
-      .then(res => res.map(parseProduct));
+    return fetchApi<any>('/public/products/latest')
+      .then(res => {
+        const items: Product[] = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : []);
+        return items.map(parseProduct);
+      });
   },
   
   getCategories: () => {
@@ -349,7 +358,10 @@ export const adminApi = {
   }),
 
   // Products CRUD
-  getProducts: () => fetchApi<Product[]>('/public/products').then(res => res.map(parseProduct)),
+  getProducts: () => fetchApi<any>('/public/products').then(res => {
+    const items: Product[] = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : []);
+    return items.map(parseProduct);
+  }),
   createProduct: (data: ProductRequest) => {
     formatProductVariants(data);
     return fetchApi<Product>('/admin/products', {

@@ -16,41 +16,20 @@ export function WeeklyDelivery() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
 
-  const fallbackDeliveries: Delivery[] = [
-    {
-      id: 1,
-      title: "Suite Parentale — Noyer Massif Sculpté",
-      description: "Installation complète d'une suite de prestige comprenant une tête de lit monumentale ciselée à la main aux motifs andalous, tables de chevet marquetées et console d'entrée en noyer noble.",
-      imageUrl: "/images/bg-references.png",
-      location: "Villa Privée — Gammarth",
-      deliveryDate: new Date().toISOString(),
-      clientReview: "Un travail d'orfèvre d'une qualité exceptionnelle. Les finitions en noyer massif et les patines artisanales sont sublimes."
-    },
-    {
-      id: 2,
-      title: "Salon d'Apparat & Boiserie Andalouse",
-      description: "Aménagement complet sur-mesure avec boiserie murale ciselée, portes intérieures à claustra traditionnel et finitions en laiton vieilli pour une demeure de maître.",
-      imageUrl: "/project-villa.png",
-      location: "Résidence de Prestige — Carthage",
-      deliveryDate: new Date(Date.now() - 86400000 * 3).toISOString(),
-      clientReview: "Ponctualité exemplaire et installation soignée dans les moindres détails par les maîtres de l'atelier."
-    }
-  ]
-
   useEffect(() => {
     setIsMounted(true)
     publicApi.getDeliveries()
       .then(data => {
-        if (data && data.length > 0) {
+        if (data && Array.isArray(data)) {
           const sorted = data.sort((a, b) => b.id - a.id)
           setDeliveries(sorted)
         } else {
-          setDeliveries(fallbackDeliveries)
+          setDeliveries([])
         }
       })
       .catch((error) => {
-        console.error("Failed to fetch deliveries, using fallback:", error)
-        setDeliveries(fallbackDeliveries)
+        console.error("Failed to fetch deliveries:", error)
+        setDeliveries([])
       })
   }, [])
 

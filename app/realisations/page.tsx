@@ -11,14 +11,23 @@ export const metadata: Metadata = {
 
 export default function RealisationsPage() {
   return (
-    <main className="overflow-x-hidden">
-      <Navbar />
-      
-      <div className="pt-20">
-        <Projects />
-        <References />
+    <main className="overflow-x-hidden relative bg-[#241812] text-[#F7F4EE] min-h-screen">
+      {/* 🌟 FOND MAÎTRE SCROLLABLE UNIFORME (Luminosité constante sur toute la page, sans dégradé) */}
+      <div 
+        className="absolute inset-0 z-0 opacity-75 brightness-80 pointer-events-none bg-[url('/images/bg-stats-about.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat bg-performance-layer transform-gpu" 
+      />
+      {/* Voile d'ombrage plat et uniforme (100% même luminosité de haut en bas, aucun dégradé) */}
+      <div className="absolute inset-0 z-0 bg-[#241812]/65 pointer-events-none" />
+
+      <div className="relative z-10 w-full">
+        <Navbar />
+        
+        <div className="pt-20">
+          <Projects />
+          <References />
+        </div>
+        <Footer />
       </div>
-      <Footer />
     </main>
   )
 }

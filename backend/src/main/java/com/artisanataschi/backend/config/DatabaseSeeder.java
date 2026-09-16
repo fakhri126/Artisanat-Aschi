@@ -28,6 +28,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Autowired private RelookingRepository relookingRepository;
     @Autowired private PasswordEncoder passwordEncoder;
 
+    @org.springframework.beans.factory.annotation.Value("${app.db.force-seed:false}")
+    private boolean forceSeed;
+
     private Category cat(String name, String type) {
         Category c = new Category();
         c.setName(name);
@@ -88,6 +91,14 @@ public class DatabaseSeeder implements CommandLineRunner {
             admin.setRole("ROLE_ADMIN");
             adminRepository.save(admin);
             System.out.println("✅ Default admin seeded: admin / adminpassword");
+        }
+
+        // Si la base est déjà initialisée (catégories présentes), NE PAS ré-insérer ni écraser les données !
+        // Cela garantit que toute donnée supprimée reste définitivement supprimée,
+        // et que toute nouvelle donnée ajoutée ou modifiée reste intacte en base.
+        if (!forceSeed && categoryRepository.count() > 0) {
+            System.out.println("ℹ️ Base de données déjà initialisée. Le seeder automatique n'écrase aucune donnée utilisateur.");
+            return;
         }
 
         // ── 2. Seed Categories ───────────────────────────────────────────────
@@ -247,6 +258,73 @@ public class DatabaseSeeder implements CommandLineRunner {
             }
         }
         System.out.println("✅ All 32 genuine handle products seeded.");
+
+        // ── Clean up old / legacy door handles with obsolete images ─────────────
+        List<Product> obsoleteDoorHandles = productRepository.findAll().stream()
+            .filter(p -> {
+                if (p.getImages() == null) return false;
+                return p.getImages().stream().anyMatch(img -> {
+                    String url = img.getImageUrl() != null ? img.getImageUrl() : "";
+                    return url.contains("porte_ceramique_") ||
+                           url.contains("porte_sauge_") ||
+                           url.contains("porte_sculptee_bois_noble") ||
+                           url.contains("poignee_sculptee_sauge_or") ||
+                           url.contains("sculptee_in_situ_main_porte");
+                });
+            })
+            .toList();
+        if (!obsoleteDoorHandles.isEmpty()) {
+            productRepository.deleteAll(obsoleteDoorHandles);
+            System.out.println("🧹 Cleaned up " + obsoleteDoorHandles.size() + " obsolete door handle products from database.");
+        }
+
+        // ── Seed authentic workshop door handles with real photos ───────────────
+        String[][] authenticDoorHandles = {
+            {"Poignée Céramique Ovale sur Plaque Laiton", "Poignée horizontale ovale en faïence émaillée peinte à la main, sertie dans une bague en bois noble tournée et montée sur plaque de propreté galbée en laiton massif avec clé forgée.", "Médaillon 11 x 6 cm • Plaque 28 x 7 cm", "Céramique Peinte Main & Laiton Massif & Bois", "Vert méditerranéen", "180", "/poignees/client_porte_verte_poignee_ceramique.jpg", "ceramique"},
+            {"Poignée Céramique Ovale à Motifs Rameaux", "Médaillon ovale en céramique à motifs botaniques vert émeraude sur fond blanc. Monté sur plaque moucharabieh ajourée en fer patiné avec serrure traditionnelle.", "Médaillon 11 x 6 cm • Plaque 32 x 6.5 cm", "Feuillage d'Olivier & Moucharabieh Ajouré & Fer Patiné", "Vert émeraude & Blanc", "190", "/poignees/client_porte_verte_rameaux.png", "ceramique"},
+            {"Poignée Céramique Ovale & Porte Bleue", "Médaillon ovale en faïence artisanale serti de bois, posé sur une plaque de propreté verticale sculptée à claire-voie sur porte bleue traditionnelle incrustée de carreaux de faïence.", "Médaillon 10 x 5.5 cm • Plaque 30 x 6 cm", "Style Sidi Bou Saïd & Bois Noble Sculpté & Faïence Fine", "Bleu Sidi Bou Saïd & Crème", "185", "/poignees/client_porte_bleue_ceramique.jpg", "ceramique"},
+            {"Médaillon Ovale Majolique Bleue & Ocre", "Pièce maîtresse ovale en faïence aux émaux bleu cobalt et ocre jaune, sertie d'olivier et présentée sur plaque ajourée sculptée en moucharabieh blanc cérusé.", "Médaillon 11 x 6 cm • Plaque 28 x 6 cm", "Majolique Bleue & Moucharabieh Cérusé & Bois d'Olivier", "Bleu cobalt & Ocre", "175", "/poignees/client_poignee_ovale_majolique_bleue.jpg", "ceramique"},
+            {"Poignée Sculptée à la Gouge & Rosace Losange", "Ensemble sculpté main comprenant une poignée droite ciselée de losanges, une grande rosace murale en bas-relief géométrique et une plaque de serrure ajourée avec clé d'époque.", "Poignée 14 cm • Rosace 18 x 12 cm • Plaque 26 x 5 cm", "Noyer Massif & Sculpture Gouge & Rosace Losange", "Noyer massif naturel", "220", "/poignees/client_porte_sculptee_bois_rosette.jpg", "sculptee"},
+            {"Poignée Ciselée Dorée sur Porte Vert Sauge", "Poignée ergonomique sculptée à reliefs géométriques avec finition patinée dorée, assortie à sa plaque de propreté ajourée sur porte moulurée vert pastel.", "Poignée 15 cm • Plaque 30 x 6 cm", "Finition Dorée & Bois Ciselé & Ferronnerie d'Art", "Or patiné & Vert sauge", "210", "/poignees/client_porte_sauge_poignee_doree.jpg", "sculptee"},
+            {"Poignée Sculptée Céladon & Plaque Dorée Ajourée", "Poignée en bois sculpté finition laque céladon / sauge sur plaque moucharabieh en métal doré ajouré avec motif en losanges.", "Poignée 15 cm • Plaque 30 x 6 cm", "Sculpture Main & Plaque Dorée & Vert Céladon", "Vert céladon & Or", "195", "/poignees/client_poignee_sauge_plaque_doree.jpg", "sculptee"},
+            {"Cache Serrure & Visiophone Sculpté en Moucharabieh", "Plaque ornementale sculptée à claire-voie en bois noble ou laiton patiné. Conçue pour habiller harmonieusement les équipements techniques extérieurs (sonnette vidéo, interphone, digicode) sans dénaturer la boiserie.", "16 x 10 cm", "Moucharabieh & Habillage Technique & Laiton & Bois", "Noyer & Laiton patiné", "140", "/images/poignees_display.jpg", "sculptee"}
+        };
+
+        for (String[] dh : authenticDoorHandles) {
+            String dhName = dh[0];
+            String dhDesc = dh[1];
+            String dhDims = dh[2];
+            String dhMat = dh[3];
+            String dhColor = dh[4];
+            String dhPrice = dh[5];
+            String dhImg = dh[6];
+            String dhType = dh[7];
+
+            Category targetCat = "sculptee".equals(dhType) ? catSculptee : catCeramique;
+
+            Product existing = productRepository.findAll().stream()
+                .filter(p -> p.getName().equals(dhName))
+                .findFirst()
+                .orElse(null);
+
+            if (existing == null) {
+                Product np = productWithImage(
+                    dhName, dhDesc, dhDims, dhMat, dhColor, dhPrice, "Disponible", "BIJOUX_DE_PORTE", true, targetCat, dhImg
+                );
+                productRepository.save(np);
+            } else {
+                // Ensure image and details are strictly authentic
+                if (existing.getImages() != null && !existing.getImages().isEmpty()) {
+                    existing.getImages().get(0).setImageUrl(dhImg);
+                }
+                existing.setDescription(dhDesc);
+                existing.setDimensions(dhDims);
+                existing.setMaterials(dhMat);
+                existing.setColor(dhColor);
+                productRepository.save(existing);
+            }
+        }
+        System.out.println("✅ Authentic door handle products registered in database.");
 
         // ── 4. Seed Projects ─────────────────────────────────────────────────
         // ── 4. Seed Projects ─────────────────────────────────────────────────

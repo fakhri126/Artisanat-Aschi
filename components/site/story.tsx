@@ -14,6 +14,8 @@ interface Milestone {
   badge: string
   location: string
   anecdote: string
+  objectPosition?: string
+  aspectRatioClass?: string
 }
 
 const MILESTONES: Milestone[] = [
@@ -22,44 +24,52 @@ const MILESTONES: Milestone[] = [
     year: 'Années 1950–1960',
     title: 'Les Racines',
     subtitle: "L'éveil du geste & la passion des pièces anciennes",
-    image: '/story-founder.png',
+    image: '/images/story-1950-1960.jpg',
     text: "À Tunis, Hachemi Aschi et son frère Abdelaziz, passionnés de pièces anciennes, se forment en autodidactes au fil de leurs découvertes et collections. Héritiers du savoir-faire de leur père, baradai, ils développent le travail du bois, du cuir et du cuivre, donnant naissance aux coffres artisanaux, marionnettes et premières créations emblématiques de la maison.",
     badge: 'Les Racines',
     location: 'Tunis',
-    anecdote: "Héritiers du savoir-faire de leur père baradai, ils développent le travail du bois, du cuir et du cuivre pour forger l'âme de la maison."
+    anecdote: "Héritiers du savoir-faire de leur père baradai, ils développent le travail du bois, du cuir et du cuivre pour forger l'âme de la maison.",
+    objectPosition: 'object-center',
+    aspectRatioClass: 'aspect-[4/3]'
   },
   {
     id: '1976',
     year: '1976',
     title: 'L’Atelier de La Goulette',
     subtitle: "L'ancrage au port & le rayonnement patrimonial",
-    image: '/story-transmission.png',
+    image: '/images/story-1976.jpg',
     text: "L’aventure se poursuit et prend de l’ampleur à La Goulette. Autour de Hachemi Aschi, le travail fait main s’affirme et se diversifie : coffres, mobilier sculpté et objets décoratifs, entre restauration, création et valorisation du patrimoine artisanal tunisien.",
     badge: 'L’Atelier',
     location: 'La Goulette, Tunis',
-    anecdote: "Autour de Hachemi Aschi, le travail fait main s'affirme : coffres, mobilier sculpté et mise en valeur du patrimoine artisanal tunisien."
+    anecdote: "Autour de Hachemi Aschi, le travail fait main s'affirme : coffres, mobilier sculpté et mise en valeur du patrimoine artisanal tunisien.",
+    objectPosition: 'object-top',
+    aspectRatioClass: 'aspect-[4/3] sm:aspect-[4/5]'
   },
   {
     id: '2018',
-    year: '2018',
+    year: 'La Transmission 2018',
     title: 'La Transmission',
     subtitle: "Adel & Ismail Aschi poursuivent l'histoire familiale",
-    image: '/story-newgen.png',
+    image: '/images/story-transmission-2018.jpg',
     text: "Après le décès de Hachemi Aschi, ses fils Adel et Ismail poursuivent l’histoire familiale. Ils préservent les techniques et le savoir-faire hérités tout en développant de nouvelles créations.",
     badge: 'La Transmission',
     location: 'Atelier de La Goulette',
-    anecdote: "Adel et Ismail préservent avec dévouement les techniques et gestes ancestraux tout en développant de nouvelles créations."
+    anecdote: "Adel et Ismail préservent avec dévouement les techniques et gestes ancestraux tout en développant de nouvelles créations.",
+    objectPosition: 'object-center',
+    aspectRatioClass: 'aspect-[4/3]'
   },
   {
-    id: 'depuis-2018',
-    year: 'Depuis 2018',
+    id: 'aujourd-hui',
+    year: "Aujourd'hui",
     title: 'Un Savoir-Faire en Évolution',
     subtitle: "Mobilier, portes, luminaires & projets d'envergure",
-    image: '/images/bg-espace-exception.jpg',
+    image: '/images/story-aujourdhui.jpg',
     text: "Artisanat Aschi élargit son univers au mobilier, portes, luminaires et aménagements sur mesure, en associant savoir-faire traditionnel et création contemporaine. Aujourd’hui, la maison accompagne également des projets de grande envergure : projets immobiliers, hôtels, maisons d’hôtes, villas et espaces professionnels.",
-    badge: 'Évolution & Grands Projets',
+    badge: 'Création Contemporaine & Projets',
     location: 'Tunisie & International',
-    anecdote: "De la pièce sculptée d'art aux projets hôteliers et résidentiels d'envergure : tradition vivante et création contemporaine."
+    anecdote: "De la pièce sculptée d'art et luminaires sur-mesure aux projets hôteliers et résidentiels d'envergure : tradition vivante et création contemporaine.",
+    objectPosition: 'object-center',
+    aspectRatioClass: 'aspect-[4/3] sm:aspect-[4/5]'
   }
 ]
 
@@ -110,15 +120,15 @@ export function Story() {
                       
                       {/* 1. Colonne Image */}
                       <div className={`w-full md:w-1/2 flex ${isEven ? 'md:justify-end' : 'md:justify-start'}`}>
-                        <div className="relative w-full max-w-md aspect-[16/10] sm:aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#3B271C] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group">
+                        <div className={`relative w-full max-w-md ${milestone.aspectRatioClass || 'aspect-[4/3]'} rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#3B271C] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group`}>
                           <Image 
                             src={milestone.image} 
                             alt={milestone.title}
                             fill
                             sizes="(max-width: 768px) 100vw, 500px"
-                            className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                            className={`object-cover ${milestone.objectPosition || 'object-center'} transition-transform duration-1000 group-hover:scale-105`}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/95 via-transparent to-transparent pointer-events-none" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/90 via-transparent to-transparent pointer-events-none" />
                           
                           <div className={`absolute bottom-3 ${isEven ? 'left-3' : 'right-3'} bg-[#3B271C]/95 backdrop-blur-md px-3 py-1 rounded-full border border-[#E6A635]/40 flex items-center gap-1.5 shadow-md`}>
                             <MapPin className="size-3 text-[#E6A635]" />

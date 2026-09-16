@@ -4,6 +4,7 @@ import { HeroSlider } from "@/components/site/hero-slider"
 import { WhyAschi } from "@/components/site/why-aschi"
 import { Projects } from "@/components/site/projects"
 import { References } from "@/components/site/references"
+import { MediaSection } from "@/components/site/media-section"
 import { NewsSection } from "@/components/site/news-section"
 import { WeeklyDelivery } from "@/components/site/weekly-delivery"
 import { VideoReel } from "@/components/site/video-reel"
@@ -20,18 +21,12 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <main className="overflow-x-hidden relative bg-[#241812] text-[#F7F4EE] min-h-screen">
-      {/* 🌟 FOND MAÎTRE SCROLLABLE (Défile naturellement avec toute la page d'accueil) */}
+      {/* 🌟 FOND MAÎTRE SCROLLABLE UNIFORME (Luminosité constante sur toute la page, sans dégradé) */}
       <div 
-        className="absolute inset-0 z-0 opacity-80 brightness-95 pointer-events-none bg-[url('/images/bg-stats-about.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat bg-performance-layer transform-gpu" 
+        className="absolute inset-0 z-0 opacity-75 brightness-80 pointer-events-none bg-[url('/images/bg-stats-about.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat bg-performance-layer transform-gpu" 
       />
-      {/* Voile d'ombrage doux pour haute lisibilité des cartes et typographies */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#241812]/80 via-black/25 to-[#241812]/85 pointer-events-none" />
-      
-      {/* Halos d'ambiance atelier répartis sur toute la hauteur */}
-      <div className="absolute top-[8%] left-1/4 size-[450px] rounded-full bg-[#E6A635]/18 blur-[140px] pointer-events-none z-0" />
-      <div className="absolute top-[35%] right-1/4 size-[450px] rounded-full bg-[#C78318]/15 blur-[140px] pointer-events-none z-0" />
-      <div className="absolute top-[65%] left-1/3 size-[450px] rounded-full bg-[#E6A635]/15 blur-[140px] pointer-events-none z-0" />
-      <div className="absolute top-[90%] right-1/3 size-[450px] rounded-full bg-[#C78318]/15 blur-[140px] pointer-events-none z-0" />
+      {/* Voile d'ombrage plat et uniforme (100% même luminosité de haut en bas, aucun dégradé) */}
+      <div className="absolute inset-0 z-0 bg-[#241812]/65 pointer-events-none" />
 
       <div className="relative z-10 w-full">
         <Navbar />
@@ -59,7 +54,12 @@ export default function Page() {
           <References />
         </div>
 
-        {/* 6. Actualités & Événements (Position C : entre Références et Livraison) */}
+        {/* 6. Passage Média & Télévision (Vidéo reportage officiel) */}
+        <div className="cv-auto">
+          <MediaSection />
+        </div>
+
+        {/* 7. Actualités & Événements (Position C : entre Références et Livraison) */}
         <div className="cv-auto">
           <NewsSection />
         </div>

@@ -51,78 +51,6 @@ export function normalizeCategory(cat?: string): string {
   return 'autre'
 }
 
-const MOCK_PROJECTS: ProjectItem[] = [
-  {
-    id: 1,
-    title: 'Hôtel Dar El Jeld',
-    category: 'Hôtels & Palaces',
-    filterType: 'hotel',
-    imageUrl: '/project-hotel.png',
-    gallery: ['/project-hotel.png', '/gallery-1.png', '/gallery-2.png'],
-    description: "Aménagement monumental complet de l'établissement de luxe. Portes cochères sculptées en noyer massif, habillages muraux géométriques d'inspiration andalouse, et mobilier de salon d'exception.",
-    location: 'Médina de Tunis',
-    materials: 'Noyer massif séché, laiton forgé & céramiques',
-    year: '2023',
-    videoUrl: '/Video.mp4',
-    detailsList: ['Portes monumentales', 'Boiseries d\'art', 'Salons de réception']
-  },
-  {
-    id: 2,
-    title: "Maison d'Hôtes Dar Said",
-    category: "Maisons d'Hôtes",
-    filterType: 'guesthouse',
-    imageUrl: '/project-guesthouse.png',
-    gallery: ['/project-guesthouse.png', '/gallery-3.png', '/gallery-4.png'],
-    description: "Conception sur-mesure d'éléments de mobilier pour les suites de prestige. Lits à baldaquin sculptés, commodes incrustées de laiton poli et cadres de miroirs dorés à la feuille d'or.",
-    location: 'Sidi Bou Saïd',
-    materials: 'Bois noble, dorure à la feuille & fer forgé',
-    year: '2024',
-    videoUrl: '/test-video.mp4',
-    detailsList: ['Mobilier de chambre', 'Miroirs sculptés', 'Incrustations laiton']
-  },
-  {
-    id: 3,
-    title: 'Villa de Maître Carthage',
-    category: 'Villas & Résidences Privées',
-    filterType: 'villa',
-    imageUrl: '/project-villa.png',
-    gallery: ['/project-villa.png', '/creation-model.png', '/creation-unique.png'],
-    description: "Aménagement d'exception pour une demeure privée. Portes extérieures d'apparat sculptées à la main, plafonds à caissons traditionnels et moucharabiehs sur-mesure.",
-    location: 'Carthage',
-    materials: 'Noyer noble, bois de cèdre & laiton ciselé',
-    year: '2024',
-    videoUrl: '/Video.mp4',
-    detailsList: ['Portes monumentales', 'Plafonds à caissons', 'Moucharabiehs']
-  },
-  {
-    id: 4,
-    title: "Résidence Panorama Marina",
-    category: "Projets Immobiliers",
-    filterType: 'immobilier',
-    imageUrl: '/creation-model.png',
-    gallery: ['/creation-model.png', '/project-hotel.png', '/gallery-2.png'],
-    description: "Menuiserie d'art et agencements de standing pour un ensemble résidentiel de prestige. Portes palières sculptées, habillages des halls d'accueil et claustras d'ornement.",
-    location: 'Gammarth',
-    materials: 'Chêne royal, ferronnerie d\'art & noyer',
-    year: '2024',
-    videoUrl: '/test-video.mp4',
-    detailsList: ['Portes de standing', 'Hall d\'accueil', 'Claustras d\'ornement']
-  },
-  {
-    id: 5,
-    title: "Bureaux Corporate & Lounge L'Ébène",
-    category: "Espaces Pro & Commerciaux",
-    filterType: 'pro_commercial',
-    imageUrl: '/project-restaurant.png',
-    gallery: ['/project-restaurant.png', '/gallery-5.png', '/gallery-6.png'],
-    description: "Aménagement prestigieux de la salle du conseil d'administration et de l'espace lounge. Table de réunion monumentale en chêne massif d'un seul tenant et habillage acoustique sculpté.",
-    location: 'Les Berges du Lac',
-    materials: 'Noyer noble, cuir naturel & boiserie acoustique',
-    year: '2024',
-    videoUrl: '/test-video.mp4',
-    detailsList: ['Table de réunion', 'Comptoir de bar', 'Habillage acoustique']
-  },
-]
 
 const PROCESS_STEPS = [
   {
@@ -268,7 +196,7 @@ function BentoProjectCard({
 }
 
 export function Projects() {
-  const [projects, setProjects] = useState<ProjectItem[]>(MOCK_PROJECTS)
+  const [projects, setProjects] = useState<ProjectItem[]>([])
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [lightboxProject, setLightboxProject] = useState<{ images: string[]; currentIndex: number; title: string } | null>(null)
@@ -278,7 +206,7 @@ export function Projects() {
     async function loadDynamicProjects() {
       try {
         const data = await publicApi.getProjects()
-        if (data && data.length > 0) {
+        if (data && Array.isArray(data)) {
           const mapped: ProjectItem[] = data.map((p) => {
             const normCat = normalizeCategory(p.category)
             const detailsList = p.details
@@ -303,24 +231,16 @@ export function Projects() {
           setProjects(mapped)
         }
       } catch (err) {
-        console.warn('Backend unavailable, using default projects:', err)
+        console.warn('Backend unavailable:', err)
+        setProjects([])
       }
     }
     loadDynamicProjects()
   }, [])
 
-  // Exactement 4 projets affichés sur l'accueil dans la disposition Bento
+  // Exactement jusqu'à 4 projets affichés sur l'accueil dans la disposition Bento
   const displayProjects = useMemo(() => {
-    const list = [...projects]
-    if (list.length < 4) {
-      for (const mock of MOCK_PROJECTS) {
-        if (!list.some((p) => p.id === mock.id || p.title === mock.title)) {
-          list.push(mock)
-        }
-        if (list.length >= 4) break
-      }
-    }
-    return list.slice(0, 4)
+    return projects.slice(0, 4)
   }, [projects])
 
   // Reset gallery index when opening a new project
@@ -382,16 +302,18 @@ export function Projects() {
         {/* ================================================================= */}
         {/* DISPOSITION BENTO : 1 GRANDE, 2 PETITES, 1 MOYENNE (4 PROJETS)    */}
         {/* ================================================================= */}
-        <div className="mt-8 sm:mt-12 grid auto-rows-[16rem] sm:auto-rows-[18rem] lg:auto-rows-[19rem] grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {displayProjects.map((p, idx) => (
-            <BentoProjectCard
-              key={p.id || idx}
-              project={p}
-              index={idx}
-              onOpen={(proj) => setSelectedProject(proj)}
-            />
-          ))}
-        </div>
+        {displayProjects.length > 0 && (
+          <div className="mt-8 sm:mt-12 grid auto-rows-[16rem] sm:auto-rows-[18rem] lg:auto-rows-[19rem] grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {displayProjects.map((p, idx) => (
+              <BentoProjectCard
+                key={p.id || idx}
+                project={p}
+                index={idx}
+                onOpen={(proj) => setSelectedProject(proj)}
+              />
+            ))}
+          </div>
+        )}
 
         {/* ================================================================= */}
         {/* 3-STEP PROCESS: ÉTUDE → FAÇONNAGE → POSE                          */}

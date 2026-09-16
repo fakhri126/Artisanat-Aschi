@@ -17,16 +17,12 @@ export const metadata: Metadata = {
 export default function AtelierPage() {
   return (
     <main className="overflow-x-hidden relative bg-[#241812] text-[#F7F4EE] min-h-screen">
-      {/* Fond Maître Sculpté Original */}
+      {/* 🌟 FOND MAÎTRE SCROLLABLE UNIFORME (Luminosité constante sur toute la page, sans dégradé) */}
       <div 
-        className="absolute inset-0 z-0 opacity-70 brightness-90 pointer-events-none bg-[url('/images/bg-carved-wood.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat bg-performance-layer transform-gpu" 
+        className="absolute inset-0 z-0 opacity-75 brightness-80 pointer-events-none bg-[url('/images/bg-carved-wood.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat bg-performance-layer transform-gpu" 
       />
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#241812]/80 via-black/25 to-[#241812]/85 pointer-events-none" />
-
-      {/* Halos d'ambiance atelier */}
-      <div className="absolute top-[10%] left-1/4 size-[400px] rounded-full bg-[#E6A635]/15 blur-[140px] pointer-events-none z-0" />
-      <div className="absolute top-[50%] right-1/4 size-[450px] rounded-full bg-[#C78318]/15 blur-[140px] pointer-events-none z-0" />
-      <div className="absolute top-[80%] left-1/3 size-[400px] rounded-full bg-[#E6A635]/15 blur-[140px] pointer-events-none z-0" />
+      {/* Voile d'ombrage plat et uniforme (100% même luminosité de haut en bas, aucun dégradé) */}
+      <div className="absolute inset-0 z-0 bg-[#241812]/65 pointer-events-none" />
 
       <div className="relative z-10 w-full">
         <Navbar />

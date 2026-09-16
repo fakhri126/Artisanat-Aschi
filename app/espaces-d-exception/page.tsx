@@ -943,7 +943,7 @@ export default function TurnkeyProjectsPage() {
     const fetchProjects = async () => {
       try {
         const data = await publicApi.getProjects()
-        if (data && data.length > 0) {
+        if (Array.isArray(data)) {
           const mapped = data.map((p) => {
             const normType = normalizeCategory(p.category)
             return {
@@ -1064,13 +1064,10 @@ export default function TurnkeyProjectsPage() {
 
   return (
     <main className="min-h-screen flex flex-col relative text-[#F7F4EE] overflow-hidden bg-[#241812]">
-      {/* Unified Background */}
-      <div className="absolute inset-0 z-0 opacity-80 brightness-95 pointer-events-none bg-[url('/images/bg-espace-exception.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#241812]/80 via-black/30 to-[#241812]/90 pointer-events-none z-0" />
-      
-      {/* Amber Glow Halos */}
-      <div className="absolute top-1/4 left-1/4 size-[450px] rounded-full bg-[#E6A635]/18 blur-[130px] pointer-events-none z-0" />
-      <div className="absolute bottom-1/4 right-1/4 size-[450px] rounded-full bg-[#C78318]/15 blur-[130px] pointer-events-none z-0" />
+      {/* 🌟 FOND MAÎTRE SCROLLABLE UNIFORME (Luminosité constante sur toute la page, sans dégradé) */}
+      <div className="absolute inset-0 z-0 opacity-75 brightness-80 pointer-events-none bg-[url('/images/bg-espace-exception.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
+      {/* Voile d'ombrage plat et uniforme (100% même luminosité de haut en bas, aucun dégradé) */}
+      <div className="absolute inset-0 bg-[#241812]/65 pointer-events-none z-0" />
 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Navbar />
