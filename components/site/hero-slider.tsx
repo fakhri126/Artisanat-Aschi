@@ -376,7 +376,7 @@ export function HeroSlider() {
                 {slide.description}
               </p>
               
-              {/* Dual CTA: Knob interactive + Direct Devis Express Button */}
+              {/* Dual CTA: Knob interactive + Direct Button */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-10">
                 {/* Knob Interactive Element */}
                 <div 
@@ -426,11 +426,11 @@ export function HeroSlider() {
 
                 {/* Direct High-Conversion Button */}
                 <Link
-                  href="/custom-creation"
+                  href="/contact"
                   className="group flex items-center gap-3 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold text-xs uppercase tracking-[0.16em] px-7 py-4 rounded-full shadow-[0_10px_25px_rgba(0,0,0,0.5),0_0_20px_rgba(230,166,53,0.35)] border border-[#E6A635]/40 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] btn-sheen"
                 >
                   <FileText className="size-4 text-[#1A110B] group-hover:scale-110 transition-transform" />
-                  <span>Devis Sur-Mesure Express</span>
+                  <span>Commander Sur-Mesure</span>
                 </Link>
               </div>
             </motion.div>

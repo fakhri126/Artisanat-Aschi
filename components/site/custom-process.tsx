@@ -19,8 +19,8 @@ const STEPS = [
   },
   {
     icon: FileText,
-    title: 'Recevoir le devis',
-    text: 'Une proposition claire et détaillée, sans engagement.',
+    title: 'Validation du projet',
+    text: 'Une proposition claire et détaillée pour lancer la confection.',
   },
   {
     icon: Hammer,

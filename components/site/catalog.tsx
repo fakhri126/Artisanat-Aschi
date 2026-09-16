@@ -12,22 +12,19 @@ const FILTERS_CAT = [
   'Buffets',
   'Meubles TV',
   'Miroirs',
-  'Lampes Coffres',
+  'Lampes',
   'Lustres',
-  'Porte Bijoux',
   'Portes',
-  'Coffres',
-  'Décoration',
   'Tables'
 ]
 
 const FILTERS_COLOR = [
   'Tout',
+  'Blanc',
   'Noyer',
   'Bleu',
   'Or',
-  'Naturel',
-  'Blanc Cérusé'
+  'Naturel'
 ]
 
 const FILTERS_DIM = [
@@ -157,13 +154,13 @@ export function Catalog() {
                           <Eye className="size-3.5" /> Voir les détails
                         </Link>
                         <Link
-                          href={`${link}?action=devis`}
+                          href={link}
                           className="flex w-44 items-center justify-center gap-2 rounded-full border border-[#E6A635]/50 bg-[#241812]/90 py-2.5 text-xs font-bold uppercase tracking-wider text-[#F7F4EE] hover:bg-[#241812] transition-colors"
                         >
-                          <MessageCircle className="size-3.5" /> Devis Modèle
+                          <MessageCircle className="size-3.5" /> Commander ce modèle
                         </Link>
                         <Link
-                          href="/custom-creation"
+                          href="/contact"
                           className="flex w-44 items-center justify-center gap-2 rounded-full border border-[#E6A635]/50 bg-[#241812]/90 py-2.5 text-xs font-bold uppercase tracking-wider text-[#F7F4EE] hover:bg-[#241812] transition-colors"
                         >
                           <Sparkles className="size-3.5 text-[#F2BD52]" /> Créer Sur-Mesure

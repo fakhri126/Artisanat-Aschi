@@ -121,6 +121,7 @@ export interface ProductRequest {
   availability: string;
   type: 'PIECE_UNIQUE' | 'REPRODUCTIBLE' | 'CATALOGUE';
   isFeatured: boolean;
+  style?: string;
   imageUrls?: string[];         // legacy fallback
   imageVariants?: ImageVariant[]; // new: structured variants with colorLabel
 }
@@ -493,6 +494,9 @@ export const adminApi = {
   deleteQuoteRequest: (id: number) => fetchApi<void>(`/admin/quotes/${id}`, {
     method: 'DELETE',
   }),
+  deleteQuote: (id: number) => fetchApi<void>(`/admin/quotes/${id}`, {
+    method: 'DELETE',
+  }),
 
   // --- Deliveries ---
   getDeliveries: () => fetchApi<Delivery[]>('/public/deliveries'),
@@ -508,3 +512,79 @@ export const adminApi = {
     method: 'DELETE',
   }),
 };
+
+// --- Color Swatches Management ---
+export interface ColorSwatch {
+  id: string;
+  label: string;
+  name: string;
+  hex: string;
+  isDefault?: boolean;
+}
+
+export const colorsApi = {
+  getColors: async (): Promise<ColorSwatch[]> => {
+    try {
+      const res = await fetch('/api/colors', { cache: 'no-store' });
+      if (res.ok) {
+        const raw = await res.json();
+        return raw.map((c: any) => ({
+          id: c.id,
+          label: c.label || c.name || '',
+          name: c.name || c.label || '',
+          hex: c.hex,
+          isDefault: c.isDefault,
+        }));
+      }
+    } catch (e) {
+      console.warn('Fallback getting colors:', e);
+    }
+    return [
+      { id: 'blanc', label: 'Blanc', name: 'Blanc', hex: '#FFFFFF', isDefault: true },
+      { id: 'noir', label: 'Noir', name: 'Noir', hex: '#1A1A1A', isDefault: true },
+      { id: 'noyer', label: 'Noyer', name: 'Noyer', hex: '#5C3317', isDefault: true },
+      { id: 'bleu', label: 'Bleu', name: 'Bleu', hex: '#2D5F8A', isDefault: true },
+      { id: 'or', label: 'Or', name: 'Or', hex: '#C9A84C', isDefault: true },
+      { id: 'naturel', label: 'Naturel', name: 'Naturel', hex: '#C4A882', isDefault: true },
+      { id: 'vert-olivier', label: 'Vert Olivier', name: 'Vert Olivier', hex: '#4A5E3A', isDefault: true },
+      { id: 'bordeaux', label: 'Bordeaux', name: 'Bordeaux', hex: '#7B2D3E', isDefault: true },
+    ];
+  },
+
+  createColor: async (data: { label: string; hex: string }): Promise<ColorSwatch> => {
+    const res = await fetch('/api/colors', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Erreur lors de la création de la couleur');
+    }
+    return await res.json();
+  },
+
+  updateColor: async (id: string, data: { label: string; hex: string }): Promise<ColorSwatch> => {
+    const res = await fetch('/api/colors', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...data }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Erreur lors de la mise à jour de la couleur');
+    }
+    return await res.json();
+  },
+
+  deleteColor: async (id: string): Promise<void> => {
+    const res = await fetch(`/api/colors?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Erreur lors de la suppression de la couleur');
+    }
+  },
+};
+

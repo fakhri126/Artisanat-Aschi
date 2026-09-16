@@ -28,7 +28,7 @@ const DEFAULT_PRODUCT: Product = {
 export function HeroSplit() {
   const [latestProduct, setLatestProduct] = useState<Product>(DEFAULT_PRODUCT)
   const [isUnveiled, setIsUnveiled] = useState(false)
-  const { addItem } = useCart()
+  const { addToCart } = useCart()
 
   useEffect(() => {
     async function loadLatestProduct() {
@@ -58,18 +58,6 @@ export function HeroSplit() {
     }
     loadLatestProduct()
   }, [])
-
-  const addToCart = (product: Product) => {
-    const primaryImg = product.images?.find(img => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl || '/placeholder.jpg'
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: primaryImg,
-      category: product.category?.name || 'Mobilier',
-      woodType: product.woodType || undefined
-    })
-  }
 
   const image = latestProduct.images?.find(img => img.isPrimary)?.imageUrl || latestProduct.images?.[0]?.imageUrl || '/placeholder.jpg'
   const isVideo = image.match(/\.(mp4|webm|ogg|mov)$/i)

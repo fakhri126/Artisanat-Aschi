@@ -113,7 +113,7 @@ export function Creations() {
           ) : filteredProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center text-[#EAE4D9]/70 bg-[#3B271C]/60 rounded-3xl border border-[#E6A635]/25 p-8">
               <p className="text-base font-light mb-3">Aucune pièce disponible dans cette catégorie pour le moment.</p>
-              <Link href="/custom-creation" className="btn-sheen px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider">
+              <Link href="/contact" className="btn-sheen px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider">
                 Commander sur-mesure
               </Link>
             </div>

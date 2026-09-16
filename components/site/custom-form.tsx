@@ -287,7 +287,7 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
               >
                 <div>
                   <h3 className="font-heading text-xl sm:text-2xl text-[#F7F4EE] mb-1.5">Finalisons votre projet</h3>
-                  <p className="text-xs text-[#EAE4D9]/80 font-light">Saisissez vos coordonnées pour recevoir votre étude 3D et votre devis.</p>
+                  <p className="text-xs text-[#EAE4D9]/80 font-light">Saisissez vos coordonnées pour recevoir votre étude personnalisée.</p>
                 </div>
                 
                 <div className="flex flex-col gap-3.5">
@@ -378,7 +378,7 @@ ${formData.message || 'Aucun détail supplémentaire fourni.'}
                 disabled={loading}
                 className="btn-sheen inline-flex items-center gap-2 text-xs uppercase tracking-wider font-bold py-3 px-8 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] rounded-full hover:scale-[1.02] transition-all shadow-lg disabled:opacity-50 cursor-pointer"
               >
-                <span>{loading ? 'Envoi en cours...' : 'Demander mon Devis 3D'}</span>
+                <span>{loading ? 'Envoi en cours...' : 'Envoyer ma demande'}</span>
               </button>
             )}
           </div>

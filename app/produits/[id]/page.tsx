@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use, useMemo, useRef } from 'react'
 import Link from 'next/link';
-import { publicApi, Product } from '@/lib/api'
+import { publicApi, Product, colorsApi, ColorSwatch } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { Navbar } from '@/components/site/navbar'
 import { Footer } from '@/components/site/footer'
@@ -28,7 +28,7 @@ export default function ProductDetailPage({ params }: PageProps) {
   // ── Workshop Atelier Finishes Palette ───────────────────────────────────────
   const ATELIER_PALETTE = [
     { id: 'Original', label: 'Original Atelier', hex: null, desc: 'Finition de la pièce photographiée' },
-    { id: 'Blanc', label: 'Blanc Pur / Cérusé', hex: '#FFFFFF', desc: 'Patine blanche lumineuse et raffinée' },
+    { id: 'Blanc', label: 'Blanc Pur', hex: '#FFFFFF', desc: 'Patine blanche lumineuse et raffinée' },
     { id: 'Bleu', label: 'Bleu Majorelle / Canard', hex: '#2D5F8A', desc: 'Teinte méditerranéenne profonde et royale' },
     { id: 'Noyer', label: 'Noyer Foncé Noble', hex: '#5C3317', desc: 'Finition bois précieux chaleureuse' },
     { id: 'Vert Olivier', label: 'Vert Olivier d\'Atelier', hex: '#4A5E3A', desc: 'Tons naturels et apaisants de l\'artisanat' },
@@ -38,7 +38,7 @@ export default function ProductDetailPage({ params }: PageProps) {
     { id: 'Bordeaux', label: 'Bordeaux Royal', hex: '#7B2D3E', desc: 'Teinte feutrée noble' },
   ]
 
-  // ── Interactive Loupe State (Pure Magnifier, No Annoying Click Modal) ──────
+  // ── Interactive Loupe State (Desktop Magnifier) ──────
   const [showZoomLens, setShowZoomLens] = useState(false)
   const [lensPos, setLensPos] = useState({ x: 0, y: 0 })
   const [imgPercent, setImgPercent] = useState({ x: 50, y: 50 })
@@ -59,10 +59,35 @@ export default function ProductDetailPage({ params }: PageProps) {
     handleZoomInteraction(e.clientX, e.clientY)
   }
 
-  const handleZoomTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches && e.touches[0]) {
-      handleZoomInteraction(e.touches[0].clientX, e.touches[0].clientY)
+  // Mobile natural touch swipe to change photos
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  const [touchEndX, setTouchEndX] = useState<number | null>(null)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX)
+    setTouchEndX(null)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null || viewsForSelectedVariant.length <= 1) return
+    const distance = touchStartX - touchEndX
+    if (distance > 45) {
+      // Swiped left -> next photo
+      const currentIdx = viewsForSelectedVariant.findIndex(v => v.imageUrl === activeImage)
+      const nextIdx = currentIdx >= viewsForSelectedVariant.length - 1 ? 0 : currentIdx + 1
+      setActiveImage(viewsForSelectedVariant[nextIdx].imageUrl)
+    } else if (distance < -45) {
+      // Swiped right -> previous photo
+      const currentIdx = viewsForSelectedVariant.findIndex(v => v.imageUrl === activeImage)
+      const prevIdx = currentIdx <= 0 ? viewsForSelectedVariant.length - 1 : currentIdx - 1
+      setActiveImage(viewsForSelectedVariant[prevIdx].imageUrl)
     }
+    setTouchStartX(null)
+    setTouchEndX(null)
   }
 
   // Dynamically generate size options based on product category
@@ -75,6 +100,7 @@ export default function ProductDetailPage({ params }: PageProps) {
   ]
 
   // ── Configurator state ─────────────────────────────────────────────────────
+  const [dynamicPalette, setDynamicPalette] = useState(ATELIER_PALETTE)
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0)
   const [selectedCustomColor, setSelectedCustomColor] = useState<string>('Original')
   const [selectedSize, setSelectedSize] = useState({ id: 'original', label: 'Dimensions\noriginales', sub: 'Standard atelier' })
@@ -98,10 +124,28 @@ export default function ProductDetailPage({ params }: PageProps) {
     async function loadProductData() {
       try {
         setLoading(true)
-        const data = await publicApi.getProductById(productId)
+        const [data, apiColors] = await Promise.all([
+          publicApi.getProductById(productId),
+          colorsApi.getColors().catch(() => [])
+        ])
         setProduct(data)
         if (data.images && data.images.length > 0) {
           setActiveImage(data.images[0].imageUrl)
+        }
+        if (Array.isArray(apiColors) && apiColors.length > 0) {
+          setDynamicPalette([
+            { id: 'Original', label: 'Original Atelier', hex: null, desc: 'Finition de la pièce photographiée' },
+            ...apiColors.map((c: ColorSwatch) => {
+              const label = c.name || c.label
+              const matching = ATELIER_PALETTE.find(p => p.id.toLowerCase() === label.toLowerCase())
+              return {
+                id: label,
+                label: matching ? matching.label : label,
+                hex: c.hex,
+                desc: matching ? matching.desc : 'Finition personnalisée sur-mesure de l’atelier'
+              }
+            })
+          ])
         }
         const allInCategory = await publicApi.getProducts({ category: data.category.name })
         setSimilarProducts(allInCategory.filter(p => p.id !== productId).slice(0, 3))
@@ -171,7 +215,7 @@ export default function ProductDetailPage({ params }: PageProps) {
         }
       }
 
-      if (action === 'devis') {
+      if (action === 'devis' || action === 'commander' || action === 'order') {
         const parts: string[] = []
         const selectedVar = colorVariants[currentIdx]
         if (selectedVar && !selectedVar.isOriginal) {
@@ -181,7 +225,7 @@ export default function ProductDetailPage({ params }: PageProps) {
         setMessage(
           summary
             ? `Bonjour, je souhaiterais commander le modèle « ${product.name} » avec les personnalisations suivantes :\n${summary.replace(' | ', '\n')}`
-            : `Bonjour, je souhaiterais obtenir un devis pour le modèle « ${product.name} ».`
+            : `Bonjour, je souhaiterais commander le modèle « ${product.name} ».`
         )
         setModalOpen(true)
       }
@@ -218,8 +262,8 @@ export default function ProductDetailPage({ params }: PageProps) {
 
     setMessage(
       summary
-        ? `Bonjour Atelier Aschi,\n\nJe souhaite commander le modèle « ${product?.name} » avec ma configuration personnalisée d'atelier :\n• Finition & Patine : ${colorText}\n• Format & Dimensions : ${sizeText}\n\nPourriez-vous me transmettre une estimation de devis ainsi que le délai de confection ? Merci !`
-        : `Bonjour Atelier Aschi,\n\nJe souhaiterais obtenir un devis personnalisé pour le modèle « ${product?.name} ».\nMerci de me recontacter !`
+        ? `Bonjour Atelier Aschi,\n\nJe souhaite commander le modèle « ${product?.name} » avec ma configuration personnalisée d'atelier :\n• Finition & Patine : ${colorText}\n• Format & Dimensions : ${sizeText}\n\nPourriez-vous me transmettre la confirmation ainsi que le délai de confection ? Merci !`
+        : `Bonjour Atelier Aschi,\n\nJe souhaiterais commander le modèle « ${product?.name} ».\nMerci de me recontacter !`
     )
     setQuoteSent(false)
     setQuoteError(null)
@@ -319,22 +363,22 @@ export default function ProductDetailPage({ params }: PageProps) {
   return (
     <>
       <Navbar />
-      <main className="bg-secondary py-20 md:py-32">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <main className="bg-secondary pt-16 pb-24 sm:pt-24 sm:pb-28 md:py-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-8">
 
           {/* Back button */}
           <Link
             href="/catalogue"
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground hover:text-[#C17D59] transition-colors mb-10"
+            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground hover:text-[#C17D59] transition-colors mb-4 sm:mb-8"
           >
             <ArrowLeft className="size-4" /> Retourner au catalogue
           </Link>
 
           {/* Main grid */}
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <div className="grid gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-16">
 
             {/* ── LEFT: Image Visualiser ─────────────────────────────────── */}
-            <div ref={imageContainerRef} className="space-y-4 scroll-mt-24">
+            <div ref={imageContainerRef} className="space-y-3 sm:space-y-4 scroll-mt-24">
 
               {/* Status badge */}
               <div className="flex items-center gap-3">
@@ -359,23 +403,20 @@ export default function ProductDetailPage({ params }: PageProps) {
                 )}
               </div>
 
-              {/* Main image — real photo from admin with Pure High Precision Interactive Loupe (No click modal) */}
+              {/* Main image — desktop loupe, mobile touch swipe */}
               <div 
                 ref={zoomContainerRef}
                 onMouseEnter={() => setShowZoomLens(true)}
                 onMouseLeave={() => setShowZoomLens(false)}
                 onMouseMove={handleZoomMouseMove}
-                onTouchStart={(e) => {
-                  setShowZoomLens(true)
-                  if (e.touches && e.touches[0]) handleZoomInteraction(e.touches[0].clientX, e.touches[0].clientY)
-                }}
-                onTouchMove={handleZoomTouchMove}
-                onTouchEnd={() => setShowZoomLens(false)}
-                className="relative aspect-[4/5] bg-[#2C1E16]/5 border border-[#E8DCCB] overflow-hidden rounded-2xl shadow-xl cursor-crosshair group select-none flex items-center justify-center"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                className="relative aspect-[4/5] max-h-[55vh] sm:max-h-none bg-[#2C1E16]/5 border border-[#E8DCCB] overflow-hidden rounded-2xl shadow-xl sm:cursor-crosshair group select-none flex items-center justify-center"
               >
                 {/* Ambient Blurred Luxury Backdrop (Eliminates white empty bars seamlessly) */}
                 <div 
-                  className="absolute inset-0 bg-cover bg-center blur-2xl opacity-35 scale-125"
+                  className="absolute inset-0 bg-cover bg-center blur-2xl opacity-35 scale-125 pointer-events-none"
                   style={{ backgroundImage: `url(${activeImage || '/placeholder.png'})` }}
                 />
 
@@ -390,7 +431,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                   transition={{ duration: 0.4 }}
                 />
 
-                {/* --- Interactive Loupe Lens (4x Ultra HD) --- */}
+                {/* --- Interactive Loupe Lens (4x Ultra HD - Desktop Only) --- */}
                 {showZoomLens && activeImage && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -403,15 +444,15 @@ export default function ProductDetailPage({ params }: PageProps) {
                       backgroundPosition: `${imgPercent.x}% ${imgPercent.y}%`,
                       backgroundSize: '420%',
                     }}
-                    className="pointer-events-none absolute size-48 rounded-full border-2 border-amber-400 shadow-[0_15px_40px_rgba(0,0,0,0.6)] z-30 bg-no-repeat overflow-hidden ring-4 ring-black/40"
+                    className="pointer-events-none absolute size-48 rounded-full border-2 border-amber-400 shadow-[0_15px_40px_rgba(0,0,0,0.6)] z-30 bg-no-repeat overflow-hidden ring-4 ring-black/40 hidden sm:block"
                   />
                 )}
 
-                {/* --- Pure Loupe Hint Badge --- */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-stone-950/85 backdrop-blur-md border border-[#E8DCCB]/30 text-white shadow-xl opacity-90 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                {/* --- Pure Loupe Hint Badge (Desktop Only) --- */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 items-center gap-2 px-4 py-2 rounded-full bg-stone-950/85 backdrop-blur-md border border-[#E8DCCB]/30 text-white shadow-xl opacity-90 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none hidden sm:flex">
                   <Sparkles className="size-3.5 text-amber-300 animate-pulse" />
                   <span className="text-[11px] font-medium tracking-wide text-amber-100">
-                    Loupe Artisanale HD • Survolez ou touchez pour examiner les détails
+                    Loupe Artisanale HD • Survolez pour examiner les détails
                   </span>
                 </div>
 
@@ -420,7 +461,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                   <div 
                     onMouseEnter={() => setShowZoomLens(false)}
                     onMouseLeave={() => setShowZoomLens(true)}
-                    className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-40"
+                    className="absolute inset-x-2 sm:inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-40"
                   >
                     <button 
                       type="button"
@@ -432,10 +473,10 @@ export default function ProductDetailPage({ params }: PageProps) {
                         setActiveImage(viewsForSelectedVariant[prevIdx].imageUrl)
                       }}
                       onMouseEnter={() => setShowZoomLens(false)}
-                      className="p-3.5 bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border-2 border-white/40 hover:scale-115 active:scale-95 group/arrow cursor-pointer"
+                      className="size-8 sm:size-11 bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border border-white/40 hover:scale-110 active:scale-95 group/arrow flex items-center justify-center cursor-pointer"
                       title="Vue précédente"
                     >
-                      <ChevronLeft className="size-5 transition-transform group-hover/arrow:-translate-x-0.5" />
+                      <ChevronLeft className="size-4 sm:size-5 transition-transform group-hover/arrow:-translate-x-0.5" />
                     </button>
                     <button 
                       type="button"
@@ -447,10 +488,10 @@ export default function ProductDetailPage({ params }: PageProps) {
                         setActiveImage(viewsForSelectedVariant[nextIdx].imageUrl)
                       }}
                       onMouseEnter={() => setShowZoomLens(false)}
-                      className="p-3.5 bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border-2 border-white/40 hover:scale-115 active:scale-95 group/arrow cursor-pointer"
+                      className="size-8 sm:size-11 bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border border-white/40 hover:scale-110 active:scale-95 group/arrow flex items-center justify-center cursor-pointer"
                       title="Vue suivante"
                     >
-                      <ChevronRight className="size-5 transition-transform group-hover/arrow:translate-x-0.5" />
+                      <ChevronRight className="size-4 sm:size-5 transition-transform group-hover/arrow:translate-x-0.5" />
                     </button>
                   </div>
                 )}
@@ -479,12 +520,12 @@ export default function ProductDetailPage({ params }: PageProps) {
 
               {/* Thumbnail strip — shows all views of the selected variant without native scrollbars */}
               {viewsForSelectedVariant.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2 scroll-smooth scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-1 sm:pb-2 scroll-smooth scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {viewsForSelectedVariant.map((view, i) => (
                     <button
                       key={view.id}
                       onClick={() => setActiveImage(view.imageUrl)}
-                      className={`relative size-20 border rounded-xl overflow-hidden shrink-0 transition-all ${
+                      className={`relative size-14 sm:size-20 border rounded-lg sm:rounded-xl overflow-hidden shrink-0 transition-all ${
                         activeImage === view.imageUrl ? 'border-[#C17D59] ring-2 ring-[#C17D59]/40 opacity-100 scale-105 shadow-md' : 'border-border opacity-60 hover:opacity-100'
                       }`}
                       title={`${selectedVariant.label} - Vue ${i + 1}`}
@@ -509,23 +550,23 @@ export default function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* ── RIGHT: Info + Configurator ────────────────────────────── */}
-            <div className="flex flex-col text-left gap-6">
+            <div className="flex flex-col text-left gap-5 sm:gap-6">
 
               {/* Product header */}
               <div>
-                <span className="text-xs uppercase tracking-[0.2em] text-[#C17D59] font-bold">
+                <span className="text-[11px] sm:text-xs uppercase tracking-[0.2em] text-[#C17D59] font-bold">
                   {product.category?.name}
                 </span>
-                <h1 className="mt-2 font-heading text-3xl sm:text-4xl lg:text-5xl font-light text-foreground leading-tight">
+                <h1 className="mt-1.5 font-heading text-2xl sm:text-4xl lg:text-5xl font-light text-foreground leading-tight">
                   {product.name}
                 </h1>
-                <div className="mt-4 flex flex-wrap items-center gap-4 border-y border-border py-4">
+                <div className="mt-3 flex flex-wrap items-center gap-3 border-y border-border py-3">
                   <p className="font-mono text-xl sm:text-2xl text-[#C17D59] font-bold">
                     {product.type !== 'CATALOGUE'
                       ? (product.price ? `${product.price.toLocaleString('fr-FR')} DT` : 'Prix sur demande')
-                      : 'Prix sur devis personnalisé'}
+                      : 'Prix sur demande'}
                   </p>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold uppercase tracking-wider ${
                     product.availability === 'Disponible' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/10' :
                     product.availability === 'Sur commande' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/10' :
                     'bg-red-500/10 text-red-500 border border-red-500/10'
@@ -533,25 +574,25 @@ export default function ProductDetailPage({ params }: PageProps) {
                     {product.availability}
                   </span>
                 </div>
-                <p className="mt-4 font-normal leading-relaxed text-[#4A3728] text-sm sm:text-base text-pretty">
+                <p className="mt-3 font-normal leading-relaxed text-[#4A3728] text-xs sm:text-base text-pretty">
                   {product.description || "Cette pièce artisanale d'exception est fabriquée à la main dans notre atelier à partir de matériaux nobles. Chaque détail de sculpture et d'assemblage est façonné avec passion."}
                 </p>
               </div>
 
               {/* ═══ PRO BESPOKE ATELIER BANNER (CLEAR CUSTOM COLOR REALIZATION) ═══ */}
-              <div className="rounded-3xl bg-gradient-to-br from-[#241812] via-[#3B271C] to-[#241812] border-2 border-[#E6A635]/60 p-5 sm:p-6 shadow-xl relative overflow-hidden">
-                <div className="flex items-start gap-4">
-                  <div className="size-12 rounded-2xl bg-gradient-to-tr from-[#E6A635] via-[#F2BD52] to-[#C78318] flex items-center justify-center text-[#1A110B] shrink-0 shadow-lg">
-                    <Palette className="size-6" />
+              <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#241812] via-[#3B271C] to-[#241812] border-2 border-[#E6A635]/60 p-4 sm:p-6 shadow-xl relative overflow-hidden">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="size-10 sm:size-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-[#E6A635] via-[#F2BD52] to-[#C78318] flex items-center justify-center text-[#1A110B] shrink-0 shadow-lg">
+                    <Palette className="size-5 sm:size-6" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6A635]/25 border border-[#E6A635]/50 text-[#F2BD52] text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest mb-2">
-                      <Sparkles className="size-3.5" /> Confection Sur-Mesure en Atelier
+                    <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#E6A635]/25 border border-[#E6A635]/50 text-[#F2BD52] text-[9.5px] sm:text-[11px] font-extrabold uppercase tracking-widest mb-1.5 sm:mb-2">
+                      <Sparkles className="size-3 sm:size-3.5" /> Confection Sur-Mesure en Atelier
                     </div>
-                    <h3 className="text-base sm:text-lg font-heading font-semibold text-[#FAF7F2] leading-snug">
+                    <h3 className="text-sm sm:text-lg font-heading font-semibold text-[#FAF7F2] leading-snug">
                       Vous aimez ce modèle ? Choisissez la couleur de vos rêves !
                     </h3>
-                    <p className="mt-1.5 text-xs sm:text-sm text-[#EAE4D9]/90 font-light leading-relaxed">
+                    <p className="mt-1 text-[11.5px] sm:text-sm text-[#EAE4D9]/90 font-light leading-relaxed">
                       Même si ce meuble est présenté ici en <strong className="text-[#FAF7F2] font-semibold">{product.color || 'cette teinte'}</strong>, nos maîtres artisans peuvent le réaliser et le patiner pour vous en <span className="text-[#F2BD52] font-semibold">Bleu Majorelle, Noyer noble, Vert Olivier, Noir profond, Patine Or</span> ou selon vos dimensions exactes, <strong>même si la photo n&apos;existe pas encore au catalogue !</strong>
                     </p>
                   </div>
@@ -559,7 +600,7 @@ export default function ProductDetailPage({ params }: PageProps) {
               </div>
 
               {/* ═══ PRO TECHNICAL SPECIFICATIONS & CRAFTSMANSHIP GRID ═══ */}
-              <div className="space-y-3.5">
+              <div className="space-y-2.5 sm:space-y-3.5">
                 <div className="flex items-center justify-between border-b border-[#D8C7B4] pb-2">
                   <span className="text-xs uppercase tracking-[0.2em] text-[#A26235] font-extrabold flex items-center gap-2">
                     <Hammer className="size-4" /> Caractéristiques &amp; Savoir-Faire d&apos;Atelier
@@ -567,78 +608,78 @@ export default function ProductDetailPage({ params }: PageProps) {
                   <span className="text-[10px] text-[#2C1E16] bg-[#E8DCCB] px-2.5 py-0.5 rounded-full uppercase tracking-widest font-extrabold border border-[#D8C7B4]">100% Fait Main</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   {/* 1. Dimensions */}
-                  <div className="p-3.5 rounded-2xl bg-white border-2 border-[#D8C7B4] flex items-start gap-3 shadow-xs">
-                    <Ruler className="size-4.5 text-[#A26235] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider">Dimensions de base</p>
-                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5">{product.dimensions || 'Sur mesure'}</p>
-                      <p className="text-[11px] font-semibold text-[#5C4535] mt-0.5">Adaptable au centimètre près selon votre espace</p>
+                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
+                    <Ruler className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Dimensions</p>
+                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">{product.dimensions || 'Sur mesure'}</p>
+                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Adaptable sur-mesure</p>
                     </div>
                   </div>
 
                   {/* 2. Matériaux */}
-                  <div className="p-3.5 rounded-2xl bg-white border-2 border-[#D8C7B4] flex items-start gap-3 shadow-xs">
-                    <Hammer className="size-4.5 text-[#A26235] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider">Matériaux Nobles</p>
-                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5">{product.materials || 'Bois noble massif'}</p>
-                      <p className="text-[11px] font-semibold text-[#5C4535] mt-0.5">Sélectionné &amp; stabilisé pour durer des décennies</p>
+                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
+                    <Hammer className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Matériaux Nobles</p>
+                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">{product.materials || 'Bois noble massif'}</p>
+                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Sélectionné &amp; stabilisé</p>
                     </div>
                   </div>
 
                   {/* 3. Teinte & Finition */}
-                  <div className="p-3.5 rounded-2xl bg-white border-2 border-[#D8C7B4] flex items-start gap-3 shadow-xs">
-                    <Palette className="size-4.5 text-[#A26235] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider">Finition &amp; Patine</p>
-                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5">
-                        {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Au choix de l\'atelier')}
+                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
+                    <Palette className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Finition &amp; Patine</p>
+                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">
+                        {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Au choix')}
                       </p>
-                      <p className="text-[11px] font-semibold text-[#5C4535] mt-0.5">Vernis satiné/mat haute protection hydrofuge</p>
+                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Vernis satiné protecteur</p>
                     </div>
                   </div>
 
                   {/* 4. Délais & Livraison */}
-                  <div className="p-3.5 rounded-2xl bg-white border-2 border-[#D8C7B4] flex items-start gap-3 shadow-xs">
-                    <Sparkles className="size-4.5 text-[#A26235] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider">Délai &amp; Expédition</p>
-                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5">2 à 3 semaines de confection</p>
-                      <p className="text-[11px] font-semibold text-[#5C4535] mt-0.5">Livraison sécurisée partout en Tunisie</p>
+                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
+                    <Sparkles className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Délai</p>
+                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">2 à 3 semaines</p>
+                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Livraison toute Tunisie</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* ═══ CONFIGURATOR: INTERACTIVE ATELIER PALETTE & DIMENSIONS ═══ */}
-              <div className="rounded-3xl border-2 border-[#D8C7B4] bg-[#FAF8F5] p-5 sm:p-7 space-y-6 shadow-md">
+              <div className="rounded-2xl sm:rounded-3xl border-2 border-[#D8C7B4] bg-[#FAF8F5] p-4 sm:p-7 space-y-4 sm:space-y-6 shadow-md">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Palette className="size-5 text-[#A26235]" />
-                    <h2 className="text-sm font-extrabold uppercase tracking-widest text-[#2C1E16]">
-                      Configurateur &amp; Nuancier de l&apos;Atelier
+                  <div className="flex items-center gap-2">
+                    <Palette className="size-4 sm:size-5 text-[#A26235]" />
+                    <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#2C1E16]">
+                      Configurateur &amp; Nuancier
                     </h2>
                   </div>
-                  <span className="text-[11px] font-bold text-[#F2BD52] bg-[#241812] px-3.5 py-1 rounded-full border border-[#E6A635]/50 shadow-xs">
-                    Toutes teintes possibles
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[#F2BD52] bg-[#241812] px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-full border border-[#E6A635]/50 shadow-xs">
+                    Sur-mesure
                   </span>
                 </div>
 
                 {/* ── 1. NUANCIER DES COULEURS D'ATELIER (TOUJOURS DISPONIBLE) ── */}
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold">
-                      1. Finition / Couleur souhaitée pour ce meuble :
+                  <div className="flex items-center justify-between mb-2.5">
+                    <p className="text-[11px] sm:text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold">
+                      1. Finition / Couleur souhaitée :
                     </p>
-                    <span className="text-xs font-extrabold text-[#2C1E16] bg-[#E8DCCB] px-3 py-1 rounded-lg border border-[#D8C7B4]">
+                    <span className="text-[11px] sm:text-xs font-extrabold text-[#2C1E16] bg-[#E8DCCB] px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-lg border border-[#D8C7B4]">
                       {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Original')}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                    {ATELIER_PALETTE.map((c) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
+                    {dynamicPalette.map((c) => {
                       const isSelected = selectedCustomColor === c.id || (selectedCustomColor === 'Original' && c.id === 'Original')
                       return (
                         <button
@@ -663,7 +704,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                             }
                           }}
                           className={cn(
-                            'flex items-center gap-2.5 p-3 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+                            'flex items-center gap-2 p-2 sm:p-3 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
                             isSelected
                               ? 'border-[#E6A635] bg-[#241812] text-[#FAF7F2] ring-2 ring-[#E6A635]/60 shadow-md'
                               : 'border-[#D8C7B4] bg-white hover:bg-[#FAF7F2] hover:border-[#A26235] text-[#2C1E16]'
@@ -671,26 +712,26 @@ export default function ProductDetailPage({ params }: PageProps) {
                         >
                           <div
                             className={cn(
-                              'size-5 rounded-full border-2 shrink-0 transition-transform shadow-xs',
+                              'size-4 sm:size-5 rounded-full border-2 shrink-0 transition-transform shadow-xs',
                               isSelected ? 'scale-110 border-white ring-2 ring-[#E6A635]' : (c.hex === '#FFFFFF' ? 'border-stone-400 bg-white' : 'border-stone-300')
                             )}
                             style={c.hex ? { backgroundColor: c.hex } : { background: 'conic-gradient(red, yellow, green, cyan, blue, magenta, red)' }}
                           />
                           <div className="min-w-0 flex-1">
                             <p className={cn(
-                              'text-xs font-extrabold truncate leading-tight',
+                              'text-[11px] sm:text-xs font-extrabold truncate leading-tight',
                               isSelected ? 'text-[#F2BD52]' : 'text-[#2C1E16]'
                             )}>
                               {c.label}
                             </p>
                             <p className={cn(
-                              'text-[10.5px] truncate mt-0.5',
+                              'text-[9.5px] sm:text-[10.5px] truncate mt-0.5',
                               isSelected ? 'text-[#FAF7F2] font-medium' : 'text-[#5C4535] font-semibold'
                             )}>
                               {c.desc}
                             </p>
                           </div>
-                          {isSelected && <Check className="size-4 text-[#F2BD52] shrink-0" />}
+                          {isSelected && <Check className="size-3.5 sm:size-4 text-[#F2BD52] shrink-0" />}
                         </button>
                       )
                     })}
@@ -701,10 +742,10 @@ export default function ProductDetailPage({ params }: PageProps) {
                     <motion.div
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-3.5 p-4 rounded-2xl bg-[#241812] border-2 border-[#E6A635]/50 text-xs text-[#FAF7F2] flex items-start gap-3 shadow-md"
+                      className="mt-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#241812] border-2 border-[#E6A635]/50 text-xs text-[#FAF7F2] flex items-start gap-2.5 sm:gap-3 shadow-md"
                     >
-                      <Sparkles className="size-4.5 text-[#F2BD52] shrink-0 mt-0.5" />
-                      <p className="text-xs leading-relaxed text-[#FAF7F2]">
+                      <Sparkles className="size-4 text-[#F2BD52] shrink-0 mt-0.5" />
+                      <p className="text-[11.5px] sm:text-xs leading-relaxed text-[#FAF7F2]">
                         <strong className="text-[#F2BD52] font-bold">Fabrication personnalisée :</strong> Ce meuble sera confectionné pour vous dans la finition <strong className="text-[#F2BD52] font-bold">&laquo; {selectedCustomColor} &raquo;</strong> par nos ébénistes. Même si la photo actuelle présente une autre teinte, nous appliquerons votre patine sur-mesure !
                       </p>
                     </motion.div>
@@ -713,10 +754,10 @@ export default function ProductDetailPage({ params }: PageProps) {
 
                 {/* ── 2. DIMENSIONS ── */}
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold mb-3">
+                  <p className="text-[11px] sm:text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold mb-2.5">
                     2. Dimensions souhaitées :
                   </p>
-                  <div className="flex flex-wrap gap-2.5">
+                  <div className="flex flex-wrap gap-2 sm:gap-2.5">
                     {SIZES.map((s) => {
                       const isSizeSelected = selectedSize.id === s.id
                       return (
@@ -725,7 +766,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                           type="button"
                           onClick={() => handleSelectSize(s)}
                           className={cn(
-                            'flex flex-col items-center px-4 py-2.5 rounded-xl border-2 text-xs transition-all duration-200 cursor-pointer shadow-xs',
+                            'flex flex-col items-center px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border-2 text-xs transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
                             isSizeSelected
                               ? 'border-[#E6A635] bg-[#241812] text-[#F2BD52] ring-2 ring-[#E6A635]/60 shadow-md font-bold'
                               : 'border-[#D8C7B4] bg-white hover:bg-[#FAF7F2] hover:border-[#A26235] text-[#2C1E16]'
@@ -846,8 +887,8 @@ export default function ProductDetailPage({ params }: PageProps) {
                 >
                   <MessageCircle className="size-4 text-[#1A110B]" />
                   {selectedCustomColor !== 'Original'
-                    ? `Demander ce modèle en ${selectedCustomColor} (Devis Gratuit)`
-                    : `Demander un Devis Sur-Mesure 3D`}
+                    ? `Commander ce modèle en ${selectedCustomColor}`
+                    : `Commander ce modèle`}
                 </button>
 
                 <a
@@ -902,6 +943,38 @@ export default function ProductDetailPage({ params }: PageProps) {
         </div>
       </main>
 
+      {/* ═══ MOBILE FLOATING STICKY ACTION BAR ═══ */}
+      <div className="fixed bottom-0 inset-x-0 z-40 bg-[#241812]/95 backdrop-blur-md border-t border-[#E6A635]/35 px-4 py-2.5 sm:hidden flex items-center justify-between gap-3 shadow-[0_-8px_25px_rgba(0,0,0,0.6)]">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] uppercase tracking-wider font-extrabold text-[#F2BD52] truncate">
+            {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Sur-mesure')}
+          </p>
+          <p className="font-mono text-sm font-bold text-white truncate">
+            {product.type !== 'CATALOGUE'
+              ? (product.price ? `${product.price.toLocaleString('fr-FR')} DT` : 'Prix sur demande')
+              : 'Prix sur demande'}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href={`https://wa.me/21698338166?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite des informations pour commander le modèle « ${product.name} » en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Standard')}.`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contacter sur WhatsApp"
+            className="size-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-md active:scale-95 transition-transform"
+          >
+            <MessageCircle className="size-5 text-white" />
+          </a>
+          <button
+            type="button"
+            onClick={openConfigQuote}
+            className="btn-sheen px-4 py-2.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-extrabold text-xs uppercase tracking-wider shadow-lg flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer"
+          >
+            <span>Commander</span>
+          </button>
+        </div>
+      </div>
+
       {/* ═══ QUOTE MODAL (pre-filled, chic & luxury atelier design) ═══ */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 sm:p-5 backdrop-blur-md overflow-y-auto">
@@ -910,17 +983,17 @@ export default function ProductDetailPage({ params }: PageProps) {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.94, opacity: 0, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="bg-[#FDFBF7] border-2 border-[#D8C7B4] w-full max-w-xl rounded-[28px] overflow-hidden shadow-[0_30px_70px_-15px_rgba(26,17,11,0.4)] flex flex-col max-h-[92vh] text-[#2C1E16] my-auto"
+            className="bg-[#FDFBF7] border-2 border-[#D8C7B4] w-full max-w-xl rounded-2xl sm:rounded-[28px] overflow-hidden shadow-[0_30px_70px_-15px_rgba(26,17,11,0.4)] flex flex-col max-h-[92vh] text-[#2C1E16] my-auto"
           >
             {/* Modal Header */}
-            <header className="px-6 py-5 border-b-2 border-[#E8DCCB] bg-gradient-to-b from-white via-white to-[#FAF7F2]">
+            <header className="px-4 py-4 sm:px-6 sm:py-5 border-b-2 border-[#E8DCCB] bg-gradient-to-b from-white via-white to-[#FAF7F2]">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6A635]/15 border border-[#E6A635]/40 text-[#8F562B] text-[10.5px] font-extrabold uppercase tracking-widest mb-1.5 shadow-xs">
                     <Sparkles className="size-3.5 text-[#C17D59]" /> Atelier Sur-Mesure • Pièce d&apos;Art
                   </div>
                   <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#2C1E16] tracking-tight">
-                    {isCustomized ? 'Votre Devis Personnalisé' : 'Demande de Devis d\'Atelier'}
+                    {isCustomized ? 'Votre Commande Personnalisée' : 'Demande de Confection d\'Atelier'}
                   </h2>
                   <p className="text-xs text-[#7A6250] font-medium mt-0.5">
                     Confection artisanale sur-mesure par les maîtres ébénistes d&apos;Atelier Aschi
@@ -1101,7 +1174,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#D8C7B4]">
                   <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-white border border-[#D8C7B4]/70 shadow-xs">
                     <ShieldCheck className="size-4 text-[#C17D59] mb-1" />
-                    <span className="text-[10.5px] font-extrabold text-[#2C1E16] uppercase tracking-wider">Devis Gratuit</span>
+                    <span className="text-[10.5px] font-extrabold text-[#2C1E16] uppercase tracking-wider">Atelier Direct</span>
                     <span className="text-[9.5px] text-[#7A6250]">Sans engagement</span>
                   </div>
                   <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-white border border-[#D8C7B4]/70 shadow-xs">
@@ -1143,7 +1216,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                     className="btn-sheen w-full sm:w-auto rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] hover:opacity-95 px-8 py-3.5 text-xs font-extrabold uppercase tracking-[0.14em] text-[#1A110B] shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2.5 cursor-pointer order-1 sm:order-2"
                   >
                     <Send className="size-4" />
-                    {submittingQuote ? 'Transmission en cours...' : 'Envoyer ma demande de devis'}
+                    {submittingQuote ? 'Transmission en cours...' : 'Envoyer ma demande'}
                   </button>
                 </footer>
               </form>
@@ -1181,7 +1254,7 @@ export default function ProductDetailPage({ params }: PageProps) {
             onClick={openConfigQuote}
             className="btn-sheen rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-4 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
           >
-            <Sparkles className="size-3.5" /> Devis
+            <Sparkles className="size-3.5" /> Commander
           </button>
         </div>
       </div>

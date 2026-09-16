@@ -13,7 +13,6 @@ const VARIANTS_PRESETS = [
   { label: 'Noyer foncé',   hex: '#5C3317' },
   { label: 'Bleu Cérusé',   hex: '#2D5F8A' },
   { label: 'Doré',          hex: '#C9A84C' },
-  { label: 'Blanc Cérusé',  hex: '#F0EDE6' },
   { label: 'Bordeaux',      hex: '#7B2D3E' },
   { label: 'Naturel Clair', hex: '#C4A882' },
   { label: 'Autre…',        hex: null },
@@ -341,8 +340,10 @@ export default function AdminProductsPage() {
       singular = 'Lustre'
     } else if (singular.toLowerCase().includes('porte bijou') || singular.toLowerCase().includes('porte bijoux') || singular.toLowerCase().includes('porte-bijou')) {
       singular = 'Porte-Bijoux'
-    } else if (singular.toLowerCase().includes('lampe') || singular.toLowerCase().includes('coffre')) {
-      singular = 'Lampe Coffre'
+    } else if (singular.toLowerCase().includes('lampe')) {
+      singular = 'Lampe'
+    } else if (singular.toLowerCase().includes('coffre')) {
+      singular = 'Coffre'
     } else if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
       singular = singular.slice(0, -1)
     }
@@ -372,8 +373,10 @@ export default function AdminProductsPage() {
       singular = 'Lustre'
     } else if (singular.toLowerCase().includes('porte bijou') || singular.toLowerCase().includes('porte bijoux') || singular.toLowerCase().includes('porte-bijou')) {
       singular = 'Porte-Bijoux'
-    } else if (singular.toLowerCase().includes('lampe') || singular.toLowerCase().includes('coffre')) {
-      singular = 'Lampe Coffre'
+    } else if (singular.toLowerCase().includes('lampe')) {
+      singular = 'Lampe'
+    } else if (singular.toLowerCase().includes('coffre')) {
+      singular = 'Coffre'
     } else if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
       singular = singular.slice(0, -1)
     }

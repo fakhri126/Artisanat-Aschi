@@ -281,7 +281,7 @@ export default function CatalogTab() {
         description: product.description || '',
         categoryType: getProductType(product),
         sizeType: getProductSize(product),
-        price: product.price,
+        price: product.price ?? 0,
         availability: product.availability || 'Disponible',
         imageUrl: pImg
       })

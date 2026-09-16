@@ -35,6 +35,15 @@ const nextConfig = {
       bodySizeLimit: '100mb',
     },
   },
+  async redirects() {
+    return [
+      {
+        source: '/custom-creation',
+        destination: '/contact',
+        permanent: false,
+      },
+    ]
+  },
 }
 
 export default nextConfig

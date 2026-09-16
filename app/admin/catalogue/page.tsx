@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { adminApi, publicApi, Product, Category, ProductRequest, ImageVariant, QuoteRequest } from '@/lib/api'
+import { adminApi, publicApi, Product, Category, ProductRequest, ImageVariant, QuoteRequest, colorsApi, ColorSwatch } from '@/lib/api'
 import { 
   Plus, 
   Edit2, 
@@ -32,6 +32,8 @@ import {
   Lamp,
   LayoutDashboard,
   Folder,
+  FolderPlus,
+  Settings2,
   RotateCcw,
   Hash,
   Phone,
@@ -56,7 +58,6 @@ const COLOR_PRESETS = [
   { label: 'Bleu',          hex: '#2D5F8A' },
   { label: 'Or',            hex: '#C9A84C' },
   { label: 'Naturel',       hex: '#C4A882' },
-  { label: 'Blanc Cérusé',  hex: '#F0EDE6' },
   { label: 'Vert Olivier',  hex: '#4A5E3A' },
   { label: 'Bordeaux',      hex: '#7B2D3E' },
   { label: 'Autre…',        hex: null },
@@ -83,21 +84,70 @@ export const getCategorySingular = (catName: string): string => {
   const lower = singular.toLowerCase()
   if (lower.includes('lustre')) return 'Lustre'
   if (lower.includes('porte bijou') || lower.includes('porte bijoux') || lower.includes('porte-bijou')) return 'Porte-Bijoux'
-  if (lower.includes('lampe') || lower.includes('coffre')) return 'Lampe Coffre'
+  if (lower.includes('lampe')) return 'Lampe'
+  if (lower.includes('coffre')) return 'Coffre'
   if (lower.includes('meuble')) return 'Meuble TV'
+  if (lower.includes('table')) return 'Table'
+  if (lower.includes('buffet')) return 'Buffet'
+  if (lower.includes('miroir')) return 'Miroir'
+  if (lower.includes('porte')) return 'Porte'
   if (lower.endsWith('s') && !lower.endsWith('meubles tv')) return singular.slice(0, -1)
   return singular
+}
+
+export const isDoorJewelryOrHandleCategory = (catName: string): boolean => {
+  if (!catName) return false
+  const norm = catName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim()
+  
+  // Explicitly preserve Porte-Bijoux & Portes
+  if (norm.includes('porte bijou') || norm.includes('porte-bijou') || norm.includes('porte bijoux')) {
+    return false
+  }
+  if (norm === 'porte' || norm === 'portes') {
+    return false
+  }
+
+  return (
+    norm.includes('bijoux de porte') ||
+    norm.includes('bijou de porte') ||
+    norm.includes('grand rond') ||
+    norm.includes('grands ronds') ||
+    norm.includes('ovale') ||
+    norm.includes('ovales') ||
+    norm.includes('poignee') ||
+    norm.includes('poignees') ||
+    norm.includes('cuivre') ||
+    norm.includes('sculpte') ||
+    norm.includes('sculptee') ||
+    norm.includes('bouton')
+  )
 }
 
 const getCategoryIcon = (name: string) => {
   const norm = (name || '').toLowerCase()
   if (norm.includes('buffet')) return LayoutDashboard
-  if (norm.includes('tv')) return Tv
+  if (norm.includes('tv') || norm.includes('meuble')) return Tv
   if (norm.includes('miroir')) return Frame
   if (norm.includes('porte bijou') || norm.includes('porte-bijou') || norm.includes('porte bijoux')) return Gem
   if (norm.includes('porte')) return DoorClosed
   if (norm.includes('lustre') || norm.includes('lampe') || norm.includes('coffre')) return Lamp
+  if (norm.includes('table')) return Layers
   return Folder
+}
+
+const getColorHex = (colorName: string | null | undefined): string => {
+  if (!colorName) return '#C4A882'
+  const norm = colorName.toLowerCase().trim()
+  if (norm.includes('blanc cérusé') || norm.includes('ceruse')) return '#F0EDE6'
+  if (norm.includes('blanc')) return '#FFFFFF'
+  if (norm.includes('noir')) return '#1A1A1A'
+  if (norm.includes('noyer')) return '#5C3317'
+  if (norm.includes('bleu')) return '#2D5F8A'
+  if (norm.includes('or') || norm.includes('dore') || norm.includes('doré')) return '#C9A84C'
+  if (norm.includes('naturel')) return '#C4A882'
+  if (norm.includes('vert') || norm.includes('olivier')) return '#4A5E3A'
+  if (norm.includes('bordeaux')) return '#7B2D3E'
+  return '#C4A882'
 }
 
 // ─── Image Variant Manager ───────────────────────────────────────────────────
@@ -105,13 +155,33 @@ function ImageVariantManager({
   variants,
   onChange,
   uploadFn,
+  colors = [],
 }: {
   variants: ImageVariant[]
   onChange: (variants: ImageVariant[]) => void
   uploadFn: (file: File) => Promise<{ url: string }>
+  colors?: ColorSwatch[]
 }) {
   const [uploading, setUploading] = useState<number | null>(null)
   const [customLabels, setCustomLabels] = useState<Record<number, string>>({})
+
+  const activePresets = useMemo(() => {
+    const list: { label: string; hex: string | null }[] = [
+      { label: 'Original', hex: null }
+    ]
+    if (colors && colors.length > 0) {
+      colors.forEach(c => list.push({ label: c.name, hex: c.hex }))
+    } else {
+      COLOR_PRESETS.filter(p => p.label !== 'Original' && p.label !== 'Autre…').forEach(p => list.push(p))
+    }
+    list.push(
+      { label: 'Petit', hex: null },
+      { label: 'Moyen', hex: null },
+      { label: 'Grand', hex: null },
+      { label: 'Autre…', hex: null }
+    )
+    return list
+  }, [colors])
 
   const addVariant = () => {
     onChange([...variants, { imageUrl: '', colorLabel: null }])
@@ -150,20 +220,20 @@ function ImageVariantManager({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between pb-2 border-b border-[#E6A635]/20">
+      <div className="flex items-center justify-between pb-2 border-b border-[#3A2E24]">
         <div>
-          <h3 className="text-sm font-bold text-[#FAF7F2] uppercase tracking-wider flex items-center gap-2">
-            <Palette className="size-4 text-[#F2BD52]" />
+          <h3 className="text-sm font-bold text-[#F5F0E8] uppercase tracking-wider flex items-center gap-2">
+            <Palette className="size-4 text-[#C8794D]" />
             <span>Nuancier & Variantes Photos du Modèle</span>
           </h3>
-          <p className="text-xs text-[#EAE4D9]/70">
+          <p className="text-xs text-[#D9C8AE]/70">
             La 1ère photo est l&apos;originale d&apos;atelier. Ajoutez d&apos;autres photos ou rendus de teintes (Bleu, Noir, Blanc, etc.).
           </p>
         </div>
         <button
           type="button"
           onClick={addVariant}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E6A635] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow hover:scale-105 transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#C8794D] hover:bg-[#B5673C] text-white text-xs font-bold uppercase tracking-wider shadow hover:scale-105 transition-all cursor-pointer"
         >
           <Plus className="size-3.5 stroke-[3]" /> Ajouter une photo
         </button>
@@ -172,7 +242,7 @@ function ImageVariantManager({
       <div className="space-y-3.5 max-h-[460px] overflow-y-auto pr-1">
         {variants.map((v, idx) => {
           const isOriginal = idx === 0
-          const isCustom = v.colorLabel && !ALL_PRESETS.slice(0, -1).some(p => p.label === v.colorLabel)
+          const isCustom = v.colorLabel && !activePresets.slice(0, -1).some(p => p.label === v.colorLabel)
 
           return (
             <motion.div
@@ -181,22 +251,22 @@ function ImageVariantManager({
               animate={{ opacity: 1, y: 0 }}
               className={`rounded-2xl border p-3.5 sm:p-4 space-y-3 transition-all ${
                 isOriginal
-                  ? 'border-[#E6A635]/40 bg-[#3B271C]/70 shadow-md'
-                  : 'border-[#E6A635]/20 bg-[#241812]/90'
+                  ? 'border-[#C8794D]/40 bg-[#2A211A] shadow-md'
+                  : 'border-[#3A2E24] bg-[#211A15]'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                     isOriginal 
-                      ? 'bg-[#E6A635] text-[#1A110B]' 
-                      : 'bg-white/10 text-[#EAE4D9]'
+                      ? 'bg-[#C8794D] text-white' 
+                      : 'bg-white/10 text-[#D9C8AE]'
                   }`}>
                     {isOriginal ? 'Photo Principale (Original Atelier)' : `Variante ${idx + 1}`}
                   </span>
                   {v.colorLabel && (
-                    <span className="text-xs text-[#F2BD52] font-semibold flex items-center gap-1">
-                      <span className="size-1.5 rounded-full bg-[#F2BD52]" />
+                    <span className="text-xs text-[#C8794D] font-semibold flex items-center gap-1">
+                      <span className="size-1.5 rounded-full bg-[#C8794D]" />
                       {v.colorLabel}
                     </span>
                   )}
@@ -206,7 +276,7 @@ function ImageVariantManager({
                   <button
                     type="button"
                     onClick={() => removeVariant(idx)}
-                    className="p-1 rounded-md text-red-400/70 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                    className="p-1 rounded-md text-red-400/70 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
                     title="Supprimer cette variante"
                   >
                     <X className="size-4" />
@@ -217,7 +287,7 @@ function ImageVariantManager({
               <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-start">
                 {/* Thumbnail Preview Area */}
                 <div className="md:col-span-3">
-                  <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#1A110B] border border-[#E6A635]/30 flex items-center justify-center group shadow-inner">
+                  <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#15120F] border border-[#3A2E24] flex items-center justify-center group shadow-inner">
                     {v.imageUrl ? (
                       <>
                         <img 
@@ -231,8 +301,8 @@ function ImageVariantManager({
                         </div>
                       </>
                     ) : (
-                      <div className="flex flex-col items-center justify-center p-2 text-center text-[#EAE4D9]/40">
-                        <ImageIcon className="size-6 mb-1 text-[#E6A635]/40" />
+                      <div className="flex flex-col items-center justify-center p-2 text-center text-[#D9C8AE]/40">
+                        <ImageIcon className="size-6 mb-1 text-[#C8794D]/40" />
                         <span className="text-[9px] uppercase tracking-wider">Aucune image</span>
                       </div>
                     )}
@@ -247,10 +317,10 @@ function ImageVariantManager({
                       placeholder="Coller l'URL de l'image ou téléversez une photo..."
                       value={v.imageUrl}
                       onChange={e => updateUrl(idx, e.target.value)}
-                      className="flex-1 bg-[#1A110B]/90 border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl px-3 py-2 text-xs text-[#FAF7F2] placeholder:text-[#EAE4D9]/40 outline-none transition-colors"
+                      className="flex-1 bg-[#15120F] border border-[#3A2E24] focus:border-[#C8794D] rounded-xl px-3 py-2 text-xs text-[#F5F0E8] placeholder:text-[#D9C8AE]/40 outline-none transition-colors"
                     />
-                    <label className="inline-flex items-center gap-1.5 bg-[#3B271C] hover:bg-[#4A3224] border border-[#E6A635]/40 text-[#F2BD52] px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all shrink-0 shadow-sm">
-                      <Upload className="size-3.5" />
+                    <label className="inline-flex items-center gap-1.5 bg-[#2A211A] hover:bg-[#322820] border border-[#3A2E24] text-[#D9C8AE] hover:text-[#F5F0E8] px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all shrink-0 shadow-sm">
+                      <Upload className="size-3.5 text-[#C8794D]" />
                       {uploading === idx ? 'Chargement...' : 'Parcourir'}
                       <input
                         type="file"
@@ -263,11 +333,11 @@ function ImageVariantManager({
 
                   {/* Preset Selector */}
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider text-[#EAE4D9]/70 font-bold mb-1.5 flex items-center gap-1">
+                    <p className="text-[10px] uppercase tracking-wider text-[#D9C8AE]/70 font-bold mb-1.5 flex items-center gap-1">
                       <span>Associer le libellé client :</span>
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {ALL_PRESETS.map(preset => {
+                      {activePresets.map(preset => {
                         const isSelected = (v.colorLabel === preset.label || (v.colorLabel === null && preset.label === 'Original') || (preset.label === 'Autre…' && isCustom))
                         return (
                           <button
@@ -282,8 +352,8 @@ function ImageVariantManager({
                             }}
                             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-semibold transition-all cursor-pointer ${
                               isSelected
-                                ? 'border-[#F2BD52] bg-[#E6A635]/25 text-[#F2BD52] shadow-sm'
-                                : 'border-[#E6A635]/20 bg-[#1A110B]/50 text-[#EAE4D9]/70 hover:border-[#E6A635]/40 hover:text-[#FAF7F2]'
+                                ? 'border-[#C8794D] bg-[#C8794D]/20 text-[#F5F0E8] shadow-sm'
+                                : 'border-[#3A2E24] bg-[#15120F] text-[#D9C8AE]/70 hover:border-[#3A2E24]/80 hover:text-[#F5F0E8]'
                             }`}
                           >
                             {preset.hex && preset.label !== 'Original' && (
@@ -304,7 +374,7 @@ function ImageVariantManager({
                           setCustomLabels(prev => ({ ...prev, [idx]: val }))
                           updateLabel(idx, val)
                         }}
-                        className="mt-2 w-full bg-[#1A110B]/90 border border-[#E6A635]/40 focus:border-[#F2BD52] rounded-xl px-3 py-1.5 text-xs text-[#FAF7F2] outline-none"
+                        className="mt-2 w-full bg-[#15120F] border border-[#3A2E24] focus:border-[#C8794D] rounded-xl px-3 py-1.5 text-xs text-[#F5F0E8] outline-none"
                       />
                     )}
                   </div>
@@ -323,10 +393,29 @@ export default function AdminCataloguePage() {
   const [activeTab, setActiveTab] = useState<'MODELS' | 'QUOTES'>('MODELS')
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [colors, setColors] = useState<ColorSwatch[]>([])
   const [quotes, setQuotes] = useState<QuoteRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingQuotes, setLoadingQuotes] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Category Management Modal State
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [catNameInput, setCatNameInput] = useState('')
+  const [catTypeInput, setCatTypeInput] = useState('CATALOGUE')
+  const [savingCategory, setSavingCategory] = useState(false)
+  const [catModalError, setCatModalError] = useState<string | null>(null)
+  const [catModalSuccess, setCatModalSuccess] = useState<string | null>(null)
+
+  // Color Swatch Management Modal State
+  const [colorModalOpen, setColorModalOpen] = useState(false)
+  const [editingColor, setEditingColor] = useState<ColorSwatch | null>(null)
+  const [colorLabelInput, setColorLabelInput] = useState('')
+  const [colorHexInput, setColorHexInput] = useState('#C8794D')
+  const [savingColor, setSavingColor] = useState(false)
+  const [colorModalError, setColorModalError] = useState<string | null>(null)
+  const [colorModalSuccess, setColorModalSuccess] = useState<string | null>(null)
 
   // Modal State & Step Navigation
   const [modalOpen, setModalOpen] = useState(false)
@@ -359,6 +448,16 @@ export default function AdminCataloguePage() {
   // Live preview active variant selector
   const [previewVariantIdx, setPreviewVariantIdx] = useState(0)
 
+  // Real-time model count per category
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    products.forEach(p => {
+      const cname = p.category?.name || 'Autre'
+      counts[cname] = (counts[cname] || 0) + 1
+    })
+    return counts
+  }, [products])
+
   useEffect(() => { 
     loadData() 
     loadQuotes()
@@ -367,13 +466,30 @@ export default function AdminCataloguePage() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [prodData, catData] = await Promise.all([
+      const [prodData, catData, colorData] = await Promise.all([
         adminApi.getProducts(),
         publicApi.getCategories(),
+        colorsApi.getColors().catch(() => []),
       ])
+      if (colorData && colorData.length > 0) {
+        setColors(colorData)
+      }
       // Filter strictly CATALOGUE type
-      setProducts(prodData.filter(p => p.type === 'CATALOGUE'))
-      let finalCats = [...catData]
+      const catProds = prodData.filter(p => p.type === 'CATALOGUE')
+      setProducts(catProds)
+
+      // Exclude door jewelry and door handle categories (managed in /admin/bijoux-de-porte)
+      let finalCats = catData.filter(c => !isDoorJewelryOrHandleCategory(c.name))
+
+      // Also exclude generic 'Décoration' if it has no catalogue items
+      finalCats = finalCats.filter(c => {
+        const norm = c.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim()
+        if (norm === 'decoration') {
+          return catProds.some(p => p.category?.id === c.id)
+        }
+        return true
+      })
+
       let lustresCat = finalCats.find(c => c.name.toLowerCase().includes('lustre'))
       if (!lustresCat) {
         try {
@@ -567,6 +683,219 @@ export default function AdminCataloguePage() {
     }
   }
 
+  const resolveColorHex = (colorName: string | null | undefined): string => {
+    if (!colorName) return '#C4A882'
+    const match = colors.find(c => c.name.toLowerCase() === colorName.toLowerCase())
+    if (match) return match.hex
+    return getColorHex(colorName)
+  }
+
+  const handleOpenCategoryModal = (catToEdit?: Category) => {
+    if (catToEdit) {
+      setEditingCategory(catToEdit)
+      setCatNameInput(catToEdit.name)
+      setCatTypeInput(catToEdit.type || 'CATALOGUE')
+    } else {
+      setEditingCategory(null)
+      setCatNameInput('')
+      setCatTypeInput('CATALOGUE')
+    }
+    setCatModalError(null)
+    setCatModalSuccess(null)
+    setCategoryModalOpen(true)
+  }
+
+  const handleSaveCategory = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    const trimmed = catNameInput.trim()
+    if (!trimmed) {
+      setCatModalError('Veuillez renseigner le nom de la catégorie.')
+      return
+    }
+
+    setSavingCategory(true)
+    setCatModalError(null)
+    setCatModalSuccess(null)
+
+    try {
+      if (editingCategory) {
+        const updated = await adminApi.updateCategory(editingCategory.id, {
+          name: trimmed,
+          type: catTypeInput || 'CATALOGUE',
+        })
+        setCategories(prev => prev.map(c => c.id === editingCategory.id ? updated : c))
+        // Update local products that had this category
+        setProducts(prev => prev.map(p => {
+          if (p.category?.id === editingCategory.id) {
+            return { ...p, category: { ...p.category, name: trimmed } }
+          }
+          return p
+        }))
+        if (filterCategory === editingCategory.name) {
+          setFilterCategory(trimmed)
+        }
+        setCatModalSuccess(`Catégorie « ${trimmed} » modifiée avec succès.`)
+        setEditingCategory(null)
+        setCatNameInput('')
+      } else {
+        if (categories.some(c => c.name.toLowerCase() === trimmed.toLowerCase())) {
+          setCatModalError(`Une catégorie « ${trimmed} » existe déjà.`)
+          setSavingCategory(false)
+          return
+        }
+        const created = await adminApi.createCategory({
+          name: trimmed,
+          type: catTypeInput || 'CATALOGUE',
+        })
+        setCategories(prev => [...prev, created])
+        setCatModalSuccess(`Catégorie « ${trimmed} » créée avec succès.`)
+        setCatNameInput('')
+      }
+    } catch (err: any) {
+      setCatModalError(err.message || "Erreur lors de l'enregistrement de la catégorie.")
+    } finally {
+      setSavingCategory(false)
+    }
+  }
+
+  const handleDeleteCategory = async (cat: Category) => {
+    const count = categoryCounts[cat.name] || 0
+    if (count > 0) {
+      alert(`Impossible de supprimer la catégorie « ${cat.name} » car elle contient ${count} modèle(s).\n\nVeuillez d'abord réaffecter ou supprimer ces modèles avant de supprimer la catégorie.`)
+      return
+    }
+
+    if (!confirm(`Supprimer définitivement la catégorie « ${cat.name} » du catalogue ?`)) return
+
+    setSavingCategory(true)
+    setCatModalError(null)
+    setCatModalSuccess(null)
+
+    try {
+      await adminApi.deleteCategory(cat.id)
+      setCategories(prev => prev.filter(c => c.id !== cat.id))
+      if (filterCategory === cat.name) {
+        setFilterCategory('Tout')
+      }
+      if (categoryId === cat.id.toString()) {
+        setCategoryId('')
+      }
+      setCatModalSuccess(`Catégorie « ${cat.name} » supprimée.`)
+    } catch (err: any) {
+      setCatModalError(err.message || "Erreur lors de la suppression de la catégorie.")
+    } finally {
+      setSavingCategory(false)
+    }
+  }
+
+  const handleOpenColorModal = (cToEdit?: ColorSwatch) => {
+    if (cToEdit) {
+      setEditingColor(cToEdit)
+      setColorLabelInput(cToEdit.name || cToEdit.label)
+      setColorHexInput(cToEdit.hex)
+    } else {
+      setEditingColor(null)
+      setColorLabelInput('')
+      setColorHexInput('#C8794D')
+    }
+    setColorModalError(null)
+    setColorModalSuccess(null)
+    setColorModalOpen(true)
+  }
+
+  const handleSaveColor = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    const trimmed = colorLabelInput.trim()
+    if (!trimmed) {
+      setColorModalError('Veuillez renseigner le nom de la teinte.')
+      return
+    }
+    if (!colorHexInput || !colorHexInput.startsWith('#')) {
+      setColorModalError('Veuillez fournir un code hexadécimal valide (ex: #C8794D).')
+      return
+    }
+
+    setSavingColor(true)
+    setColorModalError(null)
+    setColorModalSuccess(null)
+
+    try {
+      if (editingColor) {
+        await colorsApi.updateColor(editingColor.id, {
+          label: trimmed,
+          hex: colorHexInput,
+        })
+        setColorModalSuccess(`Teinte « ${trimmed} » modifiée avec succès.`)
+        setEditingColor(null)
+        setColorLabelInput('')
+      } else {
+        await colorsApi.createColor({
+          label: trimmed,
+          hex: colorHexInput,
+        })
+        setColorModalSuccess(`Teinte « ${trimmed} » ajoutée avec succès au nuancier.`)
+        setColorLabelInput('')
+      }
+      const freshColors = await colorsApi.getColors()
+      setColors(freshColors)
+    } catch (err: any) {
+      setColorModalError(err.message || "Erreur lors de l'enregistrement de la teinte.")
+    } finally {
+      setSavingColor(false)
+    }
+  }
+
+  const handleDeleteColor = async (c: ColorSwatch) => {
+    const label = c.name || c.label
+    if (!confirm(`Supprimer définitivement la teinte « ${label} » du nuancier de l'atelier ?`)) {
+      return
+    }
+    setSavingColor(true)
+    setColorModalError(null)
+    setColorModalSuccess(null)
+    try {
+      await colorsApi.deleteColor(c.id)
+      const freshColors = await colorsApi.getColors()
+      setColors(freshColors)
+      if (filterColor === label) {
+        setFilterColor('Tout')
+      }
+
+      // Reassign any products in the database that had this deleted color
+      const affectedProducts = products.filter(p => p.color && p.color.trim().toLowerCase() === label.trim().toLowerCase())
+      if (affectedProducts.length > 0) {
+        for (const p of affectedProducts) {
+          try {
+            const payload: ProductRequest = {
+              name: p.name,
+              description: p.description ? p.description.replace(new RegExp(label, 'gi'), 'Blanc') : '',
+              categoryId: p.category?.id || 1,
+              dimensions: p.dimensions || '',
+              materials: p.materials || '',
+              color: 'Blanc',
+              price: p.price,
+              availability: p.availability || 'Sur commande',
+              type: p.type || 'CATALOGUE',
+              isFeatured: p.isFeatured,
+              imageUrls: p.images ? p.images.map(img => img.imageUrl + (img.colorLabel ? '#color=' + encodeURIComponent(img.colorLabel) : '')) : []
+            }
+            await adminApi.updateProduct(p.id, payload)
+          } catch (pErr) {
+            console.warn(`Could not update product ${p.id} after deleting color:`, pErr)
+          }
+        }
+        const refreshedProducts = await publicApi.getProducts()
+        setProducts(refreshedProducts)
+      }
+
+      setColorModalSuccess(`Teinte « ${label} » supprimée du nuancier.`)
+    } catch (err: any) {
+      setColorModalError(err.message || "Erreur lors de la suppression de la teinte.")
+    } finally {
+      setSavingColor(false)
+    }
+  }
+
   const handleCategoryChange = (newCatId: string) => {
     setCategoryId(newCatId)
     if (!editingProduct) {
@@ -667,7 +996,7 @@ export default function AdminCataloguePage() {
   const handleDeleteQuote = async (quoteId: number) => {
     if (!confirm("Supprimer cette demande de devis ?")) return
     try {
-      await adminApi.deleteQuote(quoteId)
+      await adminApi.deleteQuoteRequest(quoteId)
       setQuotes(quotes.filter(q => q.id !== quoteId))
       if (selectedQuoteForInspection?.id === quoteId) {
         setSelectedQuoteForInspection(null)
@@ -841,76 +1170,86 @@ export default function AdminCataloguePage() {
   }
 
   return (
-    <div className="space-y-7 text-[#FAF7F2]">
+    <div className="space-y-6 text-[#F5F0E8]">
       
-      {/* ─── Top Header Section with High Contrast ────────────────────────── */}
-      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 pb-4 border-b border-[#E6A635]/25">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3B271C] border border-[#E6A635]/40 text-[#F2BD52] text-[10.5px] font-bold uppercase tracking-widest mb-2 shadow-sm">
-            <Sparkles className="size-3 text-[#E6A635]" />
-            <span>Gestion de la Collection</span>
-          </div>
-          <h1 className="font-heading text-3xl sm:text-4xl font-light text-[#FAF7F2] tracking-tight">
-            Catalogue d&apos;Inspiration
+      {/* ─── Top Header Section — Luxury Showroom Aesthetic ──────────────── */}
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 pb-4 border-b border-[#3A2E24]">
+        <motion.div initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
+          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C8794D] block mb-1">
+            Catalogue d&apos;inspiration
+          </span>
+          <h1 className="font-serif text-3xl sm:text-4xl font-light text-[#F5F0E8] tracking-tight">
+            Nos créations artisanales
           </h1>
-          <p className="mt-1.5 text-sm text-[#EAE4D9]/80 leading-relaxed max-w-2xl">
-            Modèles de référence et pièces d&apos;inspiration présentés aux clients sur{' '}
-            <Link href="/catalogue" target="_blank" className="text-[#F2BD52] hover:underline font-semibold inline-flex items-center gap-1">
-              /catalogue <ExternalLink className="size-3.5 inline" />
-            </Link>{' '}
-            pour configurer leurs créations sur-mesure.
+          <p className="mt-1 text-xs sm:text-sm text-[#D9C8AE]/80 max-w-2xl leading-relaxed">
+            Découvrez notre collection de meubles et objets artisanaux, conçus avec passion et savoir-faire pour sublimer vos espaces.
           </p>
         </motion.div>
         
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
-            onClick={reorderAllCategoriesAndColors}
-            title="Harmoniser et s'assurer que chaque catégorie et couleur commence au Modèle 01 sans interruption"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#241812] hover:bg-[#3B271C] border border-[#E6A635]/40 hover:border-[#F2BD52] px-4 py-3 text-xs font-bold uppercase tracking-wider text-[#F2BD52] transition-all cursor-pointer shadow-sm"
+            onClick={() => handleOpenCategoryModal()}
+            title="Ajouter, modifier ou supprimer des catégories du catalogue"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#211A15] hover:bg-[#2A211A] border border-[#3A2E24] hover:border-[#B89555] px-4 py-2.5 text-xs font-semibold text-[#D9C8AE] transition-all cursor-pointer shadow-xs"
           >
-            <ListOrdered className="size-4" />
-            <span className="hidden sm:inline">Harmoniser N° Modèles</span>
+            <FolderPlus className="size-3.5 text-[#B89555]" />
+            <span>Gérer Catégories</span>
           </button>
 
-          <motion.button
-            initial={{ opacity: 0, scale: 0.95 }} 
-            animate={{ opacity: 1, scale: 1 }} 
-            transition={{ duration: 0.4, delay: 0.1 }}
-            onClick={openCreateModal}
-            className="btn-sheen inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] hover:scale-[1.02] active:scale-[0.98] px-6 py-3 text-xs font-bold uppercase tracking-wider text-[#1A110B] transition-all shadow-[0_4px_20px_rgba(230,166,53,0.35)] cursor-pointer shrink-0"
+          <button
+            onClick={() => handleOpenColorModal()}
+            title="Gérer les teintes, patines et finitions du nuancier de l'atelier"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#211A15] hover:bg-[#2A211A] border border-[#3A2E24] hover:border-[#B89555] px-4 py-2.5 text-xs font-semibold text-[#D9C8AE] transition-all cursor-pointer shadow-xs"
           >
-            <Plus className="size-4 stroke-[3]" />
+            <Palette className="size-3.5 text-[#B89555]" />
+            <span>Nuancier &amp; Couleurs</span>
+          </button>
+
+          <button
+            onClick={reorderAllCategories}
+            title="Harmoniser et s'assurer que chaque catégorie commence au Modèle 01 sans interruption et sans saut de numéro"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#211A15] hover:bg-[#2A211A] border border-[#3A2E24] hover:border-[#B89555] px-4 py-2.5 text-xs font-semibold text-[#D9C8AE] transition-all cursor-pointer shadow-xs"
+          >
+            <ListOrdered className="size-3.5 text-[#B89555]" />
+            <span className="hidden sm:inline">Harmoniser N°</span>
+          </button>
+
+          <button
+            onClick={openCreateModal}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#C8794D] via-[#B89555] to-[#C8794D] hover:opacity-95 px-5 py-2.5 text-xs font-bold text-white transition-all shadow-md cursor-pointer shrink-0"
+          >
+            <Plus className="size-4 stroke-[2.5]" />
             <span>Ajouter un Modèle</span>
-          </motion.button>
+          </button>
         </div>
       </div>
 
       {/* ─── Navigation Tabs ──────────────────────────────────────────────── */}
-      <div className="flex flex-wrap gap-2.5">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setActiveTab('MODELS')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
             activeTab === 'MODELS'
-              ? 'bg-[#E6A635] text-[#1A110B] shadow-lg shadow-[#E6A635]/25 scale-[1.02]'
-              : 'bg-[#2E2018]/90 text-[#EAE4D9]/80 hover:bg-[#3B271C] hover:text-[#FAF7F2] border border-[#E6A635]/20'
+              ? 'bg-[#E5D7C5] text-[#15120F] font-bold shadow-xs'
+              : 'bg-[#211A15] text-[#D9C8AE]/80 hover:bg-[#2A211A] hover:text-[#F5F0E8] border border-[#3A2E24]'
           }`}
         >
-          <Bot className="size-4" /> 
+          <Bot className="size-3.5" /> 
           <span>Modèles Catalogue ({products.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('QUOTES')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
             activeTab === 'QUOTES'
-              ? 'bg-[#E6A635] text-[#1A110B] shadow-lg shadow-[#E6A635]/25 scale-[1.02]'
-              : 'bg-[#2E2018]/90 text-[#EAE4D9]/80 hover:bg-[#3B271C] hover:text-[#FAF7F2] border border-[#E6A635]/20'
+              ? 'bg-[#E5D7C5] text-[#15120F] font-bold shadow-xs'
+              : 'bg-[#211A15] text-[#D9C8AE]/80 hover:bg-[#2A211A] hover:text-[#F5F0E8] border border-[#3A2E24]'
           }`}
         >
-          <Palette className="size-4" /> 
-          <span>Demandes & Sur-Mesure Catalogue ({catalogQuotes.length})</span>
+          <Palette className="size-3.5" /> 
+          <span>Demandes &amp; Sur-Mesure ({catalogQuotes.length})</span>
           {catalogQuotes.filter(q => q.status === 'PENDING').length > 0 && (
-            <span className="bg-[#B91C1C] text-white text-[10px] font-black rounded-full px-2 py-0.5 ml-1 animate-pulse">
+            <span className="bg-[#C8794D] text-white text-[10px] font-bold rounded-full px-1.5 py-0.2 ml-1">
               {catalogQuotes.filter(q => q.status === 'PENDING').length}
             </span>
           )}
@@ -919,46 +1258,35 @@ export default function AdminCataloguePage() {
 
       {/* ─── TAB CONTENT 1: CATALOG MODELS GRID ───────────────────────────── */}
       {activeTab === 'MODELS' && (
-        <div className="space-y-6">
-          
-          {/* Note Banner */}
-          <div className="flex items-start gap-3 rounded-2xl border border-[#E6A635]/30 bg-[#3B271C]/75 p-4 text-xs text-[#FAF7F2] shadow-md backdrop-blur-md">
-            <Sparkles className="size-4 text-[#F2BD52] shrink-0 mt-0.5" />
-            <div className="leading-relaxed">
-              <span className="font-bold text-[#F2BD52]">Collection Catalogue :</span>{' '}
-              <span className="text-[#EAE4D9]/90">
-                Ces créations sont des modèles de référence artisanaux fabriqués sur-mesure pour chaque client (sélection de teinte, dimensions au centimètre près). Les modèles sont ordonnés consécutivement dès le Modèle 01.
-              </span>
-            </div>
-          </div>
+        <div className="space-y-4">
 
           {error && (
-            <div className="p-4 rounded-2xl bg-red-950/40 border border-red-500/40 text-red-200 text-sm flex items-center gap-2">
-              <AlertCircle className="size-5 text-red-400 shrink-0" />
+            <div className="p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
+              <AlertCircle className="size-4 text-red-400 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          {/* Filters & Search Bar with Icons (Status filter removed) */}
-          <div className="bg-[#2E2018]/95 p-3.5 sm:p-4 rounded-2xl border border-[#E6A635]/25 shadow-xl backdrop-blur-md flex flex-col gap-3">
+          {/* Filters & Search Bar — Showroom Palette */}
+          <div className="bg-[#211A15] p-3 sm:p-3.5 rounded-2xl border border-[#3A2E24] shadow-md flex flex-col gap-3">
             <div className="flex flex-col lg:flex-row gap-2.5 items-stretch lg:items-center justify-between w-full">
               
               {/* Search Box with Model & ID support */}
-              <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#F2BD52]" />
+              <div className="relative flex-1 min-w-[220px]">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#D9C8AE]/50" />
                 <input 
                   type="text" 
-                  placeholder="Recherche : nom, N° (#12), essence, céramique..." 
+                  placeholder="Rechercher : nom, N° (#12), essence, céramique..." 
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#1A110B]/85 border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl pl-10 pr-9 py-2 text-xs sm:text-sm text-[#FAF7F2] placeholder:text-[#EAE4D9]/40 outline-none transition-all"
+                  className="w-full bg-[#15120F] border border-[#3A2E24] focus:border-[#B89555] rounded-xl pl-9 pr-8 py-2 text-xs text-[#F5F0E8] placeholder:text-[#D9C8AE]/40 outline-none transition-all"
                 />
                 {searchQuery && (
                   <button 
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#EAE4D9]/60 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#D9C8AE]/50 hover:text-white"
                   >
-                    <X className="size-3.5" />
+                    <X className="size-3" />
                   </button>
                 )}
               </div>
@@ -966,54 +1294,59 @@ export default function AdminCataloguePage() {
               {/* Icon-based Dropdown Filters */}
               <div className="flex flex-wrap items-center gap-2">
                 {/* 1. Category Filter */}
-                <div className="relative flex items-center bg-[#1A110B]/85 border border-[#E6A635]/30 focus-within:border-[#F2BD52] rounded-xl px-2.5 py-1.5 shrink-0">
-                  <Layers className="size-3.5 text-[#F2BD52] mr-1.5 shrink-0" />
+                <div className="relative flex items-center bg-[#15120F] border border-[#3A2E24] focus-within:border-[#B89555] rounded-xl px-2.5 py-1.5 shrink-0">
+                  <Layers className="size-3.5 text-[#B89555] mr-1.5 shrink-0" />
                   <select 
                     value={filterCategory}
                     onChange={e => setFilterCategory(e.target.value)}
-                    className="bg-transparent text-xs text-[#FAF7F2] font-medium outline-none cursor-pointer pr-2"
+                    className="bg-transparent text-xs text-[#F5F0E8] font-medium outline-none cursor-pointer pr-2"
                   >
-                    <option value="Tout" className="bg-[#241812] text-[#FAF7F2]">Catégorie : Toutes ({categories.length})</option>
+                    <option value="Tout" className="bg-[#15120F] text-[#F5F0E8]">Catégorie : Toutes ({categories.length})</option>
                     {categories.map(c => (
-                      <option key={c.id} value={c.name} className="bg-[#241812] text-[#FAF7F2]">{c.name}</option>
+                      <option key={c.id} value={c.name} className="bg-[#15120F] text-[#F5F0E8]">{c.name}</option>
                     ))}
                   </select>
                 </div>
 
                 {/* 2. Color Filter */}
-                <div className="relative flex items-center bg-[#1A110B]/85 border border-[#E6A635]/30 focus-within:border-[#F2BD52] rounded-xl px-2.5 py-1.5 shrink-0">
-                  <Palette className="size-3.5 text-[#F2BD52] mr-1.5 shrink-0" />
+                <div className="relative flex items-center bg-[#15120F] border border-[#3A2E24] focus-within:border-[#B89555] rounded-xl px-2.5 py-1.5 shrink-0">
+                  <Palette className="size-3.5 text-[#B89555] mr-1.5 shrink-0" />
                   <select 
                     value={filterColor}
                     onChange={e => setFilterColor(e.target.value)}
-                    className="bg-transparent text-xs text-[#FAF7F2] font-medium outline-none cursor-pointer pr-2"
+                    className="bg-transparent text-xs text-[#F5F0E8] font-medium outline-none cursor-pointer pr-2"
                   >
-                    <option value="Tout" className="bg-[#241812] text-[#FAF7F2]">Couleur : Toutes</option>
-                    <option value="Blanc" className="bg-[#241812] text-[#FAF7F2]">⚪ Blanc</option>
-                    <option value="Blanc Cérusé" className="bg-[#241812] text-[#FAF7F2]">📜 Blanc Cérusé</option>
-                    <option value="Noir" className="bg-[#241812] text-[#FAF7F2]">⚫ Noir</option>
-                    <option value="Noyer" className="bg-[#241812] text-[#FAF7F2]">🟤 Noyer</option>
-                    <option value="Bleu" className="bg-[#241812] text-[#FAF7F2]">🔵 Bleu</option>
-                    <option value="Or" className="bg-[#241812] text-[#FAF7F2]">🟡 Or / Doré</option>
-                    <option value="Naturel" className="bg-[#241812] text-[#FAF7F2]">🪵 Bois Naturel</option>
-                    <option value="Vert Olivier" className="bg-[#241812] text-[#FAF7F2]">🟢 Vert Olivier</option>
-                    <option value="Bordeaux" className="bg-[#241812] text-[#FAF7F2]">🔴 Bordeaux</option>
+                    <option value="Tout" className="bg-[#15120F] text-[#F5F0E8]">Couleur : Toutes</option>
+                    {(colors.length > 0 ? colors : [
+                      { id: '1', name: 'Blanc', hex: '#FFFFFF' },
+                      { id: '3', name: 'Noir', hex: '#1A1A1A' },
+                      { id: '4', name: 'Noyer', hex: '#5C3317' },
+                      { id: '5', name: 'Bleu', hex: '#2D5F8A' },
+                      { id: '6', name: 'Or', hex: '#C9A84C' },
+                      { id: '7', name: 'Naturel', hex: '#C4A882' },
+                      { id: '8', name: 'Vert Olivier', hex: '#4A5E3A' },
+                      { id: '9', name: 'Bordeaux', hex: '#7B2D3E' }
+                    ]).map(c => (
+                      <option key={c.id} value={c.name} className="bg-[#15120F] text-[#F5F0E8]">
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 {/* 3. Dimension Filter */}
-                <div className="relative flex items-center bg-[#1A110B]/85 border border-[#E6A635]/30 focus-within:border-[#F2BD52] rounded-xl px-2.5 py-1.5 shrink-0">
-                  <Ruler className="size-3.5 text-[#F2BD52] mr-1.5 shrink-0" />
+                <div className="relative flex items-center bg-[#15120F] border border-[#3A2E24] focus-within:border-[#B89555] rounded-xl px-2.5 py-1.5 shrink-0">
+                  <Ruler className="size-3.5 text-[#B89555] mr-1.5 shrink-0" />
                   <select 
                     value={filterDimension}
                     onChange={e => setFilterDimension(e.target.value)}
-                    className="bg-transparent text-xs text-[#FAF7F2] font-medium outline-none cursor-pointer pr-2"
+                    className="bg-transparent text-xs text-[#F5F0E8] font-medium outline-none cursor-pointer pr-2"
                   >
-                    <option value="Tout" className="bg-[#241812] text-[#FAF7F2]">Dimension : Toutes</option>
-                    <option value="Petit" className="bg-[#241812] text-[#FAF7F2]">Petit (&lt; 80 cm)</option>
-                    <option value="Moyen" className="bg-[#241812] text-[#FAF7F2]">Moyen (80–150 cm)</option>
-                    <option value="Grand" className="bg-[#241812] text-[#FAF7F2]">Grand (&gt; 150 cm)</option>
-                    <option value="Sur-mesure" className="bg-[#241812] text-[#FAF7F2]">Sur-mesure</option>
+                    <option value="Tout" className="bg-[#15120F] text-[#F5F0E8]">Dimension : Toutes</option>
+                    <option value="Petit" className="bg-[#15120F] text-[#F5F0E8]">Petit (&lt; 80 cm)</option>
+                    <option value="Moyen" className="bg-[#15120F] text-[#F5F0E8]">Moyen (80–150 cm)</option>
+                    <option value="Grand" className="bg-[#15120F] text-[#F5F0E8]">Grand (&gt; 150 cm)</option>
+                    <option value="Sur-mesure" className="bg-[#15120F] text-[#F5F0E8]">Sur-mesure</option>
                   </select>
                 </div>
 
@@ -1026,24 +1359,24 @@ export default function AdminCataloguePage() {
                       setFilterColor('Tout')
                       setFilterDimension('Tout')
                     }}
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#EAE4D9] text-xs font-semibold transition-colors cursor-pointer shrink-0"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-[#D9C8AE] text-xs transition-colors cursor-pointer shrink-0"
                     title="Réinitialiser tous les filtres"
                   >
-                    <RotateCcw className="size-3 text-[#F2BD52]" />
-                    <span className="hidden sm:inline">Effacer filtres</span>
+                    <RotateCcw className="size-3 text-[#B89555]" />
+                    <span className="hidden sm:inline">Effacer</span>
                   </button>
                 )}
               </div>
             </div>
             
-            {/* Bottom Sub-bar: Counter, Select All & Bulk Actions */}
-            <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs text-[#EAE4D9]/80">
+            {/* Bottom Sub-bar: Counter & Bulk Actions */}
+            <div className="flex items-center justify-between pt-2 border-t border-[#3A2E24] text-xs text-[#D9C8AE]/80">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-[#F2BD52] bg-[#1A110B]/80 px-2.5 py-0.5 rounded-md border border-[#E6A635]/25">
+                <span className="font-semibold text-[#D9C8AE] bg-[#2A211A] px-2.5 py-0.5 rounded-full border border-[#3A2E24] text-xs">
                   {filteredProducts.length} modèle{filteredProducts.length > 1 ? 's' : ''}
                 </span>
                 {selectedIds.length > 0 && (
-                  <span className="text-[11px] text-[#EAE4D9]/70 font-medium">
+                  <span className="text-[11px] text-[#D9C8AE]/70 font-medium">
                     ({selectedIds.length} sélectionné{selectedIds.length > 1 ? 's' : ''})
                   </span>
                 )}
@@ -1053,211 +1386,233 @@ export default function AdminCataloguePage() {
                 {selectedIds.length > 0 && (
                   <button
                     onClick={handleBulkDelete}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-xs font-bold transition-all cursor-pointer shadow-md"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-950/70 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-xs font-bold transition-all cursor-pointer shadow-sm"
                   >
-                    <Trash2 className="size-3.5" /> Supprimer ({selectedIds.length})
+                    <Trash2 className="size-3" /> Supprimer ({selectedIds.length})
                   </button>
                 )}
 
-                {/* Luxury Custom Toggle All Button (No native white checkbox) */}
+                {/* Circular Toggle All Selection Checkbox */}
                 <button
                   type="button"
                   onClick={toggleSelectAll}
-                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-                    selectedIds.length > 0 && selectedIds.length === filteredProducts.length
-                      ? 'bg-[#E6A635] text-[#1A110B] border-[#F2BD52] shadow-sm font-bold'
-                      : 'bg-[#1A110B]/80 text-[#F2BD52] border-[#E6A635]/35 hover:bg-[#3B271C]'
-                  }`}
+                  className="inline-flex items-center gap-2 text-xs font-medium text-[#D9C8AE] hover:text-white transition-colors cursor-pointer"
                 >
-                  <div className={`size-4 rounded-full flex items-center justify-center transition-all ${
+                  <div className={`size-4.5 rounded-full border transition-all flex items-center justify-center ${
                     selectedIds.length > 0 && selectedIds.length === filteredProducts.length
-                      ? 'bg-[#1A110B] text-[#F2BD52]'
-                      : 'border border-[#E6A635]/60 bg-black/40'
+                      ? 'border-[#B89555] bg-[#B89555] text-[#15120F]'
+                      : 'border-white/35 bg-black/40'
                   }`}>
                     {selectedIds.length > 0 && selectedIds.length === filteredProducts.length && (
                       <Check className="size-2.5 stroke-[3]" />
                     )}
                   </div>
-                  <span>{selectedIds.length > 0 && selectedIds.length === filteredProducts.length ? 'Tout désélectionner' : 'Tout sélectionner'}</span>
+                  <span>Tout sélectionner</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Products Grid */}
+          {/* ─── Modern Category Showcase Ribbon ────────────────────────────── */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {/* All Models button */}
+            <button
+              type="button"
+              onClick={() => setFilterCategory('Tout')}
+              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                filterCategory === 'Tout'
+                  ? 'bg-[#D9C8AE] text-[#15120F] shadow-xs'
+                  : 'bg-[#211A15] text-[#D9C8AE]/80 hover:bg-[#2A211A] hover:text-[#F5F0E8] border border-[#3A2E24]'
+              }`}
+            >
+              <Sparkles className={`size-3.5 ${filterCategory === 'Tout' ? 'text-[#15120F]' : 'text-[#B89555]'}`} />
+              <span>Toutes les créations</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                filterCategory === 'Tout' ? 'bg-[#15120F] text-[#F5F0E8]' : 'bg-[#15120F]/80 text-[#D9C8AE]/70'
+              }`}>
+                {products.length}
+              </span>
+            </button>
+
+            {/* Individual Categories */}
+            {categories.map(cat => {
+              const isSelected = filterCategory === cat.name
+              const CatIcon = getCategoryIcon(cat.name)
+              const count = categoryCounts[cat.name] || 0
+
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setFilterCategory(cat.name)}
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
+                    isSelected
+                      ? 'bg-[#D9C8AE] text-[#15120F] font-bold shadow-xs'
+                      : 'bg-[#211A15] text-[#D9C8AE]/80 hover:bg-[#2A211A] hover:text-[#F5F0E8] border border-[#3A2E24]'
+                  }`}
+                >
+                  <CatIcon className={`size-3.5 ${isSelected ? 'text-[#15120F]' : 'text-[#B89555]'}`} />
+                  <span>{cat.name}</span>
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono ${
+                    isSelected ? 'bg-[#15120F] text-[#F5F0E8] font-bold' : 'bg-[#15120F]/80 text-[#D9C8AE]/70'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              )
+            })}
+
+            {/* Quick Manage Categories in Ribbon */}
+            <button
+              type="button"
+              onClick={() => handleOpenCategoryModal()}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-dashed border-[#C8794D]/60 bg-[#C8794D]/10 hover:bg-[#C8794D]/20 text-[#D9C8AE] hover:text-white transition-all cursor-pointer shrink-0"
+              title="Ajouter, modifier ou supprimer des catégories"
+            >
+              <FolderPlus className="size-3.5 text-[#C8794D]" />
+              <span>+ Gérer Catégories</span>
+            </button>
+          </div>
+
+          {/* ─── DENSE 6-COLUMN SHOWROOM PRODUCTS GRID ─────────────────────── */}
           {loading && products.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 bg-[#2E2018]/50 rounded-3xl border border-[#E6A635]/20">
-              <div className="size-10 animate-spin rounded-full border-4 border-[#E6A635] border-t-transparent mb-3" />
-              <p className="text-xs uppercase tracking-widest text-[#F2BD52] font-semibold">Chargement des modèles...</p>
+            <div className="flex flex-col items-center justify-center py-20 bg-[#211A15]/50 rounded-2xl border border-[#3A2E24]">
+              <div className="size-8 animate-spin rounded-full border-3 border-[#B89555] border-t-transparent mb-3" />
+              <p className="text-xs uppercase tracking-widest text-[#D9C8AE] font-semibold">Chargement des modèles...</p>
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4 bg-[#2E2018]/60 backdrop-blur-md border border-dashed border-[#E6A635]/30 rounded-3xl text-center">
-              <Bot className="size-12 mb-3 text-[#E6A635]/40" />
-              <h3 className="font-heading text-lg text-[#FAF7F2] font-medium">Aucun modèle ne correspond à vos filtres</h3>
-              <p className="text-xs text-[#EAE4D9]/60 max-w-sm mt-1 mb-5">
+            <div className="flex flex-col items-center justify-center py-16 px-4 bg-[#211A15]/60 border border-dashed border-[#3A2E24] rounded-2xl text-center">
+              <Bot className="size-10 mb-3 text-[#D9C8AE]/40" />
+              <h3 className="font-serif text-lg text-[#F5F0E8] font-medium">Aucun modèle ne correspond à vos filtres</h3>
+              <p className="text-xs text-[#D9C8AE]/60 max-w-sm mt-1 mb-4">
                 Essayez de modifier votre recherche ou ajoutez un nouveau modèle au catalogue.
               </p>
               <button
                 onClick={openCreateModal}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#E6A635] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow-md hover:scale-105 transition-transform"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#D9C8AE] text-[#15120F] text-xs font-bold uppercase tracking-wider shadow-xs hover:opacity-95 transition-opacity"
               >
-                <Plus className="size-4" /> Créer un modèle maintenant
+                <Plus className="size-3.5" /> Créer un modèle
               </button>
             </div>
           ) : (
-            <motion.div
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-3.5"
-              initial="hidden"
-              animate="visible"
-              variants={{ visible: { transition: { staggerChildren: 0.02 } }, hidden: {} }}
-            >
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-3.5">
               {filteredProducts.map((product) => {
                 const primaryImage = product.images?.[0]?.imageUrl || '/placeholder.png'
-                const catName = product.category?.name || 'Mobilier'
-                const CatIcon = getCategoryIcon(catName)
                 const isSelected = selectedIds.includes(product.id)
 
                 return (
-                  <motion.article
+                  <article
                     key={product.id}
                     onClick={() => toggleSelect(product.id)}
-                    variants={{
-                      hidden: { opacity: 0, scale: 0.95 },
-                      visible: { opacity: 1, scale: 1, transition: { duration: 0.2 } },
-                    }}
-                    className={`group cursor-pointer rounded-2xl overflow-hidden backdrop-blur-md border transition-all duration-200 flex flex-col justify-between relative ${
+                    className={`group cursor-pointer rounded-2xl overflow-hidden border transition-all duration-200 flex flex-col justify-between relative shadow-xs hover:shadow-lg hover:-translate-y-0.5 ${
                       isSelected 
-                        ? 'border-[#F2BD52] ring-2 ring-[#F2BD52]/80 shadow-[0_4px_25px_rgba(230,166,53,0.35)] bg-gradient-to-b from-[#3E291C] to-[#261912] scale-[1.01]' 
-                        : 'border-[#E6A635]/25 bg-[#2E2018]/90 hover:border-[#E6A635]/70 hover:shadow-xl hover:-translate-y-0.5'
+                        ? 'border-[#B89555] ring-1 ring-[#B89555] bg-[#2E241E]' 
+                        : 'border-[#3A2E24] bg-[#2A211A] hover:border-[#B89555]/50'
                     }`}
                   >
-                    {/* Compact Image Container with Clean Badges */}
-                    <div className="relative aspect-[4/3] overflow-hidden bg-[#1A110B]">
+                    {/* Compact Image Container with 4:3 Aspect Ratio */}
+                    <div className="relative aspect-[4/3] overflow-hidden bg-[#15120F]">
                       <img 
                         src={primaryImage} 
                         alt={product.name} 
                         loading="lazy"
-                        className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                         onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/80 via-transparent to-black/30 pointer-events-none" />
 
                       {/* Top-Left: Model ID Badge */}
-                      <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-1">
-                        <span className="font-mono text-[9px] font-extrabold bg-[#1A110B]/90 text-[#F2BD52] px-1.5 py-0.5 rounded border border-[#E6A635]/40 shadow-xs">
+                      <div className="absolute top-2 left-2 z-10">
+                        <span className="font-mono text-[9.5px] font-bold bg-[#15120F]/85 backdrop-blur-xs text-[#D9C8AE] px-1.5 py-0.5 rounded border border-white/10 shadow-xs">
                           #{product.id}
                         </span>
                       </div>
 
-                      {/* Top-Right: Custom Pro Gold Selection Jewel (No native white box) */}
-                      <div className="absolute top-1.5 right-1.5 z-20">
+                      {/* Top-Right: Selection Circle */}
+                      <div className="absolute top-2 right-2 z-10">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation()
                             toggleSelect(product.id)
                           }}
-                          className={`size-6 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                          className={`size-5 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
                             isSelected
-                              ? 'bg-gradient-to-tr from-[#D89B28] via-[#F2BD52] to-[#FFE08A] text-[#1A110B] shadow-[0_0_14px_rgba(242,189,82,0.85)] ring-2 ring-white/70 scale-110'
-                              : 'bg-black/60 border border-[#E6A635]/45 text-transparent hover:border-[#F2BD52] hover:bg-[#E6A635]/25 backdrop-blur-md'
+                              ? 'bg-[#B89555] border-[#B89555] text-[#15120F] shadow-xs'
+                              : 'border-white/35 bg-black/40 hover:border-[#B89555]'
                           }`}
                           title={isSelected ? 'Désélectionner' : 'Sélectionner'}
                         >
-                          <Check className={`size-3.5 stroke-[3] transition-transform duration-150 ${isSelected ? 'scale-100' : 'scale-0'}`} />
+                          {isSelected && <Check className="size-3 stroke-[3]" />}
                         </button>
-                      </div>
-
-                      {/* Bottom Overlay: Category name & Variants Count */}
-                      <div className="absolute bottom-1.5 left-1.5 right-1.5 z-10 flex items-center justify-between text-[9px] text-[#FAF7F2] pointer-events-none">
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#1A110B]/85 border border-[#E6A635]/30 font-semibold truncate max-w-[65%]">
-                          <CatIcon className="size-2.5 text-[#F2BD52] shrink-0" />
-                          <span className="truncate">{catName}</span>
-                        </span>
-                        {product.images && product.images.length > 1 && (
-                          <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded bg-[#1A110B]/85 border border-[#E6A635]/30 font-semibold text-[#F2BD52]">
-                            <Layers className="size-2.5" />
-                            <span>{product.images.length}</span>
-                          </span>
-                        )}
                       </div>
                     </div>
 
-                    {/* Compact Card Content */}
-                    <div className="p-2 sm:p-2.5 flex-1 flex flex-col justify-between gap-1.5">
+                    {/* Compact Content Area */}
+                    <div className="p-2.5 flex-1 flex flex-col justify-between gap-1">
                       <div>
-                        {/* Title */}
+                        {/* Title in Editorial Serif */}
                         <h3 
-                          className={`font-heading text-xs font-semibold line-clamp-1 leading-snug transition-colors ${
-                            isSelected ? 'text-[#F2BD52]' : 'text-[#FAF7F2] group-hover:text-[#F2BD52]'
-                          }`} 
+                          className={`font-serif text-[12.5px] font-medium line-clamp-1 leading-snug transition-colors ${
+                            isSelected ? 'text-[#F5F0E8] font-semibold' : 'text-[#F5F0E8] group-hover:text-[#D9C8AE]'
+                          }`}
                           title={product.name}
                         >
                           {product.name}
                         </h3>
 
-                        {/* Specs row: Color & Dimension chips */}
-                        <div className="flex items-center gap-1 text-[9.5px] text-[#EAE4D9]/75 mt-1 overflow-hidden">
+                        {/* Meta line: Color dot & Dimension */}
+                        <div className="flex items-center gap-1.5 text-[10px] text-[#D9C8AE]/75 truncate mt-1">
                           {product.color && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#1A110B]/60 border border-[#E6A635]/20 truncate max-w-[50%]">
-                              <span className="size-1.5 rounded-full bg-[#F2BD52] shrink-0" />
+                            <span className="inline-flex items-center gap-1 truncate">
+                              <span className="size-1.5 rounded-full shrink-0" style={{ backgroundColor: resolveColorHex(product.color) }} />
                               <span className="truncate">{product.color}</span>
                             </span>
                           )}
                           {product.dimensions && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#1A110B]/60 border border-[#E6A635]/20 truncate max-w-[50%]">
-                              <Ruler className="size-2 text-[#E6A635] shrink-0" />
+                            <span className="inline-flex items-center gap-1 text-[#D9C8AE]/60 truncate">
+                              <span>•</span>
                               <span className="truncate">{product.dimensions}</span>
                             </span>
                           )}
                         </div>
                       </div>
 
-                      {/* Card Footer: Price & Quick Action Buttons */}
-                      <div className="pt-1.5 border-t border-[#E6A635]/15 flex items-center justify-between gap-1">
-                        <div>
-                          {product.price ? (
-                            <span className="font-heading text-xs font-bold text-[#F2BD52] whitespace-nowrap">
-                              {product.price.toLocaleString('fr-FR')} <span className="text-[9px] font-normal text-[#EAE4D9]/60">DT</span>
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-[#EAE4D9]/60 italic whitespace-nowrap">
-                              Sur devis
-                            </span>
-                          )}
-                        </div>
+                      {/* Footer line: Price & Quick Action Icons */}
+                      <div className="pt-1.5 mt-1 border-t border-white/5 flex items-center justify-between gap-1">
+                        <span className="text-[10px] font-medium text-[#D9C8AE]/85 truncate">
+                          {product.price ? `${product.price.toLocaleString('fr-FR')} DT` : 'Sur devis'}
+                        </span>
 
-                        {/* Action Buttons (with stopPropagation) */}
                         <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
                           <Link 
                             href={`/produits/${product.id}`} 
                             target="_blank" 
-                            className="p-1 rounded-md bg-[#1A110B]/80 hover:bg-[#3B271C] text-[#EAE4D9] hover:text-[#F2BD52] border border-[#E6A635]/20 transition-all" 
-                            title="Voir sur le site public"
+                            className="p-1 rounded text-[#D9C8AE]/50 hover:text-white transition-colors"
+                            title="Voir sur le site"
                           >
-                            <Eye className="size-3" />
+                            <Eye className="size-3.5" />
                           </Link>
                           <button 
                             onClick={() => openEditModal(product)} 
-                            className="p-1 rounded-md bg-[#1A110B]/80 hover:bg-[#E6A635]/20 text-[#EAE4D9] hover:text-[#F2BD52] border border-[#E6A635]/20 transition-all cursor-pointer" 
+                            className="p-1 rounded text-[#D9C8AE]/50 hover:text-[#B89555] transition-colors cursor-pointer"
                             title="Modifier"
                           >
-                            <Edit2 className="size-3" />
+                            <Edit2 className="size-3.5" />
                           </button>
                           <button 
                             onClick={() => handleDelete(product.id)} 
-                            className="p-1 rounded-md bg-[#1A110B]/80 hover:bg-red-500/20 text-[#EAE4D9] hover:text-red-400 border border-[#E6A635]/20 transition-all cursor-pointer" 
-                            title="Supprimer définitivement"
+                            className="p-1 rounded text-[#D9C8AE]/50 hover:text-red-400 transition-colors cursor-pointer"
+                            title="Supprimer"
                           >
-                            <Trash2 className="size-3" />
+                            <Trash2 className="size-3.5" />
                           </button>
                         </div>
                       </div>
                     </div>
-                  </motion.article>
+                  </article>
                 )
               })}
-            </motion.div>
+            </div>
           )}
         </div>
       )}
@@ -1519,31 +1874,31 @@ export default function AdminCataloguePage() {
 
           {/* Inspection Modal for Quote Details */}
           {selectedQuoteForInspection && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-[#241812] border border-[#E6A635]/40 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col text-[#FAF7F2] max-h-[90vh]"
+                className="bg-[#211A15] border border-[#3A2E24] w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col text-[#F5F0E8] max-h-[90vh]"
               >
                 {/* Header */}
-                <div className="p-5 border-b border-[#E6A635]/25 bg-[#1A110B]/90 flex items-center justify-between">
+                <div className="p-5 border-b border-[#3A2E24] bg-[#1A1410] flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-2xl bg-gradient-to-tr from-[#C78318] to-[#F3C45E] text-[#1A110B] flex items-center justify-center font-bold">
+                    <div className="size-10 rounded-2xl bg-[#C8794D]/20 border border-[#C8794D]/30 text-[#C8794D] flex items-center justify-center font-bold">
                       <FileText className="size-5" />
                     </div>
                     <div>
-                      <h3 className="font-heading text-lg font-bold text-[#FAF7F2]">
+                      <h3 className="font-heading text-lg font-bold text-[#F5F0E8]">
                         Fiche Complète de Devis Atelier #{selectedQuoteForInspection.id}
                       </h3>
-                      <p className="text-xs text-[#EAE4D9]/70">
+                      <p className="text-xs text-[#D9C8AE]/70">
                         Date de réception : {new Date(selectedQuoteForInspection.createdDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                       </p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setSelectedQuoteForInspection(null)}
-                    className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-[#EAE4D9] flex items-center justify-center transition-colors"
+                    className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-[#D9C8AE] flex items-center justify-center transition-colors cursor-pointer"
                   >
                     <X className="size-4" />
                   </button>
@@ -1552,25 +1907,25 @@ export default function AdminCataloguePage() {
                 {/* Content */}
                 <div className="p-6 space-y-5 overflow-y-auto">
                   {/* Client Info Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-[#1A110B]/80 border border-[#E6A635]/20 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-[#15120F] border border-[#3A2E24] text-xs">
                     <div>
-                      <p className="text-[10px] uppercase font-bold text-[#F2BD52]">Nom du client</p>
-                      <p className="font-semibold text-[#FAF7F2] mt-0.5">{selectedQuoteForInspection.fullName}</p>
+                      <p className="text-[10px] uppercase font-bold text-[#C8794D]">Nom du client</p>
+                      <p className="font-semibold text-[#F5F0E8] mt-0.5">{selectedQuoteForInspection.fullName}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase font-bold text-[#F2BD52]">Téléphone</p>
-                      <p className="font-semibold text-[#FAF7F2] mt-0.5">{selectedQuoteForInspection.phoneNumber}</p>
+                      <p className="text-[10px] uppercase font-bold text-[#C8794D]">Téléphone</p>
+                      <p className="font-semibold text-[#F5F0E8] mt-0.5">{selectedQuoteForInspection.phoneNumber}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase font-bold text-[#F2BD52]">Email</p>
-                      <p className="font-semibold text-[#FAF7F2] mt-0.5 truncate">{selectedQuoteForInspection.email}</p>
+                      <p className="text-[10px] uppercase font-bold text-[#C8794D]">Email</p>
+                      <p className="font-semibold text-[#F5F0E8] mt-0.5 truncate">{selectedQuoteForInspection.email}</p>
                     </div>
                   </div>
 
                   {/* Product Highlight */}
                   {selectedQuoteForInspection.product && (
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#1A110B]/60 border border-[#E6A635]/20">
-                      <div className="size-20 rounded-xl overflow-hidden bg-black/60 border border-[#E6A635]/30 shrink-0">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#15120F] border border-[#3A2E24]">
+                      <div className="size-20 rounded-xl overflow-hidden bg-black/60 border border-[#3A2E24] shrink-0">
                         <img 
                           src={selectedQuoteForInspection.product.images?.[0]?.imageUrl || '/placeholder.png'} 
                           alt={selectedQuoteForInspection.product.name} 
@@ -1578,13 +1933,13 @@ export default function AdminCataloguePage() {
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#F2BD52]">
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#C8794D]">
                           {selectedQuoteForInspection.product.category?.name || 'Catalogue'}
                         </span>
-                        <h4 className="font-heading text-base font-bold text-[#FAF7F2]">
+                        <h4 className="font-heading text-base font-bold text-[#F5F0E8]">
                           {selectedQuoteForInspection.product.name}
                         </h4>
-                        <p className="text-xs text-[#EAE4D9]/70 mt-0.5">
+                        <p className="text-xs text-[#D9C8AE]/70 mt-0.5">
                           {selectedQuoteForInspection.product.materials || 'Bois noble & Faïence d’art'}
                         </p>
                       </div>
@@ -1593,26 +1948,26 @@ export default function AdminCataloguePage() {
 
                   {/* Full Specifications */}
                   <div className="space-y-2">
-                    <h4 className="text-xs uppercase font-bold text-[#F2BD52] tracking-wider">
+                    <h4 className="text-xs uppercase font-bold text-[#C8794D] tracking-wider">
                       Détails de Personnalisation &amp; Notes
                     </h4>
-                    <div className="p-4 rounded-2xl bg-[#1A110B]/90 border border-white/10 text-sm leading-relaxed text-[#FAF7F2] whitespace-pre-line">
+                    <div className="p-4 rounded-2xl bg-[#15120F] border border-[#3A2E24] text-sm leading-relaxed text-[#F5F0E8] whitespace-pre-line">
                       {selectedQuoteForInspection.personalizationDetails || selectedQuoteForInspection.message}
                     </div>
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 border-t border-[#E6A635]/25 bg-[#1A110B]/95 flex items-center justify-between">
+                <div className="p-4 border-t border-[#3A2E24] bg-[#1A1410] flex items-center justify-between">
                   <button 
                     onClick={() => window.print()} 
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 text-xs font-semibold text-[#EAE4D9]"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 text-xs font-semibold text-[#D9C8AE] cursor-pointer"
                   >
                     <Printer className="size-3.5" /> Imprimer la fiche
                   </button>
                   <button 
                     onClick={() => setSelectedQuoteForInspection(null)} 
-                    className="px-5 py-2 rounded-full bg-[#E6A635] text-[#1A110B] text-xs font-bold uppercase tracking-wider"
+                    className="px-5 py-2 rounded-full bg-[#C8794D] hover:bg-[#B5673C] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     Fermer
                   </button>
@@ -1630,10 +1985,10 @@ export default function AdminCataloguePage() {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-[#1A110B] text-white px-6 py-3 rounded-full shadow-2xl border border-[#E6A635]/50 backdrop-blur-xl"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-[#211A15] text-[#F5F0E8] px-6 py-3 rounded-full shadow-2xl border border-[#3A2E24] backdrop-blur-xl"
         >
-          <span className="text-xs font-bold text-[#F2BD52]">{selectedIds.length} modèle(s) sélectionné(s)</span>
-          <div className="w-px h-4 bg-[#E6A635]/30" />
+          <span className="text-xs font-bold text-[#C8794D]">{selectedIds.length} modèle(s) sélectionné(s)</span>
+          <div className="w-px h-4 bg-[#3A2E24]" />
           <button 
             onClick={handleBulkDelete} 
             className="flex items-center gap-1.5 text-xs font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-wider cursor-pointer"
@@ -1642,7 +1997,7 @@ export default function AdminCataloguePage() {
           </button>
           <button
             onClick={() => setSelectedIds([])}
-            className="text-[11px] text-[#EAE4D9]/60 hover:text-white underline ml-2 cursor-pointer"
+            className="text-[11px] text-[#D9C8AE]/60 hover:text-[#F5F0E8] underline ml-2 cursor-pointer"
           >
             Annuler
           </button>
@@ -1651,39 +2006,39 @@ export default function AdminCataloguePage() {
 
       {/* ─── Multi-step Tabbed Modal with Sticky Footer ───────────────────── */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-3 sm:p-6 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6 backdrop-blur-md">
           <motion.div 
             initial={{ opacity: 0, scale: 0.96, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 15 }}
-            className="bg-[#241812] border border-[#E6A635]/40 w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl max-h-[92vh] flex flex-col text-[#FAF7F2]"
+            className="bg-[#211A15] border border-[#3A2E24] w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl max-h-[92vh] flex flex-col text-[#F5F0E8]"
           >
             {/* Modal Header with Steps Indicator */}
-            <header className="p-5 sm:p-6 border-b border-[#E6A635]/25 bg-[#1A110B]/95 flex flex-col gap-4">
+            <header className="p-5 sm:p-6 border-b border-[#3A2E24] bg-[#1A1410] flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="size-9 rounded-2xl bg-gradient-to-br from-[#E6A635] to-[#C17D59] flex items-center justify-center text-[#1A110B] shadow-md">
+                  <div className="size-9 rounded-2xl bg-[#C8794D]/20 border border-[#C8794D]/30 flex items-center justify-center text-[#C8794D] shadow-md">
                     {editingProduct ? <Edit2 className="size-5" /> : <Plus className="size-5" />}
                   </div>
                   <div>
-                    <h2 className="font-heading text-lg sm:text-xl font-bold text-[#FAF7F2]">
+                    <h2 className="font-heading text-lg sm:text-xl font-bold text-[#F5F0E8]">
                       {editingProduct ? 'Modifier le modèle du catalogue' : 'Ajouter un nouveau modèle au catalogue'}
                     </h2>
-                    <p className="text-xs text-[#EAE4D9]/70">
+                    <p className="text-xs text-[#D9C8AE]/70">
                       Configuration des dimensions, essences et variantes visuelles.
                     </p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setModalOpen(false)} 
-                  className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-[#EAE4D9] hover:text-white flex items-center justify-center transition-colors"
+                  className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-[#D9C8AE] hover:text-[#F5F0E8] flex items-center justify-center transition-colors cursor-pointer"
                 >
                   <X className="size-5" />
                 </button>
               </div>
 
               {/* Step Tabs Nav */}
-              <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
+              <div className="grid grid-cols-3 gap-2 border-t border-[#3A2E24] pt-3">
                 {[
                   { step: 1, label: '1. Informations', desc: 'Nom, dimensions, essences' },
                   { step: 2, label: '2. Photos & Variantes', desc: 'Photos atelier & teintes' },
@@ -1695,14 +2050,14 @@ export default function AdminCataloguePage() {
                     onClick={() => setModalStep(s.step as any)}
                     className={`text-left p-2.5 rounded-xl border transition-all cursor-pointer ${
                       modalStep === s.step
-                        ? 'bg-[#E6A635]/25 border-[#F2BD52] text-[#FAF7F2] shadow-sm'
-                        : 'bg-[#1A110B]/50 border-white/5 text-[#EAE4D9]/60 hover:text-[#FAF7F2] hover:bg-[#1A110B]'
+                        ? 'bg-[#2A211A] border-[#C8794D] text-[#F5F0E8] shadow-sm'
+                        : 'bg-[#15120F]/60 border-[#3A2E24]/60 text-[#D9C8AE]/60 hover:text-[#F5F0E8] hover:bg-[#15120F]'
                     }`}
                   >
-                    <p className={`text-xs font-bold ${modalStep === s.step ? 'text-[#F2BD52]' : ''}`}>
+                    <p className={`text-xs font-bold ${modalStep === s.step ? 'text-[#C8794D]' : ''}`}>
                       {s.label}
                     </p>
-                    <p className="text-[10px] text-[#EAE4D9]/50 truncate">{s.desc}</p>
+                    <p className="text-[10px] text-[#D9C8AE]/50 truncate">{s.desc}</p>
                   </button>
                 ))}
               </div>
@@ -1719,7 +2074,7 @@ export default function AdminCataloguePage() {
                     {/* Model Name */}
                     <div className="space-y-1.5 sm:col-span-2">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold flex items-center gap-1">
+                        <label className="text-xs uppercase tracking-wider text-[#C8794D] font-bold flex items-center gap-1">
                           <span>Nom du modèle</span> <span className="text-red-400">*</span>
                         </label>
                         <button
@@ -1729,7 +2084,7 @@ export default function AdminCataloguePage() {
                             setName(nextName)
                             setDescription(buildAutoDescription(nextName, categoryId, color, dimensions, categories))
                           }}
-                          className="text-[10.5px] text-[#F2BD52] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                          className="text-[10.5px] text-[#C8794D] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
                           title="Générer automatiquement le numéro de modèle suivant"
                         >
                           <RefreshCw className="size-3" /> N° suivant auto
@@ -1742,35 +2097,93 @@ export default function AdminCataloguePage() {
                           placeholder="Ex: Buffet — Modèle 01" 
                           value={name} 
                           onChange={e => setName(e.target.value)} 
-                          className="w-full bg-[#1A110B] border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#FAF7F2] outline-none font-semibold" 
+                          className="w-full bg-[#15120F] border border-[#3A2E24] focus:border-[#C8794D] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#F5F0E8] outline-none font-semibold" 
                         />
                       </div>
                     </div>
 
-                    {/* Category */}
-                    <div className="space-y-1.5 sm:col-span-2">
-                      <label className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold flex items-center gap-1">
-                        <span>Catégorie</span> <span className="text-red-400">*</span>
-                      </label>
-                      <select 
-                        value={categoryId} 
-                        onChange={e => handleCategoryChange(e.target.value)} 
-                        className="w-full bg-[#1A110B] border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#FAF7F2] outline-none font-medium cursor-pointer"
-                      >
-                        {categories.map(cat => (
-                          <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                      </select>
+                    {/* Modern Interactive Category Selection */}
+                    <div className="space-y-2.5 sm:col-span-2 bg-[#15120F] p-4 sm:p-5 rounded-2xl border border-[#3A2E24]">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs uppercase tracking-wider text-[#C8794D] font-bold flex items-center gap-1.5">
+                          <Layers className="size-4 text-[#C8794D]" />
+                          <span>Choisir la Catégorie du Modèle</span> <span className="text-red-400">*</span>
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenCategoryModal()}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#2A211A] hover:bg-[#322820] border border-[#3A2E24] hover:border-[#C8794D] text-[#D9C8AE] hover:text-white text-[11px] font-semibold transition-all cursor-pointer shadow-xs"
+                          >
+                            <FolderPlus className="size-3 text-[#C8794D]" />
+                            <span>+ Nouvelle / Gérer</span>
+                          </button>
+                          <span className="text-[11px] text-[#C8794D] font-semibold bg-[#211A15] px-2.5 py-1 rounded-full border border-[#3A2E24]">
+                            {categories.find(c => c.id.toString() === categoryId)?.name || 'Sélection requise'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                        {categories.map(cat => {
+                          const isSelected = categoryId === cat.id.toString()
+                          const CatIcon = getCategoryIcon(cat.name)
+                          const count = categoryCounts[cat.name] || 0
+                          const singular = getCategorySingular(cat.name)
+
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => handleCategoryChange(cat.id.toString())}
+                              className={`relative p-3 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between gap-3 group ${
+                                isSelected
+                                  ? 'bg-[#2A211A] border-[#C8794D] shadow-[0_0_15px_rgba(200,121,77,0.25)] ring-1 ring-[#C8794D]'
+                                  : 'bg-[#1A1410] border-[#3A2E24] hover:border-[#C8794D]/60 hover:bg-[#211A15] text-[#D9C8AE]/80 hover:text-white'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between w-full">
+                                <div className={`p-2 rounded-xl transition-all duration-200 ${
+                                  isSelected 
+                                    ? 'bg-[#C8794D] text-white shadow-md scale-105' 
+                                    : 'bg-[#211A15] text-[#C8794D] group-hover:bg-[#2A211A]'
+                                }`}>
+                                  <CatIcon className="size-4" />
+                                </div>
+
+                                {isSelected ? (
+                                  <span className="flex items-center justify-center size-5 rounded-full bg-[#C8794D] text-white shadow-xs">
+                                    <Check className="size-3 stroke-[3]" />
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] font-mono text-[#D9C8AE]/50 bg-[#211A15] px-1.5 py-0.5 rounded border border-[#3A2E24]">
+                                    {count}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div>
+                                <p className={`text-xs font-bold leading-snug ${isSelected ? 'text-[#F5F0E8]' : 'text-[#D9C8AE]'}`}>
+                                  {cat.name}
+                                </p>
+                                <p className="text-[10px] text-[#D9C8AE]/60 truncate mt-0.5">
+                                  {singular} &bull; {count} modèle{count > 1 ? 's' : ''}
+                                </p>
+                              </div>
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
 
                     {/* Unified Dimensions Control */}
-                    <div className="space-y-2 sm:col-span-2 bg-[#1A110B]/70 p-4 rounded-2xl border border-[#E6A635]/25">
+                    <div className="space-y-2 sm:col-span-2 bg-[#15120F] p-4 rounded-2xl border border-[#3A2E24]">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold flex items-center gap-1.5">
-                          <Ruler className="size-4 text-[#E6A635]" />
+                        <label className="text-xs uppercase tracking-wider text-[#C8794D] font-bold flex items-center gap-1.5">
+                          <Ruler className="size-4 text-[#C8794D]" />
                           <span>Format &amp; Dimensions</span>
                         </label>
-                        <span className="text-[10.5px] text-[#EAE4D9]/70 italic">Sélection rapide ou cotes exactes</span>
+                        <span className="text-[10.5px] text-[#D9C8AE]/70 italic">Sélection rapide ou cotes exactes</span>
                       </div>
 
                       {/* Quick format pills */}
@@ -1784,8 +2197,8 @@ export default function AdminCataloguePage() {
                               onClick={() => handleDimensionsChange(qd.value)}
                               className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                                 isSelected
-                                  ? 'bg-[#E6A635] text-[#1A110B] border-[#F2BD52] font-bold shadow-md'
-                                  : 'bg-[#241812] text-[#EAE4D9] border-[#E6A635]/20 hover:border-[#E6A635]/50'
+                                  ? 'bg-[#C8794D] text-white border-[#C8794D] font-bold shadow-md'
+                                  : 'bg-[#211A15] text-[#D9C8AE] border-[#3A2E24] hover:border-[#C8794D]/50'
                               }`}
                             >
                               <p className="text-xs font-bold">{qd.label}</p>
@@ -1802,14 +2215,14 @@ export default function AdminCataloguePage() {
                           placeholder="Ex: 180 x 50 x 85 cm ou Format Grand sur-mesure" 
                           value={dimensions} 
                           onChange={e => handleDimensionsChange(e.target.value)} 
-                          className="w-full bg-[#241812] border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl px-3.5 py-2 text-xs text-[#FAF7F2] placeholder:text-[#EAE4D9]/40 outline-none" 
+                          className="w-full bg-[#211A15] border border-[#3A2E24] focus:border-[#C8794D] rounded-xl px-3.5 py-2 text-xs text-[#F5F0E8] placeholder:text-[#D9C8AE]/40 outline-none" 
                         />
                       </div>
                     </div>
 
                     {/* Materials */}
                     <div className="space-y-1.5">
-                      <label className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold">
+                      <label className="text-xs uppercase tracking-wider text-[#C8794D] font-bold">
                         Matériaux &amp; Essences de bois
                       </label>
                       <input 
@@ -1817,66 +2230,87 @@ export default function AdminCataloguePage() {
                         placeholder="Ex: Noyer massif & Céramique d'art" 
                         value={materials} 
                         onChange={e => setMaterials(e.target.value)} 
-                        className="w-full bg-[#1A110B] border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#FAF7F2] outline-none" 
+                        className="w-full bg-[#15120F] border border-[#3A2E24] focus:border-[#C8794D] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#F5F0E8] outline-none" 
                       />
                     </div>
 
                     {/* Price (Optional) */}
                     <div className="space-y-1.5">
-                      <label className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold">
-                        Prix indicatif (DT) <span className="text-[10px] font-normal text-[#EAE4D9]/60">(Optionnel)</span>
+                      <label className="text-xs uppercase tracking-wider text-[#C8794D] font-bold">
+                        Prix indicatif (DT) <span className="text-[10px] font-normal text-[#D9C8AE]/60">(Optionnel)</span>
                       </label>
                       <input 
                         type="number" 
                         placeholder="Laisser vide pour « Sur devis »" 
                         value={price} 
                         onChange={e => setPrice(e.target.value)} 
-                        className="w-full bg-[#1A110B] border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#FAF7F2] outline-none" 
+                        className="w-full bg-[#15120F] border border-[#3A2E24] focus:border-[#C8794D] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#F5F0E8] outline-none" 
                       />
                     </div>
 
                     {/* Color Preset Palette for Original */}
-                    <div className="space-y-2 sm:col-span-2 bg-[#1A110B]/70 p-4 rounded-2xl border border-[#E6A635]/25">
-                      <label className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold flex items-center gap-1.5">
-                        <Palette className="size-4 text-[#E6A635]" />
-                        <span>Finition / Teinte Principale de l&apos;Original</span>
-                      </label>
+                    <div className="space-y-2 sm:col-span-2 bg-[#15120F] p-4 rounded-2xl border border-[#3A2E24]">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs uppercase tracking-wider text-[#C8794D] font-bold flex items-center gap-1.5">
+                          <Palette className="size-4 text-[#C8794D]" />
+                          <span>Finition / Teinte Principale de l&apos;Original</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenColorModal()}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#2A211A] hover:bg-[#322820] border border-[#3A2E24] hover:border-[#C8794D] text-[#D9C8AE] hover:text-white text-[11px] font-semibold transition-all cursor-pointer shadow-xs"
+                        >
+                          <Palette className="size-3 text-[#C8794D]" />
+                          <span>+ Nouvelle / Gérer Nuancier</span>
+                        </button>
+                      </div>
                       <div className="flex flex-wrap gap-1.5">
-                        {COLOR_PRESETS.filter(p => p.label !== 'Original').map(preset => {
-                          const isCustom = color && !COLOR_PRESETS.slice(0, -1).some(p => p.label === color)
-                          const isSelected = color === preset.label || (preset.label === 'Autre…' && isCustom)
+                        {(colors.length > 0 ? colors : [
+                          { id: '1', name: 'Blanc', hex: '#FFFFFF' },
+                          { id: '3', name: 'Noir', hex: '#1A1A1A' },
+                          { id: '4', name: 'Noyer', hex: '#5C3317' },
+                          { id: '5', name: 'Bleu', hex: '#2D5F8A' },
+                          { id: '6', name: 'Or', hex: '#C9A84C' },
+                          { id: '7', name: 'Naturel', hex: '#C4A882' },
+                          { id: '8', name: 'Vert Olivier', hex: '#4A5E3A' },
+                          { id: '9', name: 'Bordeaux', hex: '#7B2D3E' }
+                        ]).map(preset => {
+                          const isSelected = color === preset.name
                           return (
                             <button
-                              key={preset.label}
+                              key={preset.id}
                               type="button"
-                              onClick={() => {
-                                if (preset.label === 'Autre…') {
-                                  handleColorChange('')
-                                } else {
-                                  handleColorChange(preset.label)
-                                }
-                              }}
+                              onClick={() => handleColorChange(preset.name)}
                               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer ${
                                 isSelected
-                                  ? 'border-[#F2BD52] bg-[#E6A635]/25 text-[#F2BD52] shadow-sm'
-                                  : 'border-[#E6A635]/20 bg-[#241812] text-[#EAE4D9]/70 hover:border-[#E6A635]/40 hover:text-white'
+                                  ? 'border-[#C8794D] bg-[#C8794D]/25 text-[#F5F0E8] shadow-sm'
+                                  : 'border-[#3A2E24] bg-[#211A15] text-[#D9C8AE]/70 hover:border-[#3A2E24]/80 hover:text-white'
                               }`}
                             >
-                              {preset.hex && (
-                                <div className="size-3 rounded-full border border-white/30" style={{ backgroundColor: preset.hex }} />
-                              )}
-                              {preset.label}
+                              <div className="size-3 rounded-full border border-white/30" style={{ backgroundColor: preset.hex }} />
+                              {preset.name}
                             </button>
                           )
                         })}
+                        <button
+                          type="button"
+                          onClick={() => handleColorChange('')}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer ${
+                            color && !(colors.length > 0 ? colors : COLOR_PRESETS).some(c => ('name' in c ? c.name : c.label) === color)
+                              ? 'border-[#C8794D] bg-[#C8794D]/25 text-[#F5F0E8]'
+                              : 'border-[#3A2E24] bg-[#211A15] text-[#D9C8AE]/70 hover:border-[#3A2E24]/80 hover:text-white'
+                          }`}
+                        >
+                          Autre…
+                        </button>
                       </div>
-                      {(!color || !COLOR_PRESETS.slice(0, -1).some(p => p.label === color)) && (
+                      {(!color || !(colors.length > 0 ? colors : COLOR_PRESETS).some(c => ('name' in c ? c.name : c.label) === color)) && (
                         <input 
                           type="text" 
-                          placeholder="Précisez la couleur (ex: Noyer Foncé Ciselé Or)..." 
+                          placeholder="Précisez la couleur personnalisée (ex: Noyer Foncé Ciselé Or)..." 
                           value={color} 
                           onChange={e => handleColorChange(e.target.value)} 
-                          className="w-full mt-2 bg-[#241812] border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-xl px-3 py-2 text-xs text-[#FAF7F2] outline-none" 
+                          className="w-full mt-2 bg-[#211A15] border border-[#3A2E24] focus:border-[#C8794D] rounded-xl px-3 py-2 text-xs text-[#F5F0E8] outline-none" 
                         />
                       )}
                     </div>
@@ -1885,13 +2319,13 @@ export default function AdminCataloguePage() {
                   {/* Auto-description text area */}
                   <div className="space-y-2 pt-2">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs uppercase tracking-wider text-[#F2BD52] font-bold">
+                      <label className="text-xs uppercase tracking-wider text-[#C8794D] font-bold">
                         Description Artisanale
                       </label>
                       <button
                         type="button"
                         onClick={() => setDescription(buildAutoDescription(name, categoryId, color, dimensions, categories))}
-                        className="text-xs text-[#F2BD52] hover:text-white flex items-center gap-1 font-semibold underline cursor-pointer"
+                        className="text-xs text-[#C8794D] hover:text-white flex items-center gap-1 font-semibold underline cursor-pointer"
                       >
                         <Sparkles className="size-3" /> Régénérer automatiquement
                       </button>
@@ -1901,7 +2335,7 @@ export default function AdminCataloguePage() {
                       placeholder="Description détaillée du modèle..." 
                       value={description} 
                       onChange={e => setDescription(e.target.value)} 
-                      className="w-full bg-[#1A110B] border border-[#E6A635]/30 focus:border-[#F2BD52] rounded-2xl p-3.5 text-xs sm:text-sm text-[#FAF7F2] outline-none leading-relaxed" 
+                      className="w-full bg-[#15120F] border border-[#3A2E24] focus:border-[#C8794D] rounded-2xl p-3.5 text-xs sm:text-sm text-[#F5F0E8] outline-none leading-relaxed" 
                     />
                   </div>
                 </div>
@@ -1914,6 +2348,7 @@ export default function AdminCataloguePage() {
                     variants={imageVariants}
                     onChange={setImageVariants}
                     uploadFn={adminApi.uploadProductImage}
+                    colors={colors}
                   />
                 </div>
               )}
@@ -1921,43 +2356,43 @@ export default function AdminCataloguePage() {
               {/* ── STEP 3: APERÇU EN DIRECT (LIVE PREVIEW) ── */}
               {modalStep === 3 && (
                 <div className="space-y-6">
-                  <div className="p-4 rounded-2xl bg-[#1A110B]/80 border border-[#E6A635]/30 text-xs text-[#EAE4D9]/80 flex items-center gap-2">
-                    <Info className="size-4 text-[#F2BD52] shrink-0" />
+                  <div className="p-4 rounded-2xl bg-[#15120F] border border-[#3A2E24] text-xs text-[#D9C8AE]/80 flex items-center gap-2">
+                    <Info className="size-4 text-[#C8794D] shrink-0" />
                     <span>Voici le rendu exact de la carte tel qu&apos;il apparaîtra dans le catalogue et dans le tableau de bord.</span>
                   </div>
 
                   {/* Live Card Preview */}
-                  <div className="max-w-md mx-auto bg-[#2E2018] border border-[#E6A635]/40 rounded-3xl overflow-hidden shadow-2xl">
-                    <div className="relative aspect-[16/11] bg-[#1A110B]">
+                  <div className="max-w-md mx-auto bg-[#2A211A] border border-[#3A2E24] rounded-3xl overflow-hidden shadow-2xl">
+                    <div className="relative aspect-[4/3] bg-[#15120F]">
                       <img 
                         src={imageVariants[previewVariantIdx]?.imageUrl || imageVariants[0]?.imageUrl || '/placeholder.png'} 
                         alt={name} 
                         className="size-full object-cover"
                         onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B] via-transparent to-black/40 opacity-80" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#15120F] via-transparent to-black/30 opacity-80" />
                       
-                      <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-[#1A110B]/85 border border-[#E6A635]/40 px-3 py-1 backdrop-blur-md">
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#FAF7F2]">
+                      <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-[#15120F]/85 border border-[#3A2E24] px-3 py-1 backdrop-blur-md">
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#F5F0E8]">
                           {categories.find(c => c.id.toString() === categoryId)?.name || 'Catalogue'}
                         </span>
                       </div>
 
                       <div className="absolute top-3 right-3">
-                        <span className="px-2.5 py-1 rounded-full text-[9.5px] uppercase font-bold tracking-wider bg-[#3B271C] text-[#F2BD52] border border-[#E6A635]/40 backdrop-blur-md">
+                        <span className="px-2.5 py-1 rounded-full text-[9.5px] uppercase font-bold tracking-wider bg-[#211A15] text-[#C8794D] border border-[#3A2E24] backdrop-blur-md">
                           Sur commande
                         </span>
                       </div>
                     </div>
 
                     <div className="p-5 space-y-3">
-                      <h3 className="font-heading text-lg font-bold text-[#FAF7F2]">{name || 'Nom du Modèle'}</h3>
-                      <p className="text-xs text-[#EAE4D9]/80 line-clamp-2">{description || 'Description du modèle...'}</p>
+                      <h3 className="font-heading text-lg font-bold text-[#F5F0E8]">{name || 'Nom du Modèle'}</h3>
+                      <p className="text-xs text-[#D9C8AE]/80 line-clamp-2">{description || 'Description du modèle...'}</p>
 
                       {/* Interactive variant pill tester */}
                       {imageVariants.length > 1 && (
                         <div className="pt-2">
-                          <p className="text-[10px] uppercase tracking-wider text-[#F2BD52] font-bold mb-1.5">Variantes visuelles :</p>
+                          <p className="text-[10px] uppercase tracking-wider text-[#C8794D] font-bold mb-1.5">Variantes visuelles :</p>
                           <div className="flex flex-wrap gap-1.5">
                             {imageVariants.map((iv, idx) => (
                               <button
@@ -1966,8 +2401,8 @@ export default function AdminCataloguePage() {
                                 onClick={() => setPreviewVariantIdx(idx)}
                                 className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${
                                   previewVariantIdx === idx 
-                                    ? 'bg-[#E6A635] text-[#1A110B] border-[#F2BD52]' 
-                                    : 'bg-[#1A110B] text-[#EAE4D9]/70 border-[#E6A635]/20'
+                                    ? 'bg-[#C8794D] text-white border-[#C8794D]' 
+                                    : 'bg-[#15120F] text-[#D9C8AE]/70 border-[#3A2E24]'
                                 }`}
                               >
                                 {iv.colorLabel || (idx === 0 ? 'Original' : `Variante ${idx + 1}`)}
@@ -1983,11 +2418,11 @@ export default function AdminCataloguePage() {
             </form>
 
             {/* ── STICKY MODAL FOOTER ── */}
-            <footer className="sticky bottom-0 z-30 p-4 sm:p-5 border-t border-[#E6A635]/30 bg-[#1A110B]/95 backdrop-blur-xl flex items-center justify-between gap-3">
+            <footer className="sticky bottom-0 z-30 p-4 sm:p-5 border-t border-[#3A2E24] bg-[#1A1410] backdrop-blur-xl flex items-center justify-between gap-3">
               <button 
                 type="button" 
                 onClick={() => setModalOpen(false)} 
-                className="px-5 py-2.5 rounded-full border border-white/20 text-xs font-bold uppercase tracking-wider text-[#EAE4D9] hover:bg-white/5 transition-all cursor-pointer"
+                className="px-5 py-2.5 rounded-full border border-[#3A2E24] text-xs font-bold uppercase tracking-wider text-[#D9C8AE] hover:bg-white/5 transition-all cursor-pointer"
               >
                 Annuler
               </button>
@@ -1997,7 +2432,7 @@ export default function AdminCataloguePage() {
                   <button
                     type="button"
                     onClick={() => setModalStep((modalStep - 1) as any)}
-                    className="inline-flex items-center gap-1 px-4 py-2.5 rounded-full border border-[#E6A635]/40 text-xs font-bold uppercase tracking-wider text-[#F2BD52] hover:bg-[#3B271C] transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1 px-4 py-2.5 rounded-full border border-[#3A2E24] text-xs font-bold uppercase tracking-wider text-[#D9C8AE] hover:bg-[#2A211A] transition-all cursor-pointer"
                   >
                     <ChevronLeft className="size-4" /> Précédent
                   </button>
@@ -2007,7 +2442,7 @@ export default function AdminCataloguePage() {
                   <button
                     type="button"
                     onClick={() => setModalStep((modalStep + 1) as any)}
-                    className="inline-flex items-center gap-1 px-5 py-2.5 rounded-full bg-[#3B271C] hover:bg-[#4A3224] border border-[#E6A635]/60 text-xs font-bold uppercase tracking-wider text-[#F2BD52] transition-all cursor-pointer shadow-md"
+                    className="inline-flex items-center gap-1 px-5 py-2.5 rounded-full bg-[#2A211A] hover:bg-[#322820] border border-[#3A2E24] text-xs font-bold uppercase tracking-wider text-[#F5F0E8] transition-all cursor-pointer shadow-md"
                   >
                     Suivant <ChevronRight className="size-4" />
                   </button>
@@ -2017,12 +2452,438 @@ export default function AdminCataloguePage() {
                   type="button"
                   onClick={() => handleSubmit()} 
                   disabled={saving}
-                  className="btn-sheen inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] hover:scale-105 active:scale-95 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[#1A110B] transition-all shadow-lg shadow-[#E6A635]/30 cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#C8794D] to-[#A85F37] hover:brightness-110 active:scale-95 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg shadow-[#C8794D]/30 cursor-pointer disabled:opacity-50"
                 >
                   <Check className="size-4 stroke-[3]" />
                   <span>{saving ? 'Enregistrement...' : editingProduct ? 'Mettre à jour' : 'Enregistrer'}</span>
                 </button>
               </div>
+            </footer>
+
+          </motion.div>
+        </div>
+      )}
+
+      {/* ─── CATEGORY MANAGEMENT MODAL ─── */}
+      {categoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 15 }}
+            className="bg-[#211A15] border border-[#3A2E24] w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl max-h-[92vh] flex flex-col text-[#F5F0E8]"
+          >
+            {/* Header */}
+            <header className="p-5 sm:p-6 border-b border-[#3A2E24] bg-[#1A1410] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-2xl bg-[#C8794D]/20 border border-[#C8794D]/30 flex items-center justify-center text-[#C8794D] shadow-md">
+                  <FolderPlus className="size-5" />
+                </div>
+                <div>
+                  <h2 className="font-heading text-lg sm:text-xl font-bold text-[#F5F0E8]">
+                    Gestion des Catégories du Catalogue
+                  </h2>
+                  <p className="text-xs text-[#D9C8AE]/70">
+                    Ajoutez, modifiez le libellé ou supprimez des catégories de vos créations artisanales.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setCategoryModalOpen(false)}
+                className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-[#D9C8AE] hover:text-[#F5F0E8] flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="size-5" />
+              </button>
+            </header>
+
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6">
+              
+              {/* Alert Feedback */}
+              {catModalError && (
+                <div className="p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
+                  <AlertCircle className="size-4 text-red-400 shrink-0" />
+                  <span>{catModalError}</span>
+                </div>
+              )}
+              {catModalSuccess && (
+                <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
+                  <span>{catModalSuccess}</span>
+                </div>
+              )}
+
+              {/* Add / Edit Category Form */}
+              <form onSubmit={handleSaveCategory} className="bg-[#15120F] border border-[#3A2E24] rounded-2xl p-4 sm:p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#C8794D] flex items-center gap-1.5">
+                    {editingCategory ? <Edit2 className="size-3.5" /> : <Plus className="size-3.5" />}
+                    <span>{editingCategory ? `Modifier « ${editingCategory.name} »` : 'Ajouter une nouvelle catégorie'}</span>
+                  </span>
+                  {editingCategory && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingCategory(null)
+                        setCatNameInput('')
+                        setCatModalError(null)
+                        setCatModalSuccess(null)
+                      }}
+                      className="text-xs text-[#D9C8AE]/60 hover:text-white underline cursor-pointer"
+                    >
+                      Annuler la modification
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Bibliothèques, Paravents, Consoles..."
+                    value={catNameInput}
+                    onChange={e => setCatNameInput(e.target.value)}
+                    className="flex-1 bg-[#211A15] border border-[#3A2E24] focus:border-[#C8794D] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#F5F0E8] placeholder:text-[#D9C8AE]/40 outline-none font-semibold transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    disabled={savingCategory}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#C8794D] to-[#A85F37] hover:brightness-110 active:scale-95 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all shadow-md shadow-[#C8794D]/30 cursor-pointer disabled:opacity-50 shrink-0"
+                  >
+                    <Check className="size-4 stroke-[3]" />
+                    <span>{savingCategory ? 'Patientez...' : editingCategory ? 'Mettre à jour' : 'Ajouter'}</span>
+                  </button>
+                </div>
+              </form>
+
+              {/* Existing Categories List */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs uppercase tracking-wider text-[#D9C8AE]/70 font-bold">
+                    Catégories actuelles ({categories.length})
+                  </h3>
+                  <span className="text-[11px] text-[#D9C8AE]/50">
+                    Cliquez sur l'icône crayon pour renommer
+                  </span>
+                </div>
+
+                <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
+                  {categories.map(cat => {
+                    const CatIcon = getCategoryIcon(cat.name)
+                    const count = categoryCounts[cat.name] || 0
+                    const isBeingEdited = editingCategory?.id === cat.id
+
+                    return (
+                      <div
+                        key={cat.id}
+                        className={`flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border transition-all ${
+                          isBeingEdited
+                            ? 'bg-[#2A211A] border-[#C8794D] shadow-md ring-1 ring-[#C8794D]'
+                            : 'bg-[#15120F] border-[#3A2E24] hover:border-[#3A2E24]/80'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 ${
+                            isBeingEdited
+                              ? 'bg-[#C8794D] text-white'
+                              : 'bg-[#211A15] text-[#C8794D] border border-[#3A2E24]'
+                          }`}>
+                            <CatIcon className="size-4" />
+                          </div>
+
+                          <div className="min-w-0">
+                            <p className="text-xs sm:text-sm font-bold text-[#F5F0E8] truncate">
+                              {cat.name}
+                            </p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10.5px] font-mono text-[#D9C8AE]/60">
+                                {count} modèle{count > 1 ? 's' : ''}
+                              </span>
+                              <span className="text-[10px] text-white/30">&bull;</span>
+                              <span className="text-[10px] uppercase font-bold text-[#C8794D]/70">
+                                {cat.type || 'CATALOGUE'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenCategoryModal(cat)}
+                            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#D9C8AE] hover:text-white transition-colors cursor-pointer"
+                            title="Modifier le libellé de cette catégorie"
+                          >
+                            <Edit2 className="size-3.5" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCategory(cat)}
+                            className={`p-2 rounded-xl transition-colors cursor-pointer ${
+                              count > 0
+                                ? 'bg-white/5 text-white/20 hover:text-red-400/50 hover:bg-red-500/10'
+                                : 'bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300'
+                            }`}
+                            title={
+                              count > 0
+                                ? `Contient ${count} modèle(s) — réaffectez ou supprimez les modèles pour pouvoir supprimer la catégorie`
+                                : 'Supprimer définitivement cette catégorie'
+                            }
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Sticky Footer */}
+            <footer className="p-4 sm:p-5 border-t border-[#3A2E24] bg-[#1A1410] flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => setCategoryModalOpen(false)}
+                className="px-6 py-2.5 rounded-full bg-[#2A211A] hover:bg-[#322820] border border-[#3A2E24] text-xs font-bold uppercase tracking-wider text-[#F5F0E8] transition-all cursor-pointer shadow-md"
+              >
+                Fermer
+              </button>
+            </footer>
+
+          </motion.div>
+        </div>
+      )}
+
+      {/* ─── COLOR SWATCH & NUANCIER MANAGEMENT MODAL ─── */}
+      {colorModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 15 }}
+            className="bg-[#211A15] border border-[#3A2E24] w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl max-h-[92vh] flex flex-col text-[#F5F0E8]"
+          >
+            {/* Header */}
+            <header className="p-5 sm:p-6 border-b border-[#3A2E24] bg-[#1A1410] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-2xl bg-[#C8794D]/20 border border-[#C8794D]/30 flex items-center justify-center text-[#C8794D] shadow-md">
+                  <Palette className="size-5" />
+                </div>
+                <div>
+                  <h2 className="font-heading text-lg sm:text-xl font-bold text-[#F5F0E8]">
+                    Nuancier &amp; Couleurs de l&apos;Atelier
+                  </h2>
+                  <p className="text-xs text-[#D9C8AE]/70">
+                    Ajoutez, modifiez ou supprimez des teintes appliquées aux modèles du catalogue.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setColorModalOpen(false)}
+                className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-[#D9C8AE] hover:text-[#F5F0E8] flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="size-5" />
+              </button>
+            </header>
+
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6">
+              
+              {/* Alert Feedback */}
+              {colorModalError && (
+                <div className="p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
+                  <AlertCircle className="size-4 text-red-400 shrink-0" />
+                  <span>{colorModalError}</span>
+                </div>
+              )}
+              {colorModalSuccess && (
+                <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
+                  <span>{colorModalSuccess}</span>
+                </div>
+              )}
+
+              {/* Add / Edit Color Form */}
+              <form onSubmit={handleSaveColor} className="bg-[#15120F] border border-[#3A2E24] rounded-2xl p-4 sm:p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#C8794D] flex items-center gap-1.5">
+                    {editingColor ? <Edit2 className="size-3.5" /> : <Plus className="size-3.5" />}
+                    <span>{editingColor ? `Modifier « ${editingColor.name || editingColor.label} »` : 'Ajouter une nouvelle teinte'}</span>
+                  </span>
+                  {editingColor && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingColor(null)
+                        setColorLabelInput('')
+                        setColorHexInput('#C8794D')
+                        setColorModalError(null)
+                        setColorModalSuccess(null)
+                      }}
+                      className="text-xs text-[#D9C8AE]/60 hover:text-white underline cursor-pointer"
+                    >
+                      Annuler la modification
+                    </button>
+                  )}
+                </div>
+
+                {/* Live Swatch Preview */}
+                <div className="flex items-center gap-3.5 p-3 rounded-xl bg-[#211A15] border border-[#3A2E24]">
+                  <div
+                    className="size-12 rounded-xl border-2 border-white/20 shadow-inner shrink-0 relative overflow-hidden flex items-center justify-center"
+                    style={{ backgroundColor: colorHexInput }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-tr from-black/25 via-transparent to-white/30 pointer-events-none" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-[10px] uppercase tracking-wider text-[#C8794D] font-bold">Aperçu en Direct</span>
+                    <p className="font-bold text-xs sm:text-sm text-[#F5F0E8] truncate">
+                      {colorLabelInput || 'Nom de la teinte'}
+                    </p>
+                    <p className="font-mono text-[11px] text-[#D9C8AE]/70 uppercase">{colorHexInput}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                  {/* Name Input */}
+                  <div className="sm:col-span-6 space-y-1">
+                    <label className="text-[11px] uppercase tracking-wider text-[#D9C8AE]/80 font-bold">
+                      Intitulé de la teinte
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ex: Noyer Miel, Patine Or, Vert Olivier..."
+                      value={colorLabelInput}
+                      onChange={e => setColorLabelInput(e.target.value)}
+                      className="w-full bg-[#211A15] border border-[#3A2E24] focus:border-[#C8794D] rounded-xl px-3.5 py-2 text-xs sm:text-sm text-[#F5F0E8] placeholder:text-[#D9C8AE]/40 outline-none font-semibold transition-colors"
+                    />
+                  </div>
+
+                  {/* Hex + Pipette Picker */}
+                  <div className="sm:col-span-6 space-y-1">
+                    <label className="text-[11px] uppercase tracking-wider text-[#D9C8AE]/80 font-bold">
+                      Code Hexadécimal &amp; Pipette
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <div className="relative size-9 rounded-xl overflow-hidden border border-[#3A2E24] shrink-0 cursor-pointer shadow-xs">
+                        <input
+                          type="color"
+                          value={colorHexInput}
+                          onChange={e => setColorHexInput(e.target.value)}
+                          className="absolute -inset-2 size-16 cursor-pointer border-0 p-0"
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        placeholder="#C8794D"
+                        value={colorHexInput}
+                        onChange={e => setColorHexInput(e.target.value)}
+                        className="flex-1 bg-[#211A15] border border-[#3A2E24] focus:border-[#C8794D] rounded-xl px-3 py-2 text-xs sm:text-sm font-mono text-[#F5F0E8] uppercase outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-1">
+                  <button
+                    type="submit"
+                    disabled={savingColor}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#C8794D] to-[#A85F37] hover:brightness-110 active:scale-95 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all shadow-md shadow-[#C8794D]/30 cursor-pointer disabled:opacity-50"
+                  >
+                    <Check className="size-4 stroke-[3]" />
+                    <span>{savingColor ? 'Patientez...' : editingColor ? 'Mettre à jour la teinte' : 'Ajouter au nuancier'}</span>
+                  </button>
+                </div>
+              </form>
+
+              {/* Existing Colors Swatches Grid */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs uppercase tracking-wider text-[#D9C8AE]/70 font-bold">
+                    Nuancier actuel ({colors.length} teintes)
+                  </h3>
+                  <span className="text-[11px] text-[#D9C8AE]/50">
+                    Gérez les teintes disponibles dans le catalogue
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[320px] overflow-y-auto pr-1">
+                  {colors.map(c => {
+                    const label = c.name || c.label
+                    const isBeingEdited = editingColor?.id === c.id
+
+                    return (
+                      <div
+                        key={c.id}
+                        className={`p-3 rounded-2xl border transition-all flex flex-col justify-between gap-2.5 ${
+                          isBeingEdited
+                            ? 'bg-[#2A211A] border-[#C8794D] shadow-md ring-1 ring-[#C8794D]'
+                            : 'bg-[#15120F] border-[#3A2E24] hover:border-[#3A2E24]/80'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div
+                            className="size-8 rounded-full border-2 border-white/20 shadow-md shrink-0 relative overflow-hidden"
+                            style={{ backgroundColor: c.hex }}
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/25 pointer-events-none" />
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenColorModal(c)}
+                              className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-[#D9C8AE] hover:text-white transition-colors cursor-pointer"
+                              title="Modifier cette teinte"
+                            >
+                              <Edit2 className="size-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteColor(c)}
+                              className="p-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+                              title="Supprimer du nuancier"
+                            >
+                              <Trash2 className="size-3" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-xs font-bold text-[#F5F0E8] truncate" title={label}>
+                            {label}
+                          </p>
+                          <div className="flex items-center justify-between mt-0.5">
+                            <span className="font-mono text-[10px] text-[#D9C8AE]/60 uppercase">{c.hex}</span>
+                            {c.isDefault && (
+                              <span className="text-[8.5px] uppercase tracking-wider text-[#C8794D] bg-[#C8794D]/10 px-1 rounded border border-[#C8794D]/20">
+                                Standard
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Sticky Footer */}
+            <footer className="p-4 sm:p-5 border-t border-[#3A2E24] bg-[#1A1410] flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => setColorModalOpen(false)}
+                className="px-6 py-2.5 rounded-full bg-[#2A211A] hover:bg-[#322820] border border-[#3A2E24] text-xs font-bold uppercase tracking-wider text-[#F5F0E8] transition-all cursor-pointer shadow-md"
+              >
+                Fermer
+              </button>
             </footer>
 
           </motion.div>

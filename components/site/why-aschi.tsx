@@ -474,17 +474,17 @@ export function WhyAschi() {
                   Vous avez un projet sur-mesure ou une idée spécifique ?
                 </span>
                 <p className="text-[11px] sm:text-xs text-white/70 font-normal">
-                  Devis gratuit et modélisation 3D sous 24h par nos maîtres ébénistes.
+                  Étude personnalisée et confection d&apos;art sous 24h par nos maîtres ébénistes.
                 </p>
               </div>
 
               <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
                 <Link
-                  href="/custom-creation"
+                  href="/contact"
                   className="btn-sheen inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.12em] shadow-md transition-all hover:scale-105 text-center"
                 >
                   <FileText className="size-3 text-[#1A110B]" />
-                  <span>Devis 3D</span>
+                  <span>Contacter l&apos;Atelier</span>
                 </Link>
 
                 <a

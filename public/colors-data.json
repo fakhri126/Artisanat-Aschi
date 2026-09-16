@@ -1,0 +1,50 @@
+[
+  {
+    "id": "blanc",
+    "label": "Blanc",
+    "hex": "#FFFFFF",
+    "isDefault": true
+  },
+  {
+    "id": "noir",
+    "label": "Noir",
+    "hex": "#1A1A1A",
+    "isDefault": true
+  },
+  {
+    "id": "noyer",
+    "label": "Noyer",
+    "hex": "#5C3317",
+    "isDefault": true
+  },
+  {
+    "id": "bleu",
+    "label": "Bleu",
+    "hex": "#2D5F8A",
+    "isDefault": true
+  },
+  {
+    "id": "or",
+    "label": "Or",
+    "hex": "#C9A84C",
+    "isDefault": true
+  },
+  {
+    "id": "naturel",
+    "label": "Naturel",
+    "hex": "#C4A882",
+    "isDefault": true
+  },
+  {
+    "id": "vert-olivier",
+    "label": "Vert Olivier",
+    "hex": "#4A5E3A",
+    "isDefault": true
+  },
+  {
+    "id": "bordeaux",
+    "label": "Bordeaux",
+    "hex": "#7B2D3E",
+    "isDefault": true
+  }
+]

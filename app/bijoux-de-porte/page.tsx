@@ -79,7 +79,7 @@ export default function BijouxDePortePage() {
     phone: '', 
     notes: '',
     length: '15 cm',
-    finish: 'Blanc Cérusé'
+    finish: 'Blanc'
   })
   const [submitLoading, setSubmitLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -302,7 +302,7 @@ export default function BijouxDePortePage() {
     setSelectedHandle(handle)
     const initialFinish = handle.name.includes('Bleu') ? 'Bleu Majolique' :
       handle.name.includes('Vert') ? 'Vert Sauge' :
-      handle.name.includes('Ocre') ? 'Ocre Safran' : 'Blanc Cérusé'
+      handle.name.includes('Ocre') ? 'Ocre Safran' : 'Blanc'
 
     setInquiryData({
       qty: 4,
@@ -1020,7 +1020,7 @@ export default function BijouxDePortePage() {
                         {/* Fine Price & Minimalist Action Button */}
                         <div className="mt-1 pt-1.5 border-t border-[#E6A635]/15 flex items-center justify-between">
                           <span className="font-heading text-[10.5px] sm:text-xs font-medium text-[#F2BD52] tracking-tight">
-                            {isSculpted ? `Dès ${handle.price} TND` : handle.price > 0 ? `${handle.price} TND` : 'Sur Devis'}
+                            {isSculpted ? `Dès ${handle.price} TND` : handle.price > 0 ? `${handle.price} TND` : 'Prix sur demande'}
                           </span>
 
                           <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[7.5px] sm:text-[8px] uppercase tracking-wider font-bold border border-[#E6A635]/40 bg-[#E6A635]/15 text-[#F2BD52] group-hover:bg-gradient-to-r group-hover:from-[#F3C45E] group-hover:to-[#C78318] group-hover:text-[#1A110B] group-hover:border-transparent transition-all shadow-sm">
@@ -1117,7 +1117,7 @@ export default function BijouxDePortePage() {
                 Voir tout
               </button>
               <Link
-                href="/custom-creation"
+                href="/contact"
                 className="btn-sheen px-4 py-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-[10px] font-bold uppercase tracking-widest shadow-md hover:scale-105 transition-transform cursor-pointer"
               >
                 Sur-Mesure
@@ -1310,7 +1310,7 @@ export default function BijouxDePortePage() {
                         </label>
                         <div className="flex flex-wrap gap-1 sm:gap-1.5">
                           {[
-                            { name: 'Blanc Cérusé', color: '#F0EDE6' },
+                            { name: 'Blanc', color: '#FFFFFF' },
                             { name: 'Bleu Majolique', color: '#4682B4' },
                             { name: 'Vert Sauge', color: '#8FBC8F' },
                             { name: 'Ocre Safran', color: '#DAA520' }

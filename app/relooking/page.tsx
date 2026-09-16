@@ -127,10 +127,10 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
           </span>
 
           <Link
-            href="/custom-creation"
+            href="/contact"
             className="btn-sheen inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow-md hover:scale-[1.02] transition-all"
           >
-            <span>Devis Restauration</span>
+            <span>Restaurer mon meuble</span>
             <ArrowRight className="size-3" />
           </Link>
         </div>

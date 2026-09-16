@@ -43,7 +43,7 @@ export default function Page() {
           <HeroSlider />
         </div>
 
-        {/* 3. Pourquoi Artisanat Aschi (Piliers, Statistiques & Devis 3D) */}
+        {/* 3. Pourquoi Artisanat Aschi (Piliers, Statistiques & Savoir-Faire) */}
         <div className="cv-auto">
           <WhyAschi />
         </div>
