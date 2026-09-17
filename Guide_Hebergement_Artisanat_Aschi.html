@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Guide d'Hébergement & Déploiement — Artisanat Aschi</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      color: #2D231D;
+      background-color: #FFFFFF;
+      margin: 0;
+      padding: 0;
+      font-size: 11pt;
+      line-height: 1.5;
+    }
+    .header {
+      background: linear-gradient(135deg, #241812 0%, #3B271C 100%);
+      color: #FAF7F2;
+      padding: 24px 28px;
+      border-radius: 14px;
+      margin-bottom: 24px;
+      border: 1px solid #E6A635;
+    }
+    .badge {
+      display: inline-block;
+      background-color: #E6A635;
+      color: #1A110B;
+      font-size: 8pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 4px 0 6px 0;
+      font-size: 20pt;
+      font-weight: 700;
+      color: #FAF7F2;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 10pt;
+      color: #EAE4D9;
+      opacity: 0.9;
+      margin: 0;
+    }
+    h2 {
+      color: #3B271C;
+      font-size: 13pt;
+      border-bottom: 2px solid #E6A635;
+      padding-bottom: 4px;
+      margin-top: 22px;
+      margin-bottom: 12px;
+      page-break-after: avoid;
+    }
+    h3 {
+      color: #C17D59;
+      font-size: 11pt;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+    }
+    .card {
+      background: #FAF7F2;
+      border: 1px solid #E8DCCB;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      page-break-inside: avoid;
+    }
+    .card-highlight {
+      background: #FDFBF7;
+      border: 1.5px solid #E6A635;
+      border-left: 5px solid #E6A635;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      page-break-inside: avoid;
+    }
+    .grid {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+      margin-bottom: 12px;
+    }
+    .col {
+      display: table-cell;
+      width: 50%;
+      vertical-align: top;
+      padding-right: 8px;
+    }
+    .col + .col {
+      padding-right: 0;
+      padding-left: 8px;
+    }
+    table.compare {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+    }
+    table.compare th {
+      background: #3B271C;
+      color: #FAF7F2;
+      text-align: left;
+      padding: 8px 10px;
+      font-weight: 600;
+      border: 1px solid #3B271C;
+    }
+    table.compare td {
+      padding: 8px 10px;
+      border: 1px solid #E8DCCB;
+      background: #FFFFFF;
+    }
+    table.compare tr:nth-child(even) td {
+      background: #FAF7F2;
+    }
+    .code-block {
+      background: #1A110B;
+      color: #F7F4EE;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 8.5pt;
+      line-height: 1.4;
+      margin: 8px 0;
+      overflow-x: hidden;
+      border: 1px solid #3B271C;
+      page-break-inside: avoid;
+    }
+    .code-keyword { color: #E6A635; font-weight: bold; }
+    .code-string { color: #A7F3D0; }
+    .code-comment { color: #9CA3AF; font-style: italic; }
+    ul {
+      margin: 6px 0 10px 18px;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .tag-green { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+    .tag-gold { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+    .footer {
+      margin-top: 24px;
+      padding-top: 10px;
+      border-top: 1px solid #E8DCCB;
+      font-size: 8.5pt;
+      color: #8C7A6B;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="badge">Architecture & Infrastructure</span>
+    <h1>Guide d'Hébergement — Artisanat Aschi</h1>
+    <p class="subtitle">Recommandations stratégiques, coûts, sécurité et plan de déploiement pour la mise en production.</p>
+  </div>
+
+  <!-- 1. Analyse Technique -->
+  <h2>1. Analyse de la Stack Technique</h2>
+  <div class="card">
+    <p style="margin-top:0;">Votre application <strong>Artisanat Aschi</strong> est une plateforme e-commerce et vitrine d'artisanat de luxe composée de 4 éléments clés :</p>
+    <ul>
+      <li><strong>Frontend :</strong> Next.js 16 (React 19, TypeScript, Tailwind CSS, animations Framer Motion, configurateur catalogue).</li>
+      <li><strong>Backend :</strong> Spring Boot 3+ (Java 17/21, API REST sous <code>/api</code>, sécurité JWT, port 8081).</li>
+      <li><strong>Base de données :</strong> PostgreSQL (tables produits, catégories, devis, livraisons, avis, admin).</li>
+      <li><strong>Médias & Vidéos :</strong> Photos HD de l'atelier, catalogue de poignées et vidéos/reels jusqu'à <strong>500 Mo</strong>.</li>
+    </ul>
+  </div>
+
+  <!-- 2. Les Deux Solutions -->
+  <h2>2. Les 2 Solutions d'Hébergement</h2>
+
+  <div class="card-highlight">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+      <h3 style="margin: 0; color: #241812; font-size: 12pt;">⭐ OPTION 1 : Architecture Cloud Découplée (Recommandée à 100%)</h3>
+      <span class="tag tag-green">0 € au début puis ~5 $/mois</span>
+    </div>
+    <p style="margin: 6px 0; font-size: 10pt;">
+      Chaque brique est hébergée sur la plateforme spécialisée la plus performante au monde pour sa technologie, sans aucune gestion de serveur Linux.
+    </p>
+    <div class="grid" style="margin-top: 8px;">
+      <div class="col">
+        <strong>1. Frontend Next.js ➔ Vercel (Gratuit)</strong><br>
+        <span style="font-size: 9pt; color: #5A453A;">Créateurs de Next.js. Vitesse de chargement mondiale via CDN Edge, SSL automatique, déploiement automatique via Git.</span>
+      </div>
+      <div class="col">
+        <strong>2. Backend Spring Boot ➔ Render / Railway (~5 $/mois)</strong><br>
+        <span style="font-size: 9pt; color: #5A453A;">Déploiement Java Maven automatique, redémarrage en cas d'incident, certificat HTTPS inclus.</span>
+      </div>
+    </div>
+    <div class="grid" style="margin-top: 6px;">
+      <div class="col">
+        <strong>3. PostgreSQL ➔ Neon.tech / Supabase (Gratuit)</strong><br>
+        <span style="font-size: 9pt; color: #5A453A;">Base PostgreSQL managée dans le cloud avec sauvegardes automatiques quotidiennes.</span>
+      </div>
+      <div class="col">
+        <strong>4. Photos & Vidéos ➔ Cloudinary / Supabase Storage</strong><br>
+        <span style="font-size: 9pt; color: #5A453A;">Streaming rapide des vidéos d'atelier et optimisation automatique des photos au format WebP/AVIF.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+      <h3 style="margin: 0; color: #241812; font-size: 12pt;">🥈 OPTION 2 : Serveur Dédié VPS Unique avec Docker</h3>
+      <span class="tag tag-gold">4,50 € à 6 € / mois fixe</span>
+    </div>
+    <p style="margin: 6px 0; font-size: 10pt;">
+      Toute l'application (Frontend + Backend + PostgreSQL + Nginx) tourne sur une seule machine virtuelle Linux (Hetzner Cloud CX22 ou OVHcloud).
+    </p>
+    <p style="margin: 4px 0; font-size: 9pt; color: #5A453A;">
+      <strong>Avantages :</strong> Contrôle total, toutes les données et uploads sur le même disque dur, coût mensuel fixe et illimité en requêtes.<br>
+      <strong>Inconvénients :</strong> Nécessite de maintenir le serveur Linux (mises à jour de sécurité, configuration Nginx et Certbot Let's Encrypt).
+    </p>
+  </div>
+
+  <!-- 3. Tableau Comparatif -->
+  <h2>3. Tableau Comparatif Synthétique</h2>
+  <table class="compare">
+    <thead>
+      <tr>
+        <th>Critère</th>
+        <th>Option 1 : Cloud Découplé (Vercel + Render + Neon)</th>
+        <th>Option 2 : VPS Unique (Hetzner + Docker)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Coût mensuel</strong></td>
+        <td>0 € au lancement, puis ~5 à 10 € / mois</td>
+        <td>4,50 € à 6,00 € / mois fixe</td>
+      </tr>
+      <tr>
+        <td><strong>Facilité de mise en place</strong></td>
+        <td>⭐ Très facile (zéro ligne de commande Linux)</td>
+        <td>⭐⭐ Moyenne (Docker Compose & Nginx)</td>
+      </tr>
+      <tr>
+        <td><strong>Performance & Vitesse</strong></td>
+        <td>⚡ Optimale (CDN mondial Vercel)</td>
+        <td>⚡ Très bonne (dépend de la localisation du VPS)</td>
+      </tr>
+      <tr>
+        <td><strong>Gestion des vidéos (500 Mo)</strong></td>
+        <td>Cloudinary / Supabase Storage (CDN dédié)</td>
+        <td>Disque SSD NVMe du serveur VPS</td>
+      </tr>
+      <tr>
+        <td><strong>Maintenance système</strong></td>
+        <td>0 maintenance (géré par les hébergeurs)</td>
+        <td>Mises à jour de sécurité Linux manuelles</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 4. Checklist de Déploiement -->
+  <h2>4. Checklist Technique pour le Déploiement</h2>
+  <div class="card">
+    <ol style="margin: 4px 0 4px 18px; padding: 0; font-size: 9.5pt;">
+      <li style="margin-bottom: 6px;">
+        <strong>Configuration CORS du Backend (<code>SecurityConfig.java</code>) :</strong><br>
+        Remplacer <code>http://localhost:3000</code> par votre domaine réel : <code>https://artisanataschi.com</code>.
+      </li>
+      <li style="margin-bottom: 6px;">
+        <strong>Variable d'environnement Frontend (<code>.env.production</code>) :</strong><br>
+        Définir l'adresse de votre API backend : <code>NEXT_PUBLIC_API_URL=https://api.artisanataschi.com/api</code>.
+      </li>
+      <li style="margin-bottom: 6px;">
+        <strong>Nom de domaine & DNS :</strong><br>
+        Faire pointer <code>artisanataschi.com</code> vers le Frontend et <code>api.artisanataschi.com</code> vers le Backend.
+      </li>
+      <li>
+        <strong>Certificats SSL (HTTPS) :</strong><br>
+        Automatique sur Vercel/Render ou via Certbot Let's Encrypt sur VPS.
+      </li>
+    </ol>
+  </div>
+
+  <div class="footer">
+    Artisanat Aschi — Document d'orientation technique pour la mise en production © 2026.
+  </div>
+
+</body>
+</html>

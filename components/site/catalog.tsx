@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Eye, MessageCircle, Sparkles, AlertCircle } from 'lucide-react'
-import { cn, isBijouxOrHandleProduct } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { Reveal } from './reveal'
 import { publicApi, Product, Category } from '@/lib/api'
 import Link from 'next/link'
@@ -12,19 +12,19 @@ const FILTERS_CAT = [
   'Buffets',
   'Meubles TV',
   'Miroirs',
+  'Lampes',
+  'Lustres',
   'Portes',
-  'Coffres',
-  'Décoration',
   'Tables'
 ]
 
 const FILTERS_COLOR = [
   'Tout',
+  'Blanc',
   'Noyer',
   'Bleu',
   'Or',
-  'Naturel',
-  'Blanc Cérusé'
+  'Naturel'
 ]
 
 const FILTERS_DIM = [
@@ -53,11 +53,7 @@ export function Catalog() {
         if (dimensions !== 'Tout') queryParams.dimensions = dimensions
 
         const data = await publicApi.getProducts(queryParams)
-        if (data && Array.isArray(data)) {
-          setProducts(data.filter(p => !isBijouxOrHandleProduct(p)))
-        } else {
-          setProducts([])
-        }
+        setProducts(data || [])
       } catch (err) {
         console.error('Error querying catalog from API:', err)
         setProducts([])
@@ -122,7 +118,7 @@ export function Catalog() {
             {/* AI Disclaimer */}
             <div className="pt-2 border-t border-[#E6A635]/20 flex items-start gap-2 text-[10px] text-[#EAE4D9]/70 italic text-left leading-normal">
               <AlertCircle className="size-3.5 text-[#F2BD52] shrink-0 mt-0.5" />
-              <span>Certaines variantes visuelles sont présentées en modélisation sur-mesure pour illustrer les possibilités de personnalisation.</span>
+              <span>Certaines variantes visuelles sont générées par modélisation 3D pour illustrer les possibilités de personnalisation.</span>
             </div>
           </div>
         </Reveal>
@@ -158,13 +154,13 @@ export function Catalog() {
                           <Eye className="size-3.5" /> Voir les détails
                         </Link>
                         <Link
-                          href={`${link}?action=devis`}
+                          href={link}
                           className="flex w-44 items-center justify-center gap-2 rounded-full border border-[#E6A635]/50 bg-[#241812]/90 py-2.5 text-xs font-bold uppercase tracking-wider text-[#F7F4EE] hover:bg-[#241812] transition-colors"
                         >
-                          <MessageCircle className="size-3.5" /> Devis Modèle
+                          <MessageCircle className="size-3.5" /> Commander ce modèle
                         </Link>
                         <Link
-                          href="/custom-creation"
+                          href="/contact"
                           className="flex w-44 items-center justify-center gap-2 rounded-full border border-[#E6A635]/50 bg-[#241812]/90 py-2.5 text-xs font-bold uppercase tracking-wider text-[#F7F4EE] hover:bg-[#241812] transition-colors"
                         >
                           <Sparkles className="size-3.5 text-[#F2BD52]" /> Créer Sur-Mesure

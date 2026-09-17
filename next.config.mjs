@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: {
+    root: process.cwd(),
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -31,6 +34,15 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '100mb',
     },
+  },
+  async redirects() {
+    return [
+      {
+        source: '/custom-creation',
+        destination: '/contact',
+        permanent: false,
+      },
+    ]
   },
   async rewrites() {
     return [

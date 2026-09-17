@@ -1,58 +1,19 @@
-import { Navbar } from '@/components/site/navbar'
-import { Footer } from '@/components/site/footer'
-import { CustomFormWizard } from '@/components/site/custom-form'
-import { Catalog } from '@/components/site/catalog'
-import { Sparkles } from 'lucide-react'
+'use client'
 
-export const metadata = {
-  title: 'Studio Sur-Mesure — Artisanat Aschi',
-  description: 'Concevez votre meuble d\'art sur-mesure avec l\'Atelier Aschi. Étude personnalisée et devis sur-mesure.',
-}
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function CustomCreationPage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    router.replace('/contact')
+  }, [router])
+
   return (
-    <main className="min-h-screen bg-[#241812] text-[#F7F4EE] relative overflow-hidden font-sans">
-      {/* 🌟 FOND MAÎTRE SCROLLABLE UNIFORME (Luminosité constante sur toute la page, sans dégradé) */}
-      <div className="absolute inset-0 z-0 opacity-75 brightness-80 pointer-events-none bg-[url('/images/bg-brass-cabinet-catalogue.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat bg-performance-layer transform-gpu" />
-      {/* Voile d'ombrage plat et uniforme (100% même luminosité de haut en bas, aucun dégradé) */}
-      <div className="absolute inset-0 bg-[#241812]/65 pointer-events-none z-0" />
-
-      <div className="relative z-10 w-full">
-        <Navbar />
-        
-        {/* Intro & Wizard Form */}
-        <div className="pt-28 sm:pt-36 pb-16 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center">
-          <div className="text-center mb-8 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10.5px] uppercase tracking-[0.2em] mb-3 font-bold shadow-md">
-              <Sparkles className="size-3 text-[#E6A635] animate-pulse" />
-              <span>Studio Sur-Mesure</span>
-            </div>
-            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-light text-gold-gradient mb-3 drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
-              Votre Pièce d&apos;Art Sur-Mesure
-            </h1>
-            <p className="text-[#EAE4D9]/90 text-xs sm:text-sm md:text-base leading-relaxed font-light drop-shadow-md">
-              De l&apos;esquisse initiale et la conception sur-mesure à la sculpture ciselée à la main : nous façonnons l&apos;ouvrage d&apos;art qui s&apos;intégrera avec distinction dans votre espace de vie.
-            </p>
-          </div>
-          
-          <CustomFormWizard />
-        </div>
-
-        {/* Catalog / Inspiration Section */}
-        <div className="border-t border-[#E6A635]/20 py-16 bg-[#241812]/90">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-10 text-center">
-            <h2 className="font-heading text-2xl sm:text-3xl text-gold-gradient mb-2.5">
-              Galerie d&apos;Inspiration
-            </h2>
-            <p className="text-[#EAE4D9]/80 text-xs sm:text-sm max-w-xl mx-auto font-light">
-              Découvrez nos modèles de référence. Toute création peut être réinterprétée ou adaptée sur-mesure selon vos dimensions et finitions.
-            </p>
-          </div>
-          <Catalog />
-        </div>
-
-        <Footer />
-      </div>
-    </main>
+    <div className="min-h-screen bg-[#241812] flex items-center justify-center">
+      <div className="size-8 animate-spin rounded-full border-2 border-[#E6A635] border-t-transparent" />
+    </div>
   )
 }
+

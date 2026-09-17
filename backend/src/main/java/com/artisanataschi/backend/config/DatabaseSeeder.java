@@ -136,52 +136,30 @@ public class DatabaseSeeder implements CommandLineRunner {
             return categoryRepository.save(c);
         });
 
+        // Ensure "Porte Bijoux" and "Lustres" categories are seeded
+        Category porteBijoux = categoryRepository.findByName("Porte Bijoux").orElseGet(() -> {
+            Category c = cat("Porte Bijoux", "CATALOGUE");
+            return categoryRepository.save(c);
+        });
+
+        Category lustres = categoryRepository.findByName("Lustres").orElseGet(() -> {
+            Category c = cat("Lustres", "CATALOGUE");
+            return categoryRepository.save(c);
+        });
+
         // ── 3. Seed Products ─────────────────────────────────────────────────
-        if (productRepository.count() == 0) {
-            Category buffets = categoryRepository.findByName("Buffets").orElse(null);
-            Category tvUnits = categoryRepository.findByName("Meubles TV").orElse(null);
-            Category mirrors = categoryRepository.findByName("Miroirs").orElse(null);
-            Category doors   = categoryRepository.findByName("Portes").orElse(null);
-            Category chests  = categoryRepository.findByName("Coffres").orElse(null);
-            Category deco    = categoryRepository.findByName("Décoration").orElse(null);
-
-            // PIÈCES UNIQUES
-            Product p1 = productWithImage("Cabinet « Médina »",
-                "Cabinet d'exception sculpté à la main, inspiré des palais beylicaux. Noyer massif avec ferrures en bronze ciselé.",
-                "120 x 45 x 160 cm", "Noyer massif & Bronze", "Noyer", "6200", "Disponible", "PIECE_UNIQUE", true, buffets, "/creation-unique.png");
-
-            Product p2 = productWithImage("Coffre « Kairouan »",
-                "Coffre traditionnel en cèdre sculpté et clouté de laiton doré. Idéal comme table basse d'exception.",
-                "90 x 50 x 55 cm", "Cèdre & Laiton", "Or et Brun", "2100", "Disponible", "PIECE_UNIQUE", true, chests, "/cat-chest.png");
-
-            Product p3 = productWithImage("Porte d'apparat « Dar »",
-                "Porte monumentale en chêne massif sculptée de motifs géométriques traditionnels et rosaces beylicales.",
-                "220 x 140 cm", "Chêne & Fer forgé", "Brun foncé", null, "Disponible", "PIECE_UNIQUE", false, doors, "/cat-door.png");
-
-            // REPRODUCTIBLES
-            Product r1 = productWithImage("Miroir « Sidi Bou »",
-                "Miroir élégant au cadre sculpté, rehaussé de touches dorées à la feuille d'or.",
-                "80 x 120 cm", "Bois d'olivier & Feuille d'or", "Or", "1900", "Sur commande", "REPRODUCTIBLE", true, mirrors, "/creation-model.png");
-
-            Product r2 = productWithImage("Buffet « Carthage »",
-                "Buffet bas en noyer avec portes sculptées de motifs moucharabieh arabesques.",
-                "180 x 50 x 85 cm", "Noyer", "Noyer naturel", "4200", "Sur commande", "REPRODUCTIBLE", true, buffets, "/cat-buffet.png");
-
-            Product r3 = productWithImage("Meuble TV « Hammamet »",
-                "Meuble TV alliant esthétique traditionnelle et fonctionnalités modernes.",
-                "160 x 40 x 55 cm", "Bois de frêne", "Blanc Cérusé", "2600", "Sur commande", "REPRODUCTIBLE", false, tvUnits, "/cat-tv.png");
-
-            // CATALOGUE
-            Product c1 = productWithImage("Miroir Jasmin",
-                "Miroir orné de fleurs sculptées à la main dans le bois de citronnier.",
-                "70 x 70 cm", "Citronnier", "Naturel", null, "Sur commande", "CATALOGUE", false, mirrors, "/creation-model.png");
-
-            Product c2 = productWithImage("Panneau Médina",
-                "Panneau mural décoratif sculpté représentant des arabesques géométriques complexes.",
-                "100 x 200 cm", "Chêne", "Bleu Sidi Bou", null, "Sur commande", "CATALOGUE", false, deco, "/cat-deco.png");
-
-            productRepository.saveAll(Arrays.asList(p1, p2, p3, r1, r2, r3, c1, c2));
-            System.out.println("✅ Furniture products seeded.");
+        // ── 3. Clean up legacy mock products if present ─────────────────────
+        List<String> legacyMockNames = Arrays.asList(
+            "Cabinet « Médina »", "Coffre « Kairouan »", "Porte d'apparat « Dar »",
+            "Miroir « Sidi Bou »", "Buffet « Carthage »", "Meuble TV « Hammamet »",
+            "Miroir Jasmin", "Panneau Médina"
+        );
+        List<Product> legacyMocks = productRepository.findAll().stream()
+            .filter(p -> p.getName() != null && legacyMockNames.contains(p.getName().trim()))
+            .toList();
+        if (!legacyMocks.isEmpty()) {
+            productRepository.deleteAll(legacyMocks);
+            System.out.println("🧹 Cleaned up legacy mock furniture products.");
         }
 
         // ── Clean up any legacy unwanted parquet knobs (with new_knob_ or old grandModels names) ──

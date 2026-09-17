@@ -2,11 +2,11 @@
 
 import { useEffect, useState, use, useMemo, useRef } from 'react'
 import Link from 'next/link';
-import { publicApi, Product } from '@/lib/api'
+import { publicApi, Product, colorsApi, ColorSwatch } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { Navbar } from '@/components/site/navbar'
 import { Footer } from '@/components/site/footer'
-import { ArrowLeft, Ruler, Hammer, Sparkles, MessageCircle, AlertCircle, X, ShoppingCart, Bot, Palette, SquareStack, Send, CheckCircle2, Check, ZoomIn, ZoomOut, RotateCcw, Move, Maximize2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Ruler, Hammer, Sparkles, MessageCircle, AlertCircle, X, ShoppingCart, Bot, Palette, SquareStack, Send, CheckCircle2, Check, ZoomIn, ZoomOut, RotateCcw, Move, Maximize2, ChevronLeft, ChevronRight, User, Mail, Phone, ShieldCheck, Clock, Truck } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -25,39 +25,85 @@ export default function ProductDetailPage({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null)
   const [activeImage, setActiveImage] = useState('')
 
-  // ── Interactive Loupe & Lightbox Zoom State ──────────────────────────────
+  // ── Workshop Atelier Finishes Palette ───────────────────────────────────────
+  const ATELIER_PALETTE = [
+    { id: 'Original', label: 'Original Atelier', hex: null, desc: 'Finition de la pièce photographiée' },
+    { id: 'Blanc', label: 'Blanc Pur', hex: '#FFFFFF', desc: 'Patine blanche lumineuse et raffinée' },
+    { id: 'Bleu', label: 'Bleu Majorelle / Canard', hex: '#2D5F8A', desc: 'Teinte méditerranéenne profonde et royale' },
+    { id: 'Noyer', label: 'Noyer Foncé Noble', hex: '#5C3317', desc: 'Finition bois précieux chaleureuse' },
+    { id: 'Vert Olivier', label: 'Vert Olivier d\'Atelier', hex: '#4A5E3A', desc: 'Tons naturels et apaisants de l\'artisanat' },
+    { id: 'Noir', label: 'Noir Ébène Ciselé', hex: '#1A1A1A', desc: 'Laque satinée contemporaine et sobre' },
+    { id: 'Or', label: 'Doré Antique / Patine Or', hex: '#C9A84C', desc: 'Feuille d\'or ou ciselure patinée' },
+    { id: 'Naturel', label: 'Chêne / Bois Naturel', hex: '#C4A882', desc: 'Aspect bois brut huilé et protégé' },
+    { id: 'Bordeaux', label: 'Bordeaux Royal', hex: '#7B2D3E', desc: 'Teinte feutrée noble' },
+  ]
+
+  // ── Interactive Loupe State (Desktop Magnifier) ──────
   const [showZoomLens, setShowZoomLens] = useState(false)
   const [lensPos, setLensPos] = useState({ x: 0, y: 0 })
   const [imgPercent, setImgPercent] = useState({ x: 50, y: 50 })
-  const [isFullscreenZoom, setIsFullscreenZoom] = useState(false)
-  const [modalZoomScale, setModalZoomScale] = useState(1)
   const zoomContainerRef = useRef<HTMLDivElement>(null)
 
-  const handleZoomMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleZoomInteraction = (clientX: number, clientY: number) => {
     if (!zoomContainerRef.current) return
     const rect = zoomContainerRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = clientX - rect.left
+    const y = clientY - rect.top
     const px = Math.max(0, Math.min(100, (x / rect.width) * 100))
     const py = Math.max(0, Math.min(100, (y / rect.height) * 100))
     setLensPos({ x, y })
     setImgPercent({ x: px, y: py })
   }
 
+  const handleZoomMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    handleZoomInteraction(e.clientX, e.clientY)
+  }
+
+  // Mobile natural touch swipe to change photos
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  const [touchEndX, setTouchEndX] = useState<number | null>(null)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX)
+    setTouchEndX(null)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null || viewsForSelectedVariant.length <= 1) return
+    const distance = touchStartX - touchEndX
+    if (distance > 45) {
+      // Swiped left -> next photo
+      const currentIdx = viewsForSelectedVariant.findIndex(v => v.imageUrl === activeImage)
+      const nextIdx = currentIdx >= viewsForSelectedVariant.length - 1 ? 0 : currentIdx + 1
+      setActiveImage(viewsForSelectedVariant[nextIdx].imageUrl)
+    } else if (distance < -45) {
+      // Swiped right -> previous photo
+      const currentIdx = viewsForSelectedVariant.findIndex(v => v.imageUrl === activeImage)
+      const prevIdx = currentIdx <= 0 ? viewsForSelectedVariant.length - 1 : currentIdx - 1
+      setActiveImage(viewsForSelectedVariant[prevIdx].imageUrl)
+    }
+    setTouchStartX(null)
+    setTouchEndX(null)
+  }
+
   // Dynamically generate size options based on product category
-  const isAIDimensionCategory = product ? ['buffet', 'tv', 'porte'].some(k => product.category?.name.toLowerCase().includes(k)) : false
   const SIZES = [
-    { id: 'original', label: 'Dimensions\noriginales', sub: '' },
-    { id: 'small',    label: 'Petit',          sub: isAIDimensionCategory ? 'Variante IA' : '< 80 cm' },
-    { id: 'medium',   label: 'Moyen',          sub: isAIDimensionCategory ? 'Variante IA' : '80 – 150 cm' },
-    { id: 'large',    label: 'Grand',          sub: isAIDimensionCategory ? 'Variante IA' : '> 150 cm' },
-    { id: 'custom',   label: 'Sur mesure',     sub: 'Entrez vos cm' },
+    { id: 'original', label: 'Dimensions\noriginales', sub: 'Standard atelier' },
+    { id: 'small',    label: 'Petit',                  sub: '< 80 cm' },
+    { id: 'medium',   label: 'Moyen',                  sub: '80 – 150 cm' },
+    { id: 'large',    label: 'Grand',                  sub: '> 150 cm' },
+    { id: 'custom',   label: 'Sur mesure',             sub: 'Au cm près' },
   ]
 
   // ── Configurator state ─────────────────────────────────────────────────────
-  // selectedVariantIdx: index into the colorVariants array (built from product images with colorLabel)
+  const [dynamicPalette, setDynamicPalette] = useState(ATELIER_PALETTE)
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0)
-  const [selectedSize, setSelectedSize] = useState({ id: 'original', label: 'Dimensions\noriginales', sub: '' })
+  const [selectedCustomColor, setSelectedCustomColor] = useState<string>('Original')
+  const [selectedSize, setSelectedSize] = useState({ id: 'original', label: 'Dimensions\noriginales', sub: 'Standard atelier' })
   const [customWidth, setCustomWidth] = useState('')
   const [customHeight, setCustomHeight] = useState('')
   const hasInitializedFromUrl = useRef(false)
@@ -78,10 +124,28 @@ export default function ProductDetailPage({ params }: PageProps) {
     async function loadProductData() {
       try {
         setLoading(true)
-        const data = await publicApi.getProductById(productId)
+        const [data, apiColors] = await Promise.all([
+          publicApi.getProductById(productId),
+          colorsApi.getColors().catch(() => [])
+        ])
         setProduct(data)
         if (data.images && data.images.length > 0) {
           setActiveImage(data.images[0].imageUrl)
+        }
+        if (Array.isArray(apiColors) && apiColors.length > 0) {
+          setDynamicPalette([
+            { id: 'Original', label: 'Original Atelier', hex: null, desc: 'Finition de la pièce photographiée' },
+            ...apiColors.map((c: ColorSwatch) => {
+              const label = c.name || c.label
+              const matching = ATELIER_PALETTE.find(p => p.id.toLowerCase() === label.toLowerCase())
+              return {
+                id: label,
+                label: matching ? matching.label : label,
+                hex: c.hex,
+                desc: matching ? matching.desc : 'Finition personnalisée sur-mesure de l’atelier'
+              }
+            })
+          ])
         }
         const allInCategory = await publicApi.getProducts({ category: data.category.name })
         setSimilarProducts(allInCategory.filter(p => p.id !== productId).slice(0, 3))
@@ -99,12 +163,12 @@ export default function ProductDetailPage({ params }: PageProps) {
     setSelectedVariantIdx(0)
   }, [product?.id])
 
-  // ── Build UNIQUE colorVariants from product images + AI generated models ─────────
+  // ── Build UNIQUE colorVariants strictly from product images configured in admin ─────────
   const colorVariants = useMemo(() => {
     if (!product) return []
     const variantsMap = new Map()
     
-    const mainImg = product.images && product.images.length > 0 ? product.images[0].imageUrl : '/images/buffet-blanc-original.jpg'
+    const mainImg = product.images && product.images.length > 0 ? product.images[0].imageUrl : '/placeholder.png'
     
     // 1. Original real photo
     variantsMap.set('Original', {
@@ -113,7 +177,7 @@ export default function ProductDetailPage({ params }: PageProps) {
       isOriginal: true,
     })
 
-    // 2. Real product image variants if uploaded
+    // 2. Real product image variants uploaded from admin
     if (product.images && product.images.length > 1) {
       product.images.forEach(img => {
         const label = img.colorLabel || 'Variante'
@@ -126,25 +190,6 @@ export default function ProductDetailPage({ params }: PageProps) {
         }
       })
     }
-
-    // 3. AI Generated Models (Vert Olive, Bleu Ciel, Jaune Moutarde, Bordeaux)
-    const AI_VARIANTS = [
-      { label: 'Vert Olive', imageUrl: '/images/buffet-vert-olive.jpg' },
-      { label: 'Bleu Ciel', imageUrl: '/images/buffet-bleu-ciel.jpg' },
-      { label: 'Jaune Moutarde', imageUrl: '/images/buffet-jaune.jpg' },
-      { label: 'Bordeaux', imageUrl: '/images/buffet-bordeaux.jpg' },
-    ]
-
-    AI_VARIANTS.forEach(v => {
-      if (!variantsMap.has(v.label)) {
-        variantsMap.set(v.label, {
-          label: v.label,
-          imageUrl: v.imageUrl,
-          isOriginal: false,
-          isAIGenerated: true,
-        })
-      }
-    })
     
     return Array.from(variantsMap.values())
   }, [product])
@@ -170,7 +215,7 @@ export default function ProductDetailPage({ params }: PageProps) {
         }
       }
 
-      if (action === 'devis') {
+      if (action === 'devis' || action === 'commander' || action === 'order') {
         const parts: string[] = []
         const selectedVar = colorVariants[currentIdx]
         if (selectedVar && !selectedVar.isOriginal) {
@@ -180,7 +225,7 @@ export default function ProductDetailPage({ params }: PageProps) {
         setMessage(
           summary
             ? `Bonjour, je souhaiterais commander le modèle « ${product.name} » avec les personnalisations suivantes :\n${summary.replace(' | ', '\n')}`
-            : `Bonjour, je souhaiterais obtenir un devis pour le modèle « ${product.name} ».`
+            : `Bonjour, je souhaiterais commander le modèle « ${product.name} ».`
         )
         setModalOpen(true)
       }
@@ -190,16 +235,19 @@ export default function ProductDetailPage({ params }: PageProps) {
   // Build pre-filled personalization summary for the quote form
   const buildConfigSummary = () => {
     const parts: string[] = []
-    const selectedVariant = colorVariants[selectedVariantIdx]
-
-    if (selectedVariant && !selectedVariant.isOriginal) {
-      parts.push(`Finition souhaitée: ${selectedVariant.label}`)
+    if (selectedCustomColor && selectedCustomColor !== 'Original') {
+      parts.push(`Finition / Teinte personnalisée : ${selectedCustomColor} (Fabrication sur-mesure en atelier)`)
+    } else {
+      const selectedVariant = colorVariants[selectedVariantIdx]
+      if (selectedVariant && !selectedVariant.isOriginal) {
+        parts.push(`Finition souhaitée : ${selectedVariant.label}`)
+      }
     }
     if (selectedSize.id !== 'original') {
       if (selectedSize.id === 'custom') {
-        parts.push(`Dimensions sur mesure: ${customWidth || '?'} cm (L) × ${customHeight || '?'} cm (H)`)
+        parts.push(`Dimensions sur mesure : ${customWidth || '?'} cm (L) × ${customHeight || '?'} cm (H)`)
       } else {
-        parts.push(`Taille souhaitée: ${selectedSize.label} (${selectedSize.sub})`)
+        parts.push(`Taille souhaitée : ${selectedSize.label} (${selectedSize.sub})`)
       }
     }
     return parts.join(' | ')
@@ -207,10 +255,15 @@ export default function ProductDetailPage({ params }: PageProps) {
 
   const openConfigQuote = () => {
     const summary = buildConfigSummary()
+    const colorText = selectedCustomColor !== 'Original' ? selectedCustomColor : (product?.color || 'Atelier Standard')
+    const sizeText = selectedSize.id === 'custom' 
+      ? `Sur-mesure (${customWidth || '?'} cm × ${customHeight || '?'} cm)` 
+      : `${selectedSize.label.replace('\n', ' ')} (${selectedSize.sub})`
+
     setMessage(
       summary
-        ? `Bonjour, je souhaiterais commander le modèle « ${product?.name} » avec les personnalisations suivantes :\n${summary.replace(' | ', '\n')}`
-        : `Bonjour, je souhaiterais obtenir un devis pour le modèle « ${product?.name} ».`
+        ? `Bonjour Atelier Aschi,\n\nJe souhaite commander le modèle « ${product?.name} » avec ma configuration personnalisée d'atelier :\n• Finition & Patine : ${colorText}\n• Format & Dimensions : ${sizeText}\n\nPourriez-vous me transmettre la confirmation ainsi que le délai de confection ? Merci !`
+        : `Bonjour Atelier Aschi,\n\nJe souhaiterais commander le modèle « ${product?.name} ».\nMerci de me recontacter !`
     )
     setQuoteSent(false)
     setQuoteError(null)
@@ -239,7 +292,7 @@ export default function ProductDetailPage({ params }: PageProps) {
   }
 
   const selectedVariant = colorVariants[selectedVariantIdx] ?? colorVariants[0]
-  const isCustomized = selectedVariant ? (!selectedVariant.isOriginal || selectedSize.id !== 'original') : false
+  const isCustomized = selectedCustomColor !== 'Original' || (selectedVariant ? !selectedVariant.isOriginal : false) || selectedSize.id !== 'original'
   const configSummary = buildConfigSummary()
 
   // Get all views (images) for the currently selected variant
@@ -310,22 +363,22 @@ export default function ProductDetailPage({ params }: PageProps) {
   return (
     <>
       <Navbar />
-      <main className="bg-secondary py-20 md:py-32">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <main className="bg-secondary pt-16 pb-24 sm:pt-24 sm:pb-28 md:py-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-8">
 
           {/* Back button */}
           <Link
             href="/catalogue"
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground hover:text-[#C17D59] transition-colors mb-10"
+            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground hover:text-[#C17D59] transition-colors mb-4 sm:mb-8"
           >
             <ArrowLeft className="size-4" /> Retourner au catalogue
           </Link>
 
           {/* Main grid */}
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <div className="grid gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-16">
 
             {/* ── LEFT: Image Visualiser ─────────────────────────────────── */}
-            <div ref={imageContainerRef} className="space-y-4 scroll-mt-24">
+            <div ref={imageContainerRef} className="space-y-3 sm:space-y-4 scroll-mt-24">
 
               {/* Status badge */}
               <div className="flex items-center gap-3">
@@ -350,26 +403,35 @@ export default function ProductDetailPage({ params }: PageProps) {
                 )}
               </div>
 
-              {/* Main image — real photo from admin with Interactive Loupe & Fullscreen Zoom */}
+              {/* Main image — desktop loupe, mobile touch swipe */}
               <div 
                 ref={zoomContainerRef}
                 onMouseEnter={() => setShowZoomLens(true)}
                 onMouseLeave={() => setShowZoomLens(false)}
                 onMouseMove={handleZoomMouseMove}
-                onClick={() => setIsFullscreenZoom(true)}
-                className="relative aspect-[4/5] bg-[#FAF7F2]/10 border border-border overflow-hidden rounded-2xl shadow-xl cursor-crosshair group select-none"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                className="relative aspect-[4/5] max-h-[55vh] sm:max-h-none bg-[#2C1E16]/5 border border-[#E8DCCB] overflow-hidden rounded-2xl shadow-xl sm:cursor-crosshair group select-none flex items-center justify-center"
               >
+                {/* Ambient Blurred Luxury Backdrop (Eliminates white empty bars seamlessly) */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center blur-2xl opacity-35 scale-125 pointer-events-none"
+                  style={{ backgroundImage: `url(${activeImage || '/placeholder.png'})` }}
+                />
+
+                {/* 100% COMPLETE PHOTO (Fully visible from top to bottom) */}
                 <motion.img
                   key={activeImage}
                   src={activeImage || '/placeholder.png'}
                   alt={product.name}
-                  className="size-full object-cover transition-transform duration-300"
+                  className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-[1.02]"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.4 }}
                 />
 
-                {/* --- Interactive Loupe Lens (4x Ultra HD) --- */}
+                {/* --- Interactive Loupe Lens (4x Ultra HD - Desktop Only) --- */}
                 {showZoomLens && activeImage && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -382,47 +444,54 @@ export default function ProductDetailPage({ params }: PageProps) {
                       backgroundPosition: `${imgPercent.x}% ${imgPercent.y}%`,
                       backgroundSize: '420%',
                     }}
-                    className="pointer-events-none absolute size-48 rounded-full border-2 border-amber-400 shadow-[0_15px_40px_rgba(0,0,0,0.6)] z-30 bg-no-repeat overflow-hidden ring-4 ring-black/40"
+                    className="pointer-events-none absolute size-48 rounded-full border-2 border-amber-400 shadow-[0_15px_40px_rgba(0,0,0,0.6)] z-30 bg-no-repeat overflow-hidden ring-4 ring-black/40 hidden sm:block"
                   />
                 )}
 
-                {/* --- Shimmering Zoom Hint Badge --- */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-stone-950/85 backdrop-blur-md border border-[#E8DCCB]/30 text-white shadow-xl opacity-90 group-hover:opacity-100 transition-opacity">
+                {/* --- Pure Loupe Hint Badge (Desktop Only) --- */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 items-center gap-2 px-4 py-2 rounded-full bg-stone-950/85 backdrop-blur-md border border-[#E8DCCB]/30 text-white shadow-xl opacity-90 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none hidden sm:flex">
                   <Sparkles className="size-3.5 text-amber-300 animate-pulse" />
                   <span className="text-[11px] font-medium tracking-wide text-amber-100">
-                    Survolez pour la loupe HD • Cliquez pour agrandir
+                    Loupe Artisanale HD • Survolez pour examiner les détails
                   </span>
-                  <Maximize2 className="size-3.5 text-amber-200 ml-1" />
                 </div>
 
                 {/* Pro Image Navigation Arrows */}
                 {viewsForSelectedVariant.length > 1 && (
-                  <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-20">
+                  <div 
+                    onMouseEnter={() => setShowZoomLens(false)}
+                    onMouseLeave={() => setShowZoomLens(true)}
+                    className="absolute inset-x-2 sm:inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-40"
+                  >
                     <button 
                       type="button"
                       onClick={(e) => {
+                        e.preventDefault()
                         e.stopPropagation()
                         const currentIdx = viewsForSelectedVariant.findIndex(v => v.imageUrl === activeImage)
                         const prevIdx = currentIdx <= 0 ? viewsForSelectedVariant.length - 1 : currentIdx - 1
                         setActiveImage(viewsForSelectedVariant[prevIdx].imageUrl)
                       }}
-                      className="p-3.5 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+                      onMouseEnter={() => setShowZoomLens(false)}
+                      className="size-8 sm:size-11 bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border border-white/40 hover:scale-110 active:scale-95 group/arrow flex items-center justify-center cursor-pointer"
                       title="Vue précédente"
                     >
-                      <ChevronLeft className="size-5 transition-transform group-hover/arrow:-translate-x-0.5" />
+                      <ChevronLeft className="size-4 sm:size-5 transition-transform group-hover/arrow:-translate-x-0.5" />
                     </button>
                     <button 
                       type="button"
                       onClick={(e) => {
+                        e.preventDefault()
                         e.stopPropagation()
                         const currentIdx = viewsForSelectedVariant.findIndex(v => v.imageUrl === activeImage)
                         const nextIdx = currentIdx >= viewsForSelectedVariant.length - 1 ? 0 : currentIdx + 1
                         setActiveImage(viewsForSelectedVariant[nextIdx].imageUrl)
                       }}
-                      className="p-3.5 bg-[#3A2A21]/80 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-xl border border-white/20 hover:scale-110 active:scale-95 group/arrow"
+                      onMouseEnter={() => setShowZoomLens(false)}
+                      className="size-8 sm:size-11 bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border border-white/40 hover:scale-110 active:scale-95 group/arrow flex items-center justify-center cursor-pointer"
                       title="Vue suivante"
                     >
-                      <ChevronRight className="size-5 transition-transform group-hover/arrow:translate-x-0.5" />
+                      <ChevronRight className="size-4 sm:size-5 transition-transform group-hover/arrow:translate-x-0.5" />
                     </button>
                   </div>
                 )}
@@ -451,12 +520,12 @@ export default function ProductDetailPage({ params }: PageProps) {
 
               {/* Thumbnail strip — shows all views of the selected variant without native scrollbars */}
               {viewsForSelectedVariant.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2 scroll-smooth scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-1 sm:pb-2 scroll-smooth scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {viewsForSelectedVariant.map((view, i) => (
                     <button
                       key={view.id}
                       onClick={() => setActiveImage(view.imageUrl)}
-                      className={`relative size-20 border rounded-xl overflow-hidden shrink-0 transition-all ${
+                      className={`relative size-14 sm:size-20 border rounded-lg sm:rounded-xl overflow-hidden shrink-0 transition-all ${
                         activeImage === view.imageUrl ? 'border-[#C17D59] ring-2 ring-[#C17D59]/40 opacity-100 scale-105 shadow-md' : 'border-border opacity-60 hover:opacity-100'
                       }`}
                       title={`${selectedVariant.label} - Vue ${i + 1}`}
@@ -481,23 +550,23 @@ export default function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* ── RIGHT: Info + Configurator ────────────────────────────── */}
-            <div className="flex flex-col text-left gap-6">
+            <div className="flex flex-col text-left gap-5 sm:gap-6">
 
               {/* Product header */}
               <div>
-                <span className="text-xs uppercase tracking-[0.2em] text-[#C17D59] font-semibold">
+                <span className="text-[11px] sm:text-xs uppercase tracking-[0.2em] text-[#C17D59] font-bold">
                   {product.category?.name}
                 </span>
-                <h1 className="mt-2 font-heading text-4xl font-light text-foreground sm:text-5xl leading-tight">
+                <h1 className="mt-1.5 font-heading text-2xl sm:text-4xl lg:text-5xl font-light text-foreground leading-tight">
                   {product.name}
                 </h1>
-                <div className="mt-4 flex items-center gap-4 border-y border-border py-4">
-                  <p className="font-mono text-xl text-[#C17D59] font-medium">
+                <div className="mt-3 flex flex-wrap items-center gap-3 border-y border-border py-3">
+                  <p className="font-mono text-xl sm:text-2xl text-[#C17D59] font-bold">
                     {product.type !== 'CATALOGUE'
                       ? (product.price ? `${product.price.toLocaleString('fr-FR')} DT` : 'Prix sur demande')
-                      : 'Prix sur devis'}
+                      : 'Prix sur demande'}
                   </p>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold uppercase tracking-wider ${
                     product.availability === 'Disponible' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/10' :
                     product.availability === 'Sur commande' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/10' :
                     'bg-red-500/10 text-red-500 border border-red-500/10'
@@ -505,103 +574,221 @@ export default function ProductDetailPage({ params }: PageProps) {
                     {product.availability}
                   </span>
                 </div>
-                <p className="mt-4 font-light leading-relaxed text-muted-foreground text-pretty">
-                  {product.description || "Aucune description détaillée n'a été spécifiée pour cette création."}
+                <p className="mt-3 font-normal leading-relaxed text-[#4A3728] text-xs sm:text-base text-pretty">
+                  {product.description || "Cette pièce artisanale d'exception est fabriquée à la main dans notre atelier à partir de matériaux nobles. Chaque détail de sculpture et d'assemblage est façonné avec passion."}
                 </p>
               </div>
 
-              {/* Specs */}
-              <div className="space-y-3 border-b border-border pb-5">
-                <div className="flex items-center gap-3 text-sm">
-                  <Ruler className="size-5 text-[#C17D59] shrink-0" />
-                  <p className="font-light text-muted-foreground">
-                    <strong className="font-semibold text-foreground">Dimensions originales :</strong> {product.dimensions || 'Sur-mesure'}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Hammer className="size-5 text-[#C17D59] shrink-0" />
-                  <p className="font-light text-muted-foreground">
-                    <strong className="font-semibold text-foreground">Matériaux :</strong> {product.materials || 'Bois noble'}
-                  </p>
+              {/* ═══ PRO BESPOKE ATELIER BANNER (CLEAR CUSTOM COLOR REALIZATION) ═══ */}
+              <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#241812] via-[#3B271C] to-[#241812] border-2 border-[#E6A635]/60 p-4 sm:p-6 shadow-xl relative overflow-hidden">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="size-10 sm:size-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-[#E6A635] via-[#F2BD52] to-[#C78318] flex items-center justify-center text-[#1A110B] shrink-0 shadow-lg">
+                    <Palette className="size-5 sm:size-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#E6A635]/25 border border-[#E6A635]/50 text-[#F2BD52] text-[9.5px] sm:text-[11px] font-extrabold uppercase tracking-widest mb-1.5 sm:mb-2">
+                      <Sparkles className="size-3 sm:size-3.5" /> Confection Sur-Mesure en Atelier
+                    </div>
+                    <h3 className="text-sm sm:text-lg font-heading font-semibold text-[#FAF7F2] leading-snug">
+                      Vous aimez ce modèle ? Choisissez la couleur de vos rêves !
+                    </h3>
+                    <p className="mt-1 text-[11.5px] sm:text-sm text-[#EAE4D9]/90 font-light leading-relaxed">
+                      Même si ce meuble est présenté ici en <strong className="text-[#FAF7F2] font-semibold">{product.color || 'cette teinte'}</strong>, nos maîtres artisans peuvent le réaliser et le patiner pour vous en <span className="text-[#F2BD52] font-semibold">Bleu Majorelle, Noyer noble, Vert Olivier, Noir profond, Patine Or</span> ou selon vos dimensions exactes, <strong>même si la photo n&apos;existe pas encore au catalogue !</strong>
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* ═══ CONFIGURATOR ═══ */}
-              <div className="rounded-2xl border border-[#E8DCCB]/20 bg-[#FAF7F2]/5 p-5 space-y-6">
-                <div className="flex items-center gap-2">
-                  <Palette className="size-5 text-[#C17D59]" />
-                  <h2 className="text-sm font-bold uppercase tracking-widest text-[#C17D59]">
-                    Configurateur — Personnalisez ce modèle
-                  </h2>
+              {/* ═══ PRO TECHNICAL SPECIFICATIONS & CRAFTSMANSHIP GRID ═══ */}
+              <div className="space-y-2.5 sm:space-y-3.5">
+                <div className="flex items-center justify-between border-b border-[#D8C7B4] pb-2">
+                  <span className="text-xs uppercase tracking-[0.2em] text-[#A26235] font-extrabold flex items-center gap-2">
+                    <Hammer className="size-4" /> Caractéristiques &amp; Savoir-Faire d&apos;Atelier
+                  </span>
+                  <span className="text-[10px] text-[#2C1E16] bg-[#E8DCCB] px-2.5 py-0.5 rounded-full uppercase tracking-widest font-extrabold border border-[#D8C7B4]">100% Fait Main</span>
                 </div>
 
-                {/* ── COLOUR & DIMENSION SWATCHES from admin-uploaded variants ── */}
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">
-                    {isAIDimensionCategory ? "1. Variantes en images (Couleur ou Dimension)" : "1. Finition / Couleur du bois"}
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {colorVariants.map((v, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => handleSelectVariant(i)}
-                        className={cn(
-                          'flex flex-col items-center gap-1.5 group transition-all',
-                        )}
-                      >
-                        {/* Thumbnail swatch */}
-                        <div className={cn(
-                          'w-14 h-14 rounded-xl border-2 overflow-hidden transition-all duration-200 shadow-md',
-                          selectedVariantIdx === i
-                            ? v.isOriginal
-                              ? 'scale-110 ring-2 ring-emerald-400 ring-offset-2 ring-offset-[#1a1208] border-emerald-400'
-                              : 'scale-110 ring-2 ring-violet-400 ring-offset-2 ring-offset-[#1a1208] border-violet-400'
-                            : 'border-border opacity-70 hover:opacity-100 hover:scale-105'
-                        )}>
-                          <img src={v.imageUrl} alt={v.label} className="size-full object-cover" />
-                        </div>
-                        <span className={cn(
-                          'text-[9px] uppercase tracking-wider font-semibold leading-tight text-center max-w-[56px]',
-                          selectedVariantIdx === i
-                            ? v.isOriginal ? 'text-emerald-400' : 'text-violet-400'
-                            : 'text-muted-foreground group-hover:text-foreground'
-                        )}>
-                          {v.isOriginal ? '✓ Original' : v.label}
-                        </span>
-                      </button>
-                    ))}
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  {/* 1. Dimensions */}
+                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
+                    <Ruler className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Dimensions</p>
+                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">{product.dimensions || 'Sur mesure'}</p>
+                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Adaptable sur-mesure</p>
+                    </div>
                   </div>
 
-                    {colorVariants.length <= 1 && (
-                      <p className="text-xs text-muted-foreground/50 mt-2 italic">
-                        Aucune variante en image disponible pour ce produit.
+                  {/* 2. Matériaux */}
+                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
+                    <Hammer className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Matériaux Nobles</p>
+                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">{product.materials || 'Bois noble massif'}</p>
+                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Sélectionné &amp; stabilisé</p>
+                    </div>
+                  </div>
+
+                  {/* 3. Teinte & Finition */}
+                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
+                    <Palette className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Finition &amp; Patine</p>
+                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">
+                        {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Au choix')}
                       </p>
-                    )}
+                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Vernis satiné protecteur</p>
+                    </div>
+                  </div>
+
+                  {/* 4. Délais & Livraison */}
+                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
+                    <Sparkles className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Délai</p>
+                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">2 à 3 semaines</p>
+                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Livraison toute Tunisie</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ═══ CONFIGURATOR: INTERACTIVE ATELIER PALETTE & DIMENSIONS ═══ */}
+              <div className="rounded-2xl sm:rounded-3xl border-2 border-[#D8C7B4] bg-[#FAF8F5] p-4 sm:p-7 space-y-4 sm:space-y-6 shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Palette className="size-4 sm:size-5 text-[#A26235]" />
+                    <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#2C1E16]">
+                      Configurateur &amp; Nuancier
+                    </h2>
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[#F2BD52] bg-[#241812] px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-full border border-[#E6A635]/50 shadow-xs">
+                    Sur-mesure
+                  </span>
                 </div>
 
-                {/* Dimensions */}
+                {/* ── 1. NUANCIER DES COULEURS D'ATELIER (TOUJOURS DISPONIBLE) ── */}
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">
-                    2. Dimensions
+                  <div className="flex items-center justify-between mb-2.5">
+                    <p className="text-[11px] sm:text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold">
+                      1. Finition / Couleur souhaitée :
+                    </p>
+                    <span className="text-[11px] sm:text-xs font-extrabold text-[#2C1E16] bg-[#E8DCCB] px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-lg border border-[#D8C7B4]">
+                      {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Original')}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
+                    {dynamicPalette.map((c) => {
+                      const isSelected = selectedCustomColor === c.id || (selectedCustomColor === 'Original' && c.id === 'Original')
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCustomColor(c.id)
+                            if (c.id === 'Original') {
+                              setSelectedVariantIdx(0)
+                              setActiveImage(product.images?.[0]?.imageUrl || '/placeholder.png')
+                            } else {
+                              const matchingVariantIdx = colorVariants.findIndex(v => 
+                                v.label.toLowerCase().includes(c.id.toLowerCase()) || 
+                                c.id.toLowerCase().includes(v.label.toLowerCase())
+                              )
+                              if (matchingVariantIdx !== -1) {
+                                setSelectedVariantIdx(matchingVariantIdx)
+                                setActiveImage(colorVariants[matchingVariantIdx].imageUrl)
+                              } else {
+                                setActiveImage(product.images?.[0]?.imageUrl || '/placeholder.png')
+                              }
+                            }
+                          }}
+                          className={cn(
+                            'flex items-center gap-2 p-2 sm:p-3 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+                            isSelected
+                              ? 'border-[#E6A635] bg-[#241812] text-[#FAF7F2] ring-2 ring-[#E6A635]/60 shadow-md'
+                              : 'border-[#D8C7B4] bg-white hover:bg-[#FAF7F2] hover:border-[#A26235] text-[#2C1E16]'
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              'size-4 sm:size-5 rounded-full border-2 shrink-0 transition-transform shadow-xs',
+                              isSelected ? 'scale-110 border-white ring-2 ring-[#E6A635]' : (c.hex === '#FFFFFF' ? 'border-stone-400 bg-white' : 'border-stone-300')
+                            )}
+                            style={c.hex ? { backgroundColor: c.hex } : { background: 'conic-gradient(red, yellow, green, cyan, blue, magenta, red)' }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className={cn(
+                              'text-[11px] sm:text-xs font-extrabold truncate leading-tight',
+                              isSelected ? 'text-[#F2BD52]' : 'text-[#2C1E16]'
+                            )}>
+                              {c.label}
+                            </p>
+                            <p className={cn(
+                              'text-[9.5px] sm:text-[10.5px] truncate mt-0.5',
+                              isSelected ? 'text-[#FAF7F2] font-medium' : 'text-[#5C4535] font-semibold'
+                            )}>
+                              {c.desc}
+                            </p>
+                          </div>
+                          {isSelected && <Check className="size-3.5 sm:size-4 text-[#F2BD52] shrink-0" />}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Dynamic Reassurance Alert for Custom Colors */}
+                  {selectedCustomColor !== 'Original' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#241812] border-2 border-[#E6A635]/50 text-xs text-[#FAF7F2] flex items-start gap-2.5 sm:gap-3 shadow-md"
+                    >
+                      <Sparkles className="size-4 text-[#F2BD52] shrink-0 mt-0.5" />
+                      <p className="text-[11.5px] sm:text-xs leading-relaxed text-[#FAF7F2]">
+                        <strong className="text-[#F2BD52] font-bold">Fabrication personnalisée :</strong> Ce meuble sera confectionné pour vous dans la finition <strong className="text-[#F2BD52] font-bold">&laquo; {selectedCustomColor} &raquo;</strong> par nos ébénistes. Même si la photo actuelle présente une autre teinte, nous appliquerons votre patine sur-mesure !
+                      </p>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* ── 2. DIMENSIONS ── */}
+                <div>
+                  <p className="text-[11px] sm:text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold mb-2.5">
+                    2. Dimensions souhaitées :
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {SIZES.map((s) => (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => handleSelectSize(s)}
-                        className={cn(
-                          'flex flex-col items-center px-4 py-2 rounded-xl border text-xs transition-all duration-200',
-                          selectedSize.id === s.id
-                            ? 'border-[#C17D59] bg-[#C17D59]/10 text-[#C17D59] shadow-sm'
-                            : 'border-border text-muted-foreground hover:border-[#E8DCCB]/50 hover:text-foreground'
-                        )}
-                      >
-                        <span className="font-bold whitespace-pre-line text-center leading-tight">{s.label}</span>
-                        {s.sub && <span className="text-[9px] opacity-70 mt-0.5">{s.sub}</span>}
-                      </button>
-                    ))}
+                  <div className="flex flex-wrap gap-2 sm:gap-2.5">
+                    {SIZES.map((s) => {
+                      const isSizeSelected = selectedSize.id === s.id
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => handleSelectSize(s)}
+                          className={cn(
+                            'flex flex-col items-center px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border-2 text-xs transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+                            isSizeSelected
+                              ? 'border-[#E6A635] bg-[#241812] text-[#F2BD52] ring-2 ring-[#E6A635]/60 shadow-md font-bold'
+                              : 'border-[#D8C7B4] bg-white hover:bg-[#FAF7F2] hover:border-[#A26235] text-[#2C1E16]'
+                          )}
+                        >
+                          <span className={cn(
+                            'font-extrabold whitespace-pre-line text-center leading-tight',
+                            isSizeSelected ? 'text-[#F2BD52]' : 'text-[#2C1E16]'
+                          )}>
+                            {s.label}
+                          </span>
+                          {s.sub && (
+                            <span className={cn(
+                              'text-[10px] mt-0.5',
+                              isSizeSelected ? 'text-[#FAF7F2] font-medium' : 'text-[#5C4535] font-semibold'
+                            )}>
+                              {s.sub}
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
                   </div>
 
                   {/* Custom dimension inputs */}
@@ -614,25 +801,25 @@ export default function ProductDetailPage({ params }: PageProps) {
                         className="mt-3 grid grid-cols-2 gap-3 overflow-hidden"
                       >
                         <div>
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Largeur (cm)</label>
+                          <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-bold mb-1.5 block">Largeur (cm)</label>
                           <input
                             type="number"
                             min="1"
                             placeholder="Ex: 180"
                             value={customWidth}
                             onChange={e => setCustomWidth(e.target.value)}
-                            className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-2.5 text-sm text-foreground outline-none"
+                            className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] rounded-xl p-2.5 text-sm font-bold text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs"
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">Hauteur (cm)</label>
+                          <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-bold mb-1.5 block">Hauteur (cm)</label>
                           <input
                             type="number"
                             min="1"
                             placeholder="Ex: 90"
                             value={customHeight}
                             onChange={e => setCustomHeight(e.target.value)}
-                            className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-2.5 text-sm text-foreground outline-none"
+                            className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] rounded-xl p-2.5 text-sm font-bold text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs"
                           />
                         </div>
                       </motion.div>
@@ -642,37 +829,35 @@ export default function ProductDetailPage({ params }: PageProps) {
 
                 {/* Live config recap */}
                 <AnimatePresence>
-                  {isCustomized && (
+                  {(selectedCustomColor !== 'Original' || selectedSize.id !== 'original') && (
                     <motion.div
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 8 }}
-                      className="rounded-xl bg-violet-500/10 border border-violet-400/20 p-4 space-y-2"
+                      className="rounded-2xl bg-[#241812] border-2 border-[#E6A635]/50 p-4 space-y-2.5 text-[#FAF7F2] shadow-md"
                     >
-                      <div className="flex items-center gap-2 mb-2">
-                        <SquareStack className="size-4 text-violet-400" />
-                        <p className="text-xs font-bold uppercase tracking-widest text-violet-400">Votre Configuration</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <SquareStack className="size-4.5 text-[#F2BD52]" />
+                        <p className="text-xs font-bold uppercase tracking-widest text-[#F2BD52]">Votre Configuration Sur-Mesure</p>
                       </div>
-                      <div className="space-y-1.5 text-sm">
+                      <div className="space-y-1.5 text-xs sm:text-sm">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Modèle :</span>
-                          <span className="text-foreground font-semibold">{product.name}</span>
+                          <span className="text-[#D8C7B4] font-medium">Modèle :</span>
+                          <span className="text-white font-bold">{product.name}</span>
                         </div>
-                        {!selectedVariant.isOriginal && (
+                        {selectedCustomColor !== 'Original' && (
                           <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Finition :</span>
-                            <span className="flex items-center gap-2 font-semibold text-violet-300">
-                              <div className="size-3.5 rounded-xl overflow-hidden border border-white/20">
-                                <img src={selectedVariant.imageUrl} alt="" className="size-full object-cover" />
-                              </div>
-                              {selectedVariant.label}
+                            <span className="text-[#D8C7B4] font-medium">Finition choisie :</span>
+                            <span className="font-bold text-[#F2BD52] flex items-center gap-1.5">
+                              <span className="size-2.5 rounded-full inline-block bg-[#F2BD52]" />
+                              {selectedCustomColor}
                             </span>
                           </div>
                         )}
                         {selectedSize.id !== 'original' && (
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Dimensions :</span>
-                            <span className="font-semibold text-violet-300">
+                            <span className="text-[#D8C7B4] font-medium">Dimensions :</span>
+                            <span className="font-bold text-[#F2BD52]">
                               {selectedSize.id === 'custom'
                                 ? `${customWidth || '?'} × ${customHeight || '?'} cm`
                                 : `${selectedSize.label} (${selectedSize.sub})`}
@@ -690,7 +875,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 {product.type !== 'CATALOGUE' && (
                   <button
                     onClick={() => addToCart(product)}
-                    className="w-full flex items-center justify-center gap-2 rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 py-4 text-xs font-bold uppercase tracking-[0.16em] text-walnut transition-all shadow"
+                    className="w-full flex items-center justify-center gap-2 rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 py-4 text-xs font-bold uppercase tracking-[0.16em] text-walnut transition-all shadow-md cursor-pointer active:scale-98"
                   >
                     <ShoppingCart className="size-4" /> Ajouter au panier
                   </button>
@@ -698,26 +883,34 @@ export default function ProductDetailPage({ params }: PageProps) {
 
                 <button
                   onClick={openConfigQuote}
-                  className={cn(
-                    "w-full flex items-center justify-center gap-2 rounded-full py-4 text-xs font-bold uppercase tracking-wider transition-all shadow",
-                    isCustomized
-                      ? "bg-violet-600 hover:bg-violet-500 text-white"
-                      : "bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 text-walnut"
-                  )}
+                  className="btn-sheen w-full flex items-center justify-center gap-2 rounded-full py-4 text-xs font-bold uppercase tracking-wider transition-all shadow-xl bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] cursor-pointer hover:scale-[1.01] active:scale-98"
                 >
-                  {isCustomized ? (
-                    <><Sparkles className="size-4" /> Demander cette configuration</>
-                  ) : (
-                    <><MessageCircle className="size-4" /> Demander un devis</>
-                  )}
+                  <MessageCircle className="size-4 text-[#1A110B]" />
+                  {selectedCustomColor !== 'Original'
+                    ? `Commander ce modèle en ${selectedCustomColor}`
+                    : `Commander ce modèle`}
                 </button>
 
-                {isCustomized && (
+                <a
+                  href={`https://wa.me/21698338166?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite des informations pour commander le modèle « ${product.name} » en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Standard')}.`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 rounded-full border border-[#25D366]/50 bg-[#25D366]/15 hover:bg-[#25D366]/25 py-3.5 text-xs font-bold uppercase tracking-wider text-[#25D366] transition-all cursor-pointer"
+                >
+                  <MessageCircle className="size-4" /> Discuter directement sur WhatsApp
+                </a>
+
+                {(selectedCustomColor !== 'Original' || selectedSize.id !== 'original') && (
                   <button
-                    onClick={() => { setSelectedVariantIdx(0); setSelectedSize(SIZES[0]); setActiveImage(product.images[0]?.imageUrl || '') }}
-                    className="text-xs text-muted-foreground hover:text-[#C17D59] transition-colors text-center underline underline-offset-4"
+                    onClick={() => { 
+                      setSelectedCustomColor('Original')
+                      setSelectedVariantIdx(0)
+                      setSelectedSize(SIZES[0])
+                      setActiveImage(product.images?.[0]?.imageUrl || '') 
+                    }}
+                    className="text-xs text-muted-foreground hover:text-[#C17D59] transition-colors text-center underline underline-offset-4 cursor-pointer mt-1"
                   >
-                    Réinitialiser la configuration
+                    Réinitialiser la personnalisation
                   </button>
                 )}
               </div>
@@ -750,93 +943,280 @@ export default function ProductDetailPage({ params }: PageProps) {
         </div>
       </main>
 
-      {/* ═══ QUOTE MODAL (pre-filled) ═══ */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <motion.div
-            initial={{ scale: 0.95, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            className="bg-background border border-border w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+      {/* ═══ MOBILE FLOATING STICKY ACTION BAR ═══ */}
+      <div className="fixed bottom-0 inset-x-0 z-40 bg-[#241812]/95 backdrop-blur-md border-t border-[#E6A635]/35 px-4 py-2.5 sm:hidden flex items-center justify-between gap-3 shadow-[0_-8px_25px_rgba(0,0,0,0.6)]">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] uppercase tracking-wider font-extrabold text-[#F2BD52] truncate">
+            {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Sur-mesure')}
+          </p>
+          <p className="font-mono text-sm font-bold text-white truncate">
+            {product.type !== 'CATALOGUE'
+              ? (product.price ? `${product.price.toLocaleString('fr-FR')} DT` : 'Prix sur demande')
+              : 'Prix sur demande'}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href={`https://wa.me/21698338166?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite des informations pour commander le modèle « ${product.name} » en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Standard')}.`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contacter sur WhatsApp"
+            className="size-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-md active:scale-95 transition-transform"
           >
-            <header className="p-6 border-b border-border flex items-center justify-between">
-              <div className="text-left">
-                <h2 className="font-heading text-xl font-medium text-foreground">
-                  {isCustomized ? 'Demander cette configuration' : 'Demander un devis'}
-                </h2>
-                <p className="text-xs text-[#C17D59] font-medium mt-0.5">Pour : {product.name}</p>
-                {isCustomized && configSummary && (
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {configSummary.split(' | ').map((part, i) => (
-                      <span key={i} className="inline-block bg-violet-500/15 border border-violet-400/25 text-violet-300 text-[10px] font-semibold px-2.5 py-1 rounded-full">
-                        {part}
-                      </span>
-                    ))}
+            <MessageCircle className="size-5 text-white" />
+          </a>
+          <button
+            type="button"
+            onClick={openConfigQuote}
+            className="btn-sheen px-4 py-2.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-extrabold text-xs uppercase tracking-wider shadow-lg flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer"
+          >
+            <span>Commander</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ═══ QUOTE MODAL (pre-filled, chic & luxury atelier design) ═══ */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 sm:p-5 backdrop-blur-md overflow-y-auto">
+          <motion.div
+            initial={{ scale: 0.94, opacity: 0, y: 15 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.94, opacity: 0, y: 15 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="bg-[#FDFBF7] border-2 border-[#D8C7B4] w-full max-w-xl rounded-2xl sm:rounded-[28px] overflow-hidden shadow-[0_30px_70px_-15px_rgba(26,17,11,0.4)] flex flex-col max-h-[92vh] text-[#2C1E16] my-auto"
+          >
+            {/* Modal Header */}
+            <header className="px-4 py-4 sm:px-6 sm:py-5 border-b-2 border-[#E8DCCB] bg-gradient-to-b from-white via-white to-[#FAF7F2]">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6A635]/15 border border-[#E6A635]/40 text-[#8F562B] text-[10.5px] font-extrabold uppercase tracking-widest mb-1.5 shadow-xs">
+                    <Sparkles className="size-3.5 text-[#C17D59]" /> Atelier Sur-Mesure • Pièce d&apos;Art
                   </div>
-                )}
+                  <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#2C1E16] tracking-tight">
+                    {isCustomized ? 'Votre Commande Personnalisée' : 'Demande de Confection d\'Atelier'}
+                  </h2>
+                  <p className="text-xs text-[#7A6250] font-medium mt-0.5">
+                    Confection artisanale sur-mesure par les maîtres ébénistes d&apos;Atelier Aschi
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(false)}
+                  className="size-9 rounded-full bg-stone-100 hover:bg-[#241812] text-[#5C4535] hover:text-[#F2BD52] flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0 mt-1"
+                  title="Fermer"
+                >
+                  <X className="size-5" />
+                </button>
               </div>
-              <button onClick={() => setModalOpen(false)} className="p-1.5 text-muted-foreground hover:text-foreground">
-                <X className="size-5" />
-              </button>
+
+              {/* Product Showcase Card */}
+              <div className="mt-4 p-3.5 rounded-2xl bg-white border-2 border-[#E8DCCB] flex items-center gap-3.5 shadow-xs">
+                <div className="size-14 sm:size-16 rounded-xl overflow-hidden border border-[#D8C7B4] shrink-0 bg-stone-100 shadow-inner">
+                  <img src={activeImage || product.images?.[0]?.imageUrl || '/placeholder.png'} alt={product.name} className="size-full object-cover" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#A26235] block">
+                    {product.category?.name || 'Mobilier d\'Art'}
+                  </span>
+                  <h3 className="text-sm sm:text-base font-bold text-[#2C1E16] truncate">{product.name}</h3>
+                  <p className="text-xs text-[#665040] font-medium mt-0.5 flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full bg-emerald-500" />
+                    Fait main au centimètre près • Patine exclusive
+                  </p>
+                </div>
+              </div>
             </header>
 
             {quoteSent ? (
-              <div className="p-10 text-center space-y-4">
-                <div className="size-16 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center mx-auto">
+              <div className="p-10 text-center space-y-4 bg-white">
+                <div className="size-16 rounded-full bg-emerald-100 text-emerald-700 border-2 border-emerald-400 flex items-center justify-center mx-auto shadow-sm">
                   <Check className="size-8" />
                 </div>
-                <h3 className="font-heading text-2xl text-foreground">Demande envoyée !</h3>
-                <p className="text-sm font-light text-muted-foreground max-w-sm mx-auto">
-                  Votre demande pour « {product.name} » {isCustomized ? 'avec vos personnalisations' : ''} a été transmise. Ismail vous contactera sous 24-48h.
+                <h3 className="font-heading text-2xl font-bold text-[#2C1E16]">Demande envoyée avec succès !</h3>
+                <p className="text-sm font-medium text-[#5C4535] max-w-sm mx-auto leading-relaxed">
+                  Votre demande pour « <strong className="text-[#2C1E16]">{product.name}</strong> » a été transmise directement à nos maîtres artisans. Nous vous recontacterons avec votre étude personnalisée sous 24h.
                 </p>
                 <button
+                  type="button"
                   onClick={() => setModalOpen(false)}
-                  className="mt-4 rounded-full bg-[#FAF7F2] text-[#3A2A21] hover:bg-bronze px-6 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all"
+                  className="mt-4 rounded-full bg-[#241812] text-[#FAF7F2] hover:bg-[#3A2A1E] px-8 py-3 text-xs font-bold uppercase tracking-wider shadow-md transition-all cursor-pointer"
                 >
                   Fermer
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleQuoteSubmit} className="flex-1 overflow-y-auto p-6 space-y-5 text-left">
+              <form onSubmit={handleQuoteSubmit} className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-5 text-left bg-[#FDFBF7]">
                 {quoteError && (
-                  <div className="p-4 rounded-xl bg-red-950/20 border border-red-500/25 text-red-400 text-sm flex gap-2">
-                    <AlertCircle className="size-5 shrink-0" /><p>{quoteError}</p>
+                  <div className="p-4 rounded-xl bg-red-100 border-2 border-red-400 text-red-900 text-sm font-bold flex items-center gap-3">
+                    <AlertCircle className="size-5 shrink-0 text-red-600" /><p>{quoteError}</p>
                   </div>
                 )}
 
-                <div className="space-y-1.5">
-                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Nom complet</label>
-                  <input type="text" required placeholder="Ex: Sonia Ben Miled" value={fullName} onChange={e => setFullName(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Email</label>
-                    <input type="email" required placeholder="votre@email.com" value={email} onChange={e => setEmail(e.target.value)}
-                      className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
+                {/* Chic Configuration Card */}
+                <div className="rounded-2xl bg-[#241812] border-2 border-[#E6A635]/60 p-4 text-[#FAF7F2] shadow-md space-y-3">
+                  <div className="flex items-center justify-between border-b border-[#E6A635]/30 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="size-4 text-[#F2BD52]" />
+                      <span className="text-xs uppercase font-extrabold tracking-wider text-[#F2BD52]">
+                        Configuration demandée pour l&apos;atelier
+                      </span>
+                    </div>
+                    <span className="text-[10px] uppercase font-bold text-[#F2BD52] bg-white/10 px-2.5 py-0.5 rounded-full border border-[#E6A635]/40">
+                      Sur-mesure
+                    </span>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Téléphone</label>
-                    <input type="tel" required placeholder="+216 22 222 222" value={phone} onChange={e => setPhone(e.target.value)}
-                      className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none" />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    {/* Finition */}
+                    <div className="flex items-center gap-2.5 bg-white/10 p-2.5 rounded-xl border border-white/10">
+                      <div
+                        className="size-4.5 rounded-full border-2 border-white shrink-0 shadow-xs"
+                        style={{ backgroundColor: ATELIER_PALETTE.find(c => c.id === selectedCustomColor)?.hex || '#8B5E3C' }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] uppercase font-bold text-[#D8C7B4] tracking-wider">Teinte &amp; Patine</p>
+                        <p className="font-extrabold text-[#FAF7F2] truncate">
+                          {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Originale d\'Atelier')}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Dimensions */}
+                    <div className="flex items-center gap-2.5 bg-white/10 p-2.5 rounded-xl border border-white/10">
+                      <Ruler className="size-4.5 text-[#F2BD52] shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] uppercase font-bold text-[#D8C7B4] tracking-wider">Dimensions</p>
+                        <p className="font-extrabold text-[#FAF7F2] truncate">
+                          {selectedSize.id === 'custom'
+                            ? `${customWidth || '?'} × ${customHeight || '?'} cm`
+                            : `${selectedSize.label.replace('\n', ' ')} (${selectedSize.sub})`}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Message</label>
-                  <textarea required rows={4} value={message} onChange={e => setMessage(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border focus:border-[#E8DCCB]/50 rounded-lg p-3 text-sm text-foreground outline-none resize-none" />
+                {/* Client Info Fields */}
+                <div className="space-y-4 pt-1">
+                  <div className="space-y-1.5">
+                    <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold flex items-center gap-1.5">
+                      <User className="size-3.5 text-[#A26235]" />
+                      <span>Votre Nom complet</span>
+                      <span className="text-red-500 font-bold">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ex: Sonia Ben Miled"
+                      value={fullName}
+                      onChange={e => setFullName(e.target.value)}
+                      className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] focus:ring-4 focus:ring-[#A26235]/15 rounded-xl px-4 py-3.5 text-sm font-bold text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs transition-all"
+                    />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold flex items-center gap-1.5">
+                        <Mail className="size-3.5 text-[#A26235]" />
+                        <span>Adresse Email</span>
+                        <span className="text-red-500 font-bold">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="votre@email.com"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] focus:ring-4 focus:ring-[#A26235]/15 rounded-xl px-4 py-3.5 text-sm font-bold text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold flex items-center gap-1.5">
+                        <Phone className="size-3.5 text-[#A26235]" />
+                        <span>Numéro de Téléphone</span>
+                        <span className="text-red-500 font-bold">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+216 22 222 222"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] focus:ring-4 focus:ring-[#A26235]/15 rounded-xl px-4 py-3.5 text-sm font-bold text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold flex items-center gap-1.5">
+                        <MessageCircle className="size-3.5 text-[#A26235]" />
+                        <span>Message &amp; Précisions pour les Artisans</span>
+                        <span className="text-red-500 font-bold">*</span>
+                      </label>
+                      <span className="text-[10.5px] text-[#7A6250] font-semibold">Personnalisable</span>
+                    </div>
+                    <textarea
+                      required
+                      rows={4}
+                      value={message}
+                      onChange={e => setMessage(e.target.value)}
+                      className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] focus:ring-4 focus:ring-[#A26235]/15 rounded-xl p-3.5 text-sm font-medium text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs transition-all resize-none leading-relaxed"
+                    />
+                    <p className="text-[11px] text-[#7A6250] italic">
+                      Indiquez toute particularité : essences de bois souhaitées, teintes de votre intérieur, etc.
+                    </p>
+                  </div>
                 </div>
 
-                <footer className="pt-4 border-t border-border flex items-center justify-end gap-3">
-                  <button type="button" onClick={() => setModalOpen(false)}
-                    className="rounded-full border border-border px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-foreground hover:bg-secondary/40 transition-all">
+                {/* Reassurance Ribbon */}
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#D8C7B4]">
+                  <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-white border border-[#D8C7B4]/70 shadow-xs">
+                    <ShieldCheck className="size-4 text-[#C17D59] mb-1" />
+                    <span className="text-[10.5px] font-extrabold text-[#2C1E16] uppercase tracking-wider">Atelier Direct</span>
+                    <span className="text-[9.5px] text-[#7A6250]">Sans engagement</span>
+                  </div>
+                  <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-white border border-[#D8C7B4]/70 shadow-xs">
+                    <Clock className="size-4 text-[#C17D59] mb-1" />
+                    <span className="text-[10.5px] font-extrabold text-[#2C1E16] uppercase tracking-wider">Réponse 24h</span>
+                    <span className="text-[9.5px] text-[#7A6250]">Proposition directe</span>
+                  </div>
+                  <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-white border border-[#D8C7B4]/70 shadow-xs">
+                    <Truck className="size-4 text-[#C17D59] mb-1" />
+                    <span className="text-[10.5px] font-extrabold text-[#2C1E16] uppercase tracking-wider">Livraison Pro</span>
+                    <span className="text-[9.5px] text-[#7A6250]">Toute la Tunisie</span>
+                  </div>
+                </div>
+
+                {/* WhatsApp direct alternative */}
+                <div className="pt-1 text-center">
+                  <a
+                    href={`https://wa.me/21698338166?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite commander le modèle « ${product.name} » en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Standard')}.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E7E34] hover:text-[#155724] underline underline-offset-4 cursor-pointer"
+                  >
+                    <MessageCircle className="size-3.5" />
+                    Ou discutez directement sur WhatsApp avec Ismail Aschi (+216 98 338 166)
+                  </a>
+                </div>
+
+                <footer className="pt-4 border-t-2 border-[#D8C7B4] flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="w-full sm:w-auto rounded-full border-2 border-[#D8C7B4] bg-white hover:bg-stone-100 px-6 py-3 text-xs font-extrabold uppercase tracking-wider text-[#2C1E16] transition-all cursor-pointer shadow-xs order-2 sm:order-1"
+                  >
                     Annuler
                   </button>
-                  <button type="submit" disabled={submittingQuote}
-                    className="rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-walnut transition-all disabled:opacity-50 flex items-center gap-2">
-                    <Send className="size-3.5" />
-                    {submittingQuote ? 'Envoi...' : 'Envoyer la demande'}
+                  <button
+                    type="submit"
+                    disabled={submittingQuote}
+                    className="btn-sheen w-full sm:w-auto rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] hover:opacity-95 px-8 py-3.5 text-xs font-extrabold uppercase tracking-[0.14em] text-[#1A110B] shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2.5 cursor-pointer order-1 sm:order-2"
+                  >
+                    <Send className="size-4" />
+                    {submittingQuote ? 'Transmission en cours...' : 'Envoyer ma demande'}
                   </button>
                 </footer>
               </form>
@@ -845,98 +1225,39 @@ export default function ProductDetailPage({ params }: PageProps) {
         </div>
       )}
 
-      {/* --- Fullscreen Lightbox HD Zoom Modal with Controls & Pan --- */}
-      <AnimatePresence>
-        {isFullscreenZoom && activeImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 select-none overflow-hidden"
+      {/* ── STICKY MOBILE BOTTOM BAR (Optimisation Mobile Maximale) ────────────────── */}
+      <div className="fixed bottom-0 inset-x-0 bg-[#241812]/95 backdrop-blur-xl border-t border-[#E6A635]/35 p-3.5 z-40 lg:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.7)] flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className="size-11 rounded-xl overflow-hidden bg-black/40 border border-[#E6A635]/40 shrink-0">
+            <img src={activeImage || '/placeholder.png'} alt="" className="size-full object-cover" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-[#F7F4EE] truncate leading-tight">{product.name}</p>
+            <p className="text-[10px] text-[#F2BD52] truncate font-semibold mt-0.5">
+              Teinte : {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Finition Atelier')}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href={`https://wa.me/21698338166?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite commander le modèle « ${product.name} » en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Standard')}.`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="size-10 rounded-full bg-[#25D366] text-[#1A110B] flex items-center justify-center shadow-md active:scale-95 transition-all"
+            title="WhatsApp"
           >
-            {/* Top Toolbar */}
-            <div className="absolute top-6 inset-x-6 flex items-center justify-between z-50 pointer-events-none">
-              <div className="inline-flex items-center gap-2 bg-stone-900/90 backdrop-blur-md border border-[#E8DCCB]/30 text-amber-100 px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider shadow-2xl pointer-events-auto">
-                <Sparkles className="size-4 text-amber-300 animate-pulse" />
-                <span>Inspection Ultra-HD • {product?.name || 'Détails Artisanats'}</span>
-              </div>
-
-              {/* Controls */}
-              <div className="flex items-center gap-2 pointer-events-auto">
-                <button
-                  type="button"
-                  onClick={() => setModalZoomScale(s => Math.min(4, s + 0.5))}
-                  className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl"
-                  title="Zoomer +"
-                >
-                  <ZoomIn className="size-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setModalZoomScale(s => Math.max(1, s - 0.5))}
-                  className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl"
-                  title="Dézoomer -"
-                >
-                  <ZoomOut className="size-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setModalZoomScale(1)}
-                  className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl"
-                  title="Taille réelle (1x)"
-                >
-                  <RotateCcw className="size-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsFullscreenZoom(false)
-                    setModalZoomScale(1)
-                  }}
-                  className="p-3 rounded-full bg-white/15 hover:bg-red-500/80 text-white backdrop-blur-md border border-white/20 transition-all shadow-xl ml-2"
-                  title="Fermer"
-                >
-                  <X className="size-6" />
-                </button>
-              </div>
-            </div>
-
-            {/* Draggable/Pannable Image Canvas */}
-            <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-              <motion.img
-                drag={modalZoomScale > 1}
-                dragConstraints={{ left: -600, right: 600, top: -400, bottom: 400 }}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: modalZoomScale, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                src={activeImage}
-                alt={product?.name || 'Zoom Produit HD'}
-                className={`max-w-full max-h-[82vh] object-contain rounded-2xl shadow-2xl border border-white/15 ${
-                  modalZoomScale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in'
-                }`}
-                onClick={() => {
-                  if (modalZoomScale === 1) setModalZoomScale(2)
-                  else if (modalZoomScale === 2) setModalZoomScale(3.5)
-                  else setModalZoomScale(1)
-                }}
-              />
-            </div>
-
-            {/* Bottom Hint */}
-            <div className="absolute bottom-6 inset-x-6 flex justify-center z-50 pointer-events-none">
-              <div className="inline-flex items-center gap-2 bg-black/75 backdrop-blur-md border border-white/20 text-white px-5 py-2.5 rounded-full text-xs font-medium tracking-wider shadow-2xl">
-                <Move className="size-3.5 text-amber-300" />
-                <span>
-                  {modalZoomScale > 1
-                    ? 'Glissez la souris pour vous déplacer dans les détails'
-                    : 'Cliquez sur l\'image ou utilisez les boutons en haut pour zoomer jusqu\'à 4x'}
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <MessageCircle className="size-5" />
+          </a>
+          <button
+            type="button"
+            onClick={openConfigQuote}
+            className="btn-sheen rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-4 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <Sparkles className="size-3.5" /> Commander
+          </button>
+        </div>
+      </div>
 
       <Footer />
     </>

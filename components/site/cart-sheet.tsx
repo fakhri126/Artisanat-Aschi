@@ -209,7 +209,7 @@ export function CartSheet() {
               {checkoutStep === 'form' && (
                 <form onSubmit={handleCheckout} className="space-y-4 pt-2">
                   <h3 className="font-heading text-lg text-[#C17D59] font-light tracking-wide mb-3">
-                    Informations de Devis & Commande
+                    Informations de Commande
                   </h3>
 
                   <div className="space-y-1">

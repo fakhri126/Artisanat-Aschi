@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: "Contact — Artisanat Aschi",
-  description: "Contactez l'atelier Artisanat Aschi pour une création sur-mesure, un devis ou une visite. Nous sommes à Sfax, Tunisie.",
+  description: "Contactez l'atelier Artisanat Aschi pour une création sur-mesure ou une visite. Nous sommes à Sfax, Tunisie.",
 }
 
 export default function ContactPage() {

@@ -47,9 +47,8 @@ export function HeroSplit() {
             return !isCatalog && !isBijoux
           })
 
-          // Trier par ID décroissant pour obtenir exactement le DERNIER meuble ajouté dans les pièces disponibles
-          const sorted = (availableProds.length > 0 ? availableProds : prodData).sort((a, b) => b.id - a.id)
-          if (sorted.length > 0) {
+          if (availableProds.length > 0) {
+            const sorted = [...availableProds].sort((a, b) => b.id - a.id)
             setLatestProduct(sorted[0])
           }
         }
@@ -59,10 +58,6 @@ export function HeroSplit() {
     }
     loadLatestProduct()
   }, [])
-
-  const handleAddToCart = (product: Product) => {
-    addToCart(product)
-  }
 
   const image = latestProduct.images?.find(img => img.isPrimary)?.imageUrl || latestProduct.images?.[0]?.imageUrl || '/placeholder.jpg'
   const isVideo = image.match(/\.(mp4|webm|ogg|mov)$/i)

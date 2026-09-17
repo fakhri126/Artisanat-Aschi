@@ -10,6 +10,25 @@ import {
   Search, SlidersHorizontal, Camera, Sparkles
 } from 'lucide-react'
 
+// ─── Preset variant labels for quick selection ─────────────────────────────
+const VARIANTS_PRESETS = [
+  { label: 'Original',      hex: null },
+  { label: 'Blanc',         hex: '#FFFFFF' },
+  { label: 'Noir',          hex: '#1A1A1A' },
+  { label: 'Noyer foncé',   hex: '#5C3317' },
+  { label: 'Bleu Cérusé',   hex: '#2D5F8A' },
+  { label: 'Doré',          hex: '#C9A84C' },
+  { label: 'Bordeaux',      hex: '#7B2D3E' },
+  { label: 'Naturel Clair', hex: '#C4A882' },
+  { label: 'Autre…',        hex: null },
+]
+
+const DIMENSION_PRESETS = [
+  { label: 'Petit',         hex: null },
+  { label: 'Moyen',         hex: null },
+  { label: 'Grand',         hex: null },
+]
+
 // ─── Photos Manager for Workshop Products (Face + Other Angles) ─────────────
 function WorkshopPhotosManager({
   variants,
@@ -47,8 +66,8 @@ function WorkshopPhotosManager({
     try {
       const res = await uploadFn(file)
       updateUrl(idx, res.url)
-    } catch {
-      alert("Erreur lors de l'envoi de l'image.")
+    } catch (err: any) {
+      alert(err.message || "Erreur lors de l'envoi de l'image.")
     } finally {
       setUploading(null)
     }
@@ -311,6 +330,97 @@ export default function AdminProductsPage() {
     }
   }
 
+  // Auto-naming & auto-description helpers
+  const getNextModelName = (catId: string, allProds: Product[], allCats: Category[]) => {
+    const cat = allCats.find(c => c.id.toString() === catId)
+    const catName = cat?.name || 'Création'
+    
+    let singular = catName
+    if (singular.toLowerCase().includes('lustre')) {
+      singular = 'Lustre'
+    } else if (singular.toLowerCase().includes('porte bijou') || singular.toLowerCase().includes('porte bijoux') || singular.toLowerCase().includes('porte-bijou')) {
+      singular = 'Porte-Bijoux'
+    } else if (singular.toLowerCase().includes('lampe')) {
+      singular = 'Lampe'
+    } else if (singular.toLowerCase().includes('coffre')) {
+      singular = 'Coffre'
+    } else if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
+      singular = singular.slice(0, -1)
+    }
+    if (singular.toLowerCase().includes('meuble')) {
+      singular = 'Meuble TV'
+    }
+
+    const inCat = allProds.filter(p => p.category?.id?.toString() === catId || p.category?.name === catName)
+    
+    let maxNum = 0
+    for (const p of inCat) {
+      const match = p.name.match(/(?:Modèle|N°|#|\s)(\d+)/i)
+      if (match) {
+        const num = parseInt(match[1], 10)
+        if (num > maxNum) maxNum = num
+      }
+    }
+    
+    const nextNum = (maxNum + 1).toString().padStart(2, '0')
+    return `${singular} — Modèle ${nextNum}`
+  }
+
+  const buildAutoDescription = (modelName: string, catId: string, itemColor: string, itemDim: string, allCats: Category[]) => {
+    const cat = allCats.find(c => c.id.toString() === catId)
+    let singular = cat?.name || 'Création'
+    if (singular.toLowerCase().includes('lustre')) {
+      singular = 'Lustre'
+    } else if (singular.toLowerCase().includes('porte bijou') || singular.toLowerCase().includes('porte bijoux') || singular.toLowerCase().includes('porte-bijou')) {
+      singular = 'Porte-Bijoux'
+    } else if (singular.toLowerCase().includes('lampe')) {
+      singular = 'Lampe'
+    } else if (singular.toLowerCase().includes('coffre')) {
+      singular = 'Coffre'
+    } else if (singular.toLowerCase().endsWith('s') && !singular.toLowerCase().endsWith('meubles tv')) {
+      singular = singular.slice(0, -1)
+    }
+    if (singular.toLowerCase().includes('meuble')) {
+      singular = 'Meuble TV'
+    }
+
+    const match = modelName.match(/(?:Modèle|N°|#|\s)(\d+)/i)
+    const modelPart = match ? `(Modèle ${match[1].padStart(2, '0')}) ` : ''
+
+    if (singular === 'Lustre') {
+      return `Lustre artisanal d'art fait-main sur-mesure ${modelPart}— Suspension noble en bois sculpté et faïence artisanale.`
+    }
+    if (singular === 'Porte-Bijoux') {
+      return `Porte-bijoux artisanal d'art fait-main sur-mesure ${modelPart}— Écrin et support noble en bois sculpté et céramique d'art.`
+    }
+
+    const colorPart = itemColor ? `Finition ${itemColor}` : 'Finition au choix'
+    const dimPart = itemDim ? `, format ${itemDim}` : ''
+
+    return `${singular} artisanal d'art fait-main sur-mesure ${modelPart}— ${colorPart}${dimPart}.`
+  }
+
+  const handleCategoryChange = (newCatId: string) => {
+    setCategoryId(newCatId)
+    if (!editingProduct) {
+      const nextName = getNextModelName(newCatId, products, categories)
+      setName(nextName)
+      setDescription(buildAutoDescription(nextName, newCatId, color, dimensions, categories))
+    } else {
+      setDescription(buildAutoDescription(name, newCatId, color, dimensions, categories))
+    }
+  }
+
+  const handleColorChange = (newColor: string) => {
+    setColor(newColor)
+    setDescription(buildAutoDescription(name, categoryId, newColor, dimensions, categories))
+  }
+
+  const handleDimensionsChange = (newDim: string) => {
+    setDimensions(newDim)
+    setDescription(buildAutoDescription(name, categoryId, color, newDim, categories))
+  }
+
   const loadOrders = async () => {
     try {
       setLoadingOrders(true)
@@ -348,15 +458,20 @@ export default function AdminProductsPage() {
 
   const openCreateModal = () => {
     setEditingProduct(null)
-    setName('')
-    setDescription('')
-    const defaultCatId = categories[0]?.id?.toString() || '1'
-    setCategoryId(defaultCatId)
+    const initCatId = categories.find(c => c.name.toLowerCase().includes('buffet'))?.id?.toString() || categories[0]?.id?.toString() || '1'
+    const initColor = 'Blanc'
+    const initDim = 'Moyen'
+    const nextName = getNextModelName(initCatId, products, categories)
+    const initDesc = buildAutoDescription(nextName, initCatId, initColor, initDim, categories)
+
+    setName(nextName)
+    setDescription(initDesc)
+    setCategoryId(initCatId)
     setIsAddingNewCat(false)
     setNewCatName('')
-    setDimensions('')
-    setMaterials('')
-    setColor('')
+    setDimensions(initDim)
+    setMaterials('Bois massif noble & Céramique artisanale')
+    setColor(initColor)
     setPrice('')
     setAvailability('Disponible')
     setType('PIECE_UNIQUE')
@@ -409,10 +524,33 @@ export default function AdminProductsPage() {
       return
     }
 
+    let finalCatId = parseInt(categoryId)
+
+    // If categoryId is a virtual/placeholder id (e.g. 999 or 998), create or find the real category in DB first
+    if (finalCatId === 999 || finalCatId === 998 || isNaN(finalCatId)) {
+      try {
+        const selectedCat = categories.find(c => c.id.toString() === categoryId)
+        const catName = selectedCat?.name || (finalCatId === 998 ? 'Porte Bijoux' : 'Lustres')
+        const dbCats = await adminApi.getCategories()
+        const existing = dbCats.find(c => c.name.toLowerCase() === catName.toLowerCase())
+        if (existing) {
+          finalCatId = existing.id
+        } else {
+          const createdCat = await adminApi.createCategory({
+            name: catName,
+            type: 'CATALOGUE'
+          })
+          finalCatId = createdCat.id
+        }
+      } catch (catErr) {
+        console.error("Error creating/resolving category:", catErr)
+      }
+    }
+
     const payload: ProductRequest = {
       name,
       description,
-      categoryId: parseInt(categoryId),
+      categoryId: finalCatId,
       dimensions,
       materials,
       color,
@@ -783,7 +921,7 @@ export default function AdminProductsPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <label className="text-xs uppercase tracking-wider text-[#3A2A21]/70 font-bold">Nom de la pièce *</label>
-                  <input type="text" required placeholder="Ex: Buffet Carthage en Noyer Massif" value={name} onChange={e => setName(e.target.value)}
+                  <input type="text" required placeholder="Ex: Buffet — Modèle 01" value={name} onChange={e => setName(e.target.value)}
                     className="w-full bg-white border border-[#E8DCCB] focus:border-[#C17D59] rounded-lg p-2.5 text-sm text-[#3A2A21] outline-none" />
                 </div>
 
@@ -820,7 +958,7 @@ export default function AdminProductsPage() {
                   ) : (
                     <select
                       value={categoryId}
-                      onChange={e => setCategoryId(e.target.value)}
+                      onChange={e => handleCategoryChange(e.target.value)}
                       className="w-full bg-white border border-[#E8DCCB] focus:border-[#C17D59] rounded-lg p-2.5 text-sm text-[#3A2A21] outline-none cursor-pointer"
                     >
                       {categories.length === 0 ? (
@@ -863,25 +1001,71 @@ export default function AdminProductsPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs uppercase tracking-wider text-[#3A2A21]/70 font-bold">Dimensions réelles</label>
-                  <input type="text" placeholder="Ex: 180 x 50 x 85 cm" value={dimensions} onChange={e => setDimensions(e.target.value)}
+                  <input type="text" placeholder="Ex: 180 x 50 x 85 cm ou format" value={dimensions} onChange={e => handleDimensionsChange(e.target.value)}
                     className="w-full bg-white border border-[#E8DCCB] focus:border-[#C17D59] rounded-lg p-2.5 text-sm text-[#3A2A21] outline-none" />
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <span className="text-[10px] text-[#3A2A21]/60 font-medium">Format rapide :</span>
+                    {['Petit', 'Moyen', 'Grand'].map(size => {
+                      const isTagged = dimensions.toLowerCase() === size.toLowerCase()
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => handleDimensionsChange(size)}
+                          className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider transition-all border cursor-pointer ${
+                            isTagged 
+                              ? 'bg-[#C17D59] text-white border-[#C17D59] shadow-sm' 
+                              : 'bg-white text-[#3A2A21] border-[#E8DCCB] hover:bg-[#FAF7F2]'
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-xs uppercase tracking-wider text-[#3A2A21]/70 font-bold">Bois &amp; Matériaux</label>
-                  <input type="text" placeholder="Ex: 100% Noyer massif & Laiton" value={materials} onChange={e => setMaterials(e.target.value)}
+                  <input type="text" placeholder="Ex: 100% Noyer massif noble & Céramique" value={materials} onChange={e => setMaterials(e.target.value)}
                     className="w-full bg-white border border-[#E8DCCB] focus:border-[#C17D59] rounded-lg p-2.5 text-sm text-[#3A2A21] outline-none" />
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-xs uppercase tracking-wider text-[#3A2A21]/70 font-bold">Teinte &amp; Finition</label>
-                  <input type="text" placeholder="Ex: Noyer ciré naturel, Patine dorée..." value={color} onChange={e => setColor(e.target.value)}
+                  <input type="text" placeholder="Ex: Blanc, Noir, Noyer, Bleu..." value={color} onChange={e => handleColorChange(e.target.value)}
                     className="w-full bg-white border border-[#E8DCCB] focus:border-[#C17D59] rounded-lg p-2.5 text-sm text-[#3A2A21] outline-none" />
+                  <div className="flex flex-wrap items-center gap-1 pt-1">
+                    <span className="text-[10px] text-[#3A2A21]/60 font-medium">Suggéré :</span>
+                    {['Blanc', 'Noir', 'Noyer', 'Bleu', 'Doré', 'Naturel', 'Vert Olivier'].map(colorTag => (
+                      <button
+                        key={colorTag}
+                        type="button"
+                        onClick={() => handleColorChange(colorTag)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all border cursor-pointer ${
+                          color.toLowerCase() === colorTag.toLowerCase()
+                            ? 'bg-[#C17D59] text-white border-[#C17D59]'
+                            : 'bg-white/60 text-[#3A2A21]/70 border-[#E8DCCB] hover:bg-[#E8DCCB]/40'
+                        }`}
+                      >
+                        {colorTag}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs uppercase tracking-wider text-[#3A2A21]/70 font-bold">Description de la pièce</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs uppercase tracking-wider text-[#3A2A21]/70 font-bold">Description de la pièce</label>
+                  <button
+                    type="button"
+                    onClick={() => setDescription(buildAutoDescription(name, categoryId, color, dimensions, categories))}
+                    className="text-[10px] text-[#C17D59] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                  >
+                    🪄 Régénérer la description
+                  </button>
+                </div>
                 <textarea rows={3} placeholder="Présentation de l'ouvrage, détails de sculpture, finitions d'atelier..." value={description} onChange={e => setDescription(e.target.value)}
                   className="w-full bg-white border border-[#E8DCCB] focus:border-[#C17D59] rounded-lg p-3 text-sm text-[#3A2A21] outline-none resize-none" />
               </div>

@@ -17,7 +17,9 @@ import {
   Gem,
   Trees,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  CircleDot,
+  Wand2
 } from 'lucide-react'
 
 interface StatProps {
@@ -61,6 +63,49 @@ function StatNumber({ value, suffix, label, sublabel }: StatProps) {
   )
 }
 
+const ATELIER_SPECIALTIES = [
+  {
+    id: 'pieces-disponibles',
+    title: 'Pièces Disponibles',
+    tag: 'En Stock Atelier',
+    desc: 'Mobilier d’art sculpté prêt pour livraison immédiate.',
+    cta: 'Voir le Stock',
+    href: '/creations',
+    image: '/buffet_blanc_face_hd.jpg',
+    icon: Sparkles,
+  },
+  {
+    id: 'bijoux-de-porte',
+    title: 'Bijoux de Porte',
+    tag: 'Céramique & Laiton',
+    desc: 'Poignées, boutons & clous d’art peints à la main.',
+    cta: 'Découvrir la Collection',
+    href: '/bijoux-de-porte',
+    image: '/bijoux-de-porte.jpg',
+    icon: CircleDot,
+  },
+  {
+    id: 'catalogue',
+    title: 'Catalogue Sur-Mesure',
+    tag: 'Fabrication Sur Commande',
+    desc: '+90 créations sculpturales adaptées à vos dimensions.',
+    cta: 'Explorer le Catalogue',
+    href: '/catalogue',
+    image: '/prod1.jpg',
+    icon: Compass,
+  },
+  {
+    id: 'relooking',
+    title: 'Relooking d’Art',
+    tag: 'Restauration Noble',
+    desc: 'Seconde vie et sublimation de vos meubles anciens.',
+    cta: 'Découvrir le Relooking',
+    href: '/relooking',
+    image: '/relooking_service.jpg',
+    icon: Wand2,
+  },
+]
+
 export function WhyAschi() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [autoplay, setAutoplay] = useState(true)
@@ -96,9 +141,9 @@ export function WhyAschi() {
     {
       id: 3,
       tag: "03 • Le Sur-Mesure",
-      tabTitle: "Plans Sur-Mesure",
-      title: "Meubles Sur-Mesure avec Plans sous 24h",
-      desc: "Vous choisissez vos dimensions, vos formes et vos couleurs. Nous réalisons une étude sur-mesure réaliste pour que vous puissiez voir votre futur meuble avant sa fabrication.",
+      tabTitle: "Plans 3D Gratuits",
+      title: "Meubles Sur-Mesure avec Plan 3D sous 24h",
+      desc: "Vous choisissez vos dimensions, vos formes et vos couleurs. Nous réalisons un plan 3D réaliste pour que vous puissiez voir votre futur meuble avant sa fabrication.",
       image: "/project-villa.png",
       icon: <Compass className="size-4 text-[#F2BD52]" />
     },
@@ -341,41 +386,119 @@ export function WhyAschi() {
         </div>
 
         {/* ========================================================================= */}
-        {/* 4. CONSOLE DE CONVERSION (Devis Sur-Mesure & WhatsApp)                    */}
+        {/* 4. LES 4 SAVOIR-FAIRE DE L'ATELIER (4 LOGOS RONDS CTA & PRÉSENTATION)     */}
         {/* ========================================================================= */}
         <Reveal delay={140}>
-          <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#3B271C]/95 backdrop-blur-2xl p-4 sm:p-6 shadow-xl">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-              <div className="max-w-xl">
-                <h3 className="font-heading text-lg sm:text-2xl font-light text-gold-gradient leading-tight mb-1">
-                  Vous avez une idée ou un meuble en tête ?
-                </h3>
-                <p className="text-white/90 text-xs sm:text-sm font-normal">
-                  Contactez-nous pour étudier votre projet. Devis gratuit et étude sur-mesure sous 24h.
+          <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-[#E6A635]/45 bg-gradient-to-b from-[#3B271C]/95 via-[#2C1C13]/95 to-[#241812]/95 backdrop-blur-2xl p-5 sm:p-7 md:p-9 shadow-2xl">
+            {/* Halo doré d'ambiance en arrière-plan */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 size-72 sm:size-96 rounded-full bg-[#E6A635]/12 blur-3xl pointer-events-none" />
+
+            {/* Message bien formulé d'introduction de l'Atelier */}
+            <div className="relative z-10 text-center max-w-2xl mx-auto mb-6 sm:mb-8">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E6A635]/15 border border-[#E6A635]/40 text-[#F2BD52] text-[10.5px] sm:text-xs uppercase tracking-[0.18em] font-semibold mb-2.5 shadow-sm">
+                <Sparkles className="size-3.5 text-[#F2BD52]" />
+                <span>Excellence Artisanale Depuis 1960</span>
+              </div>
+              <h3 className="font-heading text-xl sm:text-2xl md:text-3xl text-gold-gradient font-light leading-tight">
+                Voici Tout Ce Que Façonne Notre Atelier
+              </h3>
+              <p className="text-white/85 text-xs sm:text-sm md:text-base font-normal mt-2 leading-relaxed">
+                De la création sur-mesure aux pièces d&apos;art prêtes à emporter, jusqu&apos;à la métamorphose de votre mobilier d&apos;héritage : explorez nos 4 grands métiers d&apos;art façonnés à la main.
+              </p>
+            </div>
+
+            {/* Grille des 4 Logos Ronds Cliquables Pro (Call to Action) */}
+            <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5 md:gap-6">
+              {ATELIER_SPECIALTIES.map((item) => {
+                const Icon = item.icon
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className="group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl bg-[#241812]/65 hover:bg-[#3B271C]/70 border border-[#E6A635]/25 hover:border-[#E6A635]/70 transition-all duration-300 shadow-md hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] cursor-pointer"
+                  >
+                    {/* Logo Rond Médaillon */}
+                    <div className="relative mb-3">
+                      <div className="absolute -inset-2.5 rounded-full bg-gradient-to-tr from-[#E6A635]/0 via-[#E6A635]/25 to-[#FFE08A]/0 opacity-0 group-hover:opacity-100 blur-md transition-all duration-500 pointer-events-none" />
+                      
+                      <div className="relative size-24 sm:size-28 md:size-32 rounded-full p-[2.5px] sm:p-[3px] bg-gradient-to-b from-[#F3C45E] via-[#E6A635] to-[#7A4B10] shadow-[0_6px_20px_rgba(0,0,0,0.65)] group-hover:shadow-[0_0_28px_rgba(242,189,82,0.7)] group-hover:scale-105 transition-all duration-500">
+                        <div className="relative size-full rounded-full overflow-hidden border-2 border-[#1A110B] bg-[#1A110B]">
+                          <Image
+                            src={item.image}
+                            alt={item.title}
+                            fill
+                            sizes="(max-width: 640px) 100px, 140px"
+                            className="object-cover object-center group-hover:scale-115 transition-transform duration-700 ease-out"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent group-hover:from-black/55 transition-colors duration-500" />
+                          
+                          {/* Pastille icône au centre */}
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="size-8 sm:size-9 md:size-10 rounded-full bg-[#1A110B]/85 border border-[#E6A635]/75 text-[#F2BD52] flex items-center justify-center shadow-lg backdrop-blur-md group-hover:bg-gradient-to-tr group-hover:from-[#D89B28] group-hover:via-[#F2BD52] group-hover:to-[#FFE08A] group-hover:text-[#1A110B] group-hover:border-white/80 group-hover:scale-110 transition-all duration-300">
+                              <Icon className="size-4 sm:size-4.5 md:size-5" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tag */}
+                    <span className="text-[9.5px] sm:text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#E6A635]">
+                      {item.tag}
+                    </span>
+
+                    {/* Titre */}
+                    <h4 className="font-heading text-xs sm:text-sm md:text-base font-medium text-white group-hover:text-[#F2BD52] transition-colors duration-300 mt-1 leading-snug">
+                      {item.title}
+                    </h4>
+
+                    {/* Description */}
+                    <p className="text-[10.5px] sm:text-[11.5px] text-white/70 font-normal mt-1 leading-relaxed max-w-[200px] hidden sm:block">
+                      {item.desc}
+                    </p>
+
+                    {/* Bouton CTA Pilule Pro */}
+                    <div className="mt-2.5 sm:mt-3 inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[9.5px] sm:text-[11px] font-bold uppercase tracking-[0.12em] bg-[#E6A635]/15 border border-[#E6A635]/40 text-[#F2BD52] group-hover:bg-gradient-to-r group-hover:from-[#F3C45E] group-hover:via-[#E6A635] group-hover:to-[#C78318] group-hover:text-[#1A110B] group-hover:border-transparent group-hover:shadow-[0_4px_16px_rgba(230,166,53,0.45)] transition-all duration-300">
+                      <span>{item.cta}</span>
+                      <ArrowRight className="size-2.5 sm:size-3 group-hover:translate-x-0.5 transition-transform duration-300" />
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* Barre de contact rapide en bas */}
+            <div className="relative z-10 mt-6 pt-5 border-t border-[#E6A635]/25 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+              <div>
+                <span className="text-xs sm:text-sm font-medium text-[#F2BD52]">
+                  Vous avez un projet sur-mesure ou une idée spécifique ?
+                </span>
+                <p className="text-[11px] sm:text-xs text-white/70 font-normal">
+                  Étude personnalisée et confection d&apos;art sous 24h par nos maîtres ébénistes.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto shrink-0 justify-center">
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
                 <Link
-                  href="/custom-creation"
-                  className="btn-sheen inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-3 rounded-full text-xs font-bold uppercase tracking-[0.14em] shadow-lg transition-all hover:scale-105 w-full sm:w-auto text-center"
+                  href="/contact"
+                  className="btn-sheen inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.12em] shadow-md transition-all hover:scale-105 text-center"
                 >
-                  <FileText className="size-3.5 text-[#1A110B]" />
-                  <span>Demander un Devis Sur-Mesure</span>
-                  <ArrowRight className="size-3.5" />
+                  <FileText className="size-3 text-[#1A110B]" />
+                  <span>Contacter l&apos;Atelier</span>
                 </Link>
 
                 <a
                   href="https://wa.me/21655743760"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E6A635]/45 bg-[#241812]/95 hover:bg-[#4E3425] hover:text-[#F2BD52] px-6 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition-all shadow-md w-full sm:w-auto text-center"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#E6A635]/45 bg-[#241812]/95 hover:bg-[#4E3425] hover:text-[#F2BD52] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-white transition-all shadow-md text-center"
                 >
-                  <MessageCircle className="size-3.5 text-emerald-400" />
-                  <span>Discuter sur WhatsApp</span>
+                  <MessageCircle className="size-3 text-emerald-400" />
+                  <span>WhatsApp</span>
                 </a>
               </div>
             </div>
+
           </div>
         </Reveal>
 

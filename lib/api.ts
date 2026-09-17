@@ -130,9 +130,39 @@ export interface ProductRequest {
 
 // --- Auth Helper ---
 
+export function isTokenExpired(token: string): boolean {
+  if (!token) return true;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const jsonStr = typeof window !== 'undefined'
+      ? decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        )
+      : Buffer.from(base64, 'base64').toString('utf-8');
+    const payload = JSON.parse(jsonStr);
+    if (payload.exp && typeof payload.exp === 'number') {
+      return Date.now() >= payload.exp * 1000;
+    }
+    return false;
+  } catch {
+    return true;
+  }
+}
+
 export function getAuthToken(): string | null {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    if (isTokenExpired(token)) {
+      localStorage.removeItem('token');
+      return null;
+    }
+    return token;
   }
   return null;
 }
@@ -163,7 +193,9 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     headers.set('Content-Type', 'application/json');
   }
   
-  if (token) {
+  // Attach token only for protected endpoints (never for /public/ or /auth/)
+  const isPublicOrAuth = endpoint.startsWith('/public/') || endpoint.startsWith('/auth/');
+  if (token && !isPublicOrAuth) {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
@@ -253,20 +285,36 @@ export const publicApi = {
     return fetchApi<Project[]>(`/public/projects${category ? '?category=' + encodeURIComponent(category) : ''}`);
   },
   
-  getNews: () => {
-    return fetchApi<News[]>('/public/news');
+  getNews: async () => {
+    try {
+      return await fetchApi<News[]>('/public/news');
+    } catch {
+      return [];
+    }
   },
 
-  getRelookings: () => {
-    return fetchApi<Relooking[]>('/public/relookings');
+  getRelookings: async () => {
+    try {
+      return await fetchApi<Relooking[]>('/public/relookings');
+    } catch {
+      return [];
+    }
   },
 
-  getReferences: () => {
-    return fetchApi<Reference[]>('/public/references');
+  getReferences: async () => {
+    try {
+      return await fetchApi<Reference[]>('/public/references');
+    } catch {
+      return [];
+    }
   },
   
-  getTestimonials: () => {
-    return fetchApi<Testimonial[]>('/public/testimonials');
+  getTestimonials: async () => {
+    try {
+      return await fetchApi<Testimonial[]>('/public/testimonials');
+    } catch {
+      return [];
+    }
   },
   
   submitQuoteRequest: (data: {
@@ -283,8 +331,12 @@ export const publicApi = {
     });
   },
 
-  getDeliveries: () => {
-    return fetchApi<Delivery[]>('/public/deliveries');
+  getDeliveries: async () => {
+    try {
+      return await fetchApi<Delivery[]>('/public/deliveries');
+    } catch {
+      return [];
+    }
   },
 };
 
@@ -311,7 +363,24 @@ export const adminApi = {
     return fetchApi<any>('/admin/stats');
   },
 
-  uploadImage: (file: File) => {
+  uploadImage: async (file: File) => {
+    // 1. Direct reliable upload via Next.js API route
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.url) return json;
+      }
+    } catch (e) {
+      console.warn('Next.js direct upload fallback:', e);
+    }
+
+    // 2. Fallback to Spring Boot backend /admin/upload
     const formData = new FormData();
     formData.append('file', file);
     return fetchApi<{ url: string }>('/admin/upload', {
@@ -458,6 +527,9 @@ export const adminApi = {
   deleteQuoteRequest: (id: number) => fetchApi<void>(`/admin/quotes/${id}`, {
     method: 'DELETE',
   }),
+  deleteQuote: (id: number) => fetchApi<void>(`/admin/quotes/${id}`, {
+    method: 'DELETE',
+  }),
 
   // --- Deliveries ---
   getDeliveries: () => fetchApi<Delivery[]>('/public/deliveries'),
@@ -473,3 +545,79 @@ export const adminApi = {
     method: 'DELETE',
   }),
 };
+
+// --- Color Swatches Management ---
+export interface ColorSwatch {
+  id: string;
+  label: string;
+  name: string;
+  hex: string;
+  isDefault?: boolean;
+}
+
+export const colorsApi = {
+  getColors: async (): Promise<ColorSwatch[]> => {
+    try {
+      const res = await fetch('/api/colors', { cache: 'no-store' });
+      if (res.ok) {
+        const raw = await res.json();
+        return raw.map((c: any) => ({
+          id: c.id,
+          label: c.label || c.name || '',
+          name: c.name || c.label || '',
+          hex: c.hex,
+          isDefault: c.isDefault,
+        }));
+      }
+    } catch (e) {
+      console.warn('Fallback getting colors:', e);
+    }
+    return [
+      { id: 'blanc', label: 'Blanc', name: 'Blanc', hex: '#FFFFFF', isDefault: true },
+      { id: 'noir', label: 'Noir', name: 'Noir', hex: '#1A1A1A', isDefault: true },
+      { id: 'noyer', label: 'Noyer', name: 'Noyer', hex: '#5C3317', isDefault: true },
+      { id: 'bleu', label: 'Bleu', name: 'Bleu', hex: '#2D5F8A', isDefault: true },
+      { id: 'or', label: 'Or', name: 'Or', hex: '#C9A84C', isDefault: true },
+      { id: 'naturel', label: 'Naturel', name: 'Naturel', hex: '#C4A882', isDefault: true },
+      { id: 'vert-olivier', label: 'Vert Olivier', name: 'Vert Olivier', hex: '#4A5E3A', isDefault: true },
+      { id: 'bordeaux', label: 'Bordeaux', name: 'Bordeaux', hex: '#7B2D3E', isDefault: true },
+    ];
+  },
+
+  createColor: async (data: { label: string; hex: string }): Promise<ColorSwatch> => {
+    const res = await fetch('/api/colors', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Erreur lors de la création de la couleur');
+    }
+    return await res.json();
+  },
+
+  updateColor: async (id: string, data: { label: string; hex: string }): Promise<ColorSwatch> => {
+    const res = await fetch('/api/colors', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...data }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Erreur lors de la mise à jour de la couleur');
+    }
+    return await res.json();
+  },
+
+  deleteColor: async (id: string): Promise<void> => {
+    const res = await fetch(`/api/colors?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Erreur lors de la suppression de la couleur');
+    }
+  },
+};
+

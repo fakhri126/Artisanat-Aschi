@@ -1,4 +1,3 @@
-import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Jost, Geist_Mono } from 'next/font/google'
 import { PageTransitionWrapper } from '@/components/motion/page-transition-wrapper'
@@ -63,7 +62,6 @@ export default function RootLayout({
             color: 'var(--color-ivory)',
           }
         }} />
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )

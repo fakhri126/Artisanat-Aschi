@@ -7,8 +7,8 @@ import { Gem, Lock, User, AlertCircle } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('admin')
+  const [password, setPassword] = useState('adminpassword')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -27,7 +27,7 @@ export default function LoginPage() {
       await adminApi.login({ username, password })
       router.push('/admin/dashboard')
     } catch (err: any) {
-      setError(err.message || 'Identifiants invalides. Veuillez réessayer.')
+      setError(err.message || 'Identifiants invalides ou serveur Spring Boot injoignable. Veuillez réessayer.')
     } finally {
       setLoading(false)
     }
@@ -48,14 +48,32 @@ export default function LoginPage() {
           <div className="mt-4 h-px w-12 bg-[#E8DCCB]/20" />
         </div>
 
+        {/* Credentials Helper Badge */}
+        <div className="mt-6 p-3 rounded-xl bg-[#E8DCCB]/10 border border-[#E8DCCB]/20 text-xs text-[#FAF7F2]/90 flex items-center justify-between">
+          <div className="space-y-0.5">
+            <p className="text-[10px] uppercase tracking-wider text-[#C17D59] font-bold">Identifiants pré-remplis</p>
+            <p className="font-mono text-xs">admin <span className="text-[#FAF7F2]/40">/</span> adminpassword</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setUsername('admin')
+              setPassword('adminpassword')
+            }}
+            className="text-[10px] bg-[#E8DCCB]/20 hover:bg-[#E8DCCB]/30 text-[#FAF7F2] px-2.5 py-1 rounded-md transition-colors font-medium cursor-pointer"
+          >
+            Rétablir
+          </button>
+        </div>
+
         {error && (
-          <div className="mt-6 p-4 rounded-lg bg-red-950/40 border border-red-500/30 flex gap-3 text-sm text-red-300">
+          <div className="mt-4 p-4 rounded-lg bg-red-950/40 border border-red-500/30 flex gap-3 text-sm text-red-300">
             <AlertCircle className="size-5 shrink-0" />
             <p>{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           <div className="space-y-1.5">
             <label className="text-xs uppercase tracking-wider text-[#3A2A21]/60 font-medium">Nom d&apos;utilisateur</label>
             <div className="relative">
@@ -93,9 +111,9 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-8 rounded-lg bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 py-3.5 text-xs font-semibold uppercase tracking-[0.14em] text-walnut transition-all disabled:opacity-50"
+            className="w-full mt-6 rounded-lg bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 py-3.5 text-xs font-semibold uppercase tracking-[0.14em] text-walnut transition-all disabled:opacity-50 cursor-pointer shadow-lg hover:shadow-[#E8DCCB]/20"
           >
-            {loading ? 'Connexion en cours...' : 'Se connecter'}
+            {loading ? 'Connexion en cours...' : 'Se connecter (Admin)'}
           </button>
         </form>
 
