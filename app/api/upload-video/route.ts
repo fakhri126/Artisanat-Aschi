@@ -19,16 +19,20 @@ export async function POST(request: Request) {
 
     // Ensure uploads directory exists
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true })
-    }
+    const backendUploadsDir = path.join(process.cwd(), 'backend', 'uploads')
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
+    if (!fs.existsSync(backendUploadsDir)) fs.mkdirSync(backendUploadsDir, { recursive: true })
 
     // Sanitize filename and create unique path
     const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`
     const filepath = path.join(uploadsDir, filename)
+    const backendFilepath = path.join(backendUploadsDir, filename)
 
-    // Write file to public/uploads
+    // Write file to public/uploads and backend/uploads
     fs.writeFileSync(filepath, buffer)
+    try {
+      fs.writeFileSync(backendFilepath, buffer)
+    } catch (_) {}
 
     return NextResponse.json({ url: `/uploads/${filename}` })
   } catch (error) {

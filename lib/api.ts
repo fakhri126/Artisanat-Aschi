@@ -39,6 +39,8 @@ export interface Project {
   location: string;
   details: string;
   imageUrl: string;
+  gallery?: string[] | string;
+  images?: string[];
   videoUrl?: string | null;
   video?: string | null;
 }
@@ -451,14 +453,38 @@ export const adminApi = {
 
   // Projects CRUD
   getProjects: () => fetchApi<Project[]>('/public/projects'),
-  createProject: (data: Omit<Project, 'id'>) => fetchApi<Project>('/admin/projects', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-  updateProject: (id: number, data: Omit<Project, 'id'>) => fetchApi<Project>(`/admin/projects/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
+  createProject: (data: Omit<Project, 'id'>) => {
+    const { title, description, category, location, details, imageUrl, videoUrl, video } = data as any;
+    const cleanData = {
+      title: title || '',
+      description: description || '',
+      category: category || 'hotel',
+      location: location || '',
+      details: details || '',
+      imageUrl: imageUrl || '/project-hotel.png',
+      videoUrl: videoUrl || video || ''
+    };
+    return fetchApi<Project>('/admin/projects', {
+      method: 'POST',
+      body: JSON.stringify(cleanData),
+    });
+  },
+  updateProject: (id: number, data: Omit<Project, 'id'>) => {
+    const { title, description, category, location, details, imageUrl, videoUrl, video } = data as any;
+    const cleanData = {
+      title: title || '',
+      description: description || '',
+      category: category || 'hotel',
+      location: location || '',
+      details: details || '',
+      imageUrl: imageUrl || '/project-hotel.png',
+      videoUrl: videoUrl || video || ''
+    };
+    return fetchApi<Project>(`/admin/projects/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(cleanData),
+    });
+  },
   deleteProject: (id: number) => fetchApi<void>(`/admin/projects/${id}`, {
     method: 'DELETE',
   }),

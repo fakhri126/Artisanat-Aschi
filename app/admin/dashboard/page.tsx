@@ -113,34 +113,34 @@ export default function DashboardPage() {
     if (msg.includes('relooking') || msg.includes('restauration') || det.includes('relooking')) {
       return { 
         label: 'Relooking d’Art', 
-        badgeBg: 'bg-[#C8794D]/15 text-[#E6A635] border-[#C8794D]/35', 
+        badgeBg: 'bg-amber-50 text-amber-800 border-amber-200', 
         link: '/admin/relooking' 
       }
     }
     if (msg.includes('bijoux') || msg.includes('poignée') || msg.includes('bouton') || det.includes('bijoux')) {
       return { 
         label: 'Bijoux de Porte', 
-        badgeBg: 'bg-[#B89555]/15 text-[#F2BD52] border-[#B89555]/35', 
+        badgeBg: 'bg-yellow-50 text-yellow-900 border-yellow-200', 
         link: '/admin/bijoux-de-porte?tab=orders' 
       }
     }
     if (det.includes('espace_exception') || msg.includes('espace exception')) {
       return { 
         label: 'Espaces d’Exception', 
-        badgeBg: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35', 
+        badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200', 
         link: '/admin/espaces-d-exception' 
       }
     }
     if (pType === 'CATALOGUE' || det.includes('sur mesure') || msg.includes('buffet') || msg.includes('table')) {
       return { 
         label: 'Catalogue Sur-Mesure', 
-        badgeBg: 'bg-purple-500/15 text-purple-300 border-purple-500/35', 
+        badgeBg: 'bg-purple-50 text-purple-800 border-purple-200', 
         link: '/admin/catalogue' 
       }
     }
     return { 
       label: 'Commande Directe', 
-      badgeBg: 'bg-sky-500/15 text-sky-300 border-sky-500/35', 
+      badgeBg: 'bg-sky-50 text-sky-800 border-sky-200', 
       link: '/admin/products?tab=orders' 
     }
   }
@@ -270,10 +270,10 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[75vh] items-center justify-center bg-[#15120F]">
+      <div className="flex h-[75vh] items-center justify-center bg-[#F8F7F4]">
         <div className="flex flex-col items-center gap-3.5">
-          <div className="size-11 animate-spin rounded-full border-2 border-[#E6A635] border-t-transparent shadow-[0_0_15px_rgba(230,166,53,0.3)]" />
-          <span className="text-xs font-mono tracking-[0.2em] text-[#D9C8AE]/75 uppercase font-medium">
+          <div className="size-11 animate-spin rounded-full border-2 border-[#C8960C] border-t-transparent shadow-[0_0_15px_rgba(200,150,12,0.2)]" />
+          <span className="text-xs font-mono tracking-[0.2em] text-[#64748B] uppercase font-medium">
             Chargement de l'Atelier Aschi...
           </span>
         </div>
@@ -283,56 +283,56 @@ export default function DashboardPage() {
 
   return (
     <motion.div 
-      className="space-y-6 pb-16 text-[#F5F0E8] relative"
+      className="space-y-6 pb-12 text-[#0F172A] relative"
       variants={containerVariants}
       initial="hidden"
       animate="show"
     >
-      {/* Soft Luxury Radial Ambient Lights */}
-      <div className="pointer-events-none absolute -top-10 -left-10 size-96 bg-[#E6A635]/[0.035] rounded-full blur-3xl" />
-      <div className="pointer-events-none absolute top-1/3 -right-10 size-96 bg-[#C8794D]/[0.03] rounded-full blur-3xl" />
+      {/* Soft Luxury Warm Glow */}
+      <div className="pointer-events-none absolute -top-10 -left-10 size-96 bg-amber-500/[0.04] rounded-full blur-3xl" />
+      <div className="pointer-events-none absolute top-1/3 -right-10 size-96 bg-orange-500/[0.03] rounded-full blur-3xl" />
 
       {/* ─── 1. EXECUTIVE LUXURY HEADER ──────────────────────────────────── */}
-      <motion.div variants={itemVariants} className="relative bg-gradient-to-r from-[#1F1712] via-[#241A14] to-[#1A120D] border border-[#3A2A1E] rounded-3xl p-6 sm:p-7 shadow-2xl overflow-hidden">
+      <motion.div variants={itemVariants} className="relative bg-white border border-[#E8DFD4] rounded-2xl p-6 sm:p-7 shadow-xs overflow-hidden">
         {/* Subtle decorative gold line along top */}
-        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#E6A635]/70 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#C17D59] via-[#C8960C] to-[#E5D7C5]" />
         
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative z-10">
           <div>
-            <div className="flex flex-wrap items-center gap-2.5 mb-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.22em] bg-[#E6A635]/15 text-[#F2BD52] border border-[#E6A635]/35 shadow-xs">
-                <Gem className="size-3 text-[#E6A635]" />
+            <div className="flex flex-wrap items-center gap-2.5 mb-2.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] bg-[#FDF8EE] text-[#996515] border border-[#E8D7B0] shadow-2xs">
+                <Gem className="size-3 text-[#C8960C]" />
                 <span>Atelier Aschi • Maison Fondée en 1960</span>
               </span>
 
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">
-                <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Atelier En Ligne</span>
               </span>
             </div>
 
-            <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#F7F4EE] font-normal tracking-tight">
+            <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#0F172A] font-bold tracking-tight">
               Tableau de Bord &amp; Supervision Commerciale
             </h1>
-            <p className="text-xs sm:text-sm text-[#D9C8AE]/70 font-light mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#475569] font-normal mt-1.5 max-w-2xl leading-relaxed">
               Consultez en direct les commandes, les demandes de projets sur-mesure et l'état général des collections d'artisanat d'art.
             </p>
           </div>
 
           {/* Right Tools: Date Pill + Refresh */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="flex items-center gap-2 bg-[#15120F]/90 border border-[#3A2A1E] px-4 py-2.5 rounded-full text-xs text-[#D9C8AE] shadow-inner">
-              <Calendar className="size-3.5 text-[#E6A635]" />
-              <span className="font-medium tracking-wide">{dateStr || 'Aujourd\'hui'}</span>
+            <div className="flex items-center gap-2 bg-[#FAF8F5] border border-[#E2DBD0] px-4 py-2 rounded-full text-xs text-[#334155] shadow-2xs">
+              <Calendar className="size-3.5 text-[#C8960C]" />
+              <span className="font-semibold tracking-wide">{dateStr || 'Aujourd\'hui'}</span>
             </div>
 
             <button 
               onClick={loadDashboardData} 
               disabled={isRefreshing}
-              className="flex items-center gap-2 bg-[#2E2018] hover:bg-[#3B291F] border border-[#E6A635]/30 hover:border-[#E6A635]/60 px-4 py-2.5 rounded-full text-xs font-semibold text-[#F2BD52] transition-all cursor-pointer shadow-md hover:shadow-[0_0_15px_rgba(230,166,53,0.2)] active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-2 bg-[#FAF8F5] hover:bg-white border border-[#C8960C]/40 hover:border-[#C8960C] px-4 py-2 rounded-full text-xs font-bold text-[#996515] transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95 disabled:opacity-50"
               title="Actualiser les données"
             >
-              <RefreshCw className={`size-3.5 text-[#E6A635] ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`size-3.5 text-[#C8960C] ${isRefreshing ? 'animate-spin' : ''}`} />
               <span>Actualiser</span>
             </button>
           </div>
@@ -343,37 +343,37 @@ export default function DashboardPage() {
       <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         
         {/* Card 1: Total Demandes Reçues (Gold / Ochre) */}
-        <div className="bg-[#1F1712]/95 border border-[#3A2A1E] rounded-3xl p-5 sm:p-6 relative overflow-hidden transition-all duration-300 hover:border-[#E6A635]/60 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] group">
+        <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-[#C8960C]/50 hover:shadow-md group shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#D9C8AE]/75 tracking-wider uppercase">
+            <span className="text-[11px] font-bold text-[#64748B] tracking-wider uppercase">
               Total Demandes Web
             </span>
-            <div className="size-10 rounded-2xl bg-[#E6A635]/15 border border-[#E6A635]/35 flex items-center justify-center text-[#F2BD52] group-hover:scale-105 transition-transform shadow-xs">
+            <div className="size-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 group-hover:scale-105 transition-transform shadow-2xs">
               <Users className="size-4.5" />
             </div>
           </div>
 
-          <div className="mt-4 flex items-baseline gap-2">
-            <span className="font-serif text-3xl sm:text-4xl font-normal text-[#F7F4EE]">
+          <div className="mt-3.5 flex items-baseline gap-2">
+            <span className="font-serif text-3xl sm:text-4xl font-bold text-[#0F172A]">
               {allQuotes.length}
             </span>
-            <span className="text-[10px] font-bold text-[#F2BD52] bg-[#E6A635]/15 px-2 py-0.5 rounded-full border border-[#E6A635]/30">
+            <span className="text-[10px] font-bold text-[#996515] bg-[#FDF8EE] px-2 py-0.5 rounded-full border border-[#E8D7B0]">
               Flux Réel
             </span>
           </div>
 
-          <p className="text-[11px] text-[#D9C8AE]/60 mt-1.5 font-light">
+          <p className="text-[11px] text-[#64748B] mt-1 font-normal">
             {totalDevisCount} sur-mesure • {totalOrdersCount} commandes
           </p>
 
           {/* Mini Gold Sparkline */}
-          <div className="mt-3 h-8 w-full opacity-80 group-hover:opacity-100 transition-opacity">
-            <svg viewBox="0 0 120 28" className="w-full h-full stroke-[#E6A635] fill-none" preserveAspectRatio="none">
+          <div className="mt-2.5 h-8 w-full opacity-80 group-hover:opacity-100 transition-opacity">
+            <svg viewBox="0 0 120 28" className="w-full h-full stroke-[#C8960C] fill-none" preserveAspectRatio="none">
               <path d="M0,22 Q25,12 50,18 T90,8 T120,4" strokeWidth="2.2" strokeLinecap="round" />
-              <path d="M0,22 Q25,12 50,18 T90,8 T120,4 L120,28 L0,28 Z" fill="url(#goldGradKpi)" opacity="0.18" />
+              <path d="M0,22 Q25,12 50,18 T90,8 T120,4 L120,28 L0,28 Z" fill="url(#goldGradKpiLight)" opacity="0.15" />
               <defs>
-                <linearGradient id="goldGradKpi" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#E6A635" />
+                <linearGradient id="goldGradKpiLight" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#C8960C" />
                   <stop offset="100%" stopColor="transparent" />
                 </linearGradient>
               </defs>
@@ -382,44 +382,44 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 2: À Traiter en Priorité (Urgent / Pending) */}
-        <div className="bg-[#1F1712]/95 border border-[#3A2A1E] rounded-3xl p-5 sm:p-6 relative overflow-hidden transition-all duration-300 hover:border-amber-500/60 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] group">
+        <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-amber-400 hover:shadow-md group shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#D9C8AE]/75 tracking-wider uppercase">
+            <span className="text-[11px] font-bold text-[#64748B] tracking-wider uppercase">
               À Contacter
             </span>
-            <div className={`size-10 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs ${
+            <div className={`size-10 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform shadow-2xs ${
               pendingTotal > 0 
-                ? 'bg-amber-500/20 border border-amber-500/40 text-amber-300' 
-                : 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300'
+                ? 'bg-amber-50 border border-amber-200 text-amber-700' 
+                : 'bg-emerald-50 border border-emerald-200 text-emerald-700'
             }`}>
               {pendingTotal > 0 ? <Clock className="size-4.5 animate-pulse" /> : <CheckCircle2 className="size-4.5" />}
             </div>
           </div>
 
-          <div className="mt-4 flex items-baseline gap-2">
-            <span className="font-serif text-3xl sm:text-4xl font-normal text-[#F7F4EE]">
+          <div className="mt-3.5 flex items-baseline gap-2">
+            <span className="font-serif text-3xl sm:text-4xl font-bold text-[#0F172A]">
               {pendingTotal}
             </span>
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
               pendingTotal > 0
-                ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-                : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                ? 'bg-amber-50 text-amber-800 border-amber-200'
+                : 'bg-emerald-50 text-emerald-800 border-emerald-200'
             }`}>
               {pendingTotal > 0 ? 'Action Requise' : 'À jour'}
             </span>
           </div>
 
-          <p className="text-[11px] text-[#D9C8AE]/60 mt-1.5 font-light">
+          <p className="text-[11px] text-[#64748B] mt-1 font-normal">
             {pendingTotal > 0 ? `${pendingTotal} dossier(s) en attente de réponse` : 'Aucun retard dans les réponses'}
           </p>
 
           {/* Mini Amber Sparkline */}
-          <div className="mt-3 h-8 w-full opacity-80 group-hover:opacity-100 transition-opacity">
-            <svg viewBox="0 0 120 28" className="w-full h-full stroke-amber-400 fill-none" preserveAspectRatio="none">
+          <div className="mt-2.5 h-8 w-full opacity-80 group-hover:opacity-100 transition-opacity">
+            <svg viewBox="0 0 120 28" className="w-full h-full stroke-amber-500 fill-none" preserveAspectRatio="none">
               <path d="M0,20 Q30,8 60,18 T100,10 T120,6" strokeWidth="2.2" strokeLinecap="round" />
-              <path d="M0,20 Q30,8 60,18 T100,10 T120,6 L120,28 L0,28 Z" fill="url(#amberGradKpi)" opacity="0.18" />
+              <path d="M0,20 Q30,8 60,18 T100,10 T120,6 L120,28 L0,28 Z" fill="url(#amberGradKpiLight)" opacity="0.15" />
               <defs>
-                <linearGradient id="amberGradKpi" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="amberGradKpiLight" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#F59E0B" />
                   <stop offset="100%" stopColor="transparent" />
                 </linearGradient>
@@ -429,36 +429,36 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 3: Commandes Directes & Bijoux (Emerald) */}
-        <div className="bg-[#1F1712]/95 border border-[#3A2A1E] rounded-3xl p-5 sm:p-6 relative overflow-hidden transition-all duration-300 hover:border-emerald-500/60 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] group">
+        <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-emerald-400 hover:shadow-md group shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#D9C8AE]/75 tracking-wider uppercase">
+            <span className="text-[11px] font-bold text-[#64748B] tracking-wider uppercase">
               Commandes Directes
             </span>
-            <div className="size-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-center text-emerald-300 group-hover:scale-105 transition-transform shadow-xs">
+            <div className="size-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 group-hover:scale-105 transition-transform shadow-2xs">
               <ShoppingBag className="size-4.5" />
             </div>
           </div>
 
-          <div className="mt-4 flex items-baseline gap-2">
-            <span className="font-serif text-3xl sm:text-4xl font-normal text-[#F7F4EE]">
+          <div className="mt-3.5 flex items-baseline gap-2">
+            <span className="font-serif text-3xl sm:text-4xl font-bold text-[#0F172A]">
               {totalOrdersCount}
             </span>
-            <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
+            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
               Réservations
             </span>
           </div>
 
-          <p className="text-[11px] text-[#D9C8AE]/60 mt-1.5 font-light">
+          <p className="text-[11px] text-[#64748B] mt-1 font-normal">
             Bijoux de porte &amp; pièces uniques d'atelier
           </p>
 
           {/* Mini Emerald Sparkline */}
-          <div className="mt-3 h-8 w-full opacity-80 group-hover:opacity-100 transition-opacity">
-            <svg viewBox="0 0 120 28" className="w-full h-full stroke-emerald-400 fill-none" preserveAspectRatio="none">
+          <div className="mt-2.5 h-8 w-full opacity-80 group-hover:opacity-100 transition-opacity">
+            <svg viewBox="0 0 120 28" className="w-full h-full stroke-emerald-500 fill-none" preserveAspectRatio="none">
               <path d="M0,24 Q30,16 65,10 T100,6 T120,2" strokeWidth="2.2" strokeLinecap="round" />
-              <path d="M0,24 Q30,16 65,10 T100,6 T120,2 L120,28 L0,28 Z" fill="url(#emeraldGradKpi)" opacity="0.18" />
+              <path d="M0,24 Q30,16 65,10 T100,6 T120,2 L120,28 L0,28 Z" fill="url(#emeraldGradKpiLight)" opacity="0.15" />
               <defs>
-                <linearGradient id="emeraldGradKpi" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="emeraldGradKpiLight" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#10B981" />
                   <stop offset="100%" stopColor="transparent" />
                 </linearGradient>
@@ -468,36 +468,36 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 4: Modèles & Pièces au Catalogue (Blue / Cyan) */}
-        <div className="bg-[#1F1712]/95 border border-[#3A2A1E] rounded-3xl p-5 sm:p-6 relative overflow-hidden transition-all duration-300 hover:border-sky-500/60 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] group">
+        <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 relative overflow-hidden transition-all duration-300 hover:border-sky-400 hover:shadow-md group shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#D9C8AE]/75 tracking-wider uppercase">
+            <span className="text-[11px] font-bold text-[#64748B] tracking-wider uppercase">
               Modèles au Catalogue
             </span>
-            <div className="size-10 rounded-2xl bg-sky-500/15 border border-sky-500/35 flex items-center justify-center text-sky-300 group-hover:scale-105 transition-transform shadow-xs">
+            <div className="size-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700 group-hover:scale-105 transition-transform shadow-2xs">
               <Package className="size-4.5" />
             </div>
           </div>
 
-          <div className="mt-4 flex items-baseline gap-2">
-            <span className="font-serif text-3xl sm:text-4xl font-normal text-[#F7F4EE]">
+          <div className="mt-3.5 flex items-baseline gap-2">
+            <span className="font-serif text-3xl sm:text-4xl font-bold text-[#0F172A]">
               {products.length || stats?.totalProducts || 0}
             </span>
-            <span className="text-[10px] font-bold text-sky-300 bg-sky-500/15 px-2 py-0.5 rounded-full border border-sky-500/30">
+            <span className="text-[10px] font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">
               Actifs
             </span>
           </div>
 
-          <p className="text-[11px] text-[#D9C8AE]/60 mt-1.5 font-light">
+          <p className="text-[11px] text-[#64748B] mt-1 font-normal">
             Collections sculptées, buffets, portes &amp; tables
           </p>
 
           {/* Mini Blue Sparkline */}
-          <div className="mt-3 h-8 w-full opacity-80 group-hover:opacity-100 transition-opacity">
-            <svg viewBox="0 0 120 28" className="w-full h-full stroke-sky-400 fill-none" preserveAspectRatio="none">
+          <div className="mt-2.5 h-8 w-full opacity-80 group-hover:opacity-100 transition-opacity">
+            <svg viewBox="0 0 120 28" className="w-full h-full stroke-sky-500 fill-none" preserveAspectRatio="none">
               <path d="M0,18 Q35,24 70,12 T105,8 T120,2" strokeWidth="2.2" strokeLinecap="round" />
-              <path d="M0,18 Q35,24 70,12 T105,8 T120,2 L120,28 L0,28 Z" fill="url(#blueGradKpi)" opacity="0.18" />
+              <path d="M0,18 Q35,24 70,12 T105,8 T120,2 L120,28 L0,28 Z" fill="url(#blueGradKpiLight)" opacity="0.15" />
               <defs>
-                <linearGradient id="blueGradKpi" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="blueGradKpiLight" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#38BDF8" />
                   <stop offset="100%" stopColor="transparent" />
                 </linearGradient>
@@ -512,108 +512,108 @@ export default function DashboardPage() {
       <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <Link 
           href="/admin/quotes" 
-          className="group flex items-center justify-between p-4 rounded-2xl bg-[#1C1510]/80 border border-[#3A2A1E] hover:border-[#E6A635]/50 hover:bg-[#261C15] transition-all shadow-md"
+          className="group flex items-center justify-between p-3.5 rounded-xl bg-white border border-[#E8DFD4] hover:border-[#C8960C]/50 hover:bg-[#FAF8F5] transition-all shadow-2xs"
         >
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-xl bg-[#E6A635]/15 border border-[#E6A635]/30 flex items-center justify-center text-[#F2BD52] group-hover:scale-110 transition-transform">
+            <div className="size-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 group-hover:scale-110 transition-transform">
               <MessageSquareCode className="size-4" />
             </div>
             <div>
-              <h4 className="text-xs font-semibold text-[#F7F4EE] group-hover:text-[#F2BD52] transition-colors">
+              <h4 className="text-xs font-bold text-[#0F172A] group-hover:text-[#C17D59] transition-colors">
                 Devis &amp; Commandes
               </h4>
-              <p className="text-[10px] text-[#D9C8AE]/55">Traiter les demandes reçues</p>
+              <p className="text-[10px] text-[#64748B]">Traiter les demandes reçues</p>
             </div>
           </div>
           {pendingTotal > 0 ? (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/35">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
               {pendingTotal}
             </span>
           ) : (
-            <ArrowRight className="size-3.5 text-[#D9C8AE]/40 group-hover:text-[#F2BD52] group-hover:translate-x-0.5 transition-all" />
+            <ArrowRight className="size-3.5 text-[#8C7A6B] group-hover:text-[#C8960C] group-hover:translate-x-0.5 transition-all" />
           )}
         </Link>
 
         <Link 
           href="/admin/catalogue" 
-          className="group flex items-center justify-between p-4 rounded-2xl bg-[#1C1510]/80 border border-[#3A2A1E] hover:border-[#E6A635]/50 hover:bg-[#261C15] transition-all shadow-md"
+          className="group flex items-center justify-between p-3.5 rounded-xl bg-white border border-[#E8DFD4] hover:border-[#C8960C]/50 hover:bg-[#FAF8F5] transition-all shadow-2xs"
         >
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300 group-hover:scale-110 transition-transform">
+            <div className="size-9 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 group-hover:scale-110 transition-transform">
               <BookImage className="size-4" />
             </div>
             <div>
-              <h4 className="text-xs font-semibold text-[#F7F4EE] group-hover:text-[#F2BD52] transition-colors">
+              <h4 className="text-xs font-bold text-[#0F172A] group-hover:text-[#C17D59] transition-colors">
                 Catalogue Inspiration
               </h4>
-              <p className="text-[10px] text-[#D9C8AE]/55">Modèles &amp; finitions d'art</p>
+              <p className="text-[10px] text-[#64748B]">Modèles &amp; finitions d'art</p>
             </div>
           </div>
-          <ArrowRight className="size-3.5 text-[#D9C8AE]/40 group-hover:text-[#F2BD52] group-hover:translate-x-0.5 transition-all" />
+          <ArrowRight className="size-3.5 text-[#8C7A6B] group-hover:text-[#C8960C] group-hover:translate-x-0.5 transition-all" />
         </Link>
 
         <Link 
           href="/admin/bijoux-de-porte" 
-          className="group flex items-center justify-between p-4 rounded-2xl bg-[#1C1510]/80 border border-[#3A2A1E] hover:border-[#E6A635]/50 hover:bg-[#261C15] transition-all shadow-md"
+          className="group flex items-center justify-between p-3.5 rounded-xl bg-white border border-[#E8DFD4] hover:border-[#C8960C]/50 hover:bg-[#FAF8F5] transition-all shadow-2xs"
         >
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-xl bg-[#B89555]/15 border border-[#B89555]/30 flex items-center justify-center text-[#F2BD52] group-hover:scale-110 transition-transform">
+            <div className="size-9 rounded-xl bg-yellow-50 border border-yellow-200 flex items-center justify-center text-yellow-800 group-hover:scale-110 transition-transform">
               <Sparkles className="size-4" />
             </div>
             <div>
-              <h4 className="text-xs font-semibold text-[#F7F4EE] group-hover:text-[#F2BD52] transition-colors">
+              <h4 className="text-xs font-bold text-[#0F172A] group-hover:text-[#C17D59] transition-colors">
                 Bijoux de Porte
               </h4>
-              <p className="text-[10px] text-[#D9C8AE]/55">Boutons &amp; poignées d'art</p>
+              <p className="text-[10px] text-[#64748B]">Boutons &amp; poignées d'art</p>
             </div>
           </div>
-          <ArrowRight className="size-3.5 text-[#D9C8AE]/40 group-hover:text-[#F2BD52] group-hover:translate-x-0.5 transition-all" />
+          <ArrowRight className="size-3.5 text-[#8C7A6B] group-hover:text-[#C8960C] group-hover:translate-x-0.5 transition-all" />
         </Link>
 
         <Link 
           href="/admin/products" 
-          className="group flex items-center justify-between p-4 rounded-2xl bg-[#1C1510]/80 border border-[#3A2A1E] hover:border-[#E6A635]/50 hover:bg-[#261C15] transition-all shadow-md"
+          className="group flex items-center justify-between p-3.5 rounded-xl bg-white border border-[#E8DFD4] hover:border-[#C8960C]/50 hover:bg-[#FAF8F5] transition-all shadow-2xs"
         >
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-300 group-hover:scale-110 transition-transform">
+            <div className="size-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 group-hover:scale-110 transition-transform">
               <Package className="size-4" />
             </div>
             <div>
-              <h4 className="text-xs font-semibold text-[#F7F4EE] group-hover:text-[#F2BD52] transition-colors">
+              <h4 className="text-xs font-bold text-[#0F172A] group-hover:text-[#C17D59] transition-colors">
                 Pièces Disponibles
               </h4>
-              <p className="text-[10px] text-[#D9C8AE]/55">Mobilier en stock direct</p>
+              <p className="text-[10px] text-[#64748B]">Mobilier en stock direct</p>
             </div>
           </div>
-          <ArrowRight className="size-3.5 text-[#D9C8AE]/40 group-hover:text-[#F2BD52] group-hover:translate-x-0.5 transition-all" />
+          <ArrowRight className="size-3.5 text-[#8C7A6B] group-hover:text-[#C8960C] group-hover:translate-x-0.5 transition-all" />
         </Link>
       </motion.div>
 
       {/* ─── 4. REAL ACTIVITY AREA CHART (100% REAL DATA AGGREGATION) ────────── */}
-      <motion.div variants={itemVariants} className="bg-[#1F1712]/95 border border-[#3A2A1E] p-6 sm:p-7 rounded-3xl shadow-xl space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#3A2A1E]/80">
+      <motion.div variants={itemVariants} className="bg-white border border-[#E8DFD4] p-5 sm:p-6 rounded-2xl shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E8DFD4]">
           <div>
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-[#E6A635]" />
-              <h2 className="font-serif text-xl sm:text-2xl text-[#F7F4EE] font-normal">
+              <span className="size-2 rounded-full bg-[#C8960C]" />
+              <h2 className="font-serif text-xl sm:text-2xl text-[#0F172A] font-bold">
                 Activité Commerciale Réelle
               </h2>
             </div>
-            <p className="text-xs text-[#D9C8AE]/65 mt-1 font-light">
+            <p className="text-xs text-[#64748B] mt-1 font-normal">
               Courbe comparative des demandes de devis et commandes directes enregistrées
             </p>
           </div>
 
           {/* Range Toggle Tabs */}
-          <div className="inline-flex items-center bg-[#15120F] p-1 rounded-2xl border border-[#3A2A1E] shadow-inner self-start sm:self-auto">
+          <div className="inline-flex items-center bg-[#FAF8F5] p-1 rounded-xl border border-[#E2DBD0] self-start sm:self-auto shadow-2xs">
             {(['7D', '30D', 'YEAR'] as const).map((period) => (
               <button
                 key={period}
                 onClick={() => setChartPeriod(period)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer ${
                   chartPeriod === period
-                    ? 'bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] shadow-md font-bold'
-                    : 'text-[#D9C8AE]/60 hover:text-white'
+                    ? 'bg-white text-[#0F172A] shadow-xs font-bold border border-[#E2DBD0]'
+                    : 'text-[#64748B] hover:text-[#0F172A] font-medium'
                 }`}
               >
                 {period === '7D' ? '7 jours' : period === '30D' ? '30 jours' : 'Année en cours'}
@@ -623,50 +623,50 @@ export default function DashboardPage() {
         </div>
 
         {/* Chart Canvas */}
-        <div className="min-h-[290px] w-full pt-2">
-          <ResponsiveContainer width="100%" height={290}>
-            <AreaChart data={activeChartData} margin={{ top: 12, right: 12, left: -24, bottom: 0 }}>
+        <div className="min-h-[250px] w-full pt-1">
+          <ResponsiveContainer width="100%" height={250}>
+            <AreaChart data={activeChartData} margin={{ top: 10, right: 12, left: -24, bottom: 0 }}>
               <defs>
                 <linearGradient id="waveDevisReal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#E6A635" stopOpacity={0.45}/>
-                  <stop offset="95%" stopColor="#E6A635" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#C17D59" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#C17D59" stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="waveCmdReal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#38BDF8" stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor="#38BDF8" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#0284C7" stopOpacity={0.25}/>
+                  <stop offset="95%" stopColor="#0284C7" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <XAxis 
                 dataKey="name" 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{ fill: '#D9C8AE', opacity: 0.65, fontSize: 11 }} 
+                tick={{ fill: '#64748B', fontSize: 11 }} 
                 dy={10} 
               />
               <YAxis 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{ fill: '#D9C8AE', opacity: 0.65, fontSize: 11 }} 
+                tick={{ fill: '#64748B', fontSize: 11 }} 
                 allowDecimals={false}
               />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#1E1611', 
-                  borderColor: '#E6A635', 
-                  borderRadius: '16px', 
-                  color: '#F5F0E8',
-                  boxShadow: '0 12px 30px rgba(0,0,0,0.7)',
+                  backgroundColor: '#FFFFFF', 
+                  borderColor: '#E8DFD4', 
+                  borderRadius: '14px', 
+                  color: '#0F172A',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
                   fontSize: '12px',
-                  padding: '12px 16px'
+                  padding: '10px 14px'
                 }} 
-                itemStyle={{ color: '#F5F0E8' }}
+                itemStyle={{ color: '#0F172A', fontWeight: 600 }}
               />
               <Area 
                 type="monotone" 
                 dataKey="devis" 
                 name="Demandes & Projets" 
-                stroke="#E6A635" 
-                strokeWidth={2.8} 
+                stroke="#C17D59" 
+                strokeWidth={2.5} 
                 fillOpacity={1} 
                 fill="url(#waveDevisReal)" 
               />
@@ -674,8 +674,8 @@ export default function DashboardPage() {
                 type="monotone" 
                 dataKey="commandes" 
                 name="Commandes Directes" 
-                stroke="#38BDF8" 
-                strokeWidth={2.5} 
+                stroke="#0284C7" 
+                strokeWidth={2.2} 
                 fillOpacity={1} 
                 fill="url(#waveCmdReal)" 
               />
@@ -684,39 +684,39 @@ export default function DashboardPage() {
         </div>
 
         {/* Chart Legend with Live Totals */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-[#3A2A1E]/80 text-xs">
-          <div className="text-[11px] text-[#D9C8AE]/60 font-light">
-            Données synchronisées avec la base de données de l'atelier
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-[#E8DFD4] text-xs">
+          <div className="text-[11px] text-[#64748B] font-normal">
+            Données synchronisées en direct avec la base de données de l'atelier
           </div>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <span className="size-2.5 rounded-full bg-[#E6A635] shadow-[0_0_8px_#E6A635]" />
-              <span className="text-[#D9C8AE]/90 font-medium">Demandes &amp; Projets</span>
+              <span className="size-2.5 rounded-full bg-[#C17D59]" />
+              <span className="text-[#334155] font-semibold">Demandes &amp; Projets</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="size-2.5 rounded-full bg-[#38BDF8] shadow-[0_0_8px_#38BDF8]" />
-              <span className="text-[#D9C8AE]/90 font-medium">Commandes Directes</span>
+              <span className="size-2.5 rounded-full bg-[#0284C7]" />
+              <span className="text-[#334155] font-semibold">Commandes Directes</span>
             </div>
           </div>
         </div>
       </motion.div>
 
       {/* ─── 5. RECENT INQUIRIES & ORDERS TABLE WITH LIVE FILTER ──────────── */}
-      <motion.div variants={itemVariants} className="bg-[#1F1712]/95 border border-[#3A2A1E] rounded-3xl p-6 sm:p-7 shadow-xl space-y-5">
+      <motion.div variants={itemVariants} className="bg-white border border-[#E8DFD4] rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
         
         {/* Table Header: Title + Search + Filter Tabs */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-[#3A2A1E]/80">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#E8DFD4]">
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="size-2 rounded-full bg-emerald-400" />
-              <h2 className="font-serif text-xl sm:text-2xl text-[#F7F4EE] font-normal">
+              <span className="size-2 rounded-full bg-emerald-500" />
+              <h2 className="font-serif text-xl sm:text-2xl text-[#0F172A] font-bold">
                 Dernières Demandes &amp; Commandes
               </h2>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#E6A635]/15 text-[#F2BD52] font-semibold border border-[#E6A635]/30">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 font-bold border border-amber-200">
                 {filteredQuotes.length} visible(s)
               </span>
             </div>
-            <p className="text-xs text-[#D9C8AE]/60 mt-1 font-light">
+            <p className="text-xs text-[#64748B] mt-1 font-normal">
               Flux en direct des demandes reçues via le site web officiel
             </p>
           </div>
@@ -724,22 +724,22 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
             <div className="relative">
-              <Search className="size-3.5 text-[#D9C8AE]/50 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="size-3.5 text-[#8C7A6B] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Rechercher un client..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="rounded-full bg-[#15120F] border border-[#3A2A1E] pl-9 pr-4 py-2 text-xs text-[#F7F4EE] placeholder:text-[#D9C8AE]/40 focus:border-[#E6A635] outline-none transition-colors w-48 sm:w-56"
+                className="rounded-full bg-[#FAF8F5] border border-[#E2DBD0] pl-9 pr-4 py-2 text-xs text-[#0F172A] placeholder:text-[#8C7A6B]/70 focus:border-[#C8960C] focus:bg-white outline-none transition-all w-48 sm:w-56 shadow-2xs"
               />
             </div>
 
             {/* Status Filter Tabs */}
-            <div className="inline-flex items-center bg-[#15120F] p-1 rounded-full border border-[#3A2A1E] text-xs">
+            <div className="inline-flex items-center bg-[#FAF8F5] p-1 rounded-full border border-[#E2DBD0] text-xs shadow-2xs">
               <button
                 onClick={() => setStatusFilter('ALL')}
                 className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer ${
-                  statusFilter === 'ALL' ? 'bg-[#3A2A1E] text-white font-semibold' : 'text-[#D9C8AE]/60 hover:text-white'
+                  statusFilter === 'ALL' ? 'bg-white text-[#0F172A] font-bold shadow-xs border border-[#E2DBD0]' : 'text-[#64748B] hover:text-[#0F172A]'
                 }`}
               >
                 Toutes
@@ -747,7 +747,7 @@ export default function DashboardPage() {
               <button
                 onClick={() => setStatusFilter('PENDING')}
                 className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer ${
-                  statusFilter === 'PENDING' ? 'bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30' : 'text-[#D9C8AE]/60 hover:text-white'
+                  statusFilter === 'PENDING' ? 'bg-amber-50 text-amber-800 font-bold border border-amber-200 shadow-2xs' : 'text-[#64748B] hover:text-[#0F172A]'
                 }`}
               >
                 En attente {pendingTotal > 0 && `(${pendingTotal})`}
@@ -755,7 +755,7 @@ export default function DashboardPage() {
               <button
                 onClick={() => setStatusFilter('CONTACTED')}
                 className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer ${
-                  statusFilter === 'CONTACTED' ? 'bg-sky-500/20 text-sky-300 font-semibold border border-sky-500/30' : 'text-[#D9C8AE]/60 hover:text-white'
+                  statusFilter === 'CONTACTED' ? 'bg-sky-50 text-sky-800 font-bold border border-sky-200 shadow-2xs' : 'text-[#64748B] hover:text-[#0F172A]'
                 }`}
               >
                 Contacté
@@ -763,7 +763,7 @@ export default function DashboardPage() {
               <button
                 onClick={() => setStatusFilter('COMPLETED')}
                 className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer ${
-                  statusFilter === 'COMPLETED' ? 'bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30' : 'text-[#D9C8AE]/60 hover:text-white'
+                  statusFilter === 'COMPLETED' ? 'bg-emerald-50 text-emerald-800 font-bold border border-emerald-200 shadow-2xs' : 'text-[#64748B] hover:text-[#0F172A]'
                 }`}
               >
                 Terminé
@@ -772,7 +772,7 @@ export default function DashboardPage() {
 
             <Link 
               href="/admin/quotes" 
-              className="text-xs font-bold text-[#F2BD52] hover:text-white flex items-center gap-1.5 transition-colors px-3.5 py-2 rounded-full border border-[#E6A635]/30 hover:border-[#E6A635] bg-[#E6A635]/10"
+              className="text-xs font-bold text-[#996515] hover:text-[#0F172A] flex items-center gap-1.5 transition-colors px-3.5 py-2 rounded-full border border-[#C8960C]/30 hover:border-[#C8960C] bg-[#FDF8EE] shadow-2xs"
             >
               <span>Gérer tout</span> <ArrowRight className="size-3.5" />
             </Link>
@@ -781,16 +781,16 @@ export default function DashboardPage() {
 
         {/* Table Content */}
         {filteredQuotes.length === 0 ? (
-          <div className="p-12 text-center text-[#D9C8AE]/50 bg-[#15120F]/50 rounded-2xl border border-dashed border-[#3A2A1E]">
-            <Clock className="size-8 mx-auto mb-2 opacity-30 text-[#E6A635]" />
-            <p className="text-sm font-medium text-[#F7F4EE]">Aucune demande trouvée</p>
-            <p className="text-xs text-[#D9C8AE]/50 mt-1">
+          <div className="p-10 text-center text-[#64748B] bg-[#FAF8F5] rounded-xl border border-dashed border-[#E2DBD0]">
+            <Clock className="size-8 mx-auto mb-2 text-[#C8960C]/60" />
+            <p className="text-sm font-semibold text-[#0F172A]">Aucune demande trouvée</p>
+            <p className="text-xs text-[#64748B] mt-1">
               {searchTerm ? 'Essayez de modifier vos critères de recherche.' : 'Aucune demande enregistrée dans ce filtre.'}
             </p>
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm('')} 
-                className="mt-3 text-xs text-[#E6A635] hover:underline"
+                className="mt-3 text-xs text-[#C8960C] font-semibold hover:underline cursor-pointer"
               >
                 Réinitialiser la recherche
               </button>
@@ -800,38 +800,38 @@ export default function DashboardPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#3A2A1E] text-[10.5px] uppercase tracking-wider text-[#D9C8AE]/60">
-                  <th className="pb-3.5 font-semibold pl-2">Client</th>
-                  <th className="pb-3.5 font-semibold">Catégorie</th>
-                  <th className="pb-3.5 font-semibold">Projet / Modèle</th>
-                  <th className="pb-3.5 font-semibold">Date</th>
-                  <th className="pb-3.5 font-semibold">Statut</th>
-                  <th className="pb-3.5 text-right font-semibold pr-2">Action</th>
+                <tr className="border-b border-[#E8DFD4] text-[11px] uppercase tracking-wider text-[#475569] bg-[#FAF8F5]">
+                  <th className="py-3 font-bold pl-3">Client</th>
+                  <th className="py-3 font-bold">Catégorie</th>
+                  <th className="py-3 font-bold">Projet / Modèle</th>
+                  <th className="py-3 font-bold">Date</th>
+                  <th className="py-3 font-bold">Statut</th>
+                  <th className="py-3 text-right font-bold pr-3">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#3A2A1E]/50 text-xs">
+              <tbody className="divide-y divide-[#E8DFD4]/60 text-xs">
                 {filteredQuotes.slice(0, 10).map((q) => {
                   const sec = getSectionInfo(q)
                   const cleanPhone = (q.phoneNumber || '').replace(/\s+/g, '')
 
                   return (
-                    <tr key={q.id} className="hover:bg-[#261C15]/50 transition-colors group">
+                    <tr key={q.id} className="hover:bg-[#FAF8F5]/80 transition-colors group">
                       {/* Client */}
-                      <td className="py-4 pl-2 pr-3 font-medium text-[#F7F4EE]">
+                      <td className="py-3.5 pl-3 pr-3 font-medium text-[#0F172A]">
                         <div className="flex items-center gap-3">
-                          <div className="size-8 rounded-full bg-[#35251C] border border-[#E6A635]/30 flex items-center justify-center text-[#F2BD52] text-xs font-bold shrink-0">
+                          <div className="size-8 rounded-full bg-[#3A2A1E] text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
                             {(q.fullName || 'A').charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-semibold text-sm text-[#F7F4EE] leading-tight truncate max-w-[170px]">
+                            <p className="font-bold text-sm text-[#0F172A] leading-tight truncate max-w-[170px]">
                               {q.fullName}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
                               <a 
                                 href={`tel:${cleanPhone}`} 
-                                className="text-[10.5px] text-[#D9C8AE]/65 hover:text-[#F2BD52] transition-colors font-mono flex items-center gap-1"
+                                className="text-[11px] text-[#475569] hover:text-[#C17D59] transition-colors font-mono flex items-center gap-1 font-medium"
                               >
-                                <Phone className="size-2.5 text-[#E6A635]" />
+                                <Phone className="size-2.5 text-[#C8960C]" />
                                 <span>{q.phoneNumber}</span>
                               </a>
                               {cleanPhone && (
@@ -840,7 +840,7 @@ export default function DashboardPage() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   title="Ouvrir WhatsApp"
-                                  className="text-emerald-400 hover:text-emerald-300"
+                                  className="text-emerald-600 hover:text-emerald-700"
                                 >
                                   <MessageCircle className="size-3" />
                                 </a>
@@ -851,54 +851,54 @@ export default function DashboardPage() {
                       </td>
 
                       {/* Catégorie */}
-                      <td className="py-4 pr-3">
-                        <span className={`inline-block px-2.5 py-1 rounded-full text-[9.5px] uppercase font-bold border ${sec.badgeBg}`}>
+                      <td className="py-3.5 pr-3">
+                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold border ${sec.badgeBg}`}>
                           {sec.label}
                         </span>
                       </td>
 
                       {/* Projet / Modèle */}
-                      <td className="py-4 pr-3 max-w-md">
+                      <td className="py-3.5 pr-3 max-w-md">
                         {q.product && (
-                          <p className="text-xs font-bold text-[#F2BD52] truncate mb-0.5">
+                          <p className="text-xs font-bold text-[#0F172A] truncate mb-0.5">
                             {q.product.name}
                           </p>
                         )}
-                        <p className="text-[11px] text-[#D9C8AE]/70 line-clamp-1 font-light">
+                        <p className="text-[11px] text-[#475569] line-clamp-1 font-normal">
                           {q.personalizationDetails || q.message || 'Demande personnalisée'}
                         </p>
                       </td>
 
                       {/* Date */}
-                      <td className="py-4 pr-3 text-[11px] text-[#D9C8AE]/65 whitespace-nowrap font-mono">
+                      <td className="py-3.5 pr-3 text-[11px] text-[#64748B] whitespace-nowrap font-mono font-medium">
                         {new Date(q.createdDate).toLocaleDateString('fr-FR', { 
                           day: 'numeric', 
-                          month: 'short',
+                          month: 'short', 
                           year: 'numeric' 
                         })}
                       </td>
 
                       {/* Statut */}
-                      <td className="py-4 pr-3">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold ${
-                          q.status === 'PENDING' ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' :
-                          q.status === 'CONTACTED' ? 'bg-sky-500/15 text-sky-300 border border-sky-500/30' : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                      <td className="py-3.5 pr-3">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold border ${
+                          q.status === 'PENDING' ? 'bg-amber-50 text-amber-800 border-amber-200' :
+                          q.status === 'CONTACTED' ? 'bg-sky-50 text-sky-800 border-sky-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                         }`}>
                           <span className={`size-1.5 rounded-full ${
-                            q.status === 'PENDING' ? 'bg-amber-400 animate-pulse' :
-                            q.status === 'CONTACTED' ? 'bg-sky-400' : 'bg-emerald-400'
+                            q.status === 'PENDING' ? 'bg-amber-500 animate-pulse' :
+                            q.status === 'CONTACTED' ? 'bg-sky-500' : 'bg-emerald-500'
                           }`} />
                           <span>{q.status === 'PENDING' ? 'En attente' : q.status === 'CONTACTED' ? 'Contacté' : 'Terminé'}</span>
                         </span>
                       </td>
 
                       {/* Action */}
-                      <td className="py-4 pr-2 text-right">
+                      <td className="py-3.5 pr-3 text-right">
                         <Link
                           href={sec.link}
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-[#E6A635]/15 hover:bg-[#E6A635] text-[#F2BD52] hover:text-[#1A110B] border border-[#E6A635]/35 hover:border-transparent transition-all shadow-xs"
+                          className="inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FAF8F5] hover:bg-[#EFECE6] text-[#0F172A] border border-[#E2DBD0] hover:border-[#C8960C] transition-all shadow-2xs"
                         >
-                          <span>Gérer</span> <ArrowUpRight className="size-3" />
+                          <span>Gérer</span> <ArrowUpRight className="size-3 text-[#C8960C]" />
                         </Link>
                       </td>
                     </tr>

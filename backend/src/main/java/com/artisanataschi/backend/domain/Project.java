@@ -1,9 +1,11 @@
 package com.artisanataschi.backend.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "projects")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Project {
 
     @Id

@@ -88,22 +88,62 @@ export default function BijouxDePortePage() {
   const [doorStudySent, setDoorStudySent] = useState(false)
   const [doorStudyLoading, setDoorStudyLoading] = useState(false)
 
-  // Synchronisation initiale URL & localStorage
+  const [loading, setLoading] = useState(true)
+
+  // Synchronisation initiale URL & Supabase
   useEffect(() => {
     const hash = window.location.hash
     const params = new URLSearchParams(window.location.search)
     if (hash === '#meubles' || params.get('cat') === 'meubles') setMainCat('meubles')
     else if (hash === '#portes' || params.get('cat') === 'portes') setMainCat('portes')
 
-    try {
-      const saved = localStorage.getItem('aschi_bijoux_boards_user_v1')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed) && parsed.length > 0) setBoards(parsed)
+    async function fetchBoards() {
+      try {
+        setLoading(true)
+        const res = await fetch('/api/bijoux-de-porte')
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data) && data.length > 0) {
+            // Détection si l'utilisateur a des images personnalisées placées dans son localStorage
+            try {
+              const localSaved = localStorage.getItem('aschi_bijoux_boards_user_v1') || localStorage.getItem('aschi_bijoux_boards')
+              if (localSaved) {
+                const parsed = JSON.parse(localSaved)
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  const hasCustomImages = parsed.some(lb => {
+                    const sb = data.find(d => d.id === lb.id)
+                    return sb && sb.image !== lb.image
+                  })
+                  if (hasCustomImages) {
+                    console.log('🔄 Images personnalisées détectées dans le navigateur : mise à jour de Supabase en cours...')
+                    setBoards(parsed)
+                    // Synchronisation vers Supabase en arrière-plan pour écraser les anciennes images
+                    for (const lb of parsed) {
+                      fetch('/api/bijoux-de-porte', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(lb)
+                      }).catch(() => {})
+                    }
+                    return
+                  }
+                }
+              }
+            } catch (e) {
+              console.error('Erreur lecture localStorage:', e)
+            }
+
+            setBoards(data)
+            return
+          }
+        }
+      } catch (err) {
+        console.error('Erreur chargement Supabase bijoux-de-porte:', err)
+      } finally {
+        setLoading(false)
       }
-    } catch (e) {
-      console.error('Failed to parse saved boards', e)
     }
+    fetchBoards()
   }, [])
 
   // Fermeture des modales via Échap

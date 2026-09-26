@@ -6,7 +6,7 @@ import { Footer } from '@/components/site/footer'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Briefcase, Building, Building2, Hotel, UtensilsCrossed, Sparkles, MapPin, ChevronRight, ChevronLeft, X, Play, Pause, Volume2, VolumeX, Image as ImageIcon, ArrowUpRight, Star, MessageCircle, Home, Lamp, DoorOpen, Sofa, Palette, CheckCircle2, Send, Phone, Mail, User, Hammer, Truck, Ruler, Eye, ZoomIn, Maximize2, Gem, Layers, Grid, Check, Compass, ShieldCheck, FileText, ArrowRight, Upload } from 'lucide-react'
+import { Briefcase, Building, Building2, Hotel, UtensilsCrossed, Sparkles, MapPin, ChevronRight, ChevronLeft, X, Play, Pause, Volume2, VolumeX, Image as ImageIcon, ArrowUpRight, Star, MessageCircle, Home, Lamp, DoorOpen, Sofa, Palette, CheckCircle2, Send, Phone, Mail, User, Hammer, Truck, Ruler, Eye, ZoomIn, Maximize2, Gem, Layers, Grid, Check, Compass, ShieldCheck, FileText, ArrowRight, Upload, Film } from 'lucide-react'
 import { Reveal } from '@/components/site/reveal'
 import { publicApi } from '@/lib/api'
 import { MobileFloatingVIP } from '@/components/site/mobile-floating-vip'
@@ -744,133 +744,67 @@ function TurnkeyProjectCard({
   onOpen: (p: any) => void
   filterTypes: { id: string; label: string }[]
 }) {
-  const [activeMedia, setActiveMedia] = useState<'image' | 'video'>('image')
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [isMuted, setIsMuted] = useState(true)
-  const videoRef = useRef<HTMLVideoElement>(null)
-
   const hasVideo = Boolean(project.video || project.videoUrl)
-  const videoSrc = project.video || project.videoUrl || ''
 
-  const toggleVideoPlay = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (!videoRef.current) return
-    if (isPlaying) {
-      videoRef.current.pause()
-      setIsPlaying(false)
-    } else {
-      videoRef.current.play()
-      setIsPlaying(true)
+  // Extraire toutes les photos de manière propre et dédoublonnée
+  const allPhotos: string[] = useMemo(() => {
+    let list: string[] = []
+    if (Array.isArray(project.gallery) && project.gallery.length > 0) {
+      list = project.gallery
+    } else if (typeof project.gallery === 'string' && project.gallery.trim()) {
+      list = project.gallery.split(',').map((s: string) => s.trim()).filter(Boolean)
+    } else if (project.image) {
+      list = project.image.split(',').map((s: string) => s.trim()).filter(Boolean)
     }
-  }
+    const cleaned = list.flatMap((s: string) => s.split(',').map(x => x.trim())).filter(Boolean)
+    return cleaned.length > 0 ? cleaned : ['/project-hotel.png']
+  }, [project])
 
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (!videoRef.current) return
-    videoRef.current.muted = !isMuted
-    setIsMuted(!isMuted)
-  }
-
+  const coverPhotoSrc = allPhotos[0] || (project.image ? project.image.split(',')[0].trim() : '') || '/project-hotel.png'
   const categoryLabel = filterTypes.find(t => t.id === project.type)?.label || project.type
 
   return (
     <div
       onClick={() => onOpen(project)}
-      className="group relative flex flex-col h-full rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-b from-[#342318]/95 via-[#2A1C14]/95 to-[#1F140E]/98 border border-[#E6A635]/30 hover:border-[#E6A635]/80 backdrop-blur-xl shadow-[0_12px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_22px_55px_rgba(0,0,0,0.85)] transition-all duration-500 cursor-pointer hover:-translate-y-1.5"
+      className="group relative flex flex-col h-full rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-b from-[#342318]/95 via-[#2A1C14]/95 to-[#1F140E]/98 border border-[#E6A635]/30 hover:border-[#E6A635]/80 backdrop-blur-xl shadow-[0_12px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_22px_55px_rgba(230,166,53,0.25)] transition-all duration-500 cursor-pointer hover:-translate-y-1.5"
     >
-      {/* ── Cadre Média 16:10 ── */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#160E0A] shrink-0">
-        {activeMedia === 'video' && hasVideo ? (
-          <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
-            <video
-              ref={videoRef}
-              src={videoSrc}
-              muted={isMuted}
-              autoPlay
-              loop
-              playsInline
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              className="w-full h-full object-cover"
-            />
-            {/* Commandes Vidéo Inline */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/35 pointer-events-none" />
-            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between z-20">
-              <button
-                type="button"
-                onClick={toggleVideoPlay}
-                className="size-8 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/50 text-[#F2BD52] flex items-center justify-center hover:scale-110 transition-transform cursor-pointer shadow-md"
-                aria-label={isPlaying ? "Pause" : "Lecture"}
-              >
-                {isPlaying ? <Pause className="size-3.5" /> : <Play className="size-3.5 fill-current ml-0.5" />}
-              </button>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={toggleMute}
-                  className="size-8 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/50 text-[#F2BD52] flex items-center justify-center hover:scale-110 transition-transform cursor-pointer shadow-md"
-                  aria-label={isMuted ? "Activer le son" : "Couper le son"}
-                >
-                  {isMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveMedia('image')}
-                  className="px-2.5 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/40 text-[10px] uppercase font-bold text-white hover:text-[#F2BD52] transition-colors"
-                >
-                  Photo
-                </button>
-              </div>
+      {/* ── Cadre Couverture Photo (Optimisée, Légère & Rapide — Pas de vidéo lourde sur la couverture) ── */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#160E0A] shrink-0 border-b border-[#E6A635]/20">
+        <Image
+          src={coverPhotoSrc}
+          alt={project.title}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1F140E] via-[#1F140E]/20 to-transparent opacity-85 group-hover:opacity-50 transition-opacity" />
+
+        {/* Badges Flottants Haut */}
+        <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
+          {project.location ? (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-semibold backdrop-blur-md shadow-md">
+              <MapPin className="size-3 text-[#E6A635]" />
+              <span>{project.location}</span>
             </div>
-          </div>
-        ) : (
-          <div className="relative w-full h-full">
-            <Image
-              src={project.image || (project.gallery && project.gallery[0]) || '/project-hotel.png'}
-              alt={project.title}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1F140E] via-[#1F140E]/25 to-transparent opacity-85 group-hover:opacity-60 transition-opacity" />
+          ) : <div />}
 
-            {/* Badges Flottants Haut */}
-            <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
-              {project.location ? (
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-semibold backdrop-blur-md shadow-md">
-                  <MapPin className="size-3 text-[#E6A635]" />
-                  <span>{project.location}</span>
-                </div>
-              ) : <div />}
-
-              {/* Bouton switcher vidéo si disponible */}
-              {hasVideo && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setActiveMedia('video')
-                  }}
-                  className="pointer-events-auto group/vid inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1A110B]/95 hover:bg-[#E6A635] text-[#F2BD52] hover:text-[#1A110B] border border-[#E6A635]/50 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-105"
-                >
-                  <Play className="size-3 fill-current" />
-                  <span>Aperçu Vidéo</span>
-                </button>
-              )}
+          {/* Badge discret si vidéo disponible à l'intérieur */}
+          {hasVideo && (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/95 border border-[#E6A635]/50 text-[#F2BD52] text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
+              <Film className="size-3 text-[#E6A635]" />
+              <span>Vidéo incluse</span>
             </div>
+          )}
+        </div>
 
-            {/* Pastille nombre de photos si galerie multiple */}
-            {project.gallery && project.gallery.length > 1 && (
-              <div className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#1A110B]/85 border border-white/20 text-white/85 text-[10px] font-medium backdrop-blur-md">
-                <ImageIcon className="size-3 text-[#E6A635]" />
-                <span>{project.gallery.length} photos</span>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Badge nombre de photos en bas à droite */}
+        <div className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/90 border border-white/20 text-white/90 text-[10px] font-medium backdrop-blur-md shadow-sm">
+          <ImageIcon className="size-3 text-[#E6A635]" />
+          <span>{allPhotos.length} photo{allPhotos.length > 1 ? 's' : ''}</span>
+        </div>
       </div>
 
-      {/* ── Corps de la Carte ── */}
+      {/* ── 3. CORPS DE LA CARTE (Informations & Finitions Nobles) ── */}
       <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 gap-3 text-left">
         <div>
           {/* Tag Catégorie */}
@@ -882,7 +816,7 @@ function TurnkeyProjectCard({
           </div>
 
           {/* Titre */}
-          <h3 className="font-heading text-lg sm:text-xl text-white font-normal leading-snug group-hover:text-[#F2BD52] transition-colors mb-2 line-clamp-1">
+          <h3 className="font-heading text-lg sm:text-xl text-white font-medium leading-snug group-hover:text-[#F2BD52] transition-colors mb-2 line-clamp-1">
             {project.title}
           </h3>
 
@@ -917,8 +851,8 @@ function TurnkeyProjectCard({
             <span>Explorer le projet</span>
             <ArrowRight className="size-3.5" />
           </span>
-          <span className="size-7 rounded-full bg-[#241812] border border-[#E6A635]/35 flex items-center justify-center text-[#F2BD52] group-hover:bg-[#E6A635] group-hover:text-[#1A110B] group-hover:rotate-45 transition-all">
-            <ArrowUpRight className="size-3.5" />
+          <span className="size-8 rounded-full bg-[#241812] border border-[#E6A635]/35 flex items-center justify-center text-[#F2BD52] group-hover:bg-[#E6A635] group-hover:text-[#1A110B] group-hover:scale-110 transition-all shadow-md">
+            <ArrowUpRight className="size-4" />
           </span>
         </div>
       </div>
@@ -938,6 +872,8 @@ export default function TurnkeyProjectsPage() {
   const [lightboxProject, setLightboxProject] = useState<{ images: string[]; currentIndex: number; title: string } | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isModalMuted, setIsModalMuted] = useState(true)
+  const [modalActiveView, setModalActiveView] = useState<'video' | number>('video')
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -946,16 +882,40 @@ export default function TurnkeyProjectsPage() {
         if (Array.isArray(data)) {
           const mapped = data.map((p) => {
             const normType = normalizeCategory(p.category)
+            let galleryImgs: string[] = []
+            if (Array.isArray(p.gallery) && p.gallery.length > 0) {
+              galleryImgs = p.gallery
+            } else if (typeof p.gallery === 'string' && (p.gallery as string).trim()) {
+              galleryImgs = (p.gallery as string).split(',').map((s: string) => s.trim()).filter(Boolean)
+            } else if (Array.isArray(p.images) && p.images.length > 0) {
+              galleryImgs = p.images.map((im: any) => typeof im === 'string' ? im : (im.imageUrl || '')).filter(Boolean)
+            } else if (p.imageUrl) {
+              galleryImgs = p.imageUrl.split(',').map((s: string) => s.trim()).filter(Boolean)
+            }
+            try {
+              const localImgs = typeof window !== 'undefined' ? localStorage.getItem(`project_gallery_${p.id}`) : null
+              if (localImgs) {
+                const parsed = JSON.parse(localImgs)
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  galleryImgs = Array.from(new Set([...galleryImgs, ...parsed]))
+                }
+              }
+            } catch (_) {}
+
+            if (galleryImgs.length === 0) {
+              galleryImgs = ['/project-hotel.png']
+            }
+
             return {
               id: p.id,
               title: p.title,
               location: p.location || 'Tunisie',
               type: normType,
               category: p.category || 'Projet Clé en Main',
-              image: p.imageUrl || '/project-hotel.png',
+              image: galleryImgs[0] || p.imageUrl || '/project-hotel.png',
               description: p.description || '',
               details: p.details ? p.details.split(',').map(d => d.trim()).filter(Boolean) : ['Aménagement d\'artisanat d\'art'],
-              gallery: [p.imageUrl || '/project-hotel.png'],
+              gallery: galleryImgs,
               video: p.videoUrl || p.video || '',
               review: null
             }
@@ -992,6 +952,9 @@ export default function TurnkeyProjectsPage() {
     setSelectedProject(project)
     setActiveImageIdx(0)
     setIsPlaying(false)
+    setIsModalMuted(true)
+    const hasVid = Boolean(project.video || project.videoUrl)
+    setModalActiveView(hasVid ? 'video' : 0)
   }
 
   const handleCloseProject = () => {
@@ -1007,6 +970,12 @@ export default function TurnkeyProjectsPage() {
       videoRef.current.play()
     }
     setIsPlaying(!isPlaying)
+  }
+
+  const toggleModalMute = () => {
+    if (!videoRef.current) return
+    videoRef.current.muted = !isModalMuted
+    setIsModalMuted(!isModalMuted)
   }
 
   const handleSelectDomainAndQuote = (sectorId: string) => {
@@ -1255,173 +1224,308 @@ export default function TurnkeyProjectsPage() {
                   <X className="size-4 sm:size-5" />
                 </button>
 
-                {/* LEFT COLUMN: Media */}
-                <div className="w-full md:w-[55%] flex flex-col border-b md:border-b-0 md:border-r border-[#E6A635]/20 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5 scrollbar-thin">
-
-                  {/* Main Large Image — Click to zoom */}
-                  <div
-                    onClick={() => setLightboxProject({
-                      images: selectedProject.gallery,
-                      currentIndex: activeImageIdx,
-                      title: selectedProject.title
-                    })}
-                    className="relative w-full aspect-[16/10] rounded-xl sm:rounded-2xl overflow-hidden border border-[#E6A635]/30 bg-[#1A110B] cursor-zoom-in group/img"
-                  >
-                    <Image
-                      src={selectedProject.gallery[activeImageIdx]}
-                      alt={selectedProject.title}
-                      fill
-                      className="object-cover transition-all duration-500 group-hover/img:scale-105"
-                    />
-                    
-                    {/* Zoom indicator badge */}
-                    <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#241812]/90 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[9.5px] sm:text-[10px] font-semibold shadow-md pointer-events-none group-hover/img:bg-[#E6A635] group-hover/img:text-[#1A110B] transition-colors">
-                      <ZoomIn className="size-3 sm:size-3.5" />
-                      <span>Agrandir</span>
+                {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif */}
+                <div className="w-full md:w-[58%] flex flex-col border-b md:border-b-0 md:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/60">
+                  
+                  {/* Barre supérieure d'état du média */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {modalActiveView === 'video' ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#241812] border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                          <Film className="size-3.5 text-[#E6A635]" />
+                          <span>Vidéo du Projet &amp; Réalisation</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#241812] border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                          <ImageIcon className="size-3.5 text-[#E6A635]" />
+                          <span>Photo {(typeof modalActiveView === 'number' ? modalActiveView : 0) + 1} / {selectedProject.gallery?.length || 1}</span>
+                        </span>
+                      )}
                     </div>
 
-                    {/* Gallery nav arrows */}
-                    {selectedProject.gallery.length > 1 && (
+                    {modalActiveView === 'video' ? (
+                      <button
+                        type="button"
+                        onClick={toggleModalMute}
+                        className="size-7 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 text-[#F2BD52] flex items-center justify-center hover:bg-[#E6A635] hover:text-[#1A110B] transition-colors shadow-sm cursor-pointer"
+                        title={isModalMuted ? "Activer le son" : "Couper le son"}
+                      >
+                        {isModalMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setLightboxProject({
+                          images: selectedProject.gallery,
+                          currentIndex: typeof modalActiveView === 'number' ? modalActiveView : 0,
+                          title: selectedProject.title
+                        })}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-semibold hover:bg-[#E6A635] hover:text-[#1A110B] transition-colors cursor-pointer shadow-sm"
+                      >
+                        <ZoomIn className="size-3" />
+                        <span>Agrandir</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE (16:9) ── */}
+                  <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#120B08] shadow-[0_10px_30px_rgba(0,0,0,0.8)] group/media">
+                    {modalActiveView === 'video' && (selectedProject.video || selectedProject.videoUrl) ? (
                       <>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setActiveImageIdx(i => i === 0 ? selectedProject.gallery.length - 1 : i - 1)
-                          }}
-                          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] transition-colors cursor-pointer"
-                          aria-label="Image précédente"
-                        >
-                          <ChevronLeft className="size-4" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setActiveImageIdx(i => i === selectedProject.gallery.length - 1 ? 0 : i + 1)
-                          }}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] transition-colors cursor-pointer"
-                          aria-label="Image suivante"
-                        >
-                          <ChevronRight className="size-4" />
-                        </button>
+                        <video
+                          ref={videoRef}
+                          src={selectedProject.video || selectedProject.videoUrl}
+                          muted={isModalMuted}
+                          autoPlay
+                          loop
+                          playsInline
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+
+                        {/* Badge HD discret en haut à droite */}
+                        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/50 text-[#F2BD52] text-[9.5px] font-bold uppercase tracking-wider backdrop-blur-md shadow-md pointer-events-none">
+                          <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span>Vidéo HD</span>
+                        </div>
+
+                        {/* Contrôle du Son en bas à droite (Bouton Start central 100% MASQUÉ) */}
+                        <div className="absolute bottom-3 right-3 z-20">
+                          <button
+                            type="button"
+                            onClick={toggleModalMute}
+                            className="size-8 rounded-full bg-[#1A110B]/85 hover:bg-[#E6A635] text-[#F2BD52] hover:text-[#1A110B] border border-[#E6A635]/40 flex items-center justify-center transition-all cursor-pointer shadow-md backdrop-blur-md"
+                            title={isModalMuted ? "Activer le son" : "Couper le son"}
+                          >
+                            {isModalMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Image
+                          src={
+                            (selectedProject.gallery && selectedProject.gallery[typeof modalActiveView === 'number' ? modalActiveView : 0]?.split(',')[0]?.trim()) ||
+                            (selectedProject.image ? selectedProject.image.split(',')[0].trim() : '') ||
+                            '/project-hotel.png'
+                          }
+                          alt={selectedProject.title}
+                          fill
+                          className="object-cover transition-transform duration-700 ease-out group-hover/media:scale-105 cursor-zoom-in"
+                          onClick={() => setLightboxProject({
+                            images: selectedProject.gallery,
+                            currentIndex: typeof modalActiveView === 'number' ? modalActiveView : 0,
+                            title: selectedProject.title
+                          })}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+
+                        {/* Flèches de navigation photo */}
+                        {selectedProject.gallery && selectedProject.gallery.length > 1 && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                const cur = typeof modalActiveView === 'number' ? modalActiveView : 0
+                                const next = cur === 0 ? selectedProject.gallery.length - 1 : cur - 1
+                                setModalActiveView(next)
+                              }}
+                              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] transition-colors cursor-pointer shadow-md"
+                              aria-label="Image précédente"
+                            >
+                              <ChevronLeft className="size-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                const cur = typeof modalActiveView === 'number' ? modalActiveView : 0
+                                const next = cur === selectedProject.gallery.length - 1 ? 0 : cur + 1
+                                setModalActiveView(next)
+                              }}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] transition-colors cursor-pointer shadow-md"
+                              aria-label="Image suivante"
+                            >
+                              <ChevronRight className="size-4" />
+                            </button>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
 
-                  {/* Thumbnails */}
-                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-                    {selectedProject.gallery.map((img: string, idx: number) => (
-                      <button
-                        key={idx}
-                        onClick={() => setActiveImageIdx(idx)}
-                        className={`relative w-16 sm:w-20 aspect-[16/10] rounded-lg sm:rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
-                          activeImageIdx === idx ? 'border-[#E6A635] shadow-[0_0_10px_rgba(230,166,53,0.3)] scale-[0.97]' : 'border-[#E6A635]/20 opacity-50 hover:opacity-80'
-                        }`}
-                      >
-                        <Image src={img} alt="Miniature" fill className="object-cover" />
-                      </button>
-                    ))}
+                  {/* ── RUBAN DE MINIATURES INTERACTIF (VIDÉO + TOUTES LES PHOTOS) ── */}
+                  <div className="pt-1">
+                    <p className="text-[9.5px] uppercase tracking-wider text-[#F2BD52]/70 font-semibold mb-2 flex items-center justify-between">
+                      <span>Sélectionnez un aperçu :</span>
+                      <span className="text-white/40 font-normal">
+                        {(Boolean(selectedProject.video || selectedProject.videoUrl) ? 1 : 0) + (selectedProject.gallery?.length || 0)} médias disponibles
+                      </span>
+                    </p>
+
+                    <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-thin items-center">
+                      {/* Miniature Vidéo si disponible */}
+                      {(selectedProject.video || selectedProject.videoUrl) && (
+                        <button
+                          type="button"
+                          onClick={() => setModalActiveView('video')}
+                          className={`relative w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer flex flex-col items-center justify-center bg-black ${
+                            modalActiveView === 'video'
+                              ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.5)] scale-[0.98]'
+                              : 'border-[#E6A635]/25 opacity-60 hover:opacity-100 hover:border-[#E6A635]/60'
+                          }`}
+                        >
+                          <video
+                            src={selectedProject.video || selectedProject.videoUrl}
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#E6A635] text-[#1A110B] text-[8.5px] font-extrabold uppercase shadow-sm">
+                              <Film className="size-2.5 fill-current" /> Vidéo
+                            </span>
+                          </div>
+                        </button>
+                      )}
+
+                      {/* Miniatures des Photos */}
+                      {selectedProject.gallery && selectedProject.gallery.map((img: string, idx: number) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setModalActiveView(idx)}
+                          className={`relative w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                            modalActiveView === idx
+                              ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.5)] scale-[0.98]'
+                              : 'border-[#E6A635]/25 opacity-60 hover:opacity-100 hover:border-[#E6A635]/60'
+                          }`}
+                        >
+                          <Image src={img.split(',')[0].trim()} alt="Miniature" fill className="object-cover" />
+                          <span className="absolute bottom-1 right-1 px-1.5 py-0.2 rounded bg-black/75 text-[8.5px] text-white/90 font-medium">
+                            {idx + 1}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Video Player — displayed on all screens including mobile */}
-                  {(selectedProject.video || selectedProject.videoUrl) && (
-                    <div className="space-y-2 pt-1">
-                      <h4 className="text-[9.5px] sm:text-[10px] uppercase tracking-[0.15em] text-[#F2BD52]/70 font-bold text-left">Aperçu Vidéo de l&apos;Atelier</h4>
-                      <div className="relative w-full aspect-[16/9] rounded-xl sm:rounded-2xl overflow-hidden border border-[#E6A635]/20 bg-[#1A110B] shadow-inner group/video">
-                        <video
-                          ref={videoRef}
-                          src={selectedProject.video || selectedProject.videoUrl}
-                          muted
-                          autoPlay
-                          loop
-                          playsInline
-                          className="w-full h-full object-cover opacity-80"
-                        />
-                        <div
-                          onClick={togglePlay}
-                          className="absolute inset-0 bg-black/30 flex items-center justify-center cursor-pointer group-hover/video:bg-black/40 transition-colors"
-                        >
-                          <div className="size-11 sm:size-12 rounded-full bg-[#E6A635]/90 text-[#1A110B] flex items-center justify-center transition-transform hover:scale-110 shadow-lg">
-                            {isPlaying ? (
-                              <div className="flex gap-1">
-                                <div className="w-1 h-4 bg-[#1A110B] rounded-full" />
-                                <div className="w-1 h-4 bg-[#1A110B] rounded-full" />
-                              </div>
-                            ) : (
-                              <Play className="size-5 fill-current ml-0.5" />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
-                {/* RIGHT COLUMN: Details, Review, CTA */}
-                <div className="w-full md:w-[45%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-5 text-left scrollbar-thin">
+                {/* RIGHT COLUMN: Détails de Prestige, Spécifications Nobles & CTA */}
+                <div className="w-full md:w-[42%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
+                  
+                  {/* En-tête du projet */}
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9.5px] sm:text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full font-bold shadow-sm">
+                        <Sparkles className="size-2.5" />
+                        {FILTER_TYPES.find(t => t.id === selectedProject.type)?.label || selectedProject.type}
+                      </span>
+                      {selectedProject.location && (
+                        <div className="flex items-center gap-1 text-[11px] text-[#F2BD52] font-medium">
+                          <MapPin className="size-3 text-[#E6A635]" />
+                          <span>{selectedProject.location}</span>
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Meta */}
-                  <div className="space-y-3 sm:space-y-4">
-                    <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9.5px] sm:text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full font-bold shadow-sm">
-                      <Sparkles className="size-2.5" />
-                      {FILTER_TYPES.find(t => t.id === selectedProject.type)?.label || selectedProject.type}
-                    </span>
-
-                    <h3 className="font-heading text-2xl sm:text-3xl text-gold-gradient font-light leading-tight">
+                    <h3 className="font-heading text-2xl sm:text-3xl text-gold-gradient font-light leading-snug">
                       {selectedProject.title}
                     </h3>
 
-                    <div className="flex items-center gap-1.5 text-xs text-[#F2BD52]/80">
-                      <MapPin className="size-3.5 text-[#E6A635]" />
-                      {selectedProject.location}
+                    {selectedProject.description ? (
+                      <p className="text-xs sm:text-sm text-white/80 font-light leading-relaxed">
+                        {selectedProject.description}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-white/70 font-light leading-relaxed">
+                        Conception intégrale et aménagements artisanaux d&apos;exception réalisés par l&apos;Atelier Aschi.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* ── NOUVELLE GRILLE DE SPÉCIFICATIONS HAUTE COUTURE (COMBLE LE VIDE) ── */}
+                  <div className="grid grid-cols-2 gap-2.5 py-1">
+                    <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                      <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
+                        <Hammer className="size-3 text-[#E6A635]" /> Aménagement
+                      </span>
+                      <span className="text-xs text-white font-medium block mt-1 truncate">
+                        {FILTER_TYPES.find(t => t.id === selectedProject.type)?.label || 'Aménagement Sur-Mesure'}
+                      </span>
                     </div>
 
-                    <p className="text-xs sm:text-sm text-white/75 font-light leading-relaxed">
-                      {selectedProject.description}
-                    </p>
+                    <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                      <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
+                        <Sparkles className="size-3 text-[#E6A635]" /> Essences Nobles
+                      </span>
+                      <span className="text-xs text-white font-medium block mt-1 truncate">
+                        {selectedProject.materials || 'Noyer Massif & Bois d\'Art'}
+                      </span>
+                    </div>
 
-                    {/* Works pills */}
+                    <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                      <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
+                        <Ruler className="size-3 text-[#E6A635]" /> Bureau d&apos;Étude
+                      </span>
+                      <span className="text-xs text-white font-medium block mt-1 truncate">
+                        Plans 3D sous 48h
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                      <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
+                        <Truck className="size-3 text-[#E6A635]" /> Exécution
+                      </span>
+                      <span className="text-xs text-white font-medium block mt-1 truncate">
+                        Pose Clé en Main Tunisie
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Réalisations incluses */}
+                  {selectedProject.details && selectedProject.details.length > 0 && (
                     <div>
-                      <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.15em] text-[#F2BD52]/60 font-bold mb-2">Réalisations incluses</p>
+                      <p className="text-[9.5px] uppercase tracking-[0.14em] text-[#F2BD52]/80 font-bold mb-2 flex items-center gap-1.5">
+                        <CheckCircle2 className="size-3 text-[#E6A635]" /> Réalisations d&apos;art incluses
+                      </p>
                       <div className="flex flex-wrap gap-1.5">
                         {selectedProject.details.map((detail: string, idx: number) => (
-                          <span key={idx} className="bg-[#241812] border border-[#E6A635]/20 px-2.5 py-1 rounded-lg text-[10px] text-white/75 font-light">
+                          <span
+                            key={idx}
+                            className="bg-[#241812] border border-[#E6A635]/30 px-2.5 py-1 rounded-lg text-[10px] text-white/90 font-medium shadow-sm"
+                          >
                             {detail}
                           </span>
                         ))}
                       </div>
                     </div>
-                  </div>
-
-                  {/* Testimonial — hidden on mobile */}
-                  {selectedProject.review && (
-                    <div className="hidden sm:block bg-[#241812]/80 border border-[#E6A635]/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 space-y-2.5">
-                      <div className="flex gap-0.5">
-                        {[...Array(selectedProject.review.rating)].map((_, i) => (
-                          <Star key={i} className="size-3 sm:size-3.5 fill-[#E6A635] text-[#E6A635]" />
-                        ))}
-                      </div>
-                      <p className="text-[10px] sm:text-[11px] text-white/60 italic leading-relaxed">
-                        &quot;{selectedProject.review.comment}&quot;
-                      </p>
-                      <div className="border-t border-[#E6A635]/15 pt-2 flex flex-col">
-                        <span className="text-xs font-semibold text-white">{selectedProject.review.author}</span>
-                        <span className="text-[10px] text-white/40">{selectedProject.review.role}</span>
-                      </div>
-                    </div>
                   )}
 
+                  {/* Sceau d'authenticité Atelier Aschi */}
+                  <div className="p-3 rounded-xl bg-gradient-to-r from-[#241812] via-[#2F1E14] to-[#241812] border border-[#E6A635]/30 flex items-center gap-3 shadow-inner">
+                    <div className="size-8 rounded-lg bg-[#E6A635]/15 border border-[#E6A635]/40 flex items-center justify-center shrink-0">
+                      <Sparkles className="size-4 text-[#F2BD52]" />
+                    </div>
+                    <p className="text-[10px] sm:text-[10.5px] text-white/85 font-light leading-snug">
+                      <strong className="text-[#F2BD52] font-semibold">Excellence Aschi :</strong> Façonnage artisanal dans notre atelier et pose millimétrique garantie.
+                    </p>
+                  </div>
+
                   {/* Action buttons */}
-                  <div className="pt-3 border-t border-[#E6A635]/15 space-y-2.5">
+                  <div className="pt-2 border-t border-[#E6A635]/20 space-y-2.5">
                     <a
                       href={`https://wa.me/21655743760?text=${encodeURIComponent(
                         `Bonjour Maison Aschi, j'ai vu votre réalisation "${selectedProject.title}" et je souhaite une étude d'aménagement similaire pour mon établissement.`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn-sheen w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white px-6 py-3 sm:py-3.5 text-xs font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                      className="btn-sheen w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
                     >
                       <MessageCircle className="size-4 fill-white/20" />
-                      Demander une Étude sur WhatsApp
+                      <span>Demander une Étude sur WhatsApp</span>
                     </a>
                     <button
                       onClick={() => {
@@ -1430,12 +1534,13 @@ export default function TurnkeyProjectsPage() {
                           document.getElementById('demande-projet')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                         }, 300)
                       }}
-                      className="btn-sheen w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-3 sm:py-3.5 text-xs font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                      className="btn-sheen w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
                     >
-                      Je veux un projet similaire
+                      <span>Je veux un projet similaire</span>
                       <ChevronRight className="size-3.5" />
                     </button>
                   </div>
+
                 </div>
               </motion.div>
             </motion.div>
@@ -1547,7 +1652,7 @@ export default function TurnkeyProjectsPage() {
                           : 'border-white/20 opacity-50 hover:opacity-100'
                       }`}
                     >
-                      <Image src={img} alt="Miniature" fill className="object-cover" />
+                      <Image src={img.split(',')[0].trim()} alt="Miniature" fill className="object-cover" />
                     </button>
                   ))}
                 </div>

@@ -37,218 +37,7 @@ export interface BoardModel {
   tags: string[]
 }
 
-export const DEFAULT_BOARDS: BoardModel[] = [
-  // --- MEUBLES : PLANCHES MAÎTRESSES ---
-  {
-    id: 'planche-maitresse-formats',
-    title: 'Planche de Référence des 3 Formats',
-    subtitle: 'Grand (6-7 cm) • Ovale (7x4 cm) • Moyen (3-4 cm)',
-    category: 'meubles',
-    subType: 'ceramique',
-    sizeCategory: 'grand',
-    image: '/bijoux-de-porte.jpg',
-    dimensions: '3 formats standards d\'atelier',
-    description: 'Vue d\'ensemble des pièces en céramique émaillée peintes à la main. Chaque bouton est serti d\'une embase en bois noble tournée et visserie intégrée.',
-    idealFor: 'Tous meubles : Cuisines, Dressings, Bahuts, Tables de nuit',
-    tags: ['Céramique Majolique', '3 Formats', 'Multi-motifs', 'Finition Bois']
-  },
-  {
-    id: 'planche-meubles-grand',
-    title: 'Boutons Grands Ronds (6 à 7 cm)',
-    subtitle: 'Ligne Majolique Grand Format',
-    category: 'meubles',
-    subType: 'ceramique',
-    sizeCategory: 'grand',
-    image: '/bijoux-de-porte.jpg',
-    dimensions: 'Diamètre 6 à 7 cm',
-    description: 'Boutons monumentaux pour meuble offrant une prise en main généreuse. Motifs andalous peints main à l\'émail brillant.',
-    idealFor: 'Grands tiroirs, bahuts massifs, portes de dressing, espaces peu chargés',
-    tags: ['Grand Format 6-7cm', 'Prise ergonomique', 'Pièce maîtresse']
-  },
-  {
-    id: 'planche-meubles-moyen',
-    title: 'Boutons Moyens Ronds (3 à 4 cm)',
-    subtitle: 'Ligne Éléments de Cuisine & Commodes',
-    category: 'meubles',
-    subType: 'ceramique',
-    sizeCategory: 'moyen',
-    image: '/bijoux-de-porte.jpg',
-    dimensions: 'Diamètre 3 à 4 cm',
-    description: 'Le format le plus polyvalent de notre atelier. Décliné en dizaines de motifs d\'arabesques, rameaux d\'olivier et géométries bleues, ocres et vertes.',
-    idealFor: 'Cuisines complètes, commodes, tables de nuit, meubles de salle de bain',
-    tags: ['Format Polyvalent 3-4cm', 'Cuisines', 'Dressings']
-  },
-  {
-    id: 'planche-meubles-ovale',
-    title: 'Poignées Cuvettes Ovales (7 x 4 cm)',
-    subtitle: 'Ligne Ergonomique Profilée',
-    category: 'meubles',
-    subType: 'ceramique',
-    sizeCategory: 'ovale',
-    image: '/poignees/ceramique_in_situ_cuvette_ovale.jpg',
-    dimensions: '7 cm x 4 cm',
-    description: 'Poignées de forme ovale avec encadrement bois sculpté en cuvette. Une prise en main douce et un rendu visuel d\'exception sur double porte.',
-    idealFor: 'Dressings contemporains, bahuts beylicaux, éléments de cuisine haute',
-    tags: ['Format Ovale 7x4cm', 'Cuvette bois', 'Design Signature']
-  },
-  {
-    id: 'planche-meubles-sculptees',
-    title: 'Collection Poignées Sculptées en Bois',
-    subtitle: 'Planche des Mesures & Finitions',
-    category: 'meubles',
-    subType: 'sculptee',
-    image: '/poignees/sculptee_collection_affiche.jpg',
-    dimensions: '10 cm, 15 cm, 20 cm, 25 cm, 30 cm',
-    description: 'Poignées longilignes façonnées en bois noble avec ciselures triangulaires. Disponibles en 4 teintes signature : Blanc cérusé, Bleu majolique, Vert sauge et Ocre safran.',
-    idealFor: 'Armoires, portes de dressing, grands tiroirs, meubles personnalisés',
-    tags: ['Bois Sculpté', '5 Longueurs', '4 Teintes', 'Sur-mesure possible']
-  },
-  {
-    id: 'in-situ-cuisine',
-    title: 'Mise en situation : Cuisine Complète d\'Art',
-    subtitle: 'Harmonie de boutons ronds et ovales',
-    category: 'meubles',
-    subType: 'ceramique',
-    sizeCategory: 'moyen',
-    image: '/poignees/ceramique_in_situ_cuisine_complete.jpg',
-    dimensions: 'Mix formats 3-4 cm et 7x4 cm',
-    description: 'Exemple d\'agencement sur façade vert sauge. Les boutons céramiques apportent une chaleur artisanale incomparable à une cuisine moderne ou classique.',
-    idealFor: 'Inspiration aménagement de cuisine sur-mesure',
-    tags: ['Ambiance Cuisine', 'Vert Sauge', 'Mix & Match']
-  },
-  {
-    id: 'in-situ-buffet-vert',
-    title: 'Mise en situation : Buffet & Poignées Sculptées',
-    subtitle: 'Poignées ocre safran sur bois sculpté',
-    category: 'meubles',
-    subType: 'sculptee',
-    image: '/poignees/sculptee_in_situ_buffet_vert.jpg',
-    dimensions: 'Poignées 20 cm et 25 cm',
-    description: 'Combinaison de poignées sculptées ocre safran et panneaux de céramique incrustés sur meuble d\'apparat.',
-    idealFor: 'Bahuts, buffets de salon, meubles d\'entrée',
-    tags: ['Meuble d\'Apparat', 'Sculpture & Majolique', 'Finitions Royales']
-  },
-  {
-    id: 'details-fixation',
-    title: 'Détails Techniques & Fixations',
-    subtitle: 'Sertissage bois noble et vis métrique',
-    category: 'meubles',
-    subType: 'ceramique',
-    sizeCategory: 'moyen',
-    image: '/poignees/ceramique_fixation_details.jpg',
-    dimensions: 'Filetage standard M4 / M6 avec écrou',
-    description: 'Chaque cabochon en faïence est scellé dans une bague en chêne ou noyer tournée à la main. Fixation universelle prête à poser sur tout panneau de 16 à 40 mm.',
-    idealFor: 'Montage facile et durable',
-    tags: ['Fixation Universelle', 'Sertissage Bois', 'Haute Résistance']
-  },
-
-  // =========================================================================
-  // RÈGLE STRICTE & DÉFINITIVE : NE JAMAIS MODIFIER OU REMPLACER CES IMAGES !
-  // Ce sont les véritables photos d'atelier fournies par l'artisan.
-  // =========================================================================
-  // --- PORTES : VOS CRÉATIONS D'ATELIER (PHOTOS RÉELLES) ---
-  // 1. Poignées Céramique
-  {
-    id: 'porte-ceramique-verte-laiton',
-    title: 'Poignée Céramique Ovale sur Plaque Laiton',
-    subtitle: 'Émail peint main, cerclage bois noble & porte vert méditerranéen',
-    category: 'portes',
-    subType: 'ceramique',
-    image: '/poignees/client_porte_verte_poignee_ceramique.jpg',
-    dimensions: 'Médaillon 11 x 6 cm • Plaque 28 x 7 cm',
-    description: 'Poignée horizontale ovale en faïence émaillée peinte à la main, sertie dans une bague en bois noble tournée et montée sur plaque de propreté galbée en laiton massif avec clé forgée.',
-    idealFor: 'Portes de maître voûtées, villas méditerranéennes, demeures d\'hôtes de caractère',
-    tags: ['Céramique Peinte Main', 'Laiton Massif', 'Bague Bois', 'Finition Majolique']
-  },
-  {
-    id: 'porte-ceramique-rameaux-verts',
-    title: 'Poignée Céramique Ovale à Motifs Rameaux',
-    subtitle: 'Émail blanc à feuillages vert émeraude & plaque moucharabieh',
-    category: 'portes',
-    subType: 'ceramique',
-    image: '/poignees/client_porte_verte_rameaux.png',
-    dimensions: 'Médaillon 11 x 6 cm • Plaque 32 x 6.5 cm',
-    description: 'Médaillon ovale en céramique à motifs botaniques vert émeraude sur fond blanc. Monté sur plaque moucharabieh ajourée en fer patiné avec serrure traditionnelle.',
-    idealFor: 'Portes d\'entrée et grandes portes doubles battants de caractère',
-    tags: ['Feuillage d\'Olivier', 'Moucharabieh Ajouré', 'Fer Patiné', 'Fait Main']
-  },
-  {
-    id: 'porte-ceramique-bleue-sidibousaid',
-    title: 'Poignée Céramique Ovale & Porte Bleue',
-    subtitle: 'Faïence crème à motifs floraux & plaque bois sculptée',
-    category: 'portes',
-    subType: 'ceramique',
-    image: '/poignees/client_porte_bleue_ceramique.jpg',
-    dimensions: 'Médaillon 10 x 5.5 cm • Plaque 30 x 6 cm',
-    description: 'Médaillon ovale en faïence artisanale serti de bois, posé sur une plaque de propreté verticale sculptée à claire-voie sur porte bleue traditionnelle incrustée de carreaux de faïence.',
-    idealFor: 'Portes d\'inspiration Sidi Bou Saïd, maisons de charme, résidences balnéaires',
-    tags: ['Style Sidi Bou Saïd', 'Bois Noble Sculpté', 'Faïence Fine', 'Élégance Méditerranéenne']
-  },
-  {
-    id: 'porte-ceramique-majolique-bleue-ocre',
-    title: 'Médaillon Ovale Majolique Bleue & Ocre',
-    subtitle: 'Céramique andalouse sur moucharabieh bois cérusé',
-    category: 'portes',
-    subType: 'ceramique',
-    image: '/poignees/client_poignee_ovale_majolique_bleue.jpg',
-    dimensions: 'Médaillon 11 x 6 cm • Plaque 28 x 6 cm',
-    description: 'Pièce maîtresse ovale en faïence aux émaux bleu cobalt et ocre jaune, sertie d\'olivier et présentée sur plaque ajourée sculptée en moucharabieh blanc cérusé.',
-    idealFor: 'Portes nobles d\'apparat, entrées d\'exception',
-    tags: ['Majolique Bleue', 'Moucharabieh Cérusé', 'Bois d\'Olivier', 'Fait Main']
-  },
-
-  // 2. Poignées Sculptées
-  {
-    id: 'porte-sculptee-bois-rosette',
-    title: 'Poignée Sculptée à la Gouge & Rosace Losange',
-    subtitle: 'Bois massif ciselé & plaque ajourée façon moucharabieh',
-    category: 'portes',
-    subType: 'sculptee',
-    image: '/poignees/client_porte_sculptee_bois_rosette.jpg',
-    dimensions: 'Poignée 14 cm • Rosace 18 x 12 cm • Plaque 26 x 5 cm',
-    description: 'Ensemble sculpté main comprenant une poignée droite ciselée de losanges, une grande rosace murale en bas-relief géométrique et une plaque de serrure ajourée avec clé d\'époque.',
-    idealFor: 'Portes d\'entrée monumentales en bois massif, portes cloutées',
-    tags: ['Noyer Massif', 'Sculpture Gouge', 'Rosace Losange', 'Artisanat d\'Art']
-  },
-  {
-    id: 'porte-sculptee-sauge-doree',
-    title: 'Poignée Ciselée Dorée sur Porte Vert Sauge',
-    subtitle: 'Bois sculpté patiné doré & plaque ajourée',
-    category: 'portes',
-    subType: 'sculptee',
-    image: '/poignees/client_porte_sauge_poignee_doree.jpg',
-    dimensions: 'Poignée 15 cm • Plaque 30 x 6 cm',
-    description: 'Poignée ergonomique sculptée à reliefs géométriques avec finition patinée dorée, assortie à sa plaque de propreté ajourée sur porte moulurée vert pastel.',
-    idealFor: 'Portes d\'intérieur de maître, suites, salons d\'apparat',
-    tags: ['Finition Dorée', 'Bois Ciselé', 'Vert Sauge', 'Ferronnerie d\'Art']
-  },
-  {
-    id: 'poignee-sculptee-celadon-doree',
-    title: 'Poignée Sculptée Céladon & Plaque Dorée Ajourée',
-    subtitle: 'Harmonie vert céladon & ferronnerie d\'art dorée',
-    category: 'portes',
-    subType: 'sculptee',
-    image: '/poignees/client_poignee_sauge_plaque_doree.jpg',
-    dimensions: 'Poignée 15 cm • Plaque 30 x 6 cm',
-    description: 'Poignée en bois sculpté finition laque céladon / sauge sur plaque moucharabieh en métal doré ajouré avec motif en losanges.',
-    idealFor: 'Portes intérieures de prestige, meubles monumentaux',
-    tags: ['Sculpture Main', 'Plaque Dorée', 'Vert Céladon', 'Prise en Main Douce']
-  },
-
-  // 3. Cache Serrure
-  {
-    id: 'porte-cache-serrure',
-    title: 'Cache Serrure & Visiophone Sculpté en Moucharabieh',
-    subtitle: 'Habillage d\'art pour interphone, sonnette & serrure technique',
-    category: 'portes',
-    subType: 'cache_serrure',
-    image: '/images/poignees_display.jpg',
-    dimensions: 'Gabarit sur-mesure (standard 16 x 10 cm)',
-    description: 'Plaque ornementale sculptée à claire-voie en bois noble ou laiton patiné. Conçue pour habiller harmonieusement les équipements techniques extérieurs (sonnette vidéo, interphone, digicode) sans dénaturer la boiserie.',
-    idealFor: 'Perrons d\'entrée, façades extérieures, portails et visiophones',
-    tags: ['Moucharabieh', 'Habillage Technique', 'Laiton & Bois', 'Intégration Façade']
-  }
-]
+export const DEFAULT_BOARDS: BoardModel[] = []
 
 export default function CatalogTab() {
   const [boards, setBoards] = useState<BoardModel[]>([])
@@ -284,41 +73,70 @@ export default function CatalogTab() {
   })
   const [tagsInput, setTagsInput] = useState('')
 
+  const [loading, setLoading] = useState(false)
+  const [hasLocalBackup, setHasLocalBackup] = useState(false)
+  const [localBackupBoards, setLocalBackupBoards] = useState<BoardModel[]>([])
+
   useEffect(() => {
     loadBoards()
+    if (typeof window !== 'undefined') {
+      try {
+        const local = localStorage.getItem('aschi_bijoux_boards_user_v1') || localStorage.getItem('aschi_bijoux_boards')
+        if (local) {
+          const parsed = JSON.parse(local)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setLocalBackupBoards(parsed)
+            setHasLocalBackup(true)
+          }
+        }
+      } catch (e) {
+        console.error('Erreur lecture localStorage backup:', e)
+      }
+    }
   }, [])
 
-  const loadBoards = () => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('aschi_bijoux_boards_user_v1')
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setBoards(parsed)
-            return
-          }
-        } catch (e) {
-          console.error('Failed to parse saved boards', e)
+  const handleRestoreLocalToSupabase = async () => {
+    if (!localBackupBoards.length) return
+    if (!confirm('Remplacer définitivement les images de Supabase par celles que vous avez placées dans votre navigateur ?')) return
+    try {
+      setLoading(true)
+      for (const b of localBackupBoards) {
+        await fetch('/api/bijoux-de-porte', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(b)
+        })
+      }
+      alert('Vos images personnalisées ont été enregistrées dans Supabase avec succès !')
+      setHasLocalBackup(false)
+      await loadBoards()
+    } catch (e) {
+      alert('Erreur lors de la synchronisation vers Supabase.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadBoards = async () => {
+    try {
+      setLoading(true)
+      const res = await fetch('/api/bijoux-de-porte')
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data)) {
+          setBoards(data)
         }
       }
-      localStorage.setItem('aschi_bijoux_boards_user_v1', JSON.stringify(DEFAULT_BOARDS))
-      localStorage.setItem('aschi_bijoux_boards', JSON.stringify(DEFAULT_BOARDS))
-    }
-    setBoards(DEFAULT_BOARDS)
-  }
-
-  const saveBoards = (newBoards: BoardModel[]) => {
-    setBoards(newBoards)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('aschi_bijoux_boards_user_v1', JSON.stringify(newBoards))
-      localStorage.setItem('aschi_bijoux_boards', JSON.stringify(newBoards))
+    } catch (e) {
+      console.error('Erreur chargement Supabase', e)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleResetDefaults = () => {
-    if (confirm('Voulez-vous réinitialiser le catalogue avec les planches et modèles d\'origine de l\'atelier ?')) {
-      saveBoards(DEFAULT_BOARDS)
+  const handleResetDefaults = async () => {
+    if (confirm('Voulez-vous rafraîchir le catalogue depuis Supabase ?')) {
+      await loadBoards()
     }
   }
 
@@ -358,10 +176,20 @@ export default function CatalogTab() {
     setIsModalOpen(true)
   }
 
-  const handleDelete = (id: string) => {
-    if (confirm('Supprimer cette planche / modèle du catalogue ?')) {
-      const updated = boards.filter(b => b.id !== id)
-      saveBoards(updated)
+  const handleDelete = async (id: string) => {
+    if (!confirm('Supprimer définitivement cette planche / modèle de Supabase ?')) return
+    try {
+      const res = await fetch(`/api/bijoux-de-porte?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        setBoards(prev => prev.filter(b => b.id !== id))
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Erreur lors de la suppression')
+      }
+    } catch (err) {
+      alert('Erreur lors de la suppression')
     }
   }
 
@@ -379,29 +207,41 @@ export default function CatalogTab() {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const tags = tagsInput
       .split(',')
       .map(t => t.trim())
       .filter(Boolean)
 
-    if (editingBoard) {
-      const updated = boards.map(b => 
-        b.id === editingBoard.id 
-          ? { ...formData, id: b.id, tags } 
-          : b
-      )
-      saveBoards(updated)
-    } else {
-      const newBoard: BoardModel = {
-        ...formData,
-        id: `board-${Date.now()}`,
-        tags
+    const payload = editingBoard 
+      ? { ...formData, id: editingBoard.id, tags }
+      : { ...formData, id: `board-${Date.now()}`, tags }
+
+    try {
+      setUploading(true)
+      const res = await fetch('/api/bijoux-de-porte', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      if (res.ok) {
+        const saved = await res.json()
+        if (editingBoard) {
+          setBoards(prev => prev.map(b => b.id === saved.id ? saved : b))
+        } else {
+          setBoards(prev => [saved, ...prev])
+        }
+        setIsModalOpen(false)
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Erreur lors de la sauvegarde dans Supabase')
       }
-      saveBoards([newBoard, ...boards])
+    } catch (err) {
+      alert('Erreur de connexion avec Supabase')
+    } finally {
+      setUploading(false)
     }
-    setIsModalOpen(false)
   }
 
   // Filtrage selon la recherche et les onglets
@@ -433,6 +273,29 @@ export default function CatalogTab() {
   return (
     <div className="p-6 md:p-10 space-y-8 text-left text-ivory">
       
+      {/* Alerte de restauration des images personnalisées locales */}
+      {hasLocalBackup && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#E6A635]/15 border-2 border-[#E6A635]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+          <div>
+            <div className="font-heading text-base font-bold text-white flex items-center gap-2">
+              <Sparkles className="size-5 text-[#F2BD52]" />
+              Vos images personnalisées placées précédemment ont été détectées !
+            </div>
+            <p className="text-xs text-white/80 mt-1">
+              Votre navigateur conserve les modèles et photos que vous aviez configurés. Cliquez ci-contre pour les transférer et les enregistrer définitivement dans Supabase.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleRestoreLocalToSupabase}
+            disabled={loading}
+            className="px-5 py-2.5 rounded-xl bg-[#E6A635] text-[#140C07] font-heading font-bold text-xs uppercase tracking-wider hover:bg-[#F2BD52] transition-all cursor-pointer whitespace-nowrap shadow-lg shrink-0"
+          >
+            {loading ? 'Synchronisation...' : 'Enregistrer mes images dans Supabase'}
+          </button>
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* SÉLECTEUR DE NIVEAU 1 : 2 UNIVERS (PORTES vs MEUBLES)                    */}
       {/* ========================================================================= */}
