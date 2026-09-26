@@ -6,39 +6,9 @@ import { adminApi, Relooking, QuoteRequest } from '@/lib/api'
 import { Plus, Edit2, Trash2, X, Image as ImageIcon, ArrowLeftRight, InboxIcon, Phone, Mail, Clock, CheckCircle2, RefreshCw } from 'lucide-react'
 import { ImageUploader } from '@/components/site/image-uploader'
 
-const FALLBACK_RELOOKINGS: Relooking[] = [
-  {
-    id: 1,
-    title: 'Commode de Style Louis XVI',
-    description: 'Restauration complète d\'une commode en placage de noyer desséchée. Décapage, comblement des fentes et vernissage traditionnel au tampon.',
-    imageAvantUrl: '/relooking-before.jpg',
-    imageApresUrl: '/relooking-after.jpg',
-    category: 'Meubles Anciens',
-    createdDate: new Date().toISOString()
-  },
-  {
-    id: 2,
-    title: 'Cadre de Miroir Ottoman',
-    description: 'Reconstitution des ornements sculptés endommagés sur un cadre en bois doré d\'époque et dorure fine à la feuille d\'or.',
-    imageAvantUrl: '/mirror-before.jpg',
-    imageApresUrl: '/mirror-after.jpg',
-    category: 'Miroirs & Cadres',
-    createdDate: new Date().toISOString()
-  },
-  {
-    id: 3,
-    title: 'Porte d\'Entrée de Demeure',
-    description: 'Rénovation esthétique et protectrice d\'une porte d\'entrée en bois massif exposée aux intempéries.',
-    imageAvantUrl: '/door-before.jpg',
-    imageApresUrl: '/door-after.jpg',
-    category: 'Portes & Boiseries',
-    createdDate: new Date().toISOString()
-  }
-]
-
 export default function AdminRelookingPage() {
   const [activeTab, setActiveTab] = useState<'RELOOKINGS' | 'QUOTES'>('RELOOKINGS')
-  const [relookings, setRelookings] = useState<Relooking[]>(FALLBACK_RELOOKINGS)
+  const [relookings, setRelookings] = useState<Relooking[]>([])
   const [quotes, setQuotes] = useState<QuoteRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingQuotes, setLoadingQuotes] = useState(false)
@@ -65,14 +35,10 @@ export default function AdminRelookingPage() {
     try {
       setLoading(true)
       const data = await adminApi.getRelookings()
-      if (data && data.length > 0) {
-        setRelookings(data)
-      } else {
-        setRelookings(FALLBACK_RELOOKINGS)
-      }
+      setRelookings(data || [])
     } catch (err: any) {
-      console.warn("Backend inaccessible, utilisation des relookings modèles par défaut.", err)
-      setRelookings(FALLBACK_RELOOKINGS)
+      console.error("Erreur de chargement des relookings:", err)
+      setRelookings([])
     } finally {
       setLoading(false)
     }
@@ -173,10 +139,12 @@ export default function AdminRelookingPage() {
 
     try {
       await adminApi.deleteRelooking(id)
-      await loadRelookings()
+      setRelookings(prev => prev.filter(r => r.id !== id))
     } catch (err: any) {
       console.error(err)
-      alert("Erreur lors de la suppression")
+      // En cas d'erreur ou si l'élément n'existe plus en base, le retirer de l'affichage
+      setRelookings(prev => prev.filter(r => r.id !== id))
+      alert(err.message || "Erreur lors de la suppression")
     }
   }
 

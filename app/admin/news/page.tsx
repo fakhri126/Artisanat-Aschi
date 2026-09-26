@@ -197,7 +197,12 @@ export default function AdminNewsPage() {
               <div>
                 <div className="h-56 bg-white/40 overflow-hidden relative border-b border-[#E8DCCB]/10">
                   {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={item.title} className="size-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img 
+                      src={item.imageUrl} 
+                      alt={item.title} 
+                      onError={(e) => { (e.target as HTMLImageElement).src = '/news-exposition.jpg' }}
+                      className="size-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    />
                   ) : (
                     <div className="size-full flex items-center justify-center text-[#3A2A21]/20"><ImageIcon className="size-10" /></div>
                   )}

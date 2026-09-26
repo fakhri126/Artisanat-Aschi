@@ -5,12 +5,15 @@ import com.artisanataschi.backend.dto.QuoteRequestDto;
 import com.artisanataschi.backend.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/public")
 public class PublicController {
@@ -44,11 +47,17 @@ public class PublicController {
 
     // --- Products ---
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getProducts(
+    public ResponseEntity<?> getProducts(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String color,
             @RequestParam(required = false) String dimensions,
-            @RequestParam(required = false) String type) {
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        if (page != null && size != null) {
+            Pageable pageable = PageRequest.of(Math.max(0, page), Math.min(size, 100), Sort.by(Sort.Direction.DESC, "id"));
+            return ResponseEntity.ok(productService.getProductsFiltered(category, color, dimensions, type, pageable));
+        }
         List<Product> products = productService.getProductsFiltered(category, color, dimensions, type);
         return ResponseEntity.ok(products);
     }
@@ -129,7 +138,7 @@ public class PublicController {
     @PostMapping("/quotes")
     public ResponseEntity<QuoteRequest> submitQuoteRequest(@Valid @RequestBody com.artisanataschi.backend.dto.QuoteRequestDto dto) {
         QuoteRequest request = quoteRequestService.createQuoteRequest(dto);
-        return ResponseEntity.ok(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(request);
     }
 
     // --- Relooking ---

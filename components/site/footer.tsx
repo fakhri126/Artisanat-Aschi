@@ -140,6 +140,10 @@ export function Footer() {
                 <span className="text-[#E6A635] text-[10px] group-hover:translate-x-0.5 transition-transform">❖</span>
                 <span>Espaces d&apos;Exception &amp; Hôtels</span>
               </Link>
+              <Link href="/#media" className="transition-colors hover:text-[#F2BD52] flex items-center gap-2 group">
+                <span className="text-[#E6A635] text-[10px] group-hover:translate-x-0.5 transition-transform">❖</span>
+                <span>Reportage Média &amp; TV</span>
+              </Link>
             </nav>
           </div>
 

@@ -1,36 +1,71 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Navbar } from '@/components/site/navbar'
 import { Footer } from '@/components/site/footer'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Briefcase, Building, Hotel, UtensilsCrossed, Sparkles, MapPin, ChevronRight, X, Play, Star, MessageSquare, Home, Lamp, DoorOpen, Sofa, Palette, CheckCircle2, Send, Phone, Mail, User, ChevronDown } from 'lucide-react'
+import { Briefcase, Building, Building2, Hotel, UtensilsCrossed, Sparkles, MapPin, ChevronRight, ChevronLeft, X, Play, Pause, Volume2, VolumeX, Image as ImageIcon, ArrowUpRight, Star, MessageCircle, Home, Lamp, DoorOpen, Sofa, Palette, CheckCircle2, Send, Phone, Mail, User, Hammer, Truck, Ruler, Eye, ZoomIn, Maximize2, Gem, Layers, Grid, Check, Compass, ShieldCheck, FileText, ArrowRight, Upload, Film } from 'lucide-react'
 import { Reveal } from '@/components/site/reveal'
 import { publicApi } from '@/lib/api'
+import { MobileFloatingVIP } from '@/components/site/mobile-floating-vip'
 
 const FILTER_TYPES = [
-  { id: 'all', label: 'Tous les espaces', icon: null },
-  { id: 'hotel', label: 'Hôtels', icon: Hotel },
+  { id: 'all', label: 'Tous les espaces', icon: Sparkles },
+  { id: 'immobilier', label: 'Projets Immobiliers', icon: Building2 },
+  { id: 'hotel', label: 'Hôtels & Palaces', icon: Hotel },
   { id: 'guesthouse', label: 'Maisons d\'Hôtes', icon: Sparkles },
-  { id: 'restaurant', label: 'Restaurants', icon: UtensilsCrossed },
-  { id: 'entreprise', label: 'Entreprises', icon: Building }
+  { id: 'villa', label: 'Villas & Résidences Privées', icon: Home },
+  { id: 'pro_commercial', label: 'Espaces Professionnels & Commerciaux', icon: Briefcase }
 ]
 
 const ESPACE_TYPES = [
-  { id: 'villa', label: 'Résidence Privée', icon: Home, desc: 'Villa, appartement, maison...' },
-  { id: 'hotel', label: 'Hôtel & Riad', icon: Hotel, desc: 'Établissement hôtelier de prestige...' },
-  { id: 'restaurant', label: 'Restaurant & Café', icon: UtensilsCrossed, desc: 'Espace de restauration...' },
-  { id: 'entreprise', label: 'Entreprise & Bureau', icon: Building, desc: 'Espace corporate, siège social...' },
+  { id: 'immobilier', label: 'Projets Immobiliers', icon: Building2, desc: 'Promotion immobilière, résidence de standing, ensemble...' },
+  { id: 'hotel', label: 'Hôtels & Palaces', icon: Hotel, desc: 'Hôtel 5★, palace, établissement hôtelier de prestige...' },
+  { id: 'guesthouse', label: 'Maisons d\'Hôtes', icon: Sparkles, desc: 'Maison d\'hôtes de charme, riad d\'exception, lodge...' },
+  { id: 'villa', label: 'Villas & Résidences Privées', icon: Home, desc: 'Villa de maître, demeure privée, riad contemporain...' },
+  { id: 'pro_commercial', label: 'Espaces Professionnels & Commerciaux', icon: Briefcase, desc: 'Siège social, bureaux VIP, restaurant, lounge, showroom...' },
 ]
 
-const TRAVAUX_TYPES = [
-  { id: 'portes', label: 'Portes & Boiseries', icon: DoorOpen },
-  { id: 'mobilier', label: 'Mobilier sur mesure', icon: Sofa },
-  { id: 'luminaires', label: 'Luminaires artisanaux', icon: Lamp },
-  { id: 'sculptures', label: 'Sculptures & Décoration', icon: Palette },
-  { id: 'complet', label: 'Aménagement complet clé en main', icon: Sparkles },
+const STYLE_TYPES = [
+  { id: 'andalou', label: 'Andalou & Arabesque', desc: 'Moucharabiehs & entrelacs géométriques', icon: Sparkles },
+  { id: 'mauresque', label: 'Mauresque Contemporain', desc: 'Lignes épurées & sculptures d\'art', icon: Palette },
+  { id: 'baroque', label: 'Classique & Dorure', desc: 'Moulures d\'apparat & feuille d\'or 24k', icon: Gem },
+  { id: 'moderne', label: 'Moderne & Bois Brut', desc: 'Veinage naturel noble & formes pures', icon: Layers },
+]
+
+const ELEMENTS_TYPES = [
+  { id: 'porte_monumentale', label: 'Porte monumentale extérieure', icon: DoorOpen },
+  { id: 'portes_interieures', label: 'Portes intérieures sculptées', icon: DoorOpen },
+  { id: 'boiseries', label: 'Habillages muraux & Lambris d\'art', icon: Layers },
+  { id: 'plafonds', label: 'Plafonds à caissons & Moucharabiehs', icon: Grid },
+  { id: 'table_maitre', label: 'Table de maître & Mobilier d\'art', icon: Sofa },
+  { id: 'comptoir_bar', label: 'Comptoir de bar / Banque d\'accueil', icon: UtensilsCrossed },
+  { id: 'luminaires', label: 'Luminaires ajourés en laiton', icon: Lamp },
+  { id: 'complet', label: 'Aménagement global clé en main', icon: Sparkles },
+]
+
+const MATIERES_TYPES = [
+  { id: 'noyer', label: 'Noyer massif séché', desc: 'Bois sombre, noble et dense' },
+  { id: 'chene', label: 'Chêne royal massif', desc: 'Grain profond & robustesse' },
+  { id: 'olivier', label: 'Bois d\'olivier de Tunisie', desc: 'Veinage sauvage et précieux' },
+  { id: 'laiton', label: 'Incrustations laiton ciselé', desc: 'Détails dorés incrustés' },
+  { id: 'dorure', label: 'Dorure feuille d\'or 24k', desc: 'Finition artisanale royale' },
+  { id: 'fer_forge', label: 'Ferronnerie & Clous forgés', desc: 'Quincaillerie d\'époque' },
+]
+
+const AVANCEMENT_TYPES = [
+  { id: 'plans_prets', label: 'Plans d\'Architecte / Fichiers prêts', desc: 'Je souhaite un chiffrage de fabrication' },
+  { id: 'chantier_cours', label: 'Chantier en cours', desc: 'Gros œuvre ou rénovation en cours' },
+  { id: 'etude_sur_mesure', label: 'Projet en réflexion', desc: 'Besoin d\'accompagnement créatif & plans sur-mesure' },
+  { id: 'restauration', label: 'Restauration patrimoniale', desc: 'Restauration de boiseries existantes' },
+]
+
+const CONTACT_PREF_TYPES = [
+  { id: 'whatsapp', label: 'WhatsApp direct', icon: MessageCircle },
+  { id: 'phone', label: 'Appel téléphonique', icon: Phone },
+  { id: 'email', label: 'Par e-mail', icon: Mail },
 ]
 
 const PROJECTS = [
@@ -70,45 +105,68 @@ const PROJECTS = [
   },
   {
     id: 3,
-    title: 'Restaurant La Falaise',
-    location: 'La Marsa',
-    type: 'restaurant',
-    image: '/project-restaurant.png',
-    description: 'Conception globale de l\'espace bar et de la salle de repas. Comptoir de bar sculpté dans un tronc de chêne massif, tables marquetées et luminaires d\'ambiance ajourés.',
-    details: ['Comptoir de bar d\'art', 'Tables de repas', 'Luminaires ajourés', 'Panneaux décoratifs'],
-    gallery: ['/project-restaurant.png', '/gallery-5.png', '/gallery-6.png', '/buffet.png'],
+    title: 'Villa de Maître Carthage',
+    location: 'Carthage',
+    type: 'villa',
+    image: '/project-villa.png',
+    description: 'Création intégrale de menuiserie d\'art pour une résidence privée de prestige. Portes monumentales extérieures cloutées, plafonds à caissons en noyer et habillages muraux sculptés.',
+    details: ['Portes monumentales', 'Plafonds à caissons', 'Moucharabiehs', 'Mobilier de salon'],
+    gallery: ['/project-villa.png', '/gallery-1.png', '/creation-unique.png'],
     video: '/Video.mp4',
     review: {
-      author: 'Chef Slim',
-      role: 'Propriétaire, La Falaise',
+      author: 'Dr. Karoui',
+      role: 'Propriétaire',
       rating: 5,
-      comment: 'Le bar sculpté est la pièce maîtresse de notre salle. Nos clients sont impressionnés par les détails de sculpture géométrique. Livraison et pose impeccables dans les délais.'
+      comment: 'L\'expertise et la précision de l\'Atelier Aschi ont sublimé notre demeure. Chaque détail sculpté reflète la noblesse de l\'artisanat tunisien authentique.'
     }
   },
   {
     id: 4,
-    title: 'Bureaux Corporate L\'Ébène',
+    title: 'Résidence Panorama Marina',
+    location: 'Gammarth',
+    type: 'immobilier',
+    image: '/creation-model.png',
+    description: 'Conception et fabrication en série sur-mesure pour un programme immobilier de grand standing. Portes palières sculptées, agencements de halls d\'entrée et claustras décoratifs.',
+    details: ['Portes de standing', 'Habillage hall d\'accueil', 'Claustras et moucharabiehs', 'Boiseries nobles'],
+    gallery: ['/creation-model.png', '/project-hotel.png', '/gallery-2.png'],
+    video: '/test-video.mp4',
+    review: {
+      author: 'M. Ben Salem',
+      role: 'Promoteur Immobilier',
+      rating: 5,
+      comment: 'Une capacité de production industrielle alliée à une finition d\'ébénisterie d\'art artisanale. Respect strict des délais de livraison sur notre chantier.'
+    }
+  },
+  {
+    id: 5,
+    title: 'Bureaux Corporate & Restaurant L\'Ébène',
     location: 'Les Berges du Lac, Tunis',
-    type: 'entreprise',
-    image: '/project-villa.png',
-    description: 'Aménagement prestigieux de la salle du conseil d\'administration et des bureaux de direction. Table de réunion de 6 mètres de long en chêne d\'un seul tenant, et habillage acoustique sculpté.',
-    details: ['Table de conférence', 'Habillages acoustiques', 'Bureaux de direction', 'Portes de bureaux'],
-    gallery: ['/project-villa.png', '/creation-model.png', '/creation-unique.png'],
+    type: 'pro_commercial',
+    image: '/project-restaurant.png',
+    description: 'Aménagement prestigieux de la salle du conseil d\'administration et de l\'espace restaurant lounge. Table de réunion de 6 mètres en chêne massif et habillage acoustique sculpté.',
+    details: ['Table de conférence', 'Comptoir de bar d\'art', 'Habillages acoustiques', 'Bureaux de direction'],
+    gallery: ['/project-restaurant.png', '/gallery-5.png', '/gallery-6.png', '/buffet.png'],
     video: '/test-video.mp4',
     review: {
       author: 'M. Adel',
       role: 'CEO, L\'Ébène',
       rating: 5,
-      comment: 'La table de conférence monumentale a transformé notre salle du conseil. C\'est une pièce de caractère qui impose le respect. Le service sur-mesure de l\'Atelier Aschi est parfait pour les professionnels.'
+      comment: 'La table de conférence monumentale et le bar sculpté ont transformé notre espace. Le service sur-mesure de l\'Atelier Aschi est parfait pour les professionnels.'
     }
   }
 ]
 
-// --- Smart Project Form Component ---
-function ProjectRequestForm() {
-  const [step, setStep] = useState(1)
-  const [selectedEspace, setSelectedEspace] = useState('')
-  const [selectedTravaux, setSelectedTravaux] = useState<string[]>([])
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  SMART ENRICHED PROJECT FORM — UNIFIED WALNUT & GOLD DESIGN               */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+function ProjectRequestForm({ preselectedEspace }: { preselectedEspace?: string }) {
+  const [selectedEspace, setSelectedEspace] = useState(preselectedEspace || '')
+  const [selectedStyle, setSelectedStyle] = useState('')
+  const [selectedElements, setSelectedElements] = useState<string[]>([])
+  const [selectedMatieres, setSelectedMatieres] = useState<string[]>([])
+  const [selectedAvancement, setSelectedAvancement] = useState('')
+  const [demandeVisite, setDemandeVisite] = useState(false)
+  const [contactPref, setContactPref] = useState('whatsapp')
   const [ville, setVille] = useState('')
   const [projectDesc, setProjectDesc] = useState('')
   const [fullName, setFullName] = useState('')
@@ -117,25 +175,89 @@ function ProjectRequestForm() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const formRef = useRef<HTMLFormElement>(null)
+  const submitAreaRef = useRef<HTMLDivElement>(null)
+  const [showStickySubmit, setShowStickySubmit] = useState(false)
 
-  const toggleTravail = (id: string) => {
-    setSelectedTravaux(prev =>
+  // React to preselectedEspace if user clicked from a domain card
+  useEffect(() => {
+    if (preselectedEspace) {
+      setSelectedEspace(preselectedEspace)
+    }
+  }, [preselectedEspace])
+
+  // Track if the submit button area is visible — if not, show sticky bar
+  useEffect(() => {
+    if (submitted) return
+    const el = submitAreaRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickySubmit(!entry.isIntersecting),
+      { threshold: 0.1 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [submitted])
+
+  const toggleElement = (id: string) => {
+    setSelectedElements(prev =>
       prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
     )
+  }
+
+  const toggleMatiere = (id: string) => {
+    setSelectedMatieres(prev =>
+      prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
+    )
+  }
+
+  const getWhatsAppUrl = () => {
+    const espaceLabel = ESPACE_TYPES.find(e => e.id === selectedEspace)?.label || '(non spécifié)'
+    const styleLabel = STYLE_TYPES.find(s => s.id === selectedStyle)?.label || '(non spécifié)'
+    const elementsLabels = selectedElements.map(el => ELEMENTS_TYPES.find(t => t.id === el)?.label).filter(Boolean).join(', ') || '(non spécifié)'
+    const matieresLabels = selectedMatieres.map(m => MATIERES_TYPES.find(t => t.id === m)?.label).filter(Boolean).join(', ') || '(non spécifié)'
+    const avancementLabel = AVANCEMENT_TYPES.find(a => a.id === selectedAvancement)?.label || '(non spécifié)'
+    const visiteText = demandeVisite ? 'OUI (Visite diagnostic sur site demandée)' : 'Non'
+    const contactLabel = CONTACT_PREF_TYPES.find(c => c.id === contactPref)?.label || 'WhatsApp'
+
+    const text = `Bonjour Maison Aschi, je souhaite une étude pour un projet d'aménagement d'exception :
+
+🏛️ Type d'espace : ${espaceLabel}
+✨ Style architectural : ${styleLabel}
+🚪 Éléments souhaités : ${elementsLabels}
+🪵 Matières & Finitions : ${matieresLabels}
+📐 État d'avancement : ${avancementLabel}
+📍 Visite sur chantier : ${visiteText}
+📍 Ville / Région : ${ville || '(à préciser)'}
+
+👤 Nom : ${fullName || '(à préciser)'}
+📞 Téléphone : ${phone || '(à préciser)'}
+✉️ Email : ${email || '(à préciser)'}
+📱 Canal préféré : ${contactLabel}
+
+${projectDesc ? `📝 Précisions du projet : ${projectDesc}` : ''}`
+
+    return `https://wa.me/21655743760?text=${encodeURIComponent(text)}`
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!fullName || !phone || !email) {
-      setError('Veuillez remplir tous vos coordonnées.')
+      setError('Veuillez renseigner votre nom, numéro de téléphone et adresse e-mail.')
       return
     }
     setSubmitting(true)
     setError('')
     try {
-      const espaceLabel = ESPACE_TYPES.find(e => e.id === selectedEspace)?.label || selectedEspace
-      const travauxLabels = selectedTravaux.map(t => TRAVAUX_TYPES.find(tt => tt.id === t)?.label).join(', ')
-      const personalizationDetails = `[ESPACE_EXCEPTION] | Type d'espace: ${espaceLabel} | Ville: ${ville} | Travaux souhaités: ${travauxLabels}`
+      const espaceLabel = ESPACE_TYPES.find(e => e.id === selectedEspace)?.label || selectedEspace || 'Non spécifié'
+      const styleLabel = STYLE_TYPES.find(s => s.id === selectedStyle)?.label || 'Non spécifié'
+      const elementsLabels = selectedElements.map(t => ELEMENTS_TYPES.find(tt => tt.id === t)?.label).join(', ') || 'Non spécifié'
+      const matieresLabels = selectedMatieres.map(t => MATIERES_TYPES.find(tt => tt.id === t)?.label).join(', ') || 'Non spécifié'
+      const avancementLabel = AVANCEMENT_TYPES.find(a => a.id === selectedAvancement)?.label || 'Non spécifié'
+      const visiteLabel = demandeVisite ? 'OUI (Visite sur site requise)' : 'NON'
+      const contactPrefLabel = CONTACT_PREF_TYPES.find(c => c.id === contactPref)?.label || 'WhatsApp'
+
+      const personalizationDetails = `[ESPACE_EXCEPTION] | Espace: ${espaceLabel} | Style: ${styleLabel} | Éléments: ${elementsLabels} | Matières: ${matieresLabels} | Avancement: ${avancementLabel} | Visite chantier: ${visiteLabel} | Contact: ${contactPrefLabel} | Ville: ${ville || 'Non spécifiée'}`
       const message = projectDesc || 'Demande de projet clé en main via la page Espaces d\'Exception.'
 
       await publicApi.submitQuoteRequest({
@@ -147,7 +269,7 @@ function ProjectRequestForm() {
       })
       setSubmitted(true)
     } catch (err: any) {
-      setError('Une erreur est survenue. Veuillez réessayer ou nous appeler directement.')
+      setError('Une erreur est survenue. Veuillez réessayer ou nous contacter directement via WhatsApp.')
     } finally {
       setSubmitting(false)
     }
@@ -158,34 +280,57 @@ function ProjectRequestForm() {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center py-16 text-center gap-6"
+        className="flex flex-col items-center justify-center py-14 sm:py-16 text-center gap-5"
       >
-        <div className="w-20 h-20 rounded-full bg-[#C17D59]/20 border-2 border-[#C17D59] flex items-center justify-center">
-          <CheckCircle2 className="size-10 text-[#C17D59]" />
+        <div className="size-16 sm:size-20 rounded-full bg-[#E6A635]/20 border-2 border-[#E6A635] flex items-center justify-center shadow-[0_0_25px_rgba(230,166,53,0.35)]">
+          <CheckCircle2 className="size-8 sm:size-10 text-[#F2BD52]" />
         </div>
         <div>
-          <h3 className="font-heading text-3xl text-stone-900 mb-3">Demande envoyée !</h3>
-          <p className="text-stone-600 text-base leading-relaxed max-w-md">
-            Ismail et son équipe vont étudier votre projet et vous contacteront sous <strong>24-48h</strong> pour une première consultation.
+          <h3 className="font-heading text-2xl sm:text-3xl text-white mb-2">Votre dossier a été transmis avec succès !</h3>
+          <p className="text-white/80 text-xs sm:text-sm leading-relaxed max-w-lg font-light mx-auto">
+            Ismail et l&apos;équipe de maîtrise d&apos;art vont étudier vos éléments et vous contacteront sous <strong className="text-[#F2BD52] font-semibold">24-48h</strong> pour un premier échange technique et étude de plans sur-mesure.
           </p>
         </div>
-        <a href="tel:+21655743760" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#C17D59] text-white text-sm font-semibold hover:bg-[#C17D59]/90 transition-colors">
-          <Phone className="size-4" /> Appel immédiat : +216 55 743 760
-        </a>
+
+        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <a
+            href={getWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white text-xs font-bold uppercase tracking-wider shadow-lg hover:scale-[1.02] transition-transform"
+          >
+            <MessageCircle className="size-4 fill-white/20" />
+            <span>Transmettre mes plans sur WhatsApp</span>
+          </a>
+
+          <a
+            href="tel:+21655743760"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow-lg hover:scale-[1.02] transition-transform"
+          >
+            <Phone className="size-4" />
+            <span>Appel direct : +216 55 743 760</span>
+          </a>
+        </div>
       </motion.div>
     )
   }
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-10">
+  const inputClasses = "w-full px-4 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#241812]/90 border border-[#E6A635]/25 text-white placeholder:text-white/35 text-xs sm:text-sm focus:outline-none focus:border-[#E6A635] focus:shadow-[0_0_12px_rgba(230,166,53,0.15)] transition-all"
+  const inputWithIconClasses = "w-full pl-10 pr-4 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#241812]/90 border border-[#E6A635]/25 text-white placeholder:text-white/35 text-xs sm:text-sm focus:outline-none focus:border-[#E6A635] focus:shadow-[0_0_12px_rgba(230,166,53,0.15)] transition-all"
 
-      {/* STEP 1 — Type d'espace */}
+  return (
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
+
+      {/* ── STEP 1 — Type d'espace ── */}
       <div>
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-7 h-7 rounded-full bg-[#C17D59] text-white text-xs font-bold flex items-center justify-center shrink-0">1</div>
-          <h3 className="text-stone-800 font-semibold text-base uppercase tracking-wider">Quel est votre type d'espace ?</h3>
+        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">1</div>
+          <div>
+            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Quel est votre type d&apos;espace ?</h3>
+            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Sélectionnez la typologie de votre établissement ou résidence.</p>
+          </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3">
           {ESPACE_TYPES.map(({ id, label, icon: Icon, desc }) => {
             const isActive = selectedEspace === id
             return (
@@ -193,166 +338,628 @@ function ProjectRequestForm() {
                 key={id}
                 type="button"
                 onClick={() => setSelectedEspace(id)}
-                className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 text-center transition-all duration-200 cursor-pointer ${
+                className={`flex flex-col items-start gap-2.5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer relative overflow-hidden ${
                   isActive
-                    ? 'border-[#C17D59] bg-[#C17D59]/10 shadow-md'
-                    : 'border-stone-200 bg-white hover:border-[#C17D59]/40 hover:bg-[#C17D59]/5'
+                    ? 'border-[#E6A635] bg-gradient-to-b from-[#E6A635]/20 to-[#3B271C]/90 shadow-[0_4px_20px_rgba(230,166,53,0.3)] ring-1 ring-[#E6A635]/50'
+                    : 'border-[#E6A635]/20 bg-[#241812]/80 hover:border-[#E6A635]/60 hover:bg-[#3B271C]/60'
                 }`}
               >
-                <Icon className={`size-7 ${isActive ? 'text-[#C17D59]' : 'text-stone-400'}`} />
-                <span className={`text-xs font-bold uppercase tracking-wider leading-tight ${isActive ? 'text-[#C17D59]' : 'text-stone-600'}`}>{label}</span>
-                <span className="text-[10px] text-stone-400 leading-tight hidden md:block">{desc}</span>
+                <div className="flex items-center justify-between w-full">
+                  <div className={`size-9 rounded-xl flex items-center justify-center transition-colors ${
+                    isActive ? 'bg-[#E6A635] text-[#1A110B] shadow-md' : 'bg-[#3B271C] text-[#E6A635] border border-[#E6A635]/30'
+                  }`}>
+                    <Icon className="size-4.5" />
+                  </div>
+                  {isActive ? (
+                    <span className="inline-flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wider text-[#F2BD52] bg-[#241812] px-2 py-0.5 rounded-full border border-[#E6A635]/50">
+                      <Check className="size-3" /> Choisi
+                    </span>
+                  ) : null}
+                </div>
+                <div>
+                  <span className={`text-[11px] sm:text-xs font-bold leading-tight block ${isActive ? 'text-[#F2BD52]' : 'text-white/90'} transition-colors`}>{label}</span>
+                  <span className="text-[9.5px] sm:text-[10px] text-white/50 font-light leading-snug mt-1 block line-clamp-2">{desc}</span>
+                </div>
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* STEP 2 — Types de travaux */}
+      {/* ── STEP 2 — Style & Inspiration Architecturale ── */}
       <div>
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-7 h-7 rounded-full bg-[#C17D59] text-white text-xs font-bold flex items-center justify-center shrink-0">2</div>
-          <h3 className="text-stone-800 font-semibold text-base uppercase tracking-wider">Quels travaux souhaitez-vous ?</h3>
+        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">2</div>
+          <div>
+            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Quel style &amp; inspiration architecturale recherchez-vous ?</h3>
+            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">L&apos;identité visuelle et l&apos;ambiance artistique souhaitée.</p>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-3">
-          {TRAVAUX_TYPES.map(({ id, label, icon: Icon }) => {
-            const isActive = selectedTravaux.includes(id)
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
+          {STYLE_TYPES.map(({ id, label, icon: Icon, desc }) => {
+            const isActive = selectedStyle === id
             return (
               <button
                 key={id}
                 type="button"
-                onClick={() => toggleTravail(id)}
-                className={`inline-flex items-center gap-2 px-5 py-3 rounded-full border-2 text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                onClick={() => setSelectedStyle(id)}
+                className={`flex flex-col items-start gap-1.5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer ${
                   isActive
-                    ? 'border-[#C17D59] bg-[#C17D59] text-white shadow-md'
-                    : 'border-stone-200 bg-white text-stone-600 hover:border-[#C17D59]/50'
+                    ? 'border-[#E6A635] bg-[#E6A635]/15 shadow-[0_4px_20px_rgba(230,166,53,0.25)]'
+                    : 'border-[#E6A635]/20 bg-[#241812]/60 hover:border-[#E6A635]/50 hover:bg-[#241812]/90'
                 }`}
               >
-                <Icon className="size-4" />
-                {label}
-                {isActive && <CheckCircle2 className="size-4" />}
+                <div className="flex items-center justify-between w-full">
+                  <Icon className={`size-5 sm:size-6 ${isActive ? 'text-[#F2BD52]' : 'text-white/40'} transition-colors`} />
+                  {isActive && <Check className="size-4 text-[#F2BD52]" />}
+                </div>
+                <span className={`text-[11px] sm:text-xs font-bold leading-tight ${isActive ? 'text-[#F2BD52]' : 'text-white/80'} transition-colors mt-1`}>{label}</span>
+                <span className="text-[9.5px] sm:text-[10px] text-white/50 font-light leading-tight">{desc}</span>
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* STEP 3 — Votre espace */}
+      {/* ── STEP 3 — Éléments & Boiseries Souhaités ── */}
       <div>
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-7 h-7 rounded-full bg-[#C17D59] text-white text-xs font-bold flex items-center justify-center shrink-0">3</div>
-          <h3 className="text-stone-800 font-semibold text-base uppercase tracking-wider">Décrivez votre projet</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">3</div>
           <div>
-            <label className="block text-xs uppercase tracking-wider text-stone-500 font-semibold mb-2">Ville / Région</label>
+            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Quels éléments &amp; boiseries souhaitez-vous façonner ?</h3>
+            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Sélectionnez tous les éléments applicables à votre aménagement.</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-2.5">
+          {ELEMENTS_TYPES.map(({ id, label, icon: Icon }) => {
+            const isActive = selectedElements.includes(id)
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => toggleElement(id)}
+                className={`inline-flex items-center gap-2 p-3 rounded-xl sm:rounded-2xl border-2 text-[11px] sm:text-xs font-semibold transition-all duration-300 cursor-pointer text-left ${
+                  isActive
+                    ? 'border-[#E6A635] bg-gradient-to-r from-[#F3C45E]/15 to-[#E6A635]/25 text-[#F2BD52] shadow-[0_2px_12px_rgba(230,166,53,0.2)] font-bold'
+                    : 'border-[#E6A635]/20 bg-[#241812]/60 text-white/70 hover:border-[#E6A635]/50 hover:text-white'
+                }`}
+              >
+                <Icon className="size-4 shrink-0 text-[#E6A635]" />
+                <span className="flex-1 leading-snug">{label}</span>
+                {isActive && <CheckCircle2 className="size-3.5 shrink-0 text-[#F2BD52]" />}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── STEP 4 — Essences de Bois & Matières Nobles ── */}
+      <div>
+        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">4</div>
+          <div>
+            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Quelles essences de bois &amp; finitions nobles préférez-vous ?</h3>
+            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Multi-sélection selon vos sensibilités de matières.</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
+          {MATIERES_TYPES.map(({ id, label, desc }) => {
+            const isActive = selectedMatieres.includes(id)
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => toggleMatiere(id)}
+                className={`flex flex-col items-start gap-1 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer ${
+                  isActive
+                    ? 'border-[#E6A635] bg-[#E6A635]/15 shadow-[0_2px_15px_rgba(230,166,53,0.2)]'
+                    : 'border-[#E6A635]/20 bg-[#241812]/60 hover:border-[#E6A635]/50 hover:bg-[#241812]/90'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className={`text-[11px] sm:text-xs font-bold leading-tight ${isActive ? 'text-[#F2BD52]' : 'text-white/80'}`}>{label}</span>
+                  {isActive && <CheckCircle2 className="size-3.5 text-[#F2BD52] shrink-0" />}
+                </div>
+                <span className="text-[9.5px] sm:text-[10px] text-white/50 font-light leading-tight">{desc}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── STEP 5 — État d'avancement & Option Déplacement ── */}
+      <div>
+        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">5</div>
+          <div>
+            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Où en est votre projet ?</h3>
+            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Pour calibrer notre accompagnement technique et artistique.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 mb-4">
+          {AVANCEMENT_TYPES.map(({ id, label, desc }) => {
+            const isActive = selectedAvancement === id
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setSelectedAvancement(id)}
+                className={`flex flex-col items-start gap-1 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer ${
+                  isActive
+                    ? 'border-[#E6A635] bg-[#E6A635]/15 shadow-[0_2px_15px_rgba(230,166,53,0.2)]'
+                    : 'border-[#E6A635]/20 bg-[#241812]/60 hover:border-[#E6A635]/50 hover:bg-[#241812]/90'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className={`text-[11px] sm:text-xs font-bold leading-tight ${isActive ? 'text-[#F2BD52]' : 'text-white/80'}`}>{label}</span>
+                  {isActive && <Check className="size-4 text-[#F2BD52] shrink-0" />}
+                </div>
+                <span className="text-[9.5px] sm:text-[10px] text-white/50 font-light leading-tight">{desc}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Option VIP Déplacement sur site */}
+        <div 
+          onClick={() => setDemandeVisite(!demandeVisite)}
+          className={`p-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 cursor-pointer flex items-start sm:items-center gap-3.5 ${
+            demandeVisite
+              ? 'border-[#E6A635] bg-gradient-to-r from-[#3B271C] to-[#241812] shadow-[0_4px_20px_rgba(230,166,53,0.25)]'
+              : 'border-[#E6A635]/25 bg-[#241812]/70 hover:border-[#E6A635]/60'
+          }`}
+        >
+          <div className={`size-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-colors ${
+            demandeVisite ? 'bg-[#E6A635] border-[#E6A635] text-[#1A110B]' : 'border-[#E6A635]/40 bg-[#1A110B]'
+          }`}>
+            {demandeVisite && <Check className="size-4 stroke-[3]" />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-xs sm:text-sm font-bold text-white">Demander une visite d&apos;Ismail sur mon chantier</span>
+              <span className="px-2 py-0.5 rounded-full bg-[#E6A635]/20 text-[#F2BD52] text-[9.5px] font-bold uppercase tracking-wider hidden sm:inline">Prestation VIP</span>
+            </div>
+            <p className="text-[10.5px] sm:text-xs text-white/60 font-light leading-tight mt-0.5">
+              Déplacement pour prise de cotes, examen hygrométrique des lieux et conseil en sélection des essences.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── STEP 6 — Localisation & Précisions ── */}
+      <div>
+        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">6</div>
+          <div>
+            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Localisation &amp; Précisions du projet</h3>
+            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Indiquez la ville et les particularités de votre chantier.</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+          <div className="space-y-3">
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-stone-400" />
+              <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
               <input
                 type="text"
                 value={ville}
                 onChange={e => setVille(e.target.value)}
-                placeholder="Ex: Tunis, Hammamet, Sfax..."
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-800 text-sm focus:outline-none focus:border-[#C17D59] transition-colors"
+                placeholder="Ville / Gouvernorat (ex: Tunis, Sidi Bou Saïd, Hammamet, Sousse...)"
+                className={inputWithIconClasses}
               />
             </div>
+
+            {/* Transmettre plans notice */}
+            <div className="p-3.5 rounded-xl bg-[#241812]/80 border border-[#E6A635]/25 flex items-center gap-3">
+              <Upload className="size-4 text-[#F2BD52] shrink-0" />
+              <p className="text-[10.5px] sm:text-xs text-white/70 font-light leading-snug">
+                <strong className="text-white font-medium">Plans ou photos disponibles ?</strong> Vous pourrez les transmettre directement par WhatsApp en un clic après l&apos;envoi.
+              </p>
+            </div>
           </div>
+
           <div className="md:col-span-1">
-            <label className="block text-xs uppercase tracking-wider text-stone-500 font-semibold mb-2">Description de votre projet (optionnel)</label>
             <textarea
               value={projectDesc}
               onChange={e => setProjectDesc(e.target.value)}
               rows={3}
-              placeholder="Décrivez votre vision, vos goûts, la surface à aménager..."
-              className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-800 text-sm focus:outline-none focus:border-[#C17D59] transition-colors resize-none"
+              placeholder="Précisez votre vision, vos contraintes architecturales ou les inspirations souhaitées..."
+              className={`${inputClasses} resize-none h-full min-h-[95px]`}
             />
           </div>
         </div>
       </div>
 
-      {/* STEP 4 — Coordonnées */}
+      {/* ── STEP 7 — Vos Coordonnées & Canal Préféré ── */}
       <div>
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-7 h-7 rounded-full bg-[#C17D59] text-white text-xs font-bold flex items-center justify-center shrink-0">4</div>
-          <h3 className="text-stone-800 font-semibold text-base uppercase tracking-wider">Vos coordonnées</h3>
+        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">7</div>
+          <div>
+            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Vos coordonnées de contact</h3>
+            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Pour vous adresser votre étude et convenir d&apos;un échange.</p>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-4">
           <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-stone-400" />
+            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
             <input
               type="text"
               required
               value={fullName}
               onChange={e => setFullName(e.target.value)}
-              placeholder="Nom complet"
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-800 text-sm focus:outline-none focus:border-[#C17D59] transition-colors"
+              placeholder="Nom complet / Établissement *"
+              className={inputWithIconClasses}
             />
           </div>
           <div className="relative">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-stone-400" />
+            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
             <input
               type="tel"
               required
               value={phone}
               onChange={e => setPhone(e.target.value)}
-              placeholder="Numéro de téléphone"
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-800 text-sm focus:outline-none focus:border-[#C17D59] transition-colors"
+              placeholder="Numéro de téléphone *"
+              className={inputWithIconClasses}
             />
           </div>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-stone-400" />
+            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
             <input
               type="email"
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="Adresse e-mail"
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-800 text-sm focus:outline-none focus:border-[#C17D59] transition-colors"
+              placeholder="Adresse e-mail *"
+              className={inputWithIconClasses}
             />
           </div>
+        </div>
+
+        {/* Canal de rappel préféré */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10.5px] sm:text-xs text-white/60 font-light mr-1">Canal de contact privilégié :</span>
+          {CONTACT_PREF_TYPES.map(({ id, label, icon: Icon }) => {
+            const isActive = contactPref === id
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setContactPref(id)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10.5px] sm:text-xs font-semibold border transition-all cursor-pointer ${
+                  isActive
+                    ? 'border-[#E6A635] bg-[#E6A635]/20 text-[#F2BD52]'
+                    : 'border-[#E6A635]/20 bg-[#241812]/60 text-white/60 hover:text-white'
+                }`}
+              >
+                <Icon className="size-3 text-[#E6A635]" />
+                <span>{label}</span>
+              </button>
+            )
+          })}
         </div>
       </div>
 
       {error && (
-        <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>
+        <p className="text-xs text-red-300 bg-red-950/50 border border-red-500/30 rounded-xl px-4 py-3">{error}</p>
       )}
 
-      {/* Submit */}
-      <div className="pt-2">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full md:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 rounded-full bg-[#C17D59] text-white font-bold uppercase tracking-widest text-sm shadow-lg hover:bg-[#a86948] transition-all duration-300 hover:scale-[1.02] disabled:opacity-60"
-        >
-          {submitting ? 'Envoi en cours...' : 'Envoyer ma demande de projet'}
-          <Send className="size-4" />
-        </button>
-        <p className="text-xs text-stone-400 mt-3">Réponse garantie sous 24-48h par Ismail et son équipe.</p>
+      {/* ── SUBMIT & WHATSAPP ACTION BUTTONS ── */}
+      <div ref={submitAreaRef} className="pt-2 space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn-sheen flex-1 inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold uppercase tracking-wider text-xs shadow-[0_8px_25px_rgba(230,166,53,0.35)] hover:scale-[1.02] transition-all duration-300 disabled:opacity-60 cursor-pointer text-center"
+          >
+            {submitting ? (
+              <>
+                <div className="size-4 border-2 border-[#1A110B] border-t-transparent rounded-full animate-spin" />
+                <span>Transmission de votre dossier...</span>
+              </>
+            ) : (
+              <>
+                <Send className="size-4" />
+                <span>Envoyer Ma Demande de Projet d&apos;Exception</span>
+              </>
+            )}
+          </button>
+
+          <a
+            href={getWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white text-xs font-bold uppercase tracking-wider shadow-lg hover:scale-[1.02] transition-all cursor-pointer text-center"
+          >
+            <MessageCircle className="size-4 fill-white/20" />
+            <span>Transmettre sur WhatsApp</span>
+          </a>
+        </div>
+
+        <div className="flex items-center justify-center gap-2 text-[10.5px] sm:text-xs text-white/50 font-light pt-1 text-center">
+          <span className="text-[#F2BD52]">✦</span>
+          <span>Étude d&apos;implantation &amp; Plans Sur-Mesure sous 24-48h</span>
+          <span className="text-[#F2BD52] hidden sm:inline">•</span>
+          <span className="hidden sm:inline">Déplacement sur toute la Tunisie</span>
+        </div>
       </div>
+
+      {/* ── STICKY MOBILE SUBMIT BAR ── */}
+      <AnimatePresence>
+        {showStickySubmit && (
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed bottom-0 inset-x-0 z-40 sm:hidden p-3 bg-gradient-to-t from-[#241812] via-[#241812]/98 to-[#241812]/90 backdrop-blur-xl border-t border-[#E6A635]/30 shadow-[0_-8px_30px_rgba(0,0,0,0.6)]"
+          >
+            <button
+              type="submit"
+              disabled={submitting}
+              className="btn-sheen w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold uppercase tracking-wider text-xs shadow-lg cursor-pointer disabled:opacity-60"
+            >
+              {submitting ? (
+                <>
+                  <div className="size-4 border-2 border-[#1A110B] border-t-transparent rounded-full animate-spin" />
+                  <span>Envoi...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="size-4" />
+                  <span>Envoyer Ma Demande</span>
+                </>
+              )}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </form>
   )
 }
 
-// --- Main Page ---
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  CATEGORY NORMALIZATION HELPER                                            */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+function normalizeCategory(cat?: string): string {
+  if (!cat) return 'autre'
+  const c = cat.toLowerCase()
+  if (c.includes('hotel') || c.includes('palace') || c.includes('hôtel')) return 'hotel'
+  if (c.includes('guest') || c.includes('hôte') || c.includes('riad') || c.includes('lodge')) return 'guesthouse'
+  if (c.includes('villa') || c.includes('demeure') || c.includes('résidence privée') || c.includes('residence privee')) return 'villa'
+  if (c.includes('immo') || c.includes('promoteur') || c.includes('résidence') || c.includes('batiment')) return 'immobilier'
+  if (c.includes('pro') || c.includes('bureau') || c.includes('commercial') || c.includes('restaurant') || c.includes('lounge') || c.includes('showroom')) return 'pro_commercial'
+  return 'autre'
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  MODERN TURNKEY PROJECT CARD (Interactive Photo / Video)                  */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+function TurnkeyProjectCard({
+  project,
+  onOpen,
+  filterTypes,
+}: {
+  project: any
+  onOpen: (p: any) => void
+  filterTypes: { id: string; label: string }[]
+}) {
+  const hasVideo = Boolean(project.video || project.videoUrl)
+
+  // Extraire toutes les photos de manière propre et dédoublonnée
+  const allPhotos: string[] = useMemo(() => {
+    let list: string[] = []
+    if (Array.isArray(project.gallery) && project.gallery.length > 0) {
+      list = project.gallery
+    } else if (typeof project.gallery === 'string' && project.gallery.trim()) {
+      list = project.gallery.split(',').map((s: string) => s.trim()).filter(Boolean)
+    } else if (project.image) {
+      list = project.image.split(',').map((s: string) => s.trim()).filter(Boolean)
+    }
+    const cleaned = list.flatMap((s: string) => s.split(',').map(x => x.trim())).filter(Boolean)
+    return cleaned.length > 0 ? cleaned : ['/project-hotel.png']
+  }, [project])
+
+  const coverPhotoSrc = allPhotos[0] || (project.image ? project.image.split(',')[0].trim() : '') || '/project-hotel.png'
+  const categoryLabel = filterTypes.find(t => t.id === project.type)?.label || project.type
+
+  return (
+    <div
+      onClick={() => onOpen(project)}
+      className="group relative flex flex-col h-full rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-b from-[#342318]/95 via-[#2A1C14]/95 to-[#1F140E]/98 border border-[#E6A635]/30 hover:border-[#E6A635]/80 backdrop-blur-xl shadow-[0_12px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_22px_55px_rgba(230,166,53,0.25)] transition-all duration-500 cursor-pointer hover:-translate-y-1.5"
+    >
+      {/* ── Cadre Couverture Photo (Optimisée, Légère & Rapide — Pas de vidéo lourde sur la couverture) ── */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#160E0A] shrink-0 border-b border-[#E6A635]/20">
+        <Image
+          src={coverPhotoSrc}
+          alt={project.title}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1F140E] via-[#1F140E]/20 to-transparent opacity-85 group-hover:opacity-50 transition-opacity" />
+
+        {/* Badges Flottants Haut */}
+        <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
+          {project.location ? (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-semibold backdrop-blur-md shadow-md">
+              <MapPin className="size-3 text-[#E6A635]" />
+              <span>{project.location}</span>
+            </div>
+          ) : <div />}
+
+          {/* Badge discret si vidéo disponible à l'intérieur */}
+          {hasVideo && (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/95 border border-[#E6A635]/50 text-[#F2BD52] text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
+              <Film className="size-3 text-[#E6A635]" />
+              <span>Vidéo incluse</span>
+            </div>
+          )}
+        </div>
+
+        {/* Badge nombre de photos en bas à droite */}
+        <div className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/90 border border-white/20 text-white/90 text-[10px] font-medium backdrop-blur-md shadow-sm">
+          <ImageIcon className="size-3 text-[#E6A635]" />
+          <span>{allPhotos.length} photo{allPhotos.length > 1 ? 's' : ''}</span>
+        </div>
+      </div>
+
+      {/* ── 3. CORPS DE LA CARTE (Informations & Finitions Nobles) ── */}
+      <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 gap-3 text-left">
+        <div>
+          {/* Tag Catégorie */}
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#241812] border border-[#E6A635]/35 text-[#F2BD52] text-[9.5px] uppercase tracking-wider font-bold">
+              <Sparkles className="size-2.5 text-[#E6A635]" />
+              <span>{categoryLabel}</span>
+            </span>
+          </div>
+
+          {/* Titre */}
+          <h3 className="font-heading text-lg sm:text-xl text-white font-medium leading-snug group-hover:text-[#F2BD52] transition-colors mb-2 line-clamp-1">
+            {project.title}
+          </h3>
+
+          {/* Description */}
+          <p className="text-white/80 text-xs sm:text-[13px] font-light leading-relaxed line-clamp-2 mb-3">
+            {project.description}
+          </p>
+
+          {/* Aménagements réalisés (Pills) */}
+          {project.details && project.details.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
+              {project.details.slice(0, 3).map((detail: string, idx: number) => (
+                <span
+                  key={idx}
+                  className="px-2.5 py-0.5 rounded-lg bg-[#241812]/90 border border-[#E6A635]/20 text-[10px] text-white/80 font-light truncate max-w-[200px]"
+                >
+                  {detail}
+                </span>
+              ))}
+              {project.details.length > 3 && (
+                <span className="px-2 py-0.5 rounded-lg bg-[#241812]/60 text-[10px] text-[#F2BD52] font-semibold">
+                  +{project.details.length - 3}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Action Footer */}
+        <div className="pt-3 border-t border-[#E6A635]/20 flex items-center justify-between text-xs text-[#F2BD52] font-semibold mt-auto">
+          <span className="inline-flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
+            <span>Explorer le projet</span>
+            <ArrowRight className="size-3.5" />
+          </span>
+          <span className="size-8 rounded-full bg-[#241812] border border-[#E6A635]/35 flex items-center justify-center text-[#F2BD52] group-hover:bg-[#E6A635] group-hover:text-[#1A110B] group-hover:scale-110 transition-all shadow-md">
+            <ArrowUpRight className="size-4" />
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  MAIN PAGE                                                                */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 export default function TurnkeyProjectsPage() {
   const [filter, setFilter] = useState('all')
-  const [selectedProject, setSelectedProject] = useState<typeof PROJECTS[0] | null>(null)
+  const [formEspace, setFormEspace] = useState('')
+  const [liveProjects, setLiveProjects] = useState<any[]>(PROJECTS)
+  const [selectedProject, setSelectedProject] = useState<any | null>(null)
   const [activeImageIdx, setActiveImageIdx] = useState(0)
+  const [lightboxProject, setLightboxProject] = useState<{ images: string[]; currentIndex: number; title: string } | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isModalMuted, setIsModalMuted] = useState(true)
+  const [modalActiveView, setModalActiveView] = useState<'video' | number>('video')
 
-  const filteredProjects = filter === 'all'
-    ? PROJECTS
-    : PROJECTS.filter(project => project.type === filter)
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await publicApi.getProjects()
+        if (Array.isArray(data)) {
+          const mapped = data.map((p) => {
+            const normType = normalizeCategory(p.category)
+            let galleryImgs: string[] = []
+            if (Array.isArray(p.gallery) && p.gallery.length > 0) {
+              galleryImgs = p.gallery
+            } else if (typeof p.gallery === 'string' && (p.gallery as string).trim()) {
+              galleryImgs = (p.gallery as string).split(',').map((s: string) => s.trim()).filter(Boolean)
+            } else if (Array.isArray(p.images) && p.images.length > 0) {
+              galleryImgs = p.images.map((im: any) => typeof im === 'string' ? im : (im.imageUrl || '')).filter(Boolean)
+            } else if (p.imageUrl) {
+              galleryImgs = p.imageUrl.split(',').map((s: string) => s.trim()).filter(Boolean)
+            }
+            try {
+              const localImgs = typeof window !== 'undefined' ? localStorage.getItem(`project_gallery_${p.id}`) : null
+              if (localImgs) {
+                const parsed = JSON.parse(localImgs)
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  galleryImgs = Array.from(new Set([...galleryImgs, ...parsed]))
+                }
+              }
+            } catch (_) {}
 
-  const handleOpenProject = (project: typeof PROJECTS[0]) => {
+            if (galleryImgs.length === 0) {
+              galleryImgs = ['/project-hotel.png']
+            }
+
+            return {
+              id: p.id,
+              title: p.title,
+              location: p.location || 'Tunisie',
+              type: normType,
+              category: p.category || 'Projet Clé en Main',
+              image: galleryImgs[0] || p.imageUrl || '/project-hotel.png',
+              description: p.description || '',
+              details: p.details ? p.details.split(',').map(d => d.trim()).filter(Boolean) : ['Aménagement d\'artisanat d\'art'],
+              gallery: galleryImgs,
+              video: p.videoUrl || p.video || '',
+              review: null
+            }
+          })
+          setLiveProjects(mapped)
+        }
+      } catch (err) {
+        console.error('Error fetching dynamic projects:', err)
+      }
+    }
+    fetchProjects()
+  }, [])
+
+  // Compteurs dynamiques par catégorie
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: liveProjects.length }
+    liveProjects.forEach((p) => {
+      const norm = normalizeCategory(p.type || p.category)
+      counts[norm] = (counts[norm] || 0) + 1
+    })
+    return counts
+  }, [liveProjects])
+
+  // Projets filtrés
+  const filteredProjects = useMemo(() => {
+    if (filter === 'all') return liveProjects
+    return liveProjects.filter(project => {
+      const norm = normalizeCategory(project.type || project.category)
+      return norm === filter
+    })
+  }, [liveProjects, filter])
+
+  const handleOpenProject = (project: any) => {
     setSelectedProject(project)
     setActiveImageIdx(0)
     setIsPlaying(false)
+    setIsModalMuted(true)
+    const hasVid = Boolean(project.video || project.videoUrl)
+    setModalActiveView(hasVid ? 'video' : 0)
   }
 
   const handleCloseProject = () => {
     setSelectedProject(null)
+    setLightboxProject(null)
   }
 
   const togglePlay = () => {
@@ -365,21 +972,56 @@ export default function TurnkeyProjectsPage() {
     setIsPlaying(!isPlaying)
   }
 
+  const toggleModalMute = () => {
+    if (!videoRef.current) return
+    videoRef.current.muted = !isModalMuted
+    setIsModalMuted(!isModalMuted)
+  }
+
+  const handleSelectDomainAndQuote = (sectorId: string) => {
+    setFormEspace(sectorId)
+    setTimeout(() => {
+      document.getElementById('demande-projet')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 150)
+  }
+
   // Auto-open project if specified in URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const projectId = params.get('projectId')
     if (projectId) {
-      const proj = PROJECTS.find(p => p.id === parseInt(projectId))
+      const proj = liveProjects.find(p => p.id === parseInt(projectId))
       if (proj) {
         handleOpenProject(proj)
       }
     }
-  }, [])
+  }, [liveProjects])
 
-  // Prevent scroll when modal is open
+  // Keyboard navigation for Lightbox
   useEffect(() => {
-    if (selectedProject) {
+    if (!lightboxProject) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setLightboxProject(null)
+      } else if (e.key === 'ArrowLeft') {
+        setLightboxProject(prev => prev ? {
+          ...prev,
+          currentIndex: prev.currentIndex === 0 ? prev.images.length - 1 : prev.currentIndex - 1
+        } : null)
+      } else if (e.key === 'ArrowRight') {
+        setLightboxProject(prev => prev ? {
+          ...prev,
+          currentIndex: prev.currentIndex === prev.images.length - 1 ? 0 : prev.currentIndex + 1
+        } : null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [lightboxProject])
+
+  // Prevent scroll when modal or lightbox is open
+  useEffect(() => {
+    if (selectedProject || lightboxProject) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = 'unset'
@@ -387,357 +1029,640 @@ export default function TurnkeyProjectsPage() {
     return () => {
       document.body.style.overflow = 'unset'
     }
-  }, [selectedProject])
+  }, [selectedProject, lightboxProject])
 
   return (
     <main className="min-h-screen flex flex-col relative text-[#F7F4EE] overflow-hidden bg-[#241812]">
-      {/* Unified Background */}
-      <div className="absolute inset-0 z-0 opacity-80 brightness-95 pointer-events-none bg-[url('/images/bg-espace-exception.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#241812]/80 via-black/30 to-[#241812]/90 pointer-events-none z-0" />
-      
-      {/* Amber Glow Halos */}
-      <div className="absolute top-1/4 left-1/4 size-[450px] rounded-full bg-[#E6A635]/18 blur-[130px] pointer-events-none z-0" />
-      <div className="absolute bottom-1/4 right-1/4 size-[450px] rounded-full bg-[#C78318]/15 blur-[130px] pointer-events-none z-0" />
+      {/* 🌟 FOND MAÎTRE SCROLLABLE UNIFORME (Luminosité constante sur toute la page, sans dégradé) */}
+      <div className="absolute inset-0 z-0 opacity-75 brightness-80 pointer-events-none bg-[url('/images/bg-espace-exception.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat" />
+      {/* Voile d'ombrage plat et uniforme (100% même luminosité de haut en bas, aucun dégradé) */}
+      <div className="absolute inset-0 bg-[#241812]/65 pointer-events-none z-0" />
 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Navbar />
         
         <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pt-28 sm:pt-36 pb-16 max-w-7xl mx-auto w-full">
-          {/* Page Header */}
-          <div className="text-center mb-10 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10.5px] uppercase tracking-[0.2em] mb-3.5 font-bold shadow-md">
-              <Briefcase className="size-3.5 text-[#E6A635]" />
-              <span>Projets Clés en Main • Espaces d&apos;Exception</span>
-            </div>
-            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-gold-gradient mb-3 drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)]">
-              Projets Clés en Main
-            </h1>
-            <p className="text-[#EAE4D9]/90 text-xs sm:text-sm md:text-base leading-relaxed text-pretty font-light drop-shadow-md">
-              De l&apos;étude technique et la modélisation 3D à l&apos;installation finale sur site : nous orchestrons l&apos;habillage monumental complet en menuiserie d&apos;art et le mobilier pour les palaces, hôtels 5★, restaurants et demeures de prestige.
-            </p>
-          </div>
-          
-        {/* Filter Bar */}
-        <Reveal delay={100} className="w-full flex justify-center mb-10 overflow-x-auto pb-3 scrollbar-thin">
-          <div className="flex gap-2 p-1.5 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/35 backdrop-blur-md shrink-0 shadow-lg">
-            {FILTER_TYPES.map((type) => {
-              const Icon = type.icon
-              const isActive = filter === type.id
-              return (
-                <button
-                  key={type.id}
-                  onClick={() => setFilter(type.id)}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs uppercase tracking-wider font-semibold transition-all duration-300 cursor-pointer ${
-                    isActive
-                      ? 'bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold shadow-[0_0_15px_rgba(230,166,53,0.35)] scale-105'
-                      : 'text-[#EAE4D9]/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {Icon && <Icon className="size-3.5" />}
-                  {type.label}
-                </button>
-              )
-            })}
-          </div>
-        </Reveal>
 
-        {/* Projects List/Gallery */}
-        <div className="w-full flex flex-col gap-16 mb-24">
-          <AnimatePresence mode="wait">
-            {filteredProjects.length === 0 ? (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-center py-16 text-[#3A2A21]/50"
-              >
-                Aucune réalisation trouvée pour cette catégorie.
-              </motion.div>
-            ) : (
-              <div className="grid gap-8 lg:gap-10">
-                {filteredProjects.map((project, index) => (
-                  <motion.div
-                    key={project.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.08 }}
-                    onClick={() => handleOpenProject(project)}
-                    className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-center bg-[#3B271C]/90 rounded-3xl p-5 sm:p-7 md:p-8 border border-[#E6A635]/35 hover:border-[#E6A635]/80 hover:bg-[#452E21]/95 backdrop-blur-xl shadow-[0_15px_35px_rgba(0,0,0,0.65)] transition-all duration-300 cursor-pointer group"
-                  >
-                    {/* Visual image */}
-                    <div className="relative w-full lg:w-[45%] aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden shadow-xl border border-[#E6A635]/30 shrink-0 bg-[#241812]">
-                      <Image
-                        src={project.image}
-                        alt={project.title}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#241812]/80 via-transparent to-transparent opacity-60 pointer-events-none" />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <span className="btn-sheen bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full shadow-lg flex items-center gap-2">
-                          <MessageSquare className="size-4" /> Voir le projet
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/*  PAGE HEADER — REFINED TYPOGRAPHY                             */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          <div className="text-center mb-8 sm:mb-12 max-w-3xl">
+            <Reveal>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#3B271C]/90 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-[10.5px] uppercase tracking-[0.2em] mb-4 font-bold shadow-md">
+                <Briefcase className="size-3.5 text-[#E6A635]" />
+                <span>Projets Clés en Main • Espaces d&apos;Exception</span>
+              </div>
+            </Reveal>
+            <Reveal delay={80}>
+              <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.08] text-gold-gradient mb-4 drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)] tracking-tight">
+                Projets Clés en Main
+                <span className="font-serif italic text-white font-normal text-xl sm:text-2xl md:text-3xl lg:text-4xl block mt-1 opacity-90">
+                  L&apos;Art de l&apos;Aménagement d&apos;Exception
+                </span>
+              </h1>
+            </Reveal>
+            <Reveal delay={120}>
+              <p className="text-white/85 text-xs sm:text-sm md:text-base leading-relaxed text-pretty font-light drop-shadow-md max-w-2xl mx-auto">
+                De l&apos;étude technique et la conception sur-mesure à l&apos;installation finale sur site : nous orchestrons l&apos;habillage monumental complet en menuiserie d&apos;art pour les palaces, hôtels 5★, restaurants et demeures de prestige.
+              </p>
+            </Reveal>
+          </div>
+
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/*  FILTER BAR — CATÉGORIES ORIGINALES AVEC COMPTEURS DYNAMIQUES */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          <Reveal delay={100} className="w-full mb-10 sm:mb-14">
+            <div className="relative max-w-5xl mx-auto">
+              <div className="flex justify-start sm:justify-center overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+                <div className="flex gap-1.5 sm:gap-2 p-1.5 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/35 backdrop-blur-xl shrink-0 shadow-xl">
+                  {FILTER_TYPES.map((type) => {
+                    const Icon = type.icon
+                    const count = categoryCounts[type.id] ?? 0
+                    const isActive = filter === type.id
+                    return (
+                      <button
+                        key={type.id}
+                        type="button"
+                        onClick={() => setFilter(type.id)}
+                        className={`relative inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs uppercase tracking-wider font-bold transition-all duration-300 cursor-pointer whitespace-nowrap z-10 ${
+                          isActive
+                            ? 'text-[#1A110B]'
+                            : 'text-white/80 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeFilterPillTurnkey"
+                            transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                            className="absolute inset-0 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] shadow-[0_4px_16px_rgba(230,166,53,0.4)] -z-10"
+                          />
+                        )}
+                        {Icon && <Icon className={`size-3 sm:size-3.5 shrink-0 ${isActive ? 'text-[#1A110B]' : 'text-[#E6A635]'}`} />}
+                        <span>{type.label}</span>
+                        <span
+                          className={`ml-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-bold ${
+                            isActive
+                              ? 'bg-[#1A110B]/20 text-[#1A110B]'
+                              : 'bg-[#241812] text-[#F2BD52] border border-[#E6A635]/30'
+                          }`}
+                        >
+                          {count}
                         </span>
-                      </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/*  PROJECT CARDS — MODERN RESPONSIVE GRID                         */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          <div className="w-full mb-20 sm:mb-28">
+            <AnimatePresence mode="wait">
+              {filteredProjects.length === 0 ? (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-center py-16 text-white/50 text-sm bg-[#241812]/80 rounded-3xl border border-[#E6A635]/25 p-8 max-w-xl mx-auto"
+                >
+                  <p className="text-base text-white/80 mb-2 font-medium">Aucune réalisation trouvée pour cette catégorie.</p>
+                  <p className="text-xs text-white/50 mb-5">Notre atelier façonne régulièrement des pièces sur-mesure pour ce type d&apos;espace.</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormEspace(filter)
+                      document.getElementById('demande-projet')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }}
+                    className="btn-sheen inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow-lg"
+                  >
+                    <Sparkles className="size-3.5" />
+                    <span>Lancer une étude sur-mesure</span>
+                  </button>
+                </motion.div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                  {filteredProjects.map((project, index) => (
+                    <motion.div
+                      key={project.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.96 }}
+                      transition={{ duration: 0.35, delay: index * 0.05 }}
+                    >
+                      <TurnkeyProjectCard
+                        project={project}
+                        onOpen={handleOpenProject}
+                        filterTypes={FILTER_TYPES}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/*  SMART PROJECT REQUEST FORM — WALNUT & GOLD DESIGN            */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          <Reveal delay={200} className="w-full">
+            <div id="demande-projet" className="w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-[#E6A635]/40 shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
+              {/* Form Header */}
+              <div className="bg-gradient-to-br from-[#3B271C] to-[#241812] px-6 sm:px-8 md:px-12 py-8 sm:py-10 text-center relative overflow-hidden border-b border-[#E6A635]/25">
+                <div className="absolute -left-1/4 -top-1/2 w-1/2 h-full bg-[#E6A635]/8 blur-[100px] rounded-full pointer-events-none" />
+                <div className="absolute -right-1/4 -bottom-1/2 w-1/2 h-full bg-[#C78318]/8 blur-[100px] rounded-full pointer-events-none" />
+                <div className="relative z-10">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E6A635]/15 border border-[#E6A635]/35 text-[#F2BD52] text-[10px] sm:text-xs uppercase tracking-[0.18em] mb-4 font-bold">
+                    <Sparkles className="size-3.5 text-[#E6A635] animate-pulse" /> Parlez-nous de votre projet
+                  </div>
+                  <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl text-gold-gradient mb-2.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                    Donnez vie à votre espace d&apos;exception
+                  </h2>
+                  <p className="text-white/65 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto font-light">
+                    Ismail se déplace chez vous pour une consultation gratuite. Remplissez le formulaire ci-dessous et recevez une proposition sur-mesure sous 48h.
+                  </p>
+                </div>
+              </div>
+              {/* Form Body */}
+              <div className="bg-gradient-to-b from-[#2A1C14] to-[#241812] px-6 sm:px-8 md:px-12 py-8 sm:py-10">
+                <ProjectRequestForm preselectedEspace={formEspace} />
+              </div>
+            </div>
+          </Reveal>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/*  IMMERSIVE PROJECT MODAL                                       */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        <AnimatePresence>
+          {selectedProject && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 md:p-6"
+              onClick={handleCloseProject}
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 30 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 30 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="relative w-full max-w-5xl bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] flex flex-col md:flex-row max-h-[92vh] overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close Button */}
+                <button
+                  onClick={handleCloseProject}
+                  className="absolute top-3 right-3 sm:top-4 sm:right-4 z-50 size-8 sm:size-9 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 text-white hover:text-[#F2BD52] hover:bg-[#4E3425] transition-colors flex items-center justify-center cursor-pointer"
+                  aria-label="Fermer"
+                >
+                  <X className="size-4 sm:size-5" />
+                </button>
+
+                {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif */}
+                <div className="w-full md:w-[58%] flex flex-col border-b md:border-b-0 md:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/60">
+                  
+                  {/* Barre supérieure d'état du média */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {modalActiveView === 'video' ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#241812] border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                          <Film className="size-3.5 text-[#E6A635]" />
+                          <span>Vidéo du Projet &amp; Réalisation</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#241812] border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                          <ImageIcon className="size-3.5 text-[#E6A635]" />
+                          <span>Photo {(typeof modalActiveView === 'number' ? modalActiveView : 0) + 1} / {selectedProject.gallery?.length || 1}</span>
+                        </span>
+                      )}
                     </div>
 
-                    {/* Content Details */}
-                    <div className="flex flex-col justify-between items-start text-left flex-1 py-1">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#F2BD52] font-semibold">
-                          <MapPin className="size-3.5 text-[#E6A635]" />
-                          {project.location}
+                    {modalActiveView === 'video' ? (
+                      <button
+                        type="button"
+                        onClick={toggleModalMute}
+                        className="size-7 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 text-[#F2BD52] flex items-center justify-center hover:bg-[#E6A635] hover:text-[#1A110B] transition-colors shadow-sm cursor-pointer"
+                        title={isModalMuted ? "Activer le son" : "Couper le son"}
+                      >
+                        {isModalMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setLightboxProject({
+                          images: selectedProject.gallery,
+                          currentIndex: typeof modalActiveView === 'number' ? modalActiveView : 0,
+                          title: selectedProject.title
+                        })}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-semibold hover:bg-[#E6A635] hover:text-[#1A110B] transition-colors cursor-pointer shadow-sm"
+                      >
+                        <ZoomIn className="size-3" />
+                        <span>Agrandir</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE (16:9) ── */}
+                  <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#120B08] shadow-[0_10px_30px_rgba(0,0,0,0.8)] group/media">
+                    {modalActiveView === 'video' && (selectedProject.video || selectedProject.videoUrl) ? (
+                      <>
+                        <video
+                          ref={videoRef}
+                          src={selectedProject.video || selectedProject.videoUrl}
+                          muted={isModalMuted}
+                          autoPlay
+                          loop
+                          playsInline
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+
+                        {/* Badge HD discret en haut à droite */}
+                        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/50 text-[#F2BD52] text-[9.5px] font-bold uppercase tracking-wider backdrop-blur-md shadow-md pointer-events-none">
+                          <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span>Vidéo HD</span>
                         </div>
-                        {/* Type badge */}
-                        <span className="inline-block text-[9.5px] uppercase tracking-wider bg-[#241812]/90 border border-[#E6A635]/40 text-[#F2BD52] font-bold px-3 py-1 rounded-full">
-                          {FILTER_TYPES.find(t => t.id === project.type)?.label || project.type}
-                        </span>
 
-                        <h3 className="font-heading text-2xl sm:text-3xl text-[#F7F4EE] font-light leading-tight group-hover:text-[#F2BD52] transition-colors duration-300">
-                          {project.title}
-                        </h3>
+                        {/* Contrôle du Son en bas à droite (Bouton Start central 100% MASQUÉ) */}
+                        <div className="absolute bottom-3 right-3 z-20">
+                          <button
+                            type="button"
+                            onClick={toggleModalMute}
+                            className="size-8 rounded-full bg-[#1A110B]/85 hover:bg-[#E6A635] text-[#F2BD52] hover:text-[#1A110B] border border-[#E6A635]/40 flex items-center justify-center transition-all cursor-pointer shadow-md backdrop-blur-md"
+                            title={isModalMuted ? "Activer le son" : "Couper le son"}
+                          >
+                            {isModalMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Image
+                          src={
+                            (selectedProject.gallery && selectedProject.gallery[typeof modalActiveView === 'number' ? modalActiveView : 0]?.split(',')[0]?.trim()) ||
+                            (selectedProject.image ? selectedProject.image.split(',')[0].trim() : '') ||
+                            '/project-hotel.png'
+                          }
+                          alt={selectedProject.title}
+                          fill
+                          className="object-cover transition-transform duration-700 ease-out group-hover/media:scale-105 cursor-zoom-in"
+                          onClick={() => setLightboxProject({
+                            images: selectedProject.gallery,
+                            currentIndex: typeof modalActiveView === 'number' ? modalActiveView : 0,
+                            title: selectedProject.title
+                          })}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
-                        <p className="text-xs sm:text-sm font-light leading-relaxed text-[#EAE4D9]/90 text-pretty">
-                          {project.description}
-                        </p>
-                      </div>
-
-                      {/* Works Done pills */}
-                      <div className="mt-4">
-                        <p className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-bold mb-2">Aménagements réalisés :</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {project.details.map((detail, idx) => (
-                            <span
-                              key={idx}
-                              className="bg-[#241812]/90 border border-[#E6A635]/25 px-2.5 py-0.5 rounded-md text-[10.5px] text-[#EAE4D9] font-light"
+                        {/* Flèches de navigation photo */}
+                        {selectedProject.gallery && selectedProject.gallery.length > 1 && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                const cur = typeof modalActiveView === 'number' ? modalActiveView : 0
+                                const next = cur === 0 ? selectedProject.gallery.length - 1 : cur - 1
+                                setModalActiveView(next)
+                              }}
+                              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] transition-colors cursor-pointer shadow-md"
+                              aria-label="Image précédente"
                             >
-                              {detail}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
+                              <ChevronLeft className="size-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                const cur = typeof modalActiveView === 'number' ? modalActiveView : 0
+                                const next = cur === selectedProject.gallery.length - 1 ? 0 : cur + 1
+                                setModalActiveView(next)
+                              }}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] transition-colors cursor-pointer shadow-md"
+                              aria-label="Image suivante"
+                            >
+                              <ChevronRight className="size-4" />
+                            </button>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
 
-                      {/* Mini client review */}
-                      {project.review && (
-                        <div className="mt-5 flex items-start gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3">
-                          <div className="shrink-0">
-                            <div className="flex gap-0.5">
-                              {[...Array(project.review.rating)].map((_, i) => (
-                                <Star key={i} className="size-3 fill-[#C17D59] text-[#C17D59]" />
-                              ))}
-                            </div>
+                  {/* ── RUBAN DE MINIATURES INTERACTIF (VIDÉO + TOUTES LES PHOTOS) ── */}
+                  <div className="pt-1">
+                    <p className="text-[9.5px] uppercase tracking-wider text-[#F2BD52]/70 font-semibold mb-2 flex items-center justify-between">
+                      <span>Sélectionnez un aperçu :</span>
+                      <span className="text-white/40 font-normal">
+                        {(Boolean(selectedProject.video || selectedProject.videoUrl) ? 1 : 0) + (selectedProject.gallery?.length || 0)} médias disponibles
+                      </span>
+                    </p>
+
+                    <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-thin items-center">
+                      {/* Miniature Vidéo si disponible */}
+                      {(selectedProject.video || selectedProject.videoUrl) && (
+                        <button
+                          type="button"
+                          onClick={() => setModalActiveView('video')}
+                          className={`relative w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer flex flex-col items-center justify-center bg-black ${
+                            modalActiveView === 'video'
+                              ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.5)] scale-[0.98]'
+                              : 'border-[#E6A635]/25 opacity-60 hover:opacity-100 hover:border-[#E6A635]/60'
+                          }`}
+                        >
+                          <video
+                            src={selectedProject.video || selectedProject.videoUrl}
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#E6A635] text-[#1A110B] text-[8.5px] font-extrabold uppercase shadow-sm">
+                              <Film className="size-2.5 fill-current" /> Vidéo
+                            </span>
                           </div>
-                          <div>
-                            <p className="text-[11px] text-[#3A2A21]/60 italic leading-relaxed line-clamp-2">
-                              &quot;{project.review.comment}&quot;
-                            </p>
-                            <p className="text-[10px] text-[#C17D59] font-semibold mt-1">{project.review.author} — {project.review.role}</p>
-                          </div>
+                        </button>
+                      )}
+
+                      {/* Miniatures des Photos */}
+                      {selectedProject.gallery && selectedProject.gallery.map((img: string, idx: number) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setModalActiveView(idx)}
+                          className={`relative w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                            modalActiveView === idx
+                              ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.5)] scale-[0.98]'
+                              : 'border-[#E6A635]/25 opacity-60 hover:opacity-100 hover:border-[#E6A635]/60'
+                          }`}
+                        >
+                          <Image src={img.split(',')[0].trim()} alt="Miniature" fill className="object-cover" />
+                          <span className="absolute bottom-1 right-1 px-1.5 py-0.2 rounded bg-black/75 text-[8.5px] text-white/90 font-medium">
+                            {idx + 1}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* RIGHT COLUMN: Détails de Prestige, Spécifications Nobles & CTA */}
+                <div className="w-full md:w-[42%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
+                  
+                  {/* En-tête du projet */}
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9.5px] sm:text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full font-bold shadow-sm">
+                        <Sparkles className="size-2.5" />
+                        {FILTER_TYPES.find(t => t.id === selectedProject.type)?.label || selectedProject.type}
+                      </span>
+                      {selectedProject.location && (
+                        <div className="flex items-center gap-1 text-[11px] text-[#F2BD52] font-medium">
+                          <MapPin className="size-3 text-[#E6A635]" />
+                          <span>{selectedProject.location}</span>
                         </div>
                       )}
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </AnimatePresence>
-        </div>
 
-        {/* SMART PROJECT REQUEST FORM SECTION */}
-        <Reveal delay={200} className="w-full">
-          <div id="demande-projet" className="w-full bg-white rounded-3xl shadow-2xl border border-stone-100 overflow-hidden">
-            {/* Form Header */}
-            <div className="bg-stone-900 px-8 md:px-12 py-10 text-center relative overflow-hidden">
-              <div className="absolute -left-1/4 -top-1/2 w-1/2 h-full bg-[#C17D59]/10 blur-[80px] rounded-full pointer-events-none" />
-              <div className="absolute -right-1/4 -bottom-1/2 w-1/2 h-full bg-[#C17D59]/10 blur-[80px] rounded-full pointer-events-none" />
-              <div className="relative z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C17D59]/20 border border-[#C17D59]/30 text-[#C17D59] text-xs uppercase tracking-[0.2em] mb-4">
-                  <Sparkles className="size-3.5" /> Parlez-nous de votre projet
+                    <h3 className="font-heading text-2xl sm:text-3xl text-gold-gradient font-light leading-snug">
+                      {selectedProject.title}
+                    </h3>
+
+                    {selectedProject.description ? (
+                      <p className="text-xs sm:text-sm text-white/80 font-light leading-relaxed">
+                        {selectedProject.description}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-white/70 font-light leading-relaxed">
+                        Conception intégrale et aménagements artisanaux d&apos;exception réalisés par l&apos;Atelier Aschi.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* ── NOUVELLE GRILLE DE SPÉCIFICATIONS HAUTE COUTURE (COMBLE LE VIDE) ── */}
+                  <div className="grid grid-cols-2 gap-2.5 py-1">
+                    <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                      <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
+                        <Hammer className="size-3 text-[#E6A635]" /> Aménagement
+                      </span>
+                      <span className="text-xs text-white font-medium block mt-1 truncate">
+                        {FILTER_TYPES.find(t => t.id === selectedProject.type)?.label || 'Aménagement Sur-Mesure'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                      <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
+                        <Sparkles className="size-3 text-[#E6A635]" /> Essences Nobles
+                      </span>
+                      <span className="text-xs text-white font-medium block mt-1 truncate">
+                        {selectedProject.materials || 'Noyer Massif & Bois d\'Art'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                      <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
+                        <Ruler className="size-3 text-[#E6A635]" /> Bureau d&apos;Étude
+                      </span>
+                      <span className="text-xs text-white font-medium block mt-1 truncate">
+                        Plans 3D sous 48h
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                      <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
+                        <Truck className="size-3 text-[#E6A635]" /> Exécution
+                      </span>
+                      <span className="text-xs text-white font-medium block mt-1 truncate">
+                        Pose Clé en Main Tunisie
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Réalisations incluses */}
+                  {selectedProject.details && selectedProject.details.length > 0 && (
+                    <div>
+                      <p className="text-[9.5px] uppercase tracking-[0.14em] text-[#F2BD52]/80 font-bold mb-2 flex items-center gap-1.5">
+                        <CheckCircle2 className="size-3 text-[#E6A635]" /> Réalisations d&apos;art incluses
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedProject.details.map((detail: string, idx: number) => (
+                          <span
+                            key={idx}
+                            className="bg-[#241812] border border-[#E6A635]/30 px-2.5 py-1 rounded-lg text-[10px] text-white/90 font-medium shadow-sm"
+                          >
+                            {detail}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sceau d'authenticité Atelier Aschi */}
+                  <div className="p-3 rounded-xl bg-gradient-to-r from-[#241812] via-[#2F1E14] to-[#241812] border border-[#E6A635]/30 flex items-center gap-3 shadow-inner">
+                    <div className="size-8 rounded-lg bg-[#E6A635]/15 border border-[#E6A635]/40 flex items-center justify-center shrink-0">
+                      <Sparkles className="size-4 text-[#F2BD52]" />
+                    </div>
+                    <p className="text-[10px] sm:text-[10.5px] text-white/85 font-light leading-snug">
+                      <strong className="text-[#F2BD52] font-semibold">Excellence Aschi :</strong> Façonnage artisanal dans notre atelier et pose millimétrique garantie.
+                    </p>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="pt-2 border-t border-[#E6A635]/20 space-y-2.5">
+                    <a
+                      href={`https://wa.me/21655743760?text=${encodeURIComponent(
+                        `Bonjour Maison Aschi, j'ai vu votre réalisation "${selectedProject.title}" et je souhaite une étude d'aménagement similaire pour mon établissement.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-sheen w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                    >
+                      <MessageCircle className="size-4 fill-white/20" />
+                      <span>Demander une Étude sur WhatsApp</span>
+                    </a>
+                    <button
+                      onClick={() => {
+                        handleCloseProject()
+                        setTimeout(() => {
+                          document.getElementById('demande-projet')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                        }, 300)
+                      }}
+                      className="btn-sheen w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                    >
+                      <span>Je veux un projet similaire</span>
+                      <ChevronRight className="size-3.5" />
+                    </button>
+                  </div>
+
                 </div>
-                <h2 className="font-heading text-3xl sm:text-4xl text-white mb-3">
-                  Donnez vie à votre espace d&apos;exception
-                </h2>
-                <p className="text-stone-400 text-sm leading-relaxed max-w-xl mx-auto font-light">
-                  Ismail se déplace chez vous pour une consultation gratuite. Remplissez le formulaire ci-dessous et recevez une proposition sur-mesure sous 48h.
-                </p>
-              </div>
-            </div>
-            {/* Form Body */}
-            <div className="px-8 md:px-12 py-10">
-              <ProjectRequestForm />
-            </div>
-          </div>
-        </Reveal>
-      </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Immersive Overlay Modal */}
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-white/85 backdrop-blur-md flex items-center justify-center p-4 md:p-6"
-            onClick={handleCloseProject}
-          >
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/*  FULLSCREEN IMAGE LIGHTBOX / ZOOM                              */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        <AnimatePresence>
+          {lightboxProject && (
             <motion.div
-              initial={{ scale: 0.95, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 30 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-5xl bg-stone-900 border border-[#E8DCCB]/30 rounded-3xl shadow-2xl flex flex-col md:flex-row max-h-[90vh] overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[70] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-3 sm:p-6"
+              onClick={() => setLightboxProject(null)}
             >
-              {/* Close Button */}
-              <button
-                onClick={handleCloseProject}
-                className="absolute top-4 right-4 z-50 p-2 rounded-full bg-stone-950/60 border border-[#E8DCCB]/25 text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut transition-colors"
-                aria-label="Fermer"
-              >
-                <X className="size-5" />
-              </button>
-
-              {/* LEFT COLUMN: Media */}
-              <div className="w-full md:w-[55%] flex flex-col border-b md:border-b-0 md:border-r border-[#E8DCCB]/15 overflow-y-auto p-6 space-y-6 scrollbar-thin">
-
-                {/* Main Large Image */}
-                <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-[#E8DCCB]/10 bg-stone-950">
-                  <Image
-                    src={selectedProject.gallery[activeImageIdx]}
-                    alt={selectedProject.title}
-                    fill
-                    className="object-cover"
-                  />
+              {/* Top Bar */}
+              <div className="absolute top-4 inset-x-4 sm:inset-x-8 flex items-center justify-between z-20">
+                <div className="flex items-center gap-2.5">
+                  <span className="px-3 py-1 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 text-[#F2BD52] text-xs font-semibold shadow-md">
+                    {lightboxProject.title}
+                  </span>
+                  {lightboxProject.images.length > 1 && (
+                    <span className="text-white/70 text-xs font-mono bg-black/40 px-2.5 py-0.5 rounded-full border border-white/10">
+                      {lightboxProject.currentIndex + 1} / {lightboxProject.images.length}
+                    </span>
+                  )}
                 </div>
 
-                {/* Thumbnails */}
-                <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
-                  {selectedProject.gallery.map((img, idx) => (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setLightboxProject(null)
+                  }}
+                  className="size-10 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 text-white hover:text-[#F2BD52] hover:bg-[#3B271C] transition-all flex items-center justify-center cursor-pointer shadow-lg"
+                  aria-label="Fermer le plein écran"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+
+              {/* Enlarged Image container */}
+              <motion.div
+                key={lightboxProject.currentIndex}
+                initial={{ scale: 0.92, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.92, opacity: 0 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+                className="relative w-full max-w-5xl h-[70vh] sm:h-[78vh] flex items-center justify-center my-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Image
+                  src={lightboxProject.images[lightboxProject.currentIndex]}
+                  alt={lightboxProject.title}
+                  fill
+                  className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)]"
+                  sizes="100vw"
+                  priority
+                />
+              </motion.div>
+
+              {/* Navigation Arrows */}
+              {lightboxProject.images.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setLightboxProject(prev => prev ? {
+                        ...prev,
+                        currentIndex: prev.currentIndex === 0 ? prev.images.length - 1 : prev.currentIndex - 1
+                      } : null)
+                    }}
+                    className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 size-10 sm:size-12 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] hover:scale-110 transition-all cursor-pointer shadow-xl"
+                    aria-label="Image précédente"
+                  >
+                    <ChevronLeft className="size-5 sm:size-6" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setLightboxProject(prev => prev ? {
+                        ...prev,
+                        currentIndex: prev.currentIndex === prev.images.length - 1 ? 0 : prev.currentIndex + 1
+                      } : null)
+                    }}
+                    className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 size-10 sm:size-12 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] hover:scale-110 transition-all cursor-pointer shadow-xl"
+                    aria-label="Image suivante"
+                  >
+                    <ChevronRight className="size-5 sm:size-6" />
+                  </button>
+                </>
+              )}
+
+              {/* Bottom Thumbnails */}
+              {lightboxProject.images.length > 1 && (
+                <div 
+                  className="absolute bottom-3 sm:bottom-4 inset-x-4 flex justify-center gap-2 overflow-x-auto py-2 z-20 scrollbar-thin"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {lightboxProject.images.map((img, idx) => (
                     <button
                       key={idx}
-                      onClick={() => setActiveImageIdx(idx)}
-                      className={`relative w-20 aspect-[16/10] rounded-lg overflow-hidden border shrink-0 transition-all ${
-                        activeImageIdx === idx ? 'border-[#E8DCCB] scale-95 shadow-md' : 'border-white/10 opacity-60 hover:opacity-100'
+                      onClick={() => setLightboxProject(prev => prev ? { ...prev, currentIndex: idx } : null)}
+                      className={`relative w-12 sm:w-16 aspect-[16/10] rounded-lg overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                        lightboxProject.currentIndex === idx
+                          ? 'border-[#E6A635] scale-105 shadow-[0_0_12px_rgba(230,166,53,0.5)]'
+                          : 'border-white/20 opacity-50 hover:opacity-100'
                       }`}
                     >
-                      <Image src={img} alt="Miniature" fill className="object-cover" />
+                      <Image src={img.split(',')[0].trim()} alt="Miniature" fill className="object-cover" />
                     </button>
                   ))}
                 </div>
-
-                {/* Video Player */}
-                {selectedProject.video && (
-                  <div className="space-y-3">
-                    <h4 className="text-[10px] uppercase tracking-widest text-[#C17D59] font-semibold text-left">Aperçu Vidéo de l&apos;Atelier</h4>
-                    <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border border-[#E8DCCB]/15 bg-stone-950 shadow-inner group/video">
-                      <video
-                        ref={videoRef}
-                        src={selectedProject.video}
-                        muted
-                        autoPlay
-                        loop
-                        playsInline
-                        className="w-full h-full object-cover opacity-80"
-                      />
-                      <div
-                        onClick={togglePlay}
-                        className="absolute inset-0 bg-white/35 flex items-center justify-center cursor-pointer group-hover/video:bg-white/50 transition-colors"
-                      >
-                        <div className="w-12 h-12 rounded-full bg-[#E8DCCB]/90 text-walnut flex items-center justify-center transition-transform hover:scale-110 shadow-lg">
-                          {isPlaying ? (
-                            <div className="flex gap-1">
-                              <div className="w-1 h-4 bg-[#FAF7F2] rounded-full" />
-                              <div className="w-1 h-4 bg-[#FAF7F2] rounded-full" />
-                            </div>
-                          ) : (
-                            <Play className="size-5 fill-current ml-1" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* RIGHT COLUMN: Details, Review, CTA */}
-              <div className="w-full md:w-[45%] flex flex-col justify-between overflow-y-auto p-6 md:p-8 space-y-6 text-left scrollbar-thin">
-
-                {/* Meta */}
-                <div className="space-y-4">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="inline-block bg-[#C17D59] text-white text-[10px] uppercase tracking-widest px-3 py-1 rounded-full font-bold">
-                      {FILTER_TYPES.find(t => t.id === selectedProject.type)?.label || selectedProject.type}
-                    </span>
-                  </div>
-
-                  <h3 className="font-heading text-3xl text-white font-medium">
-                    {selectedProject.title}
-                  </h3>
-
-                  <div className="flex items-center gap-1.5 text-xs text-[#C17D59]/80">
-                    <MapPin className="size-3.5" />
-                    {selectedProject.location}
-                  </div>
-
-                  <p className="text-sm text-[#3A2A21]/80 font-light leading-relaxed pt-2">
-                    {selectedProject.description}
-                  </p>
-
-                  {/* Works pills */}
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2">Réalisations incluses</p>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedProject.details.map((detail, idx) => (
-                        <span key={idx} className="bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider text-[#3A2A21]/80 font-medium">
-                          {detail}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Testimonial */}
-                {selectedProject.review && (
-                  <div className="bg-white/5 border border-[#E8DCCB]/15 rounded-2xl p-5 space-y-3 relative">
-                    <div className="flex gap-1">
-                      {[...Array(selectedProject.review.rating)].map((_, i) => (
-                        <Star key={i} className="size-3.5 fill-[#C17D59] text-[#C17D59]" />
-                      ))}
-                    </div>
-                    <p className="text-xs text-[#3A2A21]/70 italic leading-relaxed">
-                      &quot;{selectedProject.review.comment}&quot;
-                    </p>
-                    <div className="border-t border-white/10 pt-2 flex flex-col">
-                      <span className="text-xs font-semibold text-white">{selectedProject.review.author}</span>
-                      <span className="text-[10px] text-[#3A2A21]/50">{selectedProject.review.role}</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Action button */}
-                <div className="pt-4 border-t border-white/10">
-                  <button
-                    onClick={() => {
-                      handleCloseProject()
-                      setTimeout(() => {
-                        document.getElementById('demande-projet')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                      }, 300)
-                    }}
-                    className="w-full inline-flex items-center justify-center gap-2.5 rounded-full bg-[#E8DCCB] px-6 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-walnut transition-all duration-300 hover:scale-[1.02] shadow-[0_4px_15px_rgba(212,175,55,0.2)]"
-                  >
-                    Je veux un projet similaire
-                    <ChevronRight className="size-3.5" />
-                  </button>
-                </div>
-              </div>
+              )}
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
 
-      <Footer />
+        <MobileFloatingVIP />
+        <Footer />
       </div>
     </main>
   )

@@ -2,15 +2,20 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Play, Pause, Volume2, VolumeX, Sparkles } from 'lucide-react'
+import { motion, useInView } from 'framer-motion'
 import { Reveal } from './reveal'
 
 export function VideoReel() {
+  const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [isPlaying, setIsPlaying] = useState(true)
+  const isInView = useInView(containerRef, { margin: '100px 0px', once: false })
+
+  const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [videoUrl, setVideoUrl] = useState('/Video-art.mp4')
+  const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
     fetch('/api/reel')
@@ -20,6 +25,24 @@ export function VideoReel() {
       })
       .catch(err => console.error("Failed to load reel config", err))
   }, [])
+
+  // Smart lazy loading & auto-pause via IntersectionObserver
+  useEffect(() => {
+    if (!videoRef.current) return
+
+    if (isInView) {
+      setHasLoaded(true)
+      videoRef.current.play().then(() => {
+        setIsPlaying(true)
+      }).catch(() => {
+        // Autoplay may be restricted on some mobile browsers without user interaction
+        setIsPlaying(false)
+      })
+    } else if (hasLoaded) {
+      videoRef.current.pause()
+      setIsPlaying(false)
+    }
+  }, [isInView, hasLoaded])
 
   const handleTimeUpdate = () => {
     if (videoRef.current) setCurrentTime(videoRef.current.currentTime)
@@ -63,7 +86,7 @@ export function VideoReel() {
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 
   return (
-    <section id="temoignages" className="relative bg-transparent py-10 sm:py-16 lg:py-20 overflow-hidden border-none scroll-mt-20">
+    <section id="temoignages" ref={containerRef} className="relative bg-transparent py-10 sm:py-16 lg:py-20 overflow-hidden border-none scroll-mt-20">
       {/* Ancre de compatibilité */}
       <span id="coulisses" className="absolute -top-24" />
 
@@ -94,7 +117,7 @@ export function VideoReel() {
         </div>
 
         {/* ========================================================================= */}
-        {/* 2. LECTEUR CINÉMA CENTRÉ & MAJESTUEUX (Sans Avis Latéraux)               */}
+        {/* 2. LECTEUR CINÉMA CENTRÉ & MAJESTUEUX (Lazy Loading Viewport)             */}
         {/* ========================================================================= */}
         <div className="max-w-4xl mx-auto">
           <Reveal delay={120}>
@@ -107,10 +130,10 @@ export function VideoReel() {
               >
                 <video
                   ref={videoRef}
-                  src={videoUrl}
+                  src={hasLoaded ? videoUrl : undefined}
+                  poster="/images/raw-sculptures.jpg"
                   muted={isMuted}
-                  autoPlay
-                  preload="metadata"
+                  preload="none"
                   className="w-full h-full object-cover"
                   loop
                   playsInline

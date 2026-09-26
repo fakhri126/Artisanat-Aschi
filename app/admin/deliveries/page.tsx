@@ -147,8 +147,15 @@ export default function AdminDeliveriesPage() {
                   <tr key={d.id} className="border-b hover:bg-stone-50/50 transition-colors">
                     <td className="p-4">
                       <div className="w-16 h-16 rounded-md overflow-hidden bg-stone-100 relative border border-stone-200">
-                        {d.imageUrl ? (
-                          <img src={d.imageUrl} alt="Livraison" className="w-full h-full object-cover" />
+                        {d.imageUrl?.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                          <video src={d.imageUrl} className="w-full h-full object-cover" muted />
+                        ) : d.imageUrl ? (
+                          <img 
+                            src={d.imageUrl} 
+                            alt="Livraison" 
+                            className="w-full h-full object-cover" 
+                            onError={(e) => { (e.target as HTMLImageElement).src = '/project-villa.png' }}
+                          />
                         ) : (
                           <ImageIcon className="absolute inset-0 m-auto text-stone-400 size-6" />
                         )}

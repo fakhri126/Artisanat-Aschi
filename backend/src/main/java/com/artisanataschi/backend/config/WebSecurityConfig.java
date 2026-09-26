@@ -2,12 +2,14 @@ package com.artisanataschi.backend.config;
 
 import com.artisanataschi.backend.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,13 +23,21 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class WebSecurityConfig {
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    private RateLimitingFilter rateLimitingFilter;
+
+    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:3001,https://artisanat-aschi.com,https://www.artisanat-aschi.com}")
+    private String allowedOrigins;
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -55,18 +65,25 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Allow CORS preflight and requests
+            // Allow CORS preflight and requests with configured origins
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            // Disable CSRF (REST API, stateless)
+            // Disable CSRF (REST API, stateless Bearer token)
             .csrf(csrf -> csrf.disable())
             // Stateless sessions
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Security Response Headers
+            .headers(headers -> headers
+                .contentTypeOptions(org.springframework.security.config.Customizer.withDefaults())
+                .frameOptions(frame -> frame.deny())
+            )
             // Authorization rules - paths are relative to the servlet context-path (/api)
             .authorizeHttpRequests(auth -> auth
                 // Allow all OPTIONS preflight requests
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Error endpoint must be public to avoid 403 on Spring error forwarding
                 .requestMatchers("/error").permitAll()
+                // Public actuator health check
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 // Public auth routes
                 .requestMatchers("/auth/**").permitAll()
                 // All public API routes open to everyone
@@ -80,6 +97,7 @@ public class WebSecurityConfig {
             );
 
         http.authenticationProvider(authenticationProvider());
+        http.addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -88,13 +106,18 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow all origins for development (frontend on port 3000)
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
         configuration.setExposedHeaders(List.of("Authorization"));
-        configuration.setAllowCredentials(false);
+        configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

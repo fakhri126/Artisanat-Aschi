@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { adminApi, publicApi, Product, Category, ProductRequest, ImageVariant, QuoteRequest, colorsApi, ColorSwatch } from '@/lib/api'
+import { isBijouxOrHandleCategory, isBijouxOrHandleProduct } from '@/lib/utils'
 import { 
   Plus, 
   Edit2, 
@@ -388,11 +389,22 @@ function ImageVariantManager({
   )
 }
 
+// ─── Default Fallback Categories for Furniture Catalogue ──────────────────────
+const DEFAULT_FURNITURE_CATEGORIES: Category[] = [
+  { id: 1, name: 'Buffets', type: 'MOBILIER' },
+  { id: 2, name: 'Meubles TV', type: 'MOBILIER' },
+  { id: 3, name: 'Miroirs', type: 'DECORATION' },
+  { id: 4, name: 'Portes', type: 'PORTES' },
+  { id: 5, name: 'Coffres', type: 'MOBILIER' },
+  { id: 6, name: 'Décoration', type: 'DECORATION' },
+  { id: 7, name: 'Tables', type: 'MOBILIER' },
+]
+
 // ─── Main Admin Catalogue Page ───────────────────────────────────────────────
 export default function AdminCataloguePage() {
   const [activeTab, setActiveTab] = useState<'MODELS' | 'QUOTES'>('MODELS')
   const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_FURNITURE_CATEGORIES)
   const [colors, setColors] = useState<ColorSwatch[]>([])
   const [quotes, setQuotes] = useState<QuoteRequest[]>([])
   const [loading, setLoading] = useState(true)
@@ -438,7 +450,7 @@ export default function AdminCataloguePage() {
   // Form fields (availability is always 'Sur commande' for catalogue items)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [categoryId, setCategoryId] = useState('')
+  const [categoryId, setCategoryId] = useState('1')
   const [dimensions, setDimensions] = useState('')
   const [materials, setMaterials] = useState('')
   const [color, setColor] = useState('')
@@ -466,20 +478,43 @@ export default function AdminCataloguePage() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [prodData, catData, colorData] = await Promise.all([
-        adminApi.getProducts(),
-        publicApi.getCategories(),
-        colorsApi.getColors().catch(() => []),
-      ])
+      let prodData: Product[] = []
+      let catData: Category[] = []
+      let colorData: ColorSwatch[] = []
+
+      try {
+        const res = await adminApi.getProducts()
+        if (Array.isArray(res)) prodData = res
+      } catch (e) {
+        console.warn("Could not load products:", e)
+      }
+
+      try {
+        const res = await publicApi.getCategories()
+        if (Array.isArray(res) && res.length > 0) catData = res
+        else catData = DEFAULT_FURNITURE_CATEGORIES
+      } catch (e) {
+        console.warn("Could not load categories, using defaults:", e)
+        catData = DEFAULT_FURNITURE_CATEGORIES
+      }
+
+      try {
+        const res = await colorsApi.getColors()
+        if (Array.isArray(res)) colorData = res
+      } catch (e) {
+        console.warn("Could not load colors:", e)
+      }
+
       if (colorData && colorData.length > 0) {
         setColors(colorData)
       }
-      // Filter strictly CATALOGUE type
-      const catProds = prodData.filter(p => p.type === 'CATALOGUE')
+
+      // Filter strictly CATALOGUE type and exclude door jewelry
+      const catProds = prodData.filter(p => p.type === 'CATALOGUE' && !isBijouxOrHandleProduct(p))
       setProducts(catProds)
 
       // Exclude door jewelry and door handle categories (managed in /admin/bijoux-de-porte)
-      let finalCats = catData.filter(c => !isDoorJewelryOrHandleCategory(c.name))
+      let finalCats = catData.filter(c => !isDoorJewelryOrHandleCategory(c.name) && !isBijouxOrHandleCategory(c.name))
 
       // Also exclude generic 'Décoration' if it has no catalogue items
       finalCats = finalCats.filter(c => {
@@ -520,7 +555,10 @@ export default function AdminCataloguePage() {
           }
         }
       }
-      setCategories(finalCats)
+      if (finalCats.length > 0) {
+        setCategories(finalCats)
+        setCategoryId(prev => prev || finalCats[0].id.toString())
+      }
     } catch (err: any) {
       setError(err.message || 'Erreur de chargement.')
     } finally {
@@ -920,7 +958,7 @@ export default function AdminCataloguePage() {
   const openCreateModal = () => {
     setEditingProduct(null)
     setModalStep(1)
-    const defaultCatId = categories[0]?.id.toString() || ''
+    const defaultCatId = categories[0]?.id?.toString() || '1'
     const defaultColor = 'Noyer'
     const defaultName = getNextModelName(defaultCatId, products, categories)
     setCategoryId(defaultCatId)
@@ -940,7 +978,7 @@ export default function AdminCataloguePage() {
     setModalStep(1)
     setName(product.name)
     setDescription(product.description || '')
-    setCategoryId(product.category?.id.toString() || '')
+    setCategoryId(product.category?.id?.toString() || (categories[0]?.id?.toString() || '1'))
     setDimensions(product.dimensions || '')
     setMaterials(product.materials || '')
     setColor(product.color || '')

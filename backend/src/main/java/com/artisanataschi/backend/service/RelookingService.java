@@ -35,8 +35,6 @@ public class RelookingService {
     }
 
     public void deleteRelooking(Long id) {
-        Relooking relooking = relookingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Relooking not found with id " + id));
-        relookingRepository.delete(relooking);
+        relookingRepository.findById(id).ifPresent(relookingRepository::delete);
     }
 }

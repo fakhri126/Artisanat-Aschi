@@ -2,25 +2,38 @@ package com.artisanataschi.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.List;
 
 public class ProductRequest {
-    @NotBlank
+    @NotBlank(message = "Le nom du produit est obligatoire")
+    @Size(max = 255, message = "Le nom ne doit pas depasser 255 caracteres")
     private String name;
 
+    @Size(max = 5000, message = "La description ne doit pas depasser 5000 caracteres")
     private String description;
 
-    @NotNull
+    @NotNull(message = "L'identifiant de categorie est obligatoire")
     private Long categoryId;
 
+    @Size(max = 100, message = "Les dimensions ne doivent pas depasser 100 caracteres")
     private String dimensions;
+
+    @Size(max = 150, message = "Les materiaux ne doivent pas depasser 150 caracteres")
     private String materials;
+
+    @Size(max = 100, message = "La couleur ne doit pas depasser 100 caracteres")
     private String color;
+
+    @PositiveOrZero(message = "Le prix doit etre positif ou nul")
     private BigDecimal price;
+
+    @Size(max = 100, message = "La disponibilite ne doit pas depasser 100 caracteres")
     private String availability;
 
-    @NotBlank
+    @NotBlank(message = "Le type est obligatoire")
     private String type;
 
     private Boolean isFeatured = false;

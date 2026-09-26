@@ -39,6 +39,10 @@ export interface Project {
   location: string;
   details: string;
   imageUrl: string;
+  gallery?: string[] | string;
+  images?: string[];
+  videoUrl?: string | null;
+  video?: string | null;
 }
 
 export interface News {
@@ -239,21 +243,27 @@ export function parseProduct(product: Product): Product {
 // --- Public Endpoints ---
 
 export const publicApi = {
-  getProducts: (params?: { category?: string; color?: string; dimensions?: string; type?: string }) => {
+  getProducts: (params?: { category?: string; color?: string; dimensions?: string; type?: string; page?: number; size?: number }) => {
     const query = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, val]) => {
-        if (val) query.append(key, val);
+        if (val !== undefined && val !== null) query.append(key, String(val));
       });
     }
     const queryString = query.toString();
-    return fetchApi<Product[]>(`/public/products${queryString ? '?' + queryString : ''}`)
-      .then(res => res.map(parseProduct));
+    return fetchApi<any>(`/public/products${queryString ? '?' + queryString : ''}`)
+      .then(res => {
+        const items: Product[] = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : []);
+        return items.map(parseProduct);
+      });
   },
   
   getFeaturedProducts: () => {
-    return fetchApi<Product[]>('/public/products/featured')
-      .then(res => res.map(parseProduct));
+    return fetchApi<any>('/public/products/featured')
+      .then(res => {
+        const items: Product[] = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : []);
+        return items.map(parseProduct);
+      });
   },
   
   getProductById: (id: number) => {
@@ -262,8 +272,11 @@ export const publicApi = {
   },
   
   getLatestProducts: () => {
-    return fetchApi<Product[]>('/public/products/latest')
-      .then(res => res.map(parseProduct));
+    return fetchApi<any>('/public/products/latest')
+      .then(res => {
+        const items: Product[] = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : []);
+        return items.map(parseProduct);
+      });
   },
   
   getCategories: () => {
@@ -378,6 +391,25 @@ export const adminApi = {
     });
   },
 
+  uploadVideo: async (file: File) => {
+    try {
+      // Prioritize uploading to the Spring Boot backend
+      return await adminApi.uploadImage(file);
+    } catch (backendError) {
+      console.warn('Backend upload failed, falling back to Next.js upload-video:', backendError);
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload-video', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        throw new Error('Erreur lors du téléchargement de la vidéo');
+      }
+      return res.json() as Promise<{ url: string }>;
+    }
+  },
+
   uploadProductImage: (file: File) => {
     return adminApi.uploadImage(file);
   },
@@ -397,7 +429,10 @@ export const adminApi = {
   }),
 
   // Products CRUD
-  getProducts: () => fetchApi<Product[]>('/public/products').then(res => res.map(parseProduct)),
+  getProducts: () => fetchApi<any>('/public/products').then(res => {
+    const items: Product[] = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : []);
+    return items.map(parseProduct);
+  }),
   createProduct: (data: ProductRequest) => {
     formatProductVariants(data);
     return fetchApi<Product>('/admin/products', {
@@ -418,14 +453,38 @@ export const adminApi = {
 
   // Projects CRUD
   getProjects: () => fetchApi<Project[]>('/public/projects'),
-  createProject: (data: Omit<Project, 'id'>) => fetchApi<Project>('/admin/projects', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-  updateProject: (id: number, data: Omit<Project, 'id'>) => fetchApi<Project>(`/admin/projects/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
+  createProject: (data: Omit<Project, 'id'>) => {
+    const { title, description, category, location, details, imageUrl, videoUrl, video } = data as any;
+    const cleanData = {
+      title: title || '',
+      description: description || '',
+      category: category || 'hotel',
+      location: location || '',
+      details: details || '',
+      imageUrl: imageUrl || '/project-hotel.png',
+      videoUrl: videoUrl || video || ''
+    };
+    return fetchApi<Project>('/admin/projects', {
+      method: 'POST',
+      body: JSON.stringify(cleanData),
+    });
+  },
+  updateProject: (id: number, data: Omit<Project, 'id'>) => {
+    const { title, description, category, location, details, imageUrl, videoUrl, video } = data as any;
+    const cleanData = {
+      title: title || '',
+      description: description || '',
+      category: category || 'hotel',
+      location: location || '',
+      details: details || '',
+      imageUrl: imageUrl || '/project-hotel.png',
+      videoUrl: videoUrl || video || ''
+    };
+    return fetchApi<Project>(`/admin/projects/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(cleanData),
+    });
+  },
   deleteProject: (id: number) => fetchApi<void>(`/admin/projects/${id}`, {
     method: 'DELETE',
   }),

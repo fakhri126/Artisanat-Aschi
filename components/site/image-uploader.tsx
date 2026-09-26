@@ -174,14 +174,16 @@ export function MultiImageUploader({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files ? Array.from(e.target.files) : []
+    if (files.length === 0) return
     setUploading(true)
     try {
-      const data = await uploadFn(file)
-      if (data.url) onAdd(data.url)
+      for (const file of files) {
+        const data = await uploadFn(file)
+        if (data.url) onAdd(data.url)
+      }
     } catch (err: any) {
-      alert(err.message || "Erreur lors de l'envoi de l'image.")
+      alert(err.message || "Erreur lors de l'envoi des images.")
     } finally {
       setUploading(false)
       if (inputRef.current) inputRef.current.value = ''
@@ -240,6 +242,7 @@ export function MultiImageUploader({
           <input
             ref={inputRef}
             type="file"
+            multiple
             accept={`image/jpeg,image/jpg,image/png,image/webp${acceptVideo ? ',video/mp4,video/webm,video/ogg,video/quicktime' : ''}`}
             onChange={handleFile}
             disabled={uploading}

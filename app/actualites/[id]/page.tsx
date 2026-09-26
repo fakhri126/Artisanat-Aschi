@@ -31,7 +31,7 @@ Informations Pratiques :
   {
     id: 2,
     title: 'Transmission de Savoir-Faire : Nos Jeunes Apprentis',
-    content: `Depuis sa fondation en 1960 par Hechmi Aschi à Bab Jdid, la transmission des gestes nobles est le véritable cœur battant de notre maison d'art.
+    content: `Depuis sa fondation par Hachemi Aschi, la transmission des gestes nobles est le véritable cœur battant de notre maison d'art.
 
 Ce mois-ci, nous mettons à l'honneur Youssef et Malek, nos deux nouveaux apprentis ébénistes sculpteurs qui ont rejoint l'atelier de La Goulette après deux ans de sélection rigoureuse.
 

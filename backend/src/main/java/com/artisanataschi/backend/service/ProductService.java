@@ -8,6 +8,12 @@ import com.artisanataschi.backend.repository.CategoryRepository;
 import com.artisanataschi.backend.repository.ProductRepository;
 import com.artisanataschi.backend.repository.ProductSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +31,10 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
+
     public List<Product> getProductsFiltered(String category, String color, String dimensions, String type) {
         Specification<Product> spec = Specification.where(ProductSpecification.hasCategory(category))
                 .and(ProductSpecification.hasColor(color))
@@ -33,28 +43,42 @@ public class ProductService {
         return productRepository.findAll(spec);
     }
 
+    public Page<Product> getProductsFiltered(String category, String color, String dimensions, String type, Pageable pageable) {
+        Specification<Product> spec = Specification.where(ProductSpecification.hasCategory(category))
+                .and(ProductSpecification.hasColor(color))
+                .and(ProductSpecification.hasDimensions(dimensions))
+                .and(ProductSpecification.hasType(type));
+        return productRepository.findAll(spec, pageable);
+    }
+
     public Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
     }
 
+    @Cacheable(value = "featuredProducts")
     public List<Product> getFeaturedProducts() {
         return productRepository.findTop6ByIsFeaturedTrue();
     }
 
+    @Cacheable(value = "latestProducts")
     public List<Product> getLatestProducts() {
-        // Return latest physical workshop creations (excluding CATALOGUE and Bijoux de Porte)
+        // Optimized: Delegates sorting and LIMIT 5 directly to the PostgreSQL engine
         Specification<Product> spec = Specification.where(ProductSpecification.isAvailableWorkshopProduct());
-        List<Product> available = productRepository.findAll(spec);
-        available.sort((a, b) -> b.getId().compareTo(a.getId()));
-        return available.stream().limit(5).toList();
+        Pageable topFive = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"));
+        return productRepository.findAll(spec, topFive).getContent();
     }
 
     public List<Product> getProductsByType(String type) {
         return productRepository.findByType(type);
     }
 
+    public Page<Product> getProductsByType(String type, Pageable pageable) {
+        return productRepository.findByType(type, pageable);
+    }
+
     @Transactional
+    @CacheEvict(value = {"featuredProducts", "latestProducts"}, allEntries = true)
     public Product createProduct(ProductRequest request) {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
@@ -78,6 +102,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = {"featuredProducts", "latestProducts"}, allEntries = true)
     public Product updateProduct(Long id, ProductRequest request) {
         Product product = getProductById(id);
         Category category = categoryRepository.findById(request.getCategoryId())
@@ -130,6 +155,7 @@ public class ProductService {
         return images;
     }
 
+    @CacheEvict(value = {"featuredProducts", "latestProducts"}, allEntries = true)
     public void deleteProduct(Long id) {
         Product product = getProductById(id);
         productRepository.delete(product);

@@ -44,6 +44,14 @@ const nextConfig = {
       },
     ]
   },
+  async rewrites() {
+    return [
+      {
+        source: '/backend-api/:path*',
+        destination: `${process.env.INTERNAL_BACKEND_URL || 'http://localhost:8081/api'}/:path*`,
+      },
+    ]
+  },
 }
 
 export default nextConfig

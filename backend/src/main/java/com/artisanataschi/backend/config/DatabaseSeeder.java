@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +24,12 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Autowired private NewsRepository newsRepository;
     @Autowired private ReferenceRepository referenceRepository;
     @Autowired private TestimonialRepository testimonialRepository;
+    @Autowired private DeliveryRepository deliveryRepository;
+    @Autowired private RelookingRepository relookingRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+
+    @org.springframework.beans.factory.annotation.Value("${app.db.force-seed:false}")
+    private boolean forceSeed;
 
     private Category cat(String name, String type) {
         Category c = new Category();
@@ -85,6 +91,14 @@ public class DatabaseSeeder implements CommandLineRunner {
             admin.setRole("ROLE_ADMIN");
             adminRepository.save(admin);
             System.out.println("✅ Default admin seeded: admin / adminpassword");
+        }
+
+        // Si la base est déjà initialisée (catégories présentes), NE PAS ré-insérer ni écraser les données !
+        // Cela garantit que toute donnée supprimée reste définitivement supprimée,
+        // et que toute nouvelle donnée ajoutée ou modifiée reste intacte en base.
+        if (!forceSeed && categoryRepository.count() > 0) {
+            System.out.println("ℹ️ Base de données déjà initialisée. Le seeder automatique n'écrase aucune donnée utilisateur.");
+            return;
         }
 
         // ── 2. Seed Categories ───────────────────────────────────────────────
@@ -162,89 +176,35 @@ public class DatabaseSeeder implements CommandLineRunner {
             System.out.println("🧹 Cleaned up " + legacyUnwanted.size() + " legacy unwanted handle items.");
         }
 
-        // ── Seed the 32 authentic collection handles (with poignee_col... images) ──
-        String[][] genuineHandles = {
-            // COLONNE 1 (8 Poignées)
-            {"Bouton Riad Vert & Ocre", "Faïence artisanale craquelée aux teintes d'olivier et d'ocre terre cuite, sertie dans son anneau de noyer massif.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert olive & Ocre", "34", "/poignees/poignee_col1_01.png"},
-            {"Bouton Chevrons Bleu Cobalt", "Motifs géométriques en chevrons bleu de majolique d'époque et filets dorés sur faïence d'art.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu cobalt & Miel", "35", "/poignees/poignee_col1_02.png"},
-            {"Bouton Rosace Feuille d'Émeraude", "Arabesque végétale florale peinte au pinceau fin avec émail brillant sur fond blanc soyeux.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert émeraude & Blanc ivoire", "36", "/poignees/poignee_col1_03.png"},
-            {"Bouton Terre & Patine Antique", "Dégradé minéral naturel évoquant la poterie d'argile traditionnelle et les émaux cuits au feu de bois.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Terre cuite & Vert mousse", "32", "/poignees/poignee_col1_04.png"},
-            {"Bouton Soleil Rayons Ocre", "Graphisme solaire linéaire aux reflets ambrés, idéal pour tiroirs de commodes et meubles d'appoint.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Ocre solaire & Terre de Sienne", "33", "/poignees/poignee_col1_05.png"},
-            {"Bouton Majolique Émeraude Pure", "Émail vitrifié vert profond avec subtiles craquelures d'artisanat d'art et virole sculptée.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert émeraude profond", "36", "/poignees/poignee_col1_06.png"},
-            {"Bouton Raphia & Gouttes Bleues", "Finitions bicolores rythmées par des ponctuations marines et des lignes bleu nuit.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu cobalt & Blanc moucheté", "34", "/poignees/poignee_col1_07.png"},
-            {"Bouton Feuillage Printanier", "Motif végétal printanier aux couleurs chatoyantes, célébrant le renouveau et la nature méditerranéenne.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert prairie & Jaune safran", "35", "/poignees/poignee_col1_08.png"},
+        // ── Note: Bijoux de porte et poignées d'art sont désormais gérés via Supabase bijoux_boards ──
+        System.out.println("✅ Bijoux de porte catalog is managed via Supabase bijoux_boards.");
 
-            // COLONNE 2 (8 Poignées)
-            {"Bouton Spirale Mer Égée", "Vagues marines et volutes bleu outremer sur faïence vitrifiée aux reflets translucides.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu outremer & Blanc", "35", "/poignees/poignee_col2_01.png"},
-            {"Bouton Tourbillon Cobalt & Ivoire", "Spirale calligraphique tracée à main levée, rehaussée d'une patine ivoirine et d'un cerclage en bois d'olivier.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Cobalt & Blanc cassé", "34", "/poignees/poignee_col2_02.png"},
-            {"Bouton Tulipe Vert & Safran", "Pétale de tulipe stylisé en vert jade et fond blanc crème, bordé d'une finition ciselée à la gouge.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert jade & Blanc crème", "36", "/poignees/poignee_col2_03.png"},
-            {"Bouton Diagonales Ocre & Nuit", "Lignes graphiques obliques mêlant l'ocre jaune chaud et des nuances de bleu nuit sur émail lisse.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Ocre jaune & Bleu nuit", "33", "/poignees/poignee_col2_04.png"},
-            {"Bouton Cratère Cobalt Doré", "Céramique d'art aux émaux d'or et bleu cobalt intense, inspirée des céramiques de Kairouan et Nabeul.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu profond & Doré", "35", "/poignees/poignee_col2_05.png"},
-            {"Bouton Trame Bleue d'Andalousie", "Résille et mosaïque peinte à la plume de roseau, évoquant l'héritage arabo-andalou des maîtres potiers.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu saphir & Céleste", "36", "/poignees/poignee_col2_06.png"},
-            {"Bouton Éclosion Botanique", "Ponctuations florales vert mousse et boutons d'olivier sur faïence claire craquelée au naturel.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Vert mousse & Argile", "34", "/poignees/poignee_col2_07.png"},
-            {"Bouton Duo Sphères Azur & Miel", "Double orbe coloré bleu ciel et jaune miel, création contemporaine ancrée dans la tradition artisanale.", "Petit", "Céramique émaillée peinte à la main & bague en bois noble", "Azur & Miel", "35", "/poignees/poignee_col2_08.png"},
-
-            // COLONNE 3 (8 Poignées)
-            {"Bouton Mosaïque Ocre & Azur", "Arcs et tesselles peints aux tons d'azur et d'ocre chaud, évoquant les pavements des palais tunisiens.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Ocre & Azur", "35", "/poignees/poignee_col3_01.png"},
-            {"Bouton Cercles Solaires Cobalt", "Anneaux concentriques dorés et centre bleu roi sur émail vitrifié cuit à haute température.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Cobalt & Doré", "34", "/poignees/poignee_col3_02.png"},
-            {"Bouton Grenade & Fleurs Pourpres", "Silhouette florale pourpre et ambre inspirée de la grenade et des jardins de Sidi Bou Saïd.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Pourpre & Ambre", "36", "/poignees/poignee_col3_03.png"},
-            {"Bouton Marguerite d'Or & Bleu", "Rosace florale cobalt sur fond doré miel, alliance parfaite de noblesse et de fraîcheur artisanale.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu roi & Jaune miel", "36", "/poignees/poignee_col3_04.png"},
-            {"Bouton Marbre Ocre & Nacre", "Dégradés marbrés ambrés aux nuances nacrées et reflets chauds, posés dans un cadre en noyer massif.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Ambre & Nacre", "33", "/poignees/poignee_col3_05.png"},
-            {"Bouton Rosace Étoilée de Nabeul", "Étoile à 8 branches cobalt sur faïence blanche craquelée, emblème de la céramique d'art tunisienne.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Cobalt & Blanc pur", "36", "/poignees/poignee_col3_06.png"},
-            {"Bouton Brindilles d'Olivier", "Rameaux d'olivier vert sauge et terre cuite, hommage à la terre d'oliviers et à l'artisanat du bois.", "Moyen", "Céramique émaillée peinte à la main & bague en bois noble", "Vert sauge & Terre cuite", "34", "/poignees/poignee_col3_07.png"},
-            {"Bouton Arabesque Royale de Tunis", "Pièce d'apparat polychrome aux motifs arabo-andalous raffinés, digne des plus belles demeures.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu, Ocre & Terre", "38", "/poignees/poignee_col3_08.png"},
-
-            // COLONNE 4 (8 Poignées)
-            {"Bouton Vague Azur & Miel", "Onde organique bleu ciel et ocre jaune sur fond crème vitrifié, subtile harmonie marine.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Azur & Miel", "35", "/poignees/poignee_col4_01.png"},
-            {"Bouton Treillis Géométrique Azur", "Motifs en treillis bleu azur et jaune miel inspirés des moucharabiehs et claustras orientaux.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu azur & Miel", "35", "/poignees/poignee_col4_02.png"},
-            {"Bouton Couronne Rayons Ocre", "Rayures verticales rythmées surmontées d'un dégradé terre cuite et virole en bois tourné.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Ocre & Terre cuite", "33", "/poignees/poignee_col4_03.png"},
-            {"Bouton Rosée Émeraude & Ambre", "Ponctuations vert émeraude et ambre chaleureux sur faïence blanche éclatante.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Émeraude & Ambre", "36", "/poignees/poignee_col4_04.png"},
-            {"Bouton Arche Marine & Volute", "Vague stylisée bleu profond et spirale blanche d'inspiration océanique, finition haute brillance.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Bleu outremer & Blanc", "35", "/poignees/poignee_col4_05.png"},
-            {"Bouton Rosace Perles Vertes", "Cercles perlés vert olive et accents d'argile naturelle, délicatesse du travail à la main.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Vert olive & Blanc perle", "34", "/poignees/poignee_col4_06.png"},
-            {"Bouton Marbre Forêt Antique", "Émaux vert forêt profond aux reflets marbrés uniques, évoquant la richesse des marbres antiques.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Vert forêt & Patine", "36", "/poignees/poignee_col4_07.png"},
-            {"Bouton Mosaïque Andalouse Cobalt", "Géométrie étoilée bleu cobalt et blanc pur sertie dans le bois, quintessence de l'artisanat tunisien.", "Grand", "Céramique émaillée peinte à la main & bague en bois noble", "Cobalt & Blanc pur", "36", "/poignees/poignee_col4_08.png"}
-        };
-
-        for (String[] h : genuineHandles) {
-            String hName = h[0];
-            String hDesc = h[1];
-            String hDims = h[2];
-            String hMat = h[3];
-            String hColor = h[4];
-            String hPrice = h[5];
-            String hImg = h[6];
-
-            if (!productRepository.findAll().stream().anyMatch(p -> p.getName().equals(hName))) {
-                Product hp = productWithImage(
-                    hName, hDesc, hDims, hMat, hColor, hPrice, "Disponible", "BIJOUX_DE_PORTE", true, catCeramique, hImg
-                );
-                productRepository.save(hp);
-            }
-        }
-        System.out.println("✅ All 32 genuine handle products seeded.");
-
+        // ── 4. Seed Projects ─────────────────────────────────────────────────
         // ── 4. Seed Projects ─────────────────────────────────────────────────
         if (projectRepository.count() == 0) {
             Project pr1 = new Project();
             pr1.setTitle("Villa Didon");
             pr1.setDescription("Restauration et fabrication de portes monumentales et plafonds sculptés d'une villa de maître à Carthage.");
-            pr1.setCategory("Villas"); pr1.setLocation("Carthage");
+            pr1.setCategory("villa"); pr1.setLocation("Carthage");
             pr1.setDetails("Mobilier en noyer massif, portes cloutées traditionnelles, miroirs monumentaux.");
-            pr1.setImageUrl("/project-1.jpg");
+            pr1.setImageUrl("/project-villa.png");
+            pr1.setVideoUrl("http://localhost:8081/api/uploads/Video.mp4");
 
             Project pr2 = new Project();
             pr2.setTitle("Maison d'Hôtes Dar El Jeld");
             pr2.setDescription("Aménagement complet des suites d'exception de la célèbre maison d'hôtes dans la Médina de Tunis.");
-            pr2.setCategory("Maisons d'hôtes"); pr2.setLocation("Médina de Tunis");
+            pr2.setCategory("hotel"); pr2.setLocation("Médina de Tunis");
             pr2.setDetails("Coffres sculptés, lits à baldaquin en bois d'olivier, consoles et miroirs d'inspiration andalouse.");
-            pr2.setImageUrl("/project-2.jpg");
+            pr2.setImageUrl("/project-hotel.png");
+            pr2.setVideoUrl("http://localhost:8081/api/uploads/Video.mp4");
 
             Project pr3 = new Project();
             pr3.setTitle("Hôtel Royal Mansour");
             pr3.setDescription("Création de portes intérieures sculptées et de buffets beylicaux pour le hall de réception.");
-            pr3.setCategory("Hôtels"); pr3.setLocation("Hammamet");
+            pr3.setCategory("hotel"); pr3.setLocation("Hammamet");
             pr3.setDetails("Sculpture sur noyer de première qualité, ornements de feuilles d'or.");
-            pr3.setImageUrl("/project-3.jpg");
+            pr3.setImageUrl("/project-restaurant.png");
+            pr3.setVideoUrl("http://localhost:8081/api/uploads/test-video.mp4");
 
             projectRepository.saveAll(Arrays.asList(pr1, pr2, pr3));
             System.out.println("✅ Projects seeded.");
@@ -294,6 +254,54 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             testimonialRepository.saveAll(Arrays.asList(t1, t2));
             System.out.println("✅ Testimonials seeded.");
+        }
+
+        // ── 8. Seed Deliveries ────────────────────────────────────────────────
+        if (deliveryRepository.count() == 0) {
+            Delivery d1 = new Delivery("Suite Parentale & Tête de Lit Sculptée — Villa Gammarth",
+                "Installation complète d'une suite de prestige comprenant une tête de lit monumentale ciselée à la main aux motifs andalous, tables de chevet marquetées et console d'entrée en noyer noble.",
+                "http://localhost:8081/api/uploads/1788412722399-villacarthage.mp4",
+                LocalDate.now().minusDays(1));
+            Delivery d2 = new Delivery("Salon d'Apparat & Boiserie Andalouse — Résidence Carthage",
+                "Aménagement complet sur-mesure avec boiserie murale ciselée, portes intérieures à claustra traditionnel et finitions en laiton vieilli pour une demeure de maître.",
+                "http://localhost:8081/api/uploads/1788370150280-villasoukra.mp4",
+                LocalDate.now().minusDays(5));
+            Delivery d3 = new Delivery("Porte d'Apparat Cloutée & Moucharabiehs — Demeure Sidi Bou Saïd",
+                "Pose clé en main d'une porte monumentale en noyer massif avec clous forgés traditionnels et moucharabieh d'inspiration beylicale.",
+                "/project-villa.png",
+                LocalDate.now().minusDays(12));
+            deliveryRepository.saveAll(Arrays.asList(d1, d2, d3));
+            System.out.println("✅ Deliveries seeded.");
+        }
+
+        // ── 9. Seed Relookings ────────────────────────────────────────────────
+        if (relookingRepository.count() == 0) {
+            Relooking r1 = new Relooking();
+            r1.setTitle("Commode de Style Louis XVI");
+            r1.setDescription("Restauration complète d'une commode en placage de noyer desséchée. Décapage, comblement des fentes et vernissage traditionnel au tampon.");
+            r1.setCategory("Meubles Anciens");
+            r1.setImageAvantUrl("/relooking-before.jpg");
+            r1.setImageApresUrl("/relooking-after.jpg");
+            r1.setCreatedDate(LocalDateTime.now().minusDays(7));
+
+            Relooking r2 = new Relooking();
+            r2.setTitle("Cadre de Miroir Ottoman");
+            r2.setDescription("Reconstitution des ornements sculptés endommagés sur un cadre en bois doré d'époque et dorure fine à la feuille d'or.");
+            r2.setCategory("Miroirs & Cadres");
+            r2.setImageAvantUrl("/mirror-before.jpg");
+            r2.setImageApresUrl("/mirror-after.jpg");
+            r2.setCreatedDate(LocalDateTime.now().minusDays(14));
+
+            Relooking r3 = new Relooking();
+            r3.setTitle("Porte d'Entrée de Demeure");
+            r3.setDescription("Rénovation esthétique et protectrice d'une porte d'entrée en bois massif exposée aux intempéries.");
+            r3.setCategory("Portes & Boiseries");
+            r3.setImageAvantUrl("/door-before.jpg");
+            r3.setImageApresUrl("/door-after.jpg");
+            r3.setCreatedDate(LocalDateTime.now().minusDays(21));
+
+            relookingRepository.saveAll(Arrays.asList(r1, r2, r3));
+            System.out.println("✅ Relookings seeded.");
         }
     }
 }

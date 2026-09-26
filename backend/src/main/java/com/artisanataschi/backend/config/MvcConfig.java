@@ -9,8 +9,9 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Expose the 'uploads/' folder as a static resource under '/uploads/**'
+        // Expose the 'uploads/' folder as a static resource under '/uploads/**' with 30-day cache control
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/");
+                .addResourceLocations("file:uploads/")
+                .setCacheControl(org.springframework.http.CacheControl.maxAge(30, java.util.concurrent.TimeUnit.DAYS).cachePublic());
     }
 }
