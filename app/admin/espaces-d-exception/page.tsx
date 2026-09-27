@@ -356,13 +356,26 @@ export default function AdminEspacesDExceptionPage() {
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
     const file = e.target.files[0]
+
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024
+    if (file.size > MAX_VIDEO_SIZE) {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1)
+      alert(
+        `⚠️ La vidéo sélectionnée est trop volumineuse (${sizeMb} Mo).\n` +
+        `La taille maximale autorisée est de 50 Mo pour garantir la rapidité du site.\n\n` +
+        `Veuillez compresser votre vidéo ou l'exporter en résolution 720p avant de l'envoyer.`
+      )
+      e.target.value = ''
+      return
+    }
+
     try {
       setUploadingVideo(true)
       const res = await adminApi.uploadVideo(file)
       setFormData(prev => ({ ...prev, videoUrl: res.url }))
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error uploading video:', err)
-      alert('Erreur lors du téléchargement de la vidéo.')
+      alert(err.message || 'Erreur lors du téléchargement de la vidéo.')
     } finally {
       setUploadingVideo(false)
       e.target.value = ''

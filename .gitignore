@@ -24,3 +24,6 @@ tsconfig.tsbuildinfo
 # Backend ignores
 backend/target/
 backend/.idea/
+
+# Scratch directory
+scratch/

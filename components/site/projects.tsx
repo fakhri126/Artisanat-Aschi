@@ -98,12 +98,12 @@ function BentoProjectCard({
   // - Index 2 (Petite)  : 1 colonne x 1 ligne
   // - Index 3 (Moyenne) : 2 colonnes x 1 ligne
   const spanClass = isGrande
-    ? 'sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2 min-h-[22rem] sm:min-h-[26rem] lg:min-h-0'
+    ? 'sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2 min-h-[24rem] sm:min-h-[28rem] lg:min-h-0'
     : isMoyenne
-      ? 'sm:col-span-2 lg:col-span-2 min-h-[16rem] sm:min-h-[17rem] lg:min-h-0'
-      : 'sm:col-span-1 lg:col-span-1 min-h-[16rem] sm:min-h-[17rem] lg:min-h-0'
+      ? 'sm:col-span-2 lg:col-span-2 min-h-[16rem] sm:min-h-[18rem] lg:min-h-0'
+      : 'sm:col-span-1 lg:col-span-1 min-h-[16rem] sm:min-h-[18rem] lg:min-h-0'
 
-  // Image fixe optimisée (aucun chargement de vidéo lourd sur l'accueil)
+  // Image et vidéo
   let displayImage = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
   if (displayImage.match(/\.(mp4|webm|ogg|mov)$/i)) {
     const fallbackPhoto = project.gallery?.find((g) => !g.match(/\.(mp4|webm|ogg|mov)$/i))
@@ -119,9 +119,9 @@ function BentoProjectCard({
     >
       <div
         onClick={() => onOpen(project)}
-        className="w-full h-full relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-[#E6A635]/25 hover:border-[#E6A635]/70 transition-all duration-500 hover:shadow-[0_0_35px_rgba(230,166,53,0.25)] bg-[#1A110B] flex flex-col justify-end"
+        className="w-full h-full relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-[#E6A635]/30 hover:border-[#E6A635]/80 transition-all duration-500 hover:shadow-[0_0_40px_rgba(230,166,53,0.3)] bg-[#1A110B] flex flex-col justify-end"
       >
-        {/* Image fixe haute performance — Pas de vidéo lourde sur l'accueil pour un chargement instantané */}
+        {/* Photo de couverture exclusive sur l'extérieur (pas de vidéo en extérieur) */}
         <Image
           src={displayImage}
           alt={project.title}
@@ -132,8 +132,8 @@ function BentoProjectCard({
         />
 
         {/* Dégradés d'ombrage pour lisibilité optimale */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#160E0A]/95 via-[#160E0A]/50 to-black/20 transition-opacity duration-500 group-hover:opacity-85" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#160E0A]/95 via-[#160E0A]/50 to-black/20 transition-opacity duration-500 group-hover:opacity-85 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60 pointer-events-none" />
 
         {/* Badges & Bouton en haut */}
         <div className="absolute top-3.5 sm:top-5 left-3.5 sm:left-5 right-3.5 sm:right-5 z-10 flex items-center justify-between pointer-events-none">
@@ -491,7 +491,7 @@ export function Projects() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.25 }}
-              className="relative w-full max-w-5xl bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] z-10 flex flex-col md:flex-row max-h-[92vh] overflow-hidden"
+              className="relative w-full max-w-[96vw] xl:max-w-7xl 2xl:max-w-[1550px] bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] z-10 flex flex-col lg:flex-row max-h-[94vh] h-[92vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -502,8 +502,8 @@ export function Projects() {
                 <X className="size-4 sm:size-5" />
               </button>
 
-              {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif */}
-              <div className="w-full md:w-[58%] flex flex-col border-b md:border-b-0 md:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/60">
+              {/* LEFT COLUMN: Grand Écran Média Cinématique Agrandie + Ruban de Miniatures */}
+              <div className="w-full lg:w-[68%] xl:w-[70%] flex flex-col border-b lg:border-b-0 lg:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/70 min-h-0">
                 
                 {/* Barre supérieure d'état du média */}
                 <div className="flex items-center justify-between">
@@ -546,8 +546,8 @@ export function Projects() {
                   )}
                 </div>
 
-                {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE (16:9) ── */}
-                <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#120B08] shadow-[0_10px_30px_rgba(0,0,0,0.8)] group/media">
+                {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE AGRANDI ── */}
+                <div className="relative w-full flex-1 aspect-[16/9] min-h-[340px] sm:min-h-[460px] lg:min-h-[520px] xl:min-h-[580px] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#0D0805] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group/media">
                   {modalActiveView === 'video' && (selectedProject.video || selectedProject.videoUrl) ? (
                     <>
                       <video
@@ -557,7 +557,7 @@ export function Projects() {
                         autoPlay
                         loop
                         playsInline
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain sm:object-cover bg-black"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
@@ -692,7 +692,7 @@ export function Projects() {
               </div>
 
               {/* RIGHT COLUMN: Détails de Prestige, Spécifications Nobles & CTA */}
-              <div className="w-full md:w-[42%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
+              <div className="w-full lg:w-[32%] xl:w-[30%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
                 
                 {/* En-tête du projet */}
                 <div className="space-y-2.5">

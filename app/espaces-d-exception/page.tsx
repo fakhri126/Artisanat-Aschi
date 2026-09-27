@@ -768,7 +768,7 @@ function TurnkeyProjectCard({
       onClick={() => onOpen(project)}
       className="group relative flex flex-col h-full rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-b from-[#342318]/95 via-[#2A1C14]/95 to-[#1F140E]/98 border border-[#E6A635]/30 hover:border-[#E6A635]/80 backdrop-blur-xl shadow-[0_12px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_22px_55px_rgba(230,166,53,0.25)] transition-all duration-500 cursor-pointer hover:-translate-y-1.5"
     >
-      {/* ── Cadre Couverture Photo (Optimisée, Légère & Rapide — Pas de vidéo lourde sur la couverture) ── */}
+      {/* ── Cadre Couverture Photo (Exclusif Photo — Pas de vidéo sur l'extérieur) ── */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#160E0A] shrink-0 border-b border-[#E6A635]/20">
         <Image
           src={coverPhotoSrc}
@@ -804,7 +804,7 @@ function TurnkeyProjectCard({
         </div>
       </div>
 
-      {/* ── 3. CORPS DE LA CARTE (Informations & Finitions Nobles) ── */}
+      {/* ── Corps de la carte extérieure ── */}
       <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 gap-3 text-left">
         <div>
           {/* Tag Catégorie */}
@@ -1212,7 +1212,7 @@ export default function TurnkeyProjectsPage() {
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 30 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="relative w-full max-w-5xl bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] flex flex-col md:flex-row max-h-[92vh] overflow-hidden"
+                className="relative w-full max-w-[96vw] xl:max-w-7xl 2xl:max-w-[1550px] bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] flex flex-col lg:flex-row max-h-[94vh] h-[92vh] overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Close Button */}
@@ -1224,8 +1224,8 @@ export default function TurnkeyProjectsPage() {
                   <X className="size-4 sm:size-5" />
                 </button>
 
-                {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif */}
-                <div className="w-full md:w-[58%] flex flex-col border-b md:border-b-0 md:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/60">
+                {/* LEFT COLUMN: Grand Écran Média Cinématique Agrandie + Ruban de Miniatures */}
+                <div className="w-full lg:w-[68%] xl:w-[70%] flex flex-col border-b lg:border-b-0 lg:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/70 min-h-0">
                   
                   {/* Barre supérieure d'état du média */}
                   <div className="flex items-center justify-between">
@@ -1268,8 +1268,8 @@ export default function TurnkeyProjectsPage() {
                     )}
                   </div>
 
-                  {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE (16:9) ── */}
-                  <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#120B08] shadow-[0_10px_30px_rgba(0,0,0,0.8)] group/media">
+                  {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE AGRANDI ── */}
+                  <div className="relative w-full flex-1 aspect-[16/9] min-h-[340px] sm:min-h-[460px] lg:min-h-[520px] xl:min-h-[580px] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#0D0805] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group/media">
                     {modalActiveView === 'video' && (selectedProject.video || selectedProject.videoUrl) ? (
                       <>
                         <video
@@ -1279,7 +1279,7 @@ export default function TurnkeyProjectsPage() {
                           autoPlay
                           loop
                           playsInline
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain sm:object-cover bg-black"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
@@ -1414,7 +1414,7 @@ export default function TurnkeyProjectsPage() {
                 </div>
 
                 {/* RIGHT COLUMN: Détails de Prestige, Spécifications Nobles & CTA */}
-                <div className="w-full md:w-[42%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
+                <div className="w-full lg:w-[32%] xl:w-[30%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
                   
                   {/* En-tête du projet */}
                   <div className="space-y-2.5">
