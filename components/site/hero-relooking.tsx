@@ -44,7 +44,7 @@ export function HeroRelooking() {
   }
 
   const beforeImg = relooking?.imageAvantUrl || '/images/about-atelier-stand.jpg'
-  const afterImg = relooking?.imageApresUrl || '/prod1.jpg'
+  const afterImg = relooking?.imageApresUrl || '/relooking_service.jpg'
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-transparent flex items-center justify-center font-sans py-2 sm:py-4">

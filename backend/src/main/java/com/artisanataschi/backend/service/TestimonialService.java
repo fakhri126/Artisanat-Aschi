@@ -22,8 +22,30 @@ public class TestimonialService {
                 .orElseThrow(() -> new RuntimeException("Testimonial not found with id: " + id));
     }
 
+    public Testimonial createTestimonial(com.artisanataschi.backend.dto.TestimonialRequestDto dto) {
+        Testimonial test = new Testimonial();
+        test.setClientName(dto.getClientName());
+        test.setClientRole(dto.getClientRole());
+        test.setContent(dto.getContent());
+        test.setVideoUrl(dto.getVideoUrl());
+        test.setImageUrl(dto.getImageUrl());
+        test.setType(dto.getType() != null ? dto.getType() : "TEXT");
+        return testimonialRepository.save(test);
+    }
+
     public Testimonial createTestimonial(Testimonial testimonial) {
         return testimonialRepository.save(testimonial);
+    }
+
+    public Testimonial updateTestimonial(Long id, com.artisanataschi.backend.dto.TestimonialRequestDto dto) {
+        Testimonial test = getTestimonialById(id);
+        test.setClientName(dto.getClientName());
+        test.setClientRole(dto.getClientRole());
+        test.setContent(dto.getContent());
+        test.setVideoUrl(dto.getVideoUrl());
+        test.setImageUrl(dto.getImageUrl());
+        test.setType(dto.getType() != null ? dto.getType() : "TEXT");
+        return testimonialRepository.save(test);
     }
 
     public Testimonial updateTestimonial(Long id, Testimonial testDetails) {

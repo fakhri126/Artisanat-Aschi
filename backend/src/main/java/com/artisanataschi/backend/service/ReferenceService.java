@@ -22,8 +22,24 @@ public class ReferenceService {
                 .orElseThrow(() -> new RuntimeException("Reference not found with id: " + id));
     }
 
+    public Reference createReference(com.artisanataschi.backend.dto.ReferenceRequestDto dto) {
+        Reference ref = new Reference();
+        ref.setName(dto.getName());
+        ref.setLogoUrl(dto.getLogoUrl());
+        ref.setSiteUrl(dto.getSiteUrl());
+        return referenceRepository.save(ref);
+    }
+
     public Reference createReference(Reference reference) {
         return referenceRepository.save(reference);
+    }
+
+    public Reference updateReference(Long id, com.artisanataschi.backend.dto.ReferenceRequestDto dto) {
+        Reference ref = getReferenceById(id);
+        ref.setName(dto.getName());
+        ref.setLogoUrl(dto.getLogoUrl());
+        ref.setSiteUrl(dto.getSiteUrl());
+        return referenceRepository.save(ref);
     }
 
     public Reference updateReference(Long id, Reference refDetails) {

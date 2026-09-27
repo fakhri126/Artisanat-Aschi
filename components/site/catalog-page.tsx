@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass, Lamp, Folder, Gem, Palette } from 'lucide-react'
+import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Check, ChevronUp, LayoutGrid, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass, Lamp, Folder, Gem, Palette } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { FadeIn } from '@/components/motion/fade-in'
 import { publicApi, Product, Category, colorsApi, ColorSwatch } from '@/lib/api'
@@ -44,6 +44,145 @@ const getCategoryIcon = (name: string) => {
   if (norm.includes('décoration') || norm.includes('deco')) return Sparkles
   if (norm.includes('table')) return LayoutDashboard
   return Folder
+}
+
+function CategoryIcon({ name, isSelected, className = "size-3.5" }: { name: string; isSelected: boolean; className?: string }) {
+  const norm = name.toLowerCase()
+  const strokeClass = isSelected ? "text-[#1A110B]" : "text-[#F2BD52]"
+
+  if (norm === 'tout') {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('miroir')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <ellipse cx="12" cy="9" rx="5" ry="7" />
+        <path d="M12 16v5M9 21h6" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('décoration') || norm.includes('deco')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 3h6M10 3v3c0 1.5-2 3-2 6a4 4 0 0 0 8 0c0-3-2-4.5-2-6V3M8 21h8" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('buffet')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="5" width="18" height="12" rx="1" />
+        <line x1="3" y1="9" x2="21" y2="9" />
+        <line x1="12" y1="9" x2="12" y2="17" />
+        <line x1="6" y1="17" x2="5" y2="20" />
+        <line x1="18" y1="17" x2="19" y2="20" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('applique')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7 13l2.5-7h5l2.5 7H7z" />
+        <path d="M12 13v4M12 17h4" />
+        <line x1="16" y1="14" x2="16" y2="20" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('chaise')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 3h12v9H6z" />
+        <path d="M4 12h16v2H4z" />
+        <path d="M6 14v7M18 14v7" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('lampe') || norm.includes('luminaire')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7 12l2.5-7h5l2.5 7H7z" />
+        <path d="M12 12v7M8 19h8" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('lustre')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2v20" />
+        <path d="M7 7c0 2 2 3 5 3s5-1 5-3" />
+        <path d="M6 13c0 2 2.5 3 6 3s6-1 6-3" />
+        <path d="M9 22h6" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('tv')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="5" width="18" height="12" rx="2" />
+        <path d="M8 20l2-3h4l2 3" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('porte') && !norm.includes('bijou')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="3" width="16" height="18" rx="1" />
+        <line x1="12" y1="3" x2="12" y2="21" />
+        <circle cx="9" cy="12" r="0.8" fill="currentColor" />
+        <circle cx="15" cy="12" r="0.8" fill="currentColor" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('table')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 6h16v2H4z" />
+        <path d="M12 8v10M7 18h10" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('commode')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="4" width="16" height="14" rx="1" />
+        <line x1="4" y1="10" x2="20" y2="10" />
+        <line x1="9" y1="7" x2="15" y2="7" />
+        <line x1="9" y1="14" x2="15" y2="14" />
+        <line x1="6" y1="18" x2="5" y2="21" />
+        <line x1="18" y1="18" x2="19" y2="21" />
+      </svg>
+    )
+  }
+
+  if (norm.includes('bureau')) {
+    return (
+      <svg className={cn(className, strokeClass, "shrink-0")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="6" width="18" height="6" rx="1" />
+        <line x1="7" y1="9" x2="11" y2="9" />
+        <path d="M5 12v8M19 12v8M14 12v8M14 16h5" />
+      </svg>
+    )
+  }
+
+  return <Sparkles className={cn(className, strokeClass, "shrink-0")} />
 }
 
 const getColorHex = (label: string | null | undefined) => {
@@ -579,6 +718,8 @@ export function CatalogPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
+  const [catFilterOpen, setCatFilterOpen] = useState(true)
+  const [colorFilterOpen, setColorFilterOpen] = useState(true)
   const [hoveredId, setHoveredId] = useState<number | null>(null)
 
   const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE) || 1
@@ -1608,94 +1749,219 @@ export function CatalogPage() {
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
                 transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-                className="relative z-10 w-full max-w-lg bg-[#3B271C] rounded-t-[2rem] border-t border-x border-[#E6A635]/50 max-h-[85vh] flex flex-col shadow-2xl overflow-hidden text-[#F7F4EE]"
+                className="relative z-10 w-full max-w-lg bg-[#190E08]/98 rounded-t-[2.2rem] border-t border-x border-[#E6A635]/40 max-h-[88vh] flex flex-col shadow-[0_-15px_40px_rgba(0,0,0,0.85)] overflow-hidden text-[#F7F4EE]"
               >
                 {/* Drag handle */}
-                <div className="pt-3 pb-2 flex justify-center cursor-pointer" onClick={() => setShowFilters(false)}>
-                  <div className="w-12 h-1.5 rounded-full bg-[#E6A635]/40" />
+                <div className="pt-3 pb-1.5 flex justify-center cursor-pointer" onClick={() => setShowFilters(false)}>
+                  <div className="w-12 h-1 rounded-full bg-[#E6A635]/40" />
                 </div>
 
                 {/* Sheet Header */}
-                <div className="px-6 py-3 border-b border-[#E6A635]/25 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <SlidersHorizontal className="size-4 text-[#F2BD52]" />
-                    <h3 className="font-heading text-lg text-[#F7F4EE]">Filtres</h3>
+                <div className="px-5 pb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <SlidersHorizontal className="size-5 text-[#F2BD52]" />
+                    <h3 className="font-heading text-2xl text-[#F7F4EE] font-light tracking-wide">Filtres</h3>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowFilters(false)}
-                    className="p-1.5 rounded-full bg-[#241812] border border-[#E6A635]/30 text-[#EAE4D9] hover:text-white cursor-pointer"
+                    className="size-8 rounded-full bg-[#251710] border border-[#E6A635]/35 text-[#F2BD52] hover:text-white flex items-center justify-center cursor-pointer active:scale-95 transition-all shadow-sm"
+                    title="Fermer"
                   >
                     <X className="size-4" />
                   </button>
                 </div>
 
-                {/* Sheet Content: Only Catégorie, Couleur, and Dimension */}
-                <div className="p-6 overflow-y-auto space-y-6 text-left">
+                {/* Sheet Content with relative z-10 and floral watermark background */}
+                <div className="px-4 py-3 overflow-y-auto space-y-5 text-left relative flex-1">
+                  
+                  {/* Floral Arabesque Watermark in bottom right matching photo */}
+                  <div className="absolute -bottom-6 -right-6 w-48 h-48 opacity-15 pointer-events-none select-none z-0">
+                    <svg viewBox="0 0 100 100" fill="none" stroke="#E6A635" strokeWidth="1.2">
+                      <circle cx="50" cy="50" r="14" />
+                      <circle cx="50" cy="50" r="28" strokeDasharray="3 3" />
+                      <path d="M50 20 C55 35, 65 45, 80 50 C65 55, 55 65, 50 80 C45 65, 35 55, 20 50 C35 45, 45 35, 50 20 Z" />
+                      <path d="M29 29 C40 40, 60 40, 71 29 C60 50, 60 50, 71 71 C50 60, 50 60, 29 71 C40 60, 40 40, 29 29 Z" />
+                    </svg>
+                  </div>
+
                   {/* 1. Catégorie */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#F2BD52] mb-3">
-                      Catégorie
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {categories.map((cat) => {
-                        const isActive = category === cat.id
-                        return (
-                          <button
-                            key={cat.id}
-                            type="button"
-                            onClick={() => setCategory(cat.id)}
-                            className={`px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-                              isActive
-                                ? 'bg-[#241812] border-[#F2BD52] text-[#F2BD52] ring-1 ring-[#F2BD52]'
-                                : 'bg-[#241812]/60 border-[#E6A635]/25 text-[#EAE4D9] hover:border-[#E6A635]/50'
-                            }`}
-                          >
-                            <span>{cat.label}</span>
-                            <span className="ml-1 text-[10px] opacity-70">({cat.count})</span>
-                          </button>
-                        )
-                      })}
+                  <div className="relative z-10">
+                    <div
+                      className="flex items-center justify-between gap-2.5 mb-3 cursor-pointer select-none"
+                      onClick={() => setCatFilterOpen(!catFilterOpen)}
+                    >
+                      <div className="flex items-center gap-2 shrink-0">
+                        <LayoutGrid className="size-4 text-[#F2BD52]" />
+                        <span className="font-heading text-lg text-[#F7F4EE] font-normal">Catégorie</span>
+                      </div>
+                      <div className="h-px bg-[#E6A635]/25 flex-1 mx-2" />
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-xs text-[#E6A635]/80 font-light">
+                          {categories.find(c => c.id === 'Tout')?.count || dbProducts.length} produits
+                        </span>
+                        <ChevronUp
+                          className={cn(
+                            "size-4 text-[#F2BD52] transition-transform duration-200",
+                            !catFilterOpen && "rotate-180"
+                          )}
+                        />
+                      </div>
                     </div>
+
+                    <AnimatePresence initial={false}>
+                      {catFilterOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="grid grid-cols-3 gap-2">
+                            {categories.map((cat) => {
+                              const isSelected = category === cat.id
+                              return (
+                                <button
+                                  key={cat.id}
+                                  type="button"
+                                  onClick={() => setCategory(cat.id)}
+                                  className={cn(
+                                    "flex items-center gap-1.5 px-2.5 py-2 rounded-full text-[11px] transition-all active:scale-95 cursor-pointer select-none",
+                                    isSelected
+                                      ? "bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold border border-[#F3C45E] shadow-[0_0_15px_rgba(230,166,53,0.5)]"
+                                      : "bg-[#251710]/90 hover:bg-[#342217] text-[#EAE4D9] border border-[#E6A635]/30 hover:border-[#E6A635]/60 shadow-sm"
+                                  )}
+                                >
+                                  <CategoryIcon name={cat.label} isSelected={isSelected} className="size-3.5" />
+                                  <span className="truncate">{cat.label}</span>
+                                  <span
+                                    className={cn(
+                                      "text-[10px] shrink-0",
+                                      isSelected ? "text-[#1A110B]/85 font-extrabold" : "text-[#EAE4D9]/60 font-light"
+                                    )}
+                                  >
+                                    ({cat.count})
+                                  </span>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* 2. Couleur */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#F2BD52] mb-3">
-                      Couleur
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {availableColors.map((c) => {
-                        const isActive = color === c.label
-                        return (
-                          <button
-                            key={c.label}
-                            type="button"
-                            onClick={() => setColor(c.label)}
-                            className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
-                              isActive
-                                ? 'bg-[#241812] border-[#F2BD52] text-[#F2BD52] ring-1 ring-[#F2BD52]'
-                                : 'bg-[#241812]/60 border-[#E6A635]/20 text-[#EAE4D9] hover:border-[#E6A635]/50'
-                            }`}
-                          >
-                            {c.hex ? (
-                              <span className="size-3.5 rounded-full shrink-0 border border-white/30" style={{ backgroundColor: c.hex }} />
-                            ) : (
-                              <Sparkles className="size-3.5 shrink-0 text-[#F2BD52]" />
-                            )}
-                            <span className="truncate">{c.label}</span>
-                            {isActive && <CheckCircle2 className="size-3.5 text-[#F2BD52] ml-auto" />}
-                          </button>
-                        )
-                      })}
+                  <div className="relative z-10">
+                    <div
+                      className="flex items-center justify-between gap-2.5 mb-3 cursor-pointer select-none"
+                      onClick={() => setColorFilterOpen(!colorFilterOpen)}
+                    >
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Palette className="size-4 text-[#F2BD52]" />
+                        <span className="font-heading text-lg text-[#F7F4EE] font-normal">Couleur</span>
+                      </div>
+                      <div className="h-px bg-[#E6A635]/25 flex-1 mx-2" />
+                      <ChevronUp
+                        className={cn(
+                          "size-4 text-[#F2BD52] shrink-0 transition-transform duration-200",
+                          !colorFilterOpen && "rotate-180"
+                        )}
+                      />
                     </div>
+
+                    <AnimatePresence initial={false}>
+                      {colorFilterOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="grid grid-cols-2 gap-2">
+                            {/* "Tout" Color Option */}
+                            {(() => {
+                              const isSelected = color === 'Tout'
+                              return (
+                                <button
+                                  type="button"
+                                  onClick={() => setColor('Tout')}
+                                  className={cn(
+                                    "flex items-center gap-2.5 px-3 py-2 rounded-full text-xs transition-all active:scale-95 cursor-pointer shadow-sm select-none",
+                                    isSelected
+                                      ? "border-2 border-[#E6A635] bg-[#2A1C14] text-[#F7F4EE] font-semibold shadow-[0_0_12px_rgba(230,166,53,0.35)]"
+                                      : "border border-[#E6A635]/30 bg-[#251710]/90 text-[#EAE4D9] hover:border-[#E6A635]/60"
+                                  )}
+                                >
+                                  {isSelected ? (
+                                    <div className="size-5 rounded-full bg-[#F2BD52] flex items-center justify-center text-[#1A110B] shrink-0 font-bold">
+                                      <Check className="size-3 stroke-[3]" />
+                                    </div>
+                                  ) : (
+                                    <div className="size-5 rounded-full border border-[#E6A635]/40 flex items-center justify-center text-[#E6A635] shrink-0" />
+                                  )}
+                                  <span className="truncate">Tout</span>
+                                </button>
+                              )
+                            })()}
+
+                            {/* Other Specific Colors */}
+                            {availableColors
+                              .filter(c => c.label !== 'Tout')
+                              .map((c) => {
+                                const isSelected = color === c.label
+                                return (
+                                  <button
+                                    key={c.label}
+                                    type="button"
+                                    onClick={() => setColor(c.label)}
+                                    className={cn(
+                                      "flex items-center gap-2.5 px-3 py-2 rounded-full text-xs transition-all active:scale-95 cursor-pointer shadow-sm select-none",
+                                      isSelected
+                                        ? "border-2 border-[#E6A635] bg-[#2A1C14] text-[#F7F4EE] font-semibold shadow-[0_0_12px_rgba(230,166,53,0.35)]"
+                                        : "border border-[#E6A635]/30 bg-[#251710]/90 text-[#EAE4D9] hover:border-[#E6A635]/60"
+                                    )}
+                                  >
+                                    <div
+                                      className={cn(
+                                        "size-5 rounded-full shrink-0 relative flex items-center justify-center shadow-sm",
+                                        c.label.toLowerCase().includes('blanc') ? 'border border-stone-300' : 'border border-black/30'
+                                      )}
+                                      style={{ backgroundColor: c.hex || '#cccccc' }}
+                                    >
+                                      {isSelected && (
+                                        <Check
+                                          className={cn(
+                                            "size-3 stroke-[3]",
+                                            c.label.toLowerCase().includes('blanc') || c.label.toLowerCase().includes('or')
+                                              ? "text-[#1A110B]"
+                                              : "text-white"
+                                          )}
+                                        />
+                                      )}
+                                    </div>
+                                    <span className="truncate">{c.label}</span>
+                                  </button>
+                                )
+                              })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* 3. Dimension */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#F2BD52] mb-3">
-                      Dimension
-                    </label>
+                  <div className="relative z-10 pt-1">
+                    <div className="flex items-center justify-between gap-2.5 mb-3">
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Ruler className="size-4 text-[#F2BD52]" />
+                        <span className="font-heading text-lg text-[#F7F4EE] font-normal">Dimensions</span>
+                      </div>
+                      <div className="h-px bg-[#E6A635]/25 flex-1 mx-2" />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-2">
                       {[
                         { label: 'Toutes tailles', value: 'Tout' },
@@ -1703,32 +1969,34 @@ export function CatalogPage() {
                         { label: 'Moyen (80–150 cm)', value: 'Moyen (80–150 cm)' },
                         { label: 'Grand (> 150 cm)', value: 'Grand (> 150 cm)' },
                       ].map((d) => {
-                        const isActive = dimension === d.value
+                        const isSelected = dimension === d.value
                         return (
                           <button
                             key={d.value}
                             type="button"
                             onClick={() => setDimension(d.value)}
-                            className={`p-2.5 rounded-xl border text-xs font-medium transition-all text-center cursor-pointer ${
-                              isActive
-                                ? 'bg-[#241812] border-[#F2BD52] text-[#F2BD52] ring-1 ring-[#F2BD52]'
-                                : 'bg-[#241812]/60 border-[#E6A635]/20 text-[#EAE4D9] hover:border-[#E6A635]/50'
-                            }`}
+                            className={cn(
+                              "flex items-center justify-center px-3 py-2 rounded-full text-xs transition-all active:scale-95 cursor-pointer shadow-sm select-none",
+                              isSelected
+                                ? "border-2 border-[#E6A635] bg-[#2A1C14] text-[#F7F4EE] font-semibold shadow-[0_0_12px_rgba(230,166,53,0.35)]"
+                                : "border border-[#E6A635]/30 bg-[#251710]/90 text-[#EAE4D9] hover:border-[#E6A635]/60"
+                            )}
                           >
-                            {d.label}
+                            <span>{d.label}</span>
                           </button>
                         )
                       })}
                     </div>
                   </div>
+
                 </div>
 
                 {/* Sheet Footer */}
-                <div className="p-4 border-t border-[#E6A635]/25 bg-[#241812] flex items-center gap-3">
+                <div className="p-4 border-t border-[#E6A635]/25 bg-[#20150F]/95 backdrop-blur-md flex items-center gap-3 relative z-10">
                   <button
                     type="button"
                     onClick={() => { setCategory('Tout'); setColor('Tout'); setDimension('Tout'); }}
-                    className="px-4 py-3 rounded-xl border border-[#E6A635]/30 text-xs text-[#EAE4D9] hover:text-white cursor-pointer"
+                    className="px-4 py-3 rounded-full border border-[#E6A635]/30 text-xs text-[#EAE4D9] hover:text-white hover:border-[#E6A635] cursor-pointer transition-colors active:scale-95"
                   >
                     Réinitialiser
                   </button>
@@ -1740,7 +2008,7 @@ export function CatalogPage() {
                         scrollToGridTop()
                       }, 120)
                     }}
-                    className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow-lg cursor-pointer flex items-center justify-center gap-2 hover:brightness-105 active:scale-[0.98] transition-all"
+                    className="flex-1 py-3.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow-lg cursor-pointer flex items-center justify-center gap-2 hover:brightness-105 active:scale-[0.98] transition-all"
                   >
                     <span>OK</span>
                     <span>•</span>

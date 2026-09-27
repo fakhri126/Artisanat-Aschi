@@ -27,10 +27,29 @@ public class NewsService {
     }
 
     @CacheEvict(value = "news", allEntries = true)
+    public News createNews(com.artisanataschi.backend.dto.NewsRequestDto dto) {
+        News news = new News();
+        news.setTitle(dto.getTitle());
+        news.setContent(dto.getContent());
+        news.setImageUrl(dto.getImageUrl());
+        news.setCreatedDate(LocalDateTime.now());
+        return newsRepository.save(news);
+    }
+
+    @CacheEvict(value = "news", allEntries = true)
     public News createNews(News news) {
         if (news.getCreatedDate() == null) {
             news.setCreatedDate(LocalDateTime.now());
         }
+        return newsRepository.save(news);
+    }
+
+    @CacheEvict(value = "news", allEntries = true)
+    public News updateNews(Long id, com.artisanataschi.backend.dto.NewsRequestDto dto) {
+        News news = getNewsById(id);
+        news.setTitle(dto.getTitle());
+        news.setContent(dto.getContent());
+        news.setImageUrl(dto.getImageUrl());
         return newsRepository.save(news);
     }
 

@@ -18,6 +18,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     private static final int MAX_LOGIN_PER_MINUTE = 5;
     private static final int MAX_QUOTES_PER_HOUR = 10;
+    private static final int MAX_PUBLIC_API_PER_MINUTE = 180;
 
     private static class RateTracker {
         long windowStartTime;
@@ -31,6 +32,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final ConcurrentHashMap<String, RateTracker> loginAttempts = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, RateTracker> quoteAttempts = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, RateTracker> publicApiAttempts = new ConcurrentHashMap<>();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -49,6 +51,11 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         } else if ("POST".equalsIgnoreCase(method) && uri.endsWith("/public/quotes")) {
             if (isRateLimited(quoteAttempts, clientIp, MAX_QUOTES_PER_HOUR, 3600_000L, now)) {
                 respondWithRateLimit(response, "Trop de demandes de devis enregistrées depuis votre adresse. Veuillez patienter.");
+                return;
+            }
+        } else if (uri.contains("/public/")) {
+            if (isRateLimited(publicApiAttempts, clientIp, MAX_PUBLIC_API_PER_MINUTE, 60_000L, now)) {
+                respondWithRateLimit(response, "Limite de requêtes atteinte. Veuillez espacer vos requêtes.");
                 return;
             }
         }

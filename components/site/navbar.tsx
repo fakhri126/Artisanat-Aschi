@@ -1,8 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Menu, X, ShoppingCart, ChevronDown, ArrowRight, Sparkles, MessageCircle, Phone } from 'lucide-react'
+import { Menu, X, ShoppingCart, ChevronDown, ChevronRight, ArrowRight, Sparkles, Phone, Armchair, SquarePen } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+function DoorDoubleIcon({ className = "size-6" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="3" width="16" height="18" rx="1.5" />
+      <line x1="12" y1="3" x2="12" y2="21" />
+      <rect x="6.5" y="6" width="3" height="12" rx="0.5" />
+      <rect x="14.5" y="6" width="3" height="12" rx="0.5" />
+    </svg>
+  )
+}
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
@@ -20,7 +31,7 @@ const SERVICES = [
   {
     title: 'Catalogue d\'Inspiration (Sur-Mesure)',
     description: 'Explorez notre collection de mobilier d\'art sculpté pour concevoir votre projet sur-mesure.',
-    image: '/prod1.jpg',
+    image: '/herochaise.png',
     href: '/catalogue',
     cta: 'Voir le catalogue'
   },
@@ -195,12 +206,12 @@ export function Navbar() {
             )}
           </button>
 
-          {/* Primary CTA: Nous Contacter */}
+          {/* Primary CTA: Contact */}
           <Link
             href="/contact"
             className="hidden rounded-full border border-[#E6A635]/40 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[#1A110B] transition-all duration-300 hover:shadow-[0_0_20px_rgba(230,166,53,0.4)] btn-sheen lg:inline-block shadow-md"
           >
-            Nous Contacter
+            Contact
           </Link>
 
           <button
@@ -292,91 +303,166 @@ export function Navbar() {
               </button>
             </div>
 
-            {/* Navigation Links */}
-            <ul className="flex flex-col gap-1 py-4 flex-1">
-              {LINKS.map((link) => {
-                if (link.isDropdown) {
-                  return (
-                    <li key={link.label} className="border-b border-[#E6A635]/15 pb-1">
-                      <button
-                        onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                        className="flex w-full items-center justify-between py-2.5 font-heading text-xl text-[#F7F4EE] transition-colors active:text-[#F2BD52]"
-                      >
-                        <span>{link.label}</span>
-                        <ChevronDown className={cn("size-4 text-[#E6A635] transition-transform duration-300", mobileServicesOpen && "rotate-180")} />
-                      </button>
-                      <AnimatePresence>
-                        {mobileServicesOpen && (
-                          <motion.ul
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden flex flex-col gap-2 pt-1 pb-2"
-                          >
-                            {SERVICES.map((service, sIdx) => (
-                              <li key={sIdx}>
-                                <Link
-                                  href={service.href}
-                                  onClick={() => setOpen(false)}
-                                  className="flex gap-3 items-center rounded-xl bg-[#3B271C]/90 border border-[#E6A635]/30 p-2.5 active:border-[#E6A635]"
-                                >
-                                  <div className="relative size-10 rounded-lg overflow-hidden shrink-0 border border-[#E6A635]/30">
-                                    <Image src={service.image} alt={service.title} fill className="object-cover" />
-                                  </div>
-                                  <div>
-                                    <h4 className="font-heading text-sm text-[#F7F4EE]">{service.title}</h4>
-                                    <p className="text-[9.5px] text-[#EAE4D9]/75 line-clamp-1">{service.description}</p>
-                                  </div>
-                                </Link>
-                              </li>
-                            ))}
-                          </motion.ul>
-                        )}
-                      </AnimatePresence>
-                    </li>
-                  )
-                }
+            {/* Mobile Navigation Cards matching the reference design */}
+            <div className="flex flex-col gap-3 py-4 relative z-10">
+              {/* 1. L'Atelier */}
+              <Link
+                href="/atelier"
+                onClick={() => setOpen(false)}
+                className="group flex items-center justify-between p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-[#2B1B13]/95 via-[#22150E]/95 to-[#190E08]/95 border border-[#E6A635]/25 shadow-[0_4px_20px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(242,189,82,0.12)] hover:border-[#E6A635]/50 active:scale-[0.99] transition-all"
+              >
+                <div className="flex items-center gap-3.5 sm:gap-4">
+                  <div className="size-12 rounded-xl bg-gradient-to-b from-[#362319] to-[#1C110A] border border-[#E6A635]/30 flex items-center justify-center text-[#F2BD52] shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                    <Armchair className="size-6 text-[#F2BD52]" strokeWidth={1.8} />
+                  </div>
+                  <span className="font-heading text-lg sm:text-[19px] text-[#F7F4EE] font-normal tracking-wide group-hover:text-[#F2BD52] transition-colors">
+                    L&apos;Atelier
+                  </span>
+                </div>
+                <ChevronRight className="size-5 text-[#F2BD52]/80 shrink-0 group-hover:translate-x-0.5 transition-transform" strokeWidth={1.8} />
+              </Link>
 
-                const isActive = pathname === link.href
-                return (
-                  <li key={link.href} className="border-b border-[#E6A635]/15 pb-0.5">
-                    <Link
-                      href={link.href!}
-                      onClick={() => setOpen(false)}
-                      className={cn(
-                        "flex items-center justify-between py-2.5 font-heading text-xl transition-colors",
-                        isActive ? "text-[#F2BD52]" : "text-[#F7F4EE] active:text-[#F2BD52]"
-                      )}
+              {/* 2. Pièces Disponibles */}
+              <Link
+                href="/creations"
+                onClick={() => setOpen(false)}
+                className="group flex items-center justify-between p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-[#2B1B13]/95 via-[#22150E]/95 to-[#190E08]/95 border border-[#E6A635]/25 shadow-[0_4px_20px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(242,189,82,0.12)] hover:border-[#E6A635]/50 active:scale-[0.99] transition-all"
+              >
+                <div className="flex items-center gap-3.5 sm:gap-4">
+                  <div className="size-12 rounded-xl bg-gradient-to-b from-[#362319] to-[#1C110A] border border-[#E6A635]/30 flex items-center justify-center text-[#F2BD52] shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                    <Armchair className="size-6 text-[#F2BD52]" strokeWidth={1.8} />
+                  </div>
+                  <span className="font-heading text-lg sm:text-[19px] text-[#F7F4EE] font-normal tracking-wide group-hover:text-[#F2BD52] transition-colors">
+                    Pièces Disponibles
+                  </span>
+                </div>
+                <ChevronRight className="size-5 text-[#F2BD52]/80 shrink-0 group-hover:translate-x-0.5 transition-transform" strokeWidth={1.8} />
+              </Link>
+
+              {/* 3. Bijoux de Porte */}
+              <Link
+                href="/bijoux-de-porte"
+                onClick={() => setOpen(false)}
+                className="group flex items-center justify-between p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-[#2B1B13]/95 via-[#22150E]/95 to-[#190E08]/95 border border-[#E6A635]/25 shadow-[0_4px_20px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(242,189,82,0.12)] hover:border-[#E6A635]/50 active:scale-[0.99] transition-all"
+              >
+                <div className="flex items-center gap-3.5 sm:gap-4">
+                  <div className="size-12 rounded-xl bg-gradient-to-b from-[#362319] to-[#1C110A] border border-[#E6A635]/30 flex items-center justify-center text-[#F2BD52] shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                    <DoorDoubleIcon className="size-6 text-[#F2BD52]" />
+                  </div>
+                  <span className="font-heading text-lg sm:text-[19px] text-[#F7F4EE] font-normal tracking-wide group-hover:text-[#F2BD52] transition-colors">
+                    Bijoux de Porte
+                  </span>
+                </div>
+                <ChevronRight className="size-5 text-[#F2BD52]/80 shrink-0 group-hover:translate-x-0.5 transition-transform" strokeWidth={1.8} />
+              </Link>
+
+              {/* 4. Nos Savoir-Faire (Accordion) */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                  className="w-full group flex items-center justify-between p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-[#2B1B13]/95 via-[#22150E]/95 to-[#190E08]/95 border border-[#E6A635]/25 shadow-[0_4px_20px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(242,189,82,0.12)] hover:border-[#E6A635]/50 active:scale-[0.99] transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-3.5 sm:gap-4">
+                    <div className="size-12 rounded-xl bg-gradient-to-b from-[#362319] to-[#1C110A] border border-[#E6A635]/30 flex items-center justify-center text-[#F2BD52] shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                      <SquarePen className="size-5.5 text-[#F2BD52]" strokeWidth={1.8} />
+                    </div>
+                    <span className="font-heading text-lg sm:text-[19px] text-[#F7F4EE] font-normal tracking-wide group-hover:text-[#F2BD52] transition-colors">
+                      Nos Savoir-Faire
+                    </span>
+                  </div>
+                  <ChevronDown
+                    className={cn(
+                      "size-5 text-[#F2BD52]/80 shrink-0 transition-transform duration-300",
+                      mobileServicesOpen && "rotate-180"
+                    )}
+                    strokeWidth={1.8}
+                  />
+                </button>
+
+                <AnimatePresence>
+                  {mobileServicesOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                      className="overflow-hidden flex flex-col gap-2 pt-2.5 pl-3"
                     >
-                      <span>{link.label}</span>
-                      <span className="text-[#E6A635]/40 text-xs">❖</span>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
+                      {SERVICES.map((service, sIdx) => (
+                        <Link
+                          key={sIdx}
+                          href={service.href}
+                          onClick={() => setOpen(false)}
+                          className="flex gap-3 items-center rounded-xl bg-[#281810]/90 border border-[#E6A635]/20 p-2.5 active:border-[#E6A635] shadow-md transition-all hover:border-[#E6A635]/50"
+                        >
+                          <div className="relative size-10 rounded-lg overflow-hidden shrink-0 border border-[#E6A635]/30">
+                            <Image src={service.image} alt={service.title} fill className="object-cover" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-heading text-sm text-[#F7F4EE] truncate">{service.title}</h4>
+                            <p className="text-[9.5px] text-[#EAE4D9]/75 line-clamp-1">{service.description}</p>
+                          </div>
+                          <ChevronRight className="size-4 text-[#E6A635]/60 shrink-0" />
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
 
-            {/* Drawer Bottom VIP Actions & Quick Call */}
-            <div className="pt-3 border-t border-[#E6A635]/20 flex flex-col gap-3">
-              <div className="flex items-center justify-between text-xs text-[#EAE4D9]/80 font-light">
-                <a href="https://wa.me/21655743760" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-emerald-400 font-medium">
-                  <MessageCircle className="size-3.5" />
-                  <span>WhatsApp VIP</span>
+            {/* Spacer with Watermark Monogram matching photo */}
+            <div className="flex-1 relative min-h-[120px]">
+              <div className="absolute -bottom-6 -right-6 w-64 h-80 opacity-20 pointer-events-none select-none">
+                <Image
+                  src="/logo-carved-nobg.svg"
+                  alt=""
+                  fill
+                  className="object-contain object-bottom-right"
+                />
+              </div>
+            </div>
+
+            {/* Drawer Bottom VIP Bar matching reference photo */}
+            <div className="pt-3.5 pb-1 border-t border-[#E6A635]/25 relative z-10">
+              <div className="grid grid-cols-2 items-center relative">
+                {/* Left: WhatsApp VIP */}
+                <a
+                  href="https://wa.me/21655743760"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 group pr-2 cursor-pointer"
+                >
+                  <div className="size-7 rounded-full bg-[#25D366] flex items-center justify-center shrink-0 shadow-[0_2px_8px_rgba(37,211,102,0.4)] group-hover:scale-105 transition-transform">
+                    <svg className="size-4 fill-white" viewBox="0 0 24 24">
+                      <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.78 14.15c-.24.68-1.2 1.26-1.68 1.32-.47.06-.92.1-3.08-.8-2.6-1.08-4.29-3.72-4.42-3.89-.13-.17-1.06-1.41-1.06-2.69s.67-1.9 1.01-2.25c.34-.35.74-.44.99-.44.25 0 .5.01.71.02.23.01.53-.09.83.63.3.72 1.03 2.51 1.12 2.69.09.18.15.39.03.63-.12.24-.18.39-.36.6-.18.21-.38.47-.54.63-.18.18-.36.38-.16.73.21.35.92 1.52 1.98 2.46 1.36 1.21 2.5 1.59 2.86 1.76.36.17.57.15.78-.09.21-.24.9-1.05 1.14-1.41.24-.36.48-.3.8-.18.33.12 2.07.98 2.43 1.16.36.18.6.27.69.42.09.15.09.87-.15 1.55z" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-[12.5px] sm:text-[13px] font-medium text-[#F7F4EE] leading-tight group-hover:text-[#F2BD52] transition-colors">
+                      WhatsApp VIP
+                    </span>
+                    <span className="text-[8px] sm:text-[8.5px] uppercase tracking-[0.16em] text-[#EAA812] font-semibold mt-0.5 whitespace-nowrap">
+                      PRIVILÈGE &amp; CONSEILS
+                    </span>
+                  </div>
                 </a>
-                <span className="text-[#E6A635]/40">•</span>
-                <a href="tel:+21655743760" className="flex items-center gap-1.5 text-[#F2BD52] font-medium">
-                  <Phone className="size-3.5" />
-                  <span>+216 55 743 760</span>
+
+                {/* Center Vertical Divider */}
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-7 w-px bg-[#E6A635]/25" />
+
+                {/* Right: Phone */}
+                <a
+                  href="tel:+21655743760"
+                  className="flex items-center justify-end gap-2 group pl-2 cursor-pointer"
+                >
+                  <Phone className="size-4 text-[#F2BD52] shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="text-[11.5px] sm:text-[12.5px] font-medium text-[#F2BD52] tracking-wider whitespace-nowrap">
+                    +216 55 743 760
+                  </span>
                 </a>
               </div>
-
-              <Link
-                href="/contact"
-                onClick={() => setOpen(false)}
-                className="btn-sheen w-full text-center rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#1A110B] shadow-lg"
-              >
-                Nous Contacter
-              </Link>
             </div>
           </motion.div>
         )}

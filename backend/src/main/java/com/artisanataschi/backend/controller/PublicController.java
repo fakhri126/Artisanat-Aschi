@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/public")
@@ -54,33 +56,56 @@ public class PublicController {
             @RequestParam(required = false) String type,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        if (page != null && size != null) {
-            Pageable pageable = PageRequest.of(Math.max(0, page), Math.min(size, 100), Sort.by(Sort.Direction.DESC, "id"));
-            return ResponseEntity.ok(productService.getProductsFiltered(category, color, dimensions, type, pageable));
+        CacheControl cacheControl = CacheControl.maxAge(60, TimeUnit.SECONDS)
+                .cachePublic()
+                .sMaxAge(300, TimeUnit.SECONDS)
+                .staleWhileRevalidate(600, TimeUnit.SECONDS);
+
+        // 1. Mode avec pagination explicite (si page ou size est spécifié)
+        if (page != null || size != null) {
+            int pageIndex = (page != null) ? Math.max(0, page) : 0;
+            int pageSize = (size != null) ? Math.min(Math.max(1, size), 100) : 24;
+            Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+            return ResponseEntity.ok()
+                    .cacheControl(cacheControl)
+                    .body(productService.getProductsFiltered(category, color, dimensions, type, pageable));
         }
-        List<Product> products = productService.getProductsFiltered(category, color, dimensions, type);
-        return ResponseEntity.ok(products);
+        
+        // 2. Mode sans pagination (compatibilité frontend existant) :
+        // Plafond de sécurité augmenté à 250 éléments pour ne tronquer aucun des 159 produits actuels
+        Pageable safeDefault = PageRequest.of(0, 250, Sort.by(Sort.Direction.DESC, "id"));
+        return ResponseEntity.ok()
+                .cacheControl(cacheControl)
+                .body(productService.getProductsFiltered(category, color, dimensions, type, safeDefault).getContent());
     }
 
     @GetMapping("/products/featured")
     public ResponseEntity<List<Product>> getFeaturedProducts() {
-        return ResponseEntity.ok(productService.getFeaturedProducts());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(120, TimeUnit.SECONDS).cachePublic().sMaxAge(600, TimeUnit.SECONDS).staleWhileRevalidate(1200, TimeUnit.SECONDS))
+                .body(productService.getFeaturedProducts());
     }
 
     @GetMapping("/products/latest")
     public ResponseEntity<List<Product>> getLatestProducts() {
-        return ResponseEntity.ok(productService.getLatestProducts());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(120, TimeUnit.SECONDS).cachePublic().sMaxAge(600, TimeUnit.SECONDS).staleWhileRevalidate(1200, TimeUnit.SECONDS))
+                .body(productService.getLatestProducts());
     }
 
     @GetMapping("/products/type/{type}")
     public ResponseEntity<List<Product>> getProductsByType(@PathVariable String type) {
-        return ResponseEntity.ok(productService.getProductsByType(type));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS).cachePublic().sMaxAge(300, TimeUnit.SECONDS))
+                .body(productService.getProductsByType(type));
     }
 
     @GetMapping("/products/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(productService.getProductById(id));
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(120, TimeUnit.SECONDS).cachePublic().sMaxAge(600, TimeUnit.SECONDS))
+                    .body(productService.getProductById(id));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
@@ -89,7 +114,9 @@ public class PublicController {
     // --- Categories ---
     @GetMapping("/categories")
     public ResponseEntity<List<Category>> getCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(300, TimeUnit.SECONDS).cachePublic().sMaxAge(3600, TimeUnit.SECONDS).staleWhileRevalidate(7200, TimeUnit.SECONDS))
+                .body(categoryService.getAllCategories());
     }
 
     // --- Projects (Réalisations) ---

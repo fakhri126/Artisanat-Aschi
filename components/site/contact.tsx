@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 
 export function Contact() {
-  const [selectedArtisan, setSelectedArtisan] = useState<'Adel' | 'Ismail' | null>(null)
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,7 +24,7 @@ export function Contact() {
     const phoneNumber = formData.get("phone") as string
     const rawMessage = formData.get("message") as string
     
-    const message = `[À l'attention de ${selectedArtisan || 'l\'Atelier'}]\n\n${rawMessage}`
+    const message = rawMessage
 
     try {
       await publicApi.submitQuoteRequest({
@@ -162,37 +161,6 @@ export function Contact() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4 text-left">
                   
-                  {/* Artisan Direct Choice */}
-                  <div>
-                    <label className="block text-[10.5px] uppercase tracking-wider text-[#F2BD52] font-bold mb-2">
-                      Destinataire Spécifique (Optionnel)
-                    </label>
-                    <div className="grid grid-cols-2 gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedArtisan(selectedArtisan === 'Adel' ? null : 'Adel')}
-                        className={`p-2.5 rounded-xl border text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
-                          selectedArtisan === 'Adel'
-                            ? 'border-[#E6A635] bg-[#E6A635] text-[#1A110B] font-bold shadow-md'
-                            : 'border-[#E6A635]/30 bg-[#241812]/80 text-[#EAE4D9] hover:border-[#E6A635]/70'
-                        }`}
-                      >
-                        ✦ Adel Aschi (Sculpteur)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedArtisan(selectedArtisan === 'Ismail' ? null : 'Ismail')}
-                        className={`p-2.5 rounded-xl border text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
-                          selectedArtisan === 'Ismail'
-                            ? 'border-[#E6A635] bg-[#E6A635] text-[#1A110B] font-bold shadow-md'
-                            : 'border-[#E6A635]/30 bg-[#241812]/80 text-[#EAE4D9] hover:border-[#E6A635]/70'
-                        }`}
-                      >
-                        ✦ Ismail Aschi (Projets)
-                      </button>
-                    </div>
-                  </div>
-
                   {/* Name & Phone */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>

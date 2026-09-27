@@ -91,7 +91,7 @@ const ATELIER_SPECIALTIES = [
     desc: '+90 créations sculpturales adaptées à vos dimensions.',
     cta: 'Explorer le Catalogue',
     href: '/catalogue',
-    image: '/prod1.jpg',
+    image: '/herochaise.png',
     icon: Compass,
   },
   {
@@ -409,10 +409,8 @@ export function WhyAschi() {
 
             {/* Grille des 4 Logos Ronds Cliquables Pro (Call to Action) */}
             <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5 md:gap-6">
-              {ATELIER_SPECIALTIES.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link
+              {ATELIER_SPECIALTIES.map((item) => (
+                <Link
                     key={item.id}
                     href={item.href}
                     className="group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl bg-[#241812]/65 hover:bg-[#3B271C]/70 border border-[#E6A635]/25 hover:border-[#E6A635]/70 transition-all duration-300 shadow-md hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] cursor-pointer"
@@ -430,14 +428,7 @@ export function WhyAschi() {
                             sizes="(max-width: 640px) 100px, 140px"
                             className="object-cover object-center group-hover:scale-115 transition-transform duration-700 ease-out"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent group-hover:from-black/55 transition-colors duration-500" />
-                          
-                          {/* Pastille icône au centre */}
-                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div className="size-8 sm:size-9 md:size-10 rounded-full bg-[#1A110B]/85 border border-[#E6A635]/75 text-[#F2BD52] flex items-center justify-center shadow-lg backdrop-blur-md group-hover:bg-gradient-to-tr group-hover:from-[#D89B28] group-hover:via-[#F2BD52] group-hover:to-[#FFE08A] group-hover:text-[#1A110B] group-hover:border-white/80 group-hover:scale-110 transition-all duration-300">
-                              <Icon className="size-4 sm:size-4.5 md:size-5" />
-                            </div>
-                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent group-hover:opacity-20 transition-opacity duration-500" />
                         </div>
                       </div>
                     </div>
@@ -463,8 +454,7 @@ export function WhyAschi() {
                       <ArrowRight className="size-2.5 sm:size-3 group-hover:translate-x-0.5 transition-transform duration-300" />
                     </div>
                   </Link>
-                )
-              })}
+              ))}
             </div>
 
             {/* Barre de contact rapide en bas */}

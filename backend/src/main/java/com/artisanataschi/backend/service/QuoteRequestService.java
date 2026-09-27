@@ -7,11 +7,14 @@ import com.artisanataschi.backend.repository.ProductRepository;
 import com.artisanataschi.backend.repository.QuoteRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class QuoteRequestService {
 
     @Autowired
@@ -29,6 +32,7 @@ public class QuoteRequestService {
                 .orElseThrow(() -> new RuntimeException("Quote request not found with id: " + id));
     }
 
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuoteRequest createQuoteRequest(QuoteRequestDto dto) {
         Product product = null;
         if (dto.getProductId() != null) {
@@ -48,12 +52,14 @@ public class QuoteRequestService {
         return quoteRequestRepository.save(request);
     }
 
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public QuoteRequest updateQuoteStatus(Long id, String status) {
         QuoteRequest request = getQuoteRequestById(id);
         request.setStatus(status); // PENDING, CONTACTED, COMPLETED
         return quoteRequestRepository.save(request);
     }
 
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void deleteQuoteRequest(Long id) {
         QuoteRequest request = getQuoteRequestById(id);
         quoteRequestRepository.delete(request);

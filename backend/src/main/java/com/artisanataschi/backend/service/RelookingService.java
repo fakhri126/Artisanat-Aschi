@@ -17,7 +17,31 @@ public class RelookingService {
         return relookingRepository.findAllByOrderByCreatedDateDesc();
     }
 
+    public Relooking createRelooking(com.artisanataschi.backend.dto.RelookingRequestDto dto) {
+        Relooking relooking = new Relooking();
+        relooking.setTitle(dto.getTitle());
+        relooking.setDescription(dto.getDescription());
+        relooking.setCategory(dto.getCategory());
+        relooking.setImageAvantUrl(dto.getImageAvantUrl());
+        relooking.setImageApresUrl(dto.getImageApresUrl());
+        relooking.setCreatedDate(java.time.LocalDateTime.now());
+        return relookingRepository.save(relooking);
+    }
+
     public Relooking createRelooking(Relooking relooking) {
+        return relookingRepository.save(relooking);
+    }
+
+    public Relooking updateRelooking(Long id, com.artisanataschi.backend.dto.RelookingRequestDto dto) {
+        Relooking relooking = relookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Relooking not found with id " + id));
+
+        relooking.setTitle(dto.getTitle());
+        relooking.setDescription(dto.getDescription());
+        relooking.setCategory(dto.getCategory());
+        relooking.setImageAvantUrl(dto.getImageAvantUrl());
+        relooking.setImageApresUrl(dto.getImageApresUrl());
+
         return relookingRepository.save(relooking);
     }
 

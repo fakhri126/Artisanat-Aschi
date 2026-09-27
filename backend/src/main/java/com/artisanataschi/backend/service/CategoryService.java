@@ -49,7 +49,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    @CacheEvict(value = "categories", allEntries = true)
+    @CacheEvict(value = {"categories", "products"}, allEntries = true)
     public Category updateCategory(Long id, CategoryRequestDto dto) {
         Category category = getCategoryById(id);
         category.setName(dto.getName());
@@ -63,7 +63,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    @CacheEvict(value = "categories", allEntries = true)
+    @CacheEvict(value = {"categories", "products"}, allEntries = true)
     public Category updateCategory(Long id, Category categoryDetails) {
         Category category = getCategoryById(id);
         category.setName(categoryDetails.getName());
@@ -71,7 +71,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    @CacheEvict(value = "categories", allEntries = true)
+    @CacheEvict(value = {"categories", "products"}, allEntries = true)
     public void deleteCategory(Long id) {
         Category category = getCategoryById(id);
         categoryRepository.delete(category);

@@ -54,7 +54,7 @@ export function MobileFloatingVIP() {
               className="flex-1 btn-sheen flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-md active:scale-95 transition-transform"
             >
               <Sparkles className="size-3 text-[#1A110B]" />
-              <span>Nous Contacter</span>
+              <span>Contact</span>
             </Link>
           </div>
         </motion.div>
