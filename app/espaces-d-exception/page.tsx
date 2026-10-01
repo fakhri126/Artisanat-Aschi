@@ -157,9 +157,17 @@ const PROJECTS = [
 ]
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/*  SMART ENRICHED PROJECT FORM — UNIFIED WALNUT & GOLD DESIGN               */
+/*  SMART ENRICHED PROJECT FORM — OPTIMIZED STEPPER WIZARD (WALNUT & GOLD)    */
 /* ═══════════════════════════════════════════════════════════════════════════ */
+const FORM_STEPS = [
+  { id: 1, title: 'Espace & Style', shortTitle: 'Espace' },
+  { id: 2, title: 'Boiseries & Matières', shortTitle: 'Boiseries' },
+  { id: 3, title: 'Chantier & Projet', shortTitle: 'Chantier' },
+  { id: 4, title: 'Vos Coordonnées', shortTitle: 'Contact' },
+]
+
 function ProjectRequestForm({ preselectedEspace }: { preselectedEspace?: string }) {
+  const [currentStep, setCurrentStep] = useState(1)
   const [selectedEspace, setSelectedEspace] = useState(preselectedEspace || '')
   const [selectedStyle, setSelectedStyle] = useState('')
   const [selectedElements, setSelectedElements] = useState<string[]>([])
@@ -175,29 +183,16 @@ function ProjectRequestForm({ preselectedEspace }: { preselectedEspace?: string 
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [stepError, setStepError] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
-  const submitAreaRef = useRef<HTMLDivElement>(null)
-  const [showStickySubmit, setShowStickySubmit] = useState(false)
 
   // React to preselectedEspace if user clicked from a domain card
   useEffect(() => {
     if (preselectedEspace) {
       setSelectedEspace(preselectedEspace)
+      setCurrentStep(1)
     }
   }, [preselectedEspace])
-
-  // Track if the submit button area is visible — if not, show sticky bar
-  useEffect(() => {
-    if (submitted) return
-    const el = submitAreaRef.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => setShowStickySubmit(!entry.isIntersecting),
-      { threshold: 0.1 }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [submitted])
 
   const toggleElement = (id: string) => {
     setSelectedElements(prev =>
@@ -209,6 +204,47 @@ function ProjectRequestForm({ preselectedEspace }: { preselectedEspace?: string 
     setSelectedMatieres(prev =>
       prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
     )
+  }
+
+  const scrollToFormTop = () => {
+    const el = document.getElementById('demande-projet')
+    if (el) {
+      const yOffset = -70
+      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset
+      window.scrollTo({ top: y, behavior: 'smooth' })
+    }
+  }
+
+  const handleNext = () => {
+    setStepError('')
+    if (currentStep === 1) {
+      if (!selectedEspace) {
+        setStepError('Veuillez sélectionner votre type d\'espace pour continuer.')
+        return
+      }
+    }
+    if (currentStep < 4) {
+      setCurrentStep(prev => prev + 1)
+      scrollToFormTop()
+    }
+  }
+
+  const handlePrev = () => {
+    setStepError('')
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1)
+      scrollToFormTop()
+    }
+  }
+
+  const goToStep = (step: number) => {
+    setStepError('')
+    if (step > currentStep && currentStep === 1 && !selectedEspace) {
+      setStepError('Veuillez sélectionner votre type d\'espace pour continuer.')
+      return
+    }
+    setCurrentStep(step)
+    scrollToFormTop()
   }
 
   const getWhatsAppUrl = () => {
@@ -280,7 +316,7 @@ ${projectDesc ? `📝 Précisions du projet : ${projectDesc}` : ''}`
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center py-14 sm:py-16 text-center gap-5"
+        className="flex flex-col items-center justify-center py-12 sm:py-16 text-center gap-5"
       >
         <div className="size-16 sm:size-20 rounded-full bg-[#E6A635]/20 border-2 border-[#E6A635] flex items-center justify-center shadow-[0_0_25px_rgba(230,166,53,0.35)]">
           <CheckCircle2 className="size-8 sm:size-10 text-[#F2BD52]" />
@@ -292,12 +328,12 @@ ${projectDesc ? `📝 Précisions du projet : ${projectDesc}` : ''}`
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full max-w-md">
           <a
             href={getWhatsAppUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white text-xs font-bold uppercase tracking-wider shadow-lg hover:scale-[1.02] transition-transform"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white text-xs font-bold uppercase tracking-wider shadow-lg hover:scale-[1.02] transition-transform"
           >
             <MessageCircle className="size-4 fill-white/20" />
             <span>Transmettre mes plans sur WhatsApp</span>
@@ -315,405 +351,545 @@ ${projectDesc ? `📝 Précisions du projet : ${projectDesc}` : ''}`
     )
   }
 
-  const inputClasses = "w-full px-4 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#241812]/90 border border-[#E6A635]/25 text-white placeholder:text-white/35 text-xs sm:text-sm focus:outline-none focus:border-[#E6A635] focus:shadow-[0_0_12px_rgba(230,166,53,0.15)] transition-all"
-  const inputWithIconClasses = "w-full pl-10 pr-4 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#241812]/90 border border-[#E6A635]/25 text-white placeholder:text-white/35 text-xs sm:text-sm focus:outline-none focus:border-[#E6A635] focus:shadow-[0_0_12px_rgba(230,166,53,0.15)] transition-all"
+  const inputClasses = "w-full px-4 py-3 rounded-xl sm:rounded-2xl bg-[#241812]/90 border border-[#E6A635]/25 text-white placeholder:text-white/35 text-xs sm:text-sm focus:outline-none focus:border-[#E6A635] focus:shadow-[0_0_12px_rgba(230,166,53,0.15)] transition-all"
+  const inputWithIconClasses = "w-full pl-10 pr-4 py-3 rounded-xl sm:rounded-2xl bg-[#241812]/90 border border-[#E6A635]/25 text-white placeholder:text-white/35 text-xs sm:text-sm focus:outline-none focus:border-[#E6A635] focus:shadow-[0_0_12px_rgba(230,166,53,0.15)] transition-all"
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
 
-      {/* ── STEP 1 — Type d'espace ── */}
-      <div>
-        <div className="flex items-center gap-3 mb-4 sm:mb-5">
-          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">1</div>
-          <div>
-            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Quel est votre type d&apos;espace ?</h3>
-            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Sélectionnez la typologie de votre établissement ou résidence.</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3">
-          {ESPACE_TYPES.map(({ id, label, icon: Icon, desc }) => {
-            const isActive = selectedEspace === id
+      {/* ── STEPPER HEADER & PROGRESS BAR ── */}
+      <div className="mb-4 sm:mb-6">
+        {/* Desktop Step Tabs */}
+        <div className="hidden sm:grid sm:grid-cols-4 gap-2 mb-3">
+          {FORM_STEPS.map((step) => {
+            const isCurrent = currentStep === step.id
+            const isPassed = currentStep > step.id
             return (
               <button
-                key={id}
+                key={step.id}
                 type="button"
-                onClick={() => setSelectedEspace(id)}
-                className={`flex flex-col items-start gap-2.5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer relative overflow-hidden ${
-                  isActive
-                    ? 'border-[#E6A635] bg-gradient-to-b from-[#E6A635]/20 to-[#3B271C]/90 shadow-[0_4px_20px_rgba(230,166,53,0.3)] ring-1 ring-[#E6A635]/50'
-                    : 'border-[#E6A635]/20 bg-[#241812]/80 hover:border-[#E6A635]/60 hover:bg-[#3B271C]/60'
+                onClick={() => goToStep(step.id)}
+                className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                  isCurrent
+                    ? 'border-[#E6A635] bg-[#E6A635]/15 text-[#F2BD52] shadow-sm ring-1 ring-[#E6A635]/50'
+                    : isPassed
+                    ? 'border-[#E6A635]/35 bg-[#241812]/90 text-white/90 hover:bg-[#3B271C]/70'
+                    : 'border-[#E6A635]/15 bg-[#241812]/50 text-white/45 hover:border-[#E6A635]/30'
                 }`}
               >
-                <div className="flex items-center justify-between w-full">
-                  <div className={`size-9 rounded-xl flex items-center justify-center transition-colors ${
-                    isActive ? 'bg-[#E6A635] text-[#1A110B] shadow-md' : 'bg-[#3B271C] text-[#E6A635] border border-[#E6A635]/30'
-                  }`}>
-                    <Icon className="size-4.5" />
-                  </div>
-                  {isActive ? (
-                    <span className="inline-flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wider text-[#F2BD52] bg-[#241812] px-2 py-0.5 rounded-full border border-[#E6A635]/50">
-                      <Check className="size-3" /> Choisi
-                    </span>
-                  ) : null}
+                <div className={`size-6 rounded-lg text-[11px] font-bold flex items-center justify-center shrink-0 ${
+                  isCurrent
+                    ? 'bg-[#E6A635] text-[#1A110B]'
+                    : isPassed
+                    ? 'bg-[#E6A635]/20 text-[#F2BD52]'
+                    : 'bg-white/10 text-white/50'
+                }`}>
+                  {isPassed ? <Check className="size-3.5" /> : step.id}
                 </div>
-                <div>
-                  <span className={`text-[11px] sm:text-xs font-bold leading-tight block ${isActive ? 'text-[#F2BD52]' : 'text-white/90'} transition-colors`}>{label}</span>
-                  <span className="text-[9.5px] sm:text-[10px] text-white/50 font-light leading-snug mt-1 block line-clamp-2">{desc}</span>
-                </div>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ── STEP 2 — Style & Inspiration Architecturale ── */}
-      <div>
-        <div className="flex items-center gap-3 mb-4 sm:mb-5">
-          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">2</div>
-          <div>
-            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Quel style &amp; inspiration architecturale recherchez-vous ?</h3>
-            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">L&apos;identité visuelle et l&apos;ambiance artistique souhaitée.</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
-          {STYLE_TYPES.map(({ id, label, icon: Icon, desc }) => {
-            const isActive = selectedStyle === id
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setSelectedStyle(id)}
-                className={`flex flex-col items-start gap-1.5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer ${
-                  isActive
-                    ? 'border-[#E6A635] bg-[#E6A635]/15 shadow-[0_4px_20px_rgba(230,166,53,0.25)]'
-                    : 'border-[#E6A635]/20 bg-[#241812]/60 hover:border-[#E6A635]/50 hover:bg-[#241812]/90'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <Icon className={`size-5 sm:size-6 ${isActive ? 'text-[#F2BD52]' : 'text-white/40'} transition-colors`} />
-                  {isActive && <Check className="size-4 text-[#F2BD52]" />}
-                </div>
-                <span className={`text-[11px] sm:text-xs font-bold leading-tight ${isActive ? 'text-[#F2BD52]' : 'text-white/80'} transition-colors mt-1`}>{label}</span>
-                <span className="text-[9.5px] sm:text-[10px] text-white/50 font-light leading-tight">{desc}</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ── STEP 3 — Éléments & Boiseries Souhaités ── */}
-      <div>
-        <div className="flex items-center gap-3 mb-4 sm:mb-5">
-          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">3</div>
-          <div>
-            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Quels éléments &amp; boiseries souhaitez-vous façonner ?</h3>
-            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Sélectionnez tous les éléments applicables à votre aménagement.</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-2.5">
-          {ELEMENTS_TYPES.map(({ id, label, icon: Icon }) => {
-            const isActive = selectedElements.includes(id)
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => toggleElement(id)}
-                className={`inline-flex items-center gap-2 p-3 rounded-xl sm:rounded-2xl border-2 text-[11px] sm:text-xs font-semibold transition-all duration-300 cursor-pointer text-left ${
-                  isActive
-                    ? 'border-[#E6A635] bg-gradient-to-r from-[#F3C45E]/15 to-[#E6A635]/25 text-[#F2BD52] shadow-[0_2px_12px_rgba(230,166,53,0.2)] font-bold'
-                    : 'border-[#E6A635]/20 bg-[#241812]/60 text-white/70 hover:border-[#E6A635]/50 hover:text-white'
-                }`}
-              >
-                <Icon className="size-4 shrink-0 text-[#E6A635]" />
-                <span className="flex-1 leading-snug">{label}</span>
-                {isActive && <CheckCircle2 className="size-3.5 shrink-0 text-[#F2BD52]" />}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ── STEP 4 — Essences de Bois & Matières Nobles ── */}
-      <div>
-        <div className="flex items-center gap-3 mb-4 sm:mb-5">
-          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">4</div>
-          <div>
-            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Quelles essences de bois &amp; finitions nobles préférez-vous ?</h3>
-            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Multi-sélection selon vos sensibilités de matières.</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
-          {MATIERES_TYPES.map(({ id, label, desc }) => {
-            const isActive = selectedMatieres.includes(id)
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => toggleMatiere(id)}
-                className={`flex flex-col items-start gap-1 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer ${
-                  isActive
-                    ? 'border-[#E6A635] bg-[#E6A635]/15 shadow-[0_2px_15px_rgba(230,166,53,0.2)]'
-                    : 'border-[#E6A635]/20 bg-[#241812]/60 hover:border-[#E6A635]/50 hover:bg-[#241812]/90'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className={`text-[11px] sm:text-xs font-bold leading-tight ${isActive ? 'text-[#F2BD52]' : 'text-white/80'}`}>{label}</span>
-                  {isActive && <CheckCircle2 className="size-3.5 text-[#F2BD52] shrink-0" />}
-                </div>
-                <span className="text-[9.5px] sm:text-[10px] text-white/50 font-light leading-tight">{desc}</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ── STEP 5 — État d'avancement & Option Déplacement ── */}
-      <div>
-        <div className="flex items-center gap-3 mb-4 sm:mb-5">
-          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">5</div>
-          <div>
-            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Où en est votre projet ?</h3>
-            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Pour calibrer notre accompagnement technique et artistique.</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 mb-4">
-          {AVANCEMENT_TYPES.map(({ id, label, desc }) => {
-            const isActive = selectedAvancement === id
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setSelectedAvancement(id)}
-                className={`flex flex-col items-start gap-1 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer ${
-                  isActive
-                    ? 'border-[#E6A635] bg-[#E6A635]/15 shadow-[0_2px_15px_rgba(230,166,53,0.2)]'
-                    : 'border-[#E6A635]/20 bg-[#241812]/60 hover:border-[#E6A635]/50 hover:bg-[#241812]/90'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className={`text-[11px] sm:text-xs font-bold leading-tight ${isActive ? 'text-[#F2BD52]' : 'text-white/80'}`}>{label}</span>
-                  {isActive && <Check className="size-4 text-[#F2BD52] shrink-0" />}
-                </div>
-                <span className="text-[9.5px] sm:text-[10px] text-white/50 font-light leading-tight">{desc}</span>
+                <span className="text-xs font-semibold truncate">{step.title}</span>
               </button>
             )
           })}
         </div>
 
-        {/* Option VIP Déplacement sur site */}
-        <div 
-          onClick={() => setDemandeVisite(!demandeVisite)}
-          className={`p-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 cursor-pointer flex items-start sm:items-center gap-3.5 ${
-            demandeVisite
-              ? 'border-[#E6A635] bg-gradient-to-r from-[#3B271C] to-[#241812] shadow-[0_4px_20px_rgba(230,166,53,0.25)]'
-              : 'border-[#E6A635]/25 bg-[#241812]/70 hover:border-[#E6A635]/60'
-          }`}
-        >
-          <div className={`size-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-colors ${
-            demandeVisite ? 'bg-[#E6A635] border-[#E6A635] text-[#1A110B]' : 'border-[#E6A635]/40 bg-[#1A110B]'
-          }`}>
-            {demandeVisite && <Check className="size-4 stroke-[3]" />}
-          </div>
-          <div className="flex-1 min-w-0">
+        {/* Mobile Compact Progress Bar & Quick Step Dots */}
+        <div className="block sm:hidden">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-bold text-white">Demander une visite d&apos;Ismail sur mon chantier</span>
-              <span className="px-2 py-0.5 rounded-full bg-[#E6A635]/20 text-[#F2BD52] text-[9.5px] font-bold uppercase tracking-wider hidden sm:inline">Prestation VIP</span>
+              <span className="px-2 py-0.5 rounded-md bg-[#E6A635]/20 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-bold uppercase tracking-wider">
+                Étape {currentStep}/4
+              </span>
+              <span className="text-white text-xs font-semibold">
+                {FORM_STEPS[currentStep - 1].title}
+              </span>
             </div>
-            <p className="text-[10.5px] sm:text-xs text-white/60 font-light leading-tight mt-0.5">
-              Déplacement pour prise de cotes, examen hygrométrique des lieux et conseil en sélection des essences.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── STEP 6 — Localisation & Précisions ── */}
-      <div>
-        <div className="flex items-center gap-3 mb-4 sm:mb-5">
-          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">6</div>
-          <div>
-            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Localisation &amp; Précisions du projet</h3>
-            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Indiquez la ville et les particularités de votre chantier.</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-          <div className="space-y-3">
-            <div className="relative">
-              <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
-              <input
-                type="text"
-                value={ville}
-                onChange={e => setVille(e.target.value)}
-                placeholder="Ville / Gouvernorat (ex: Tunis, Sidi Bou Saïd, Hammamet, Sousse...)"
-                className={inputWithIconClasses}
-              />
-            </div>
-
-            {/* Transmettre plans notice */}
-            <div className="p-3.5 rounded-xl bg-[#241812]/80 border border-[#E6A635]/25 flex items-center gap-3">
-              <Upload className="size-4 text-[#F2BD52] shrink-0" />
-              <p className="text-[10.5px] sm:text-xs text-white/70 font-light leading-snug">
-                <strong className="text-white font-medium">Plans ou photos disponibles ?</strong> Vous pourrez les transmettre directement par WhatsApp en un clic après l&apos;envoi.
-              </p>
+            <div className="flex items-center gap-1.5">
+              {FORM_STEPS.map((step) => (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => goToStep(step.id)}
+                  className={`transition-all rounded-full ${
+                    currentStep === step.id
+                      ? 'w-5 h-2 bg-[#E6A635]'
+                      : currentStep > step.id
+                      ? 'size-2 bg-[#F2BD52]/60'
+                      : 'size-2 bg-white/20'
+                  }`}
+                  aria-label={`Étape ${step.id}`}
+                />
+              ))}
             </div>
           </div>
-
-          <div className="md:col-span-1">
-            <textarea
-              value={projectDesc}
-              onChange={e => setProjectDesc(e.target.value)}
-              rows={3}
-              placeholder="Précisez votre vision, vos contraintes architecturales ou les inspirations souhaitées..."
-              className={`${inputClasses} resize-none h-full min-h-[95px]`}
+          {/* Animated Gold Bar */}
+          <div className="w-full h-1.5 bg-[#241812] rounded-full overflow-hidden border border-[#E6A635]/25">
+            <div
+              className="h-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] transition-all duration-300 rounded-full"
+              style={{ width: `${(currentStep / 4) * 100}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* ── STEP 7 — Vos Coordonnées & Canal Préféré ── */}
-      <div>
-        <div className="flex items-center gap-3 mb-4 sm:mb-5">
-          <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-xs font-extrabold flex items-center justify-center shrink-0 shadow-md">7</div>
-          <div>
-            <h3 className="text-white font-heading text-base sm:text-lg font-medium">Vos coordonnées de contact</h3>
-            <p className="text-white/50 text-[10.5px] sm:text-xs font-light">Pour vous adresser votre étude et convenir d&apos;un échange.</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-4">
-          <div className="relative">
-            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
-            <input
-              type="text"
-              required
-              value={fullName}
-              onChange={e => setFullName(e.target.value)}
-              placeholder="Nom complet / Établissement *"
-              className={inputWithIconClasses}
-            />
-          </div>
-          <div className="relative">
-            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
-            <input
-              type="tel"
-              required
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              placeholder="Numéro de téléphone *"
-              className={inputWithIconClasses}
-            />
-          </div>
-          <div className="relative">
-            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="Adresse e-mail *"
-              className={inputWithIconClasses}
-            />
-          </div>
-        </div>
-
-        {/* Canal de rappel préféré */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10.5px] sm:text-xs text-white/60 font-light mr-1">Canal de contact privilégié :</span>
-          {CONTACT_PREF_TYPES.map(({ id, label, icon: Icon }) => {
-            const isActive = contactPref === id
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setContactPref(id)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10.5px] sm:text-xs font-semibold border transition-all cursor-pointer ${
-                  isActive
-                    ? 'border-[#E6A635] bg-[#E6A635]/20 text-[#F2BD52]'
-                    : 'border-[#E6A635]/20 bg-[#241812]/60 text-white/60 hover:text-white'
-                }`}
-              >
-                <Icon className="size-3 text-[#E6A635]" />
-                <span>{label}</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {error && (
-        <p className="text-xs text-red-300 bg-red-950/50 border border-red-500/30 rounded-xl px-4 py-3">{error}</p>
-      )}
-
-      {/* ── SUBMIT & WHATSAPP ACTION BUTTONS ── */}
-      <div ref={submitAreaRef} className="pt-2 space-y-3">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="btn-sheen flex-1 inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold uppercase tracking-wider text-xs shadow-[0_8px_25px_rgba(230,166,53,0.35)] hover:scale-[1.02] transition-all duration-300 disabled:opacity-60 cursor-pointer text-center"
-          >
-            {submitting ? (
-              <>
-                <div className="size-4 border-2 border-[#1A110B] border-t-transparent rounded-full animate-spin" />
-                <span>Transmission de votre dossier...</span>
-              </>
-            ) : (
-              <>
-                <Send className="size-4" />
-                <span>Envoyer Ma Demande de Projet d&apos;Exception</span>
-              </>
-            )}
-          </button>
-
-          <a
-            href={getWhatsAppUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white text-xs font-bold uppercase tracking-wider shadow-lg hover:scale-[1.02] transition-all cursor-pointer text-center"
-          >
-            <MessageCircle className="size-4 fill-white/20" />
-            <span>Transmettre sur WhatsApp</span>
-          </a>
-        </div>
-
-        <div className="flex items-center justify-center gap-2 text-[10.5px] sm:text-xs text-white/50 font-light pt-1 text-center">
-          <span className="text-[#F2BD52]">✦</span>
-          <span>Étude d&apos;implantation &amp; Plans Sur-Mesure sous 24-48h</span>
-          <span className="text-[#F2BD52] hidden sm:inline">•</span>
-          <span className="hidden sm:inline">Déplacement sur toute la Tunisie</span>
-        </div>
-      </div>
-
-      {/* ── STICKY MOBILE SUBMIT BAR ── */}
-      <AnimatePresence>
-        {showStickySubmit && (
+      {/* ── STEP CONTENT AREA ── */}
+      <AnimatePresence mode="wait">
+        
+        {/* ── ÉTAPE 1 : Type d'Espace & Style d'Art ── */}
+        {currentStep === 1 && (
           <motion.div
-            initial={{ y: 80, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 80, opacity: 0 }}
+            key="step1"
+            initial={{ opacity: 0, x: 15 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -15 }}
             transition={{ duration: 0.25 }}
-            className="fixed bottom-0 inset-x-0 z-40 sm:hidden p-3 bg-gradient-to-t from-[#241812] via-[#241812]/98 to-[#241812]/90 backdrop-blur-xl border-t border-[#E6A635]/30 shadow-[0_-8px_30px_rgba(0,0,0,0.6)]"
+            className="space-y-5"
           >
-            <button
-              type="submit"
-              disabled={submitting}
-              className="btn-sheen w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold uppercase tracking-wider text-xs shadow-lg cursor-pointer disabled:opacity-60"
-            >
-              {submitting ? (
-                <>
-                  <div className="size-4 border-2 border-[#1A110B] border-t-transparent rounded-full animate-spin" />
-                  <span>Envoi...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="size-4" />
-                  <span>Envoyer Ma Demande</span>
-                </>
-              )}
-            </button>
+            {/* Typologie */}
+            <div>
+              <div className="flex items-center justify-between mb-2.5">
+                <h3 className="text-white font-heading text-sm sm:text-base font-medium flex items-center gap-2">
+                  <span>Quel est votre type d&apos;espace ?</span>
+                  <span className="text-[#E6A635] text-xs font-normal">*</span>
+                </h3>
+                <span className="text-[10px] text-[#F2BD52]/80 uppercase tracking-wider font-semibold">1 choix</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {ESPACE_TYPES.map(({ id, label, icon: Icon, desc }) => {
+                  const isActive = selectedEspace === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedEspace(id)
+                        setStepError('')
+                      }}
+                      className={`flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl border transition-all text-left cursor-pointer ${
+                        isActive
+                          ? 'border-[#E6A635] bg-gradient-to-r from-[#E6A635]/20 to-[#3B271C]/90 text-[#F2BD52] shadow-[0_2px_15px_rgba(230,166,53,0.25)] ring-1 ring-[#E6A635]/50'
+                          : 'border-[#E6A635]/20 bg-[#241812]/80 text-white/90 hover:border-[#E6A635]/50 hover:bg-[#3B271C]/50'
+                      }`}
+                    >
+                      <div className={`size-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                        isActive ? 'bg-[#E6A635] text-[#1A110B] shadow-sm' : 'bg-[#3B271C] text-[#E6A635] border border-[#E6A635]/30'
+                      }`}>
+                        <Icon className="size-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className={`text-xs font-bold leading-tight block truncate ${isActive ? 'text-[#F2BD52]' : 'text-white'}`}>{label}</span>
+                        <span className="text-[10px] text-white/50 font-light truncate block mt-0.5">{desc}</span>
+                      </div>
+                      {isActive && <Check className="size-4 text-[#F2BD52] shrink-0" />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Style Architectural */}
+            <div className="pt-2 border-t border-[#E6A635]/20">
+              <div className="flex items-center justify-between mb-2.5">
+                <h3 className="text-white font-heading text-sm sm:text-base font-medium">
+                  Quel style &amp; ambiance recherchez-vous ?
+                </h3>
+                <span className="text-[10px] text-white/50 uppercase tracking-wider">Optionnel</span>
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                {STYLE_TYPES.map(({ id, label, icon: Icon, desc }) => {
+                  const isActive = selectedStyle === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setSelectedStyle(isActive ? '' : id)}
+                      className={`flex flex-col items-start gap-1 p-2.5 sm:p-3 rounded-xl border transition-all text-left cursor-pointer ${
+                        isActive
+                          ? 'border-[#E6A635] bg-[#E6A635]/15 text-[#F2BD52] shadow-[0_2px_15px_rgba(230,166,53,0.25)] ring-1 ring-[#E6A635]/50'
+                          : 'border-[#E6A635]/20 bg-[#241812]/80 text-white/80 hover:border-[#E6A635]/50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <Icon className={`size-4 ${isActive ? 'text-[#F2BD52]' : 'text-white/40'}`} />
+                        {isActive && <Check className="size-3.5 text-[#F2BD52]" />}
+                      </div>
+                      <span className={`text-[11px] sm:text-xs font-bold leading-tight block ${isActive ? 'text-[#F2BD52]' : 'text-white'}`}>{label}</span>
+                      <span className="text-[9.5px] text-white/50 font-light leading-tight line-clamp-1">{desc}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
           </motion.div>
         )}
+
+        {/* ── ÉTAPE 2 : Boiseries & Essences Nobles ── */}
+        {currentStep === 2 && (
+          <motion.div
+            key="step2"
+            initial={{ opacity: 0, x: 15 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -15 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-5"
+          >
+            {/* Boiseries */}
+            <div>
+              <div className="flex items-center justify-between mb-2.5">
+                <h3 className="text-white font-heading text-sm sm:text-base font-medium">
+                  Quels éléments &amp; boiseries souhaitez-vous façonner ?
+                </h3>
+                <span className="text-[10px] text-[#F2BD52]/80 uppercase tracking-wider font-semibold">Multi-choix</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                {ELEMENTS_TYPES.map(({ id, label, icon: Icon }) => {
+                  const isActive = selectedElements.includes(id)
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => toggleElement(id)}
+                      className={`flex items-center gap-2 p-2.5 rounded-xl border text-[11px] sm:text-xs font-semibold transition-all text-left cursor-pointer ${
+                        isActive
+                          ? 'border-[#E6A635] bg-[#E6A635]/20 text-[#F2BD52] shadow-sm font-bold'
+                          : 'border-[#E6A635]/20 bg-[#241812]/80 text-white/75 hover:border-[#E6A635]/50 hover:text-white'
+                      }`}
+                    >
+                      <Icon className="size-3.5 sm:size-4 shrink-0 text-[#E6A635]" />
+                      <span className="flex-1 leading-snug line-clamp-2">{label}</span>
+                      {isActive && <CheckCircle2 className="size-3.5 shrink-0 text-[#F2BD52]" />}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Matières */}
+            <div className="pt-2 border-t border-[#E6A635]/20">
+              <div className="flex items-center justify-between mb-2.5">
+                <h3 className="text-white font-heading text-sm sm:text-base font-medium">
+                  Essences de bois &amp; matières nobles
+                </h3>
+                <span className="text-[10px] text-[#F2BD52]/80 uppercase tracking-wider font-semibold">Multi-choix</span>
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                {MATIERES_TYPES.map(({ id, label, desc }) => {
+                  const isActive = selectedMatieres.includes(id)
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => toggleMatiere(id)}
+                      className={`flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        isActive
+                          ? 'border-[#E6A635] bg-[#E6A635]/15 text-[#F2BD52] shadow-sm'
+                          : 'border-[#E6A635]/20 bg-[#241812]/80 text-white/80 hover:border-[#E6A635]/50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className={`text-[11px] sm:text-xs font-bold leading-tight ${isActive ? 'text-[#F2BD52]' : 'text-white'}`}>{label}</span>
+                        {isActive && <CheckCircle2 className="size-3.5 text-[#F2BD52] shrink-0" />}
+                      </div>
+                      <span className="text-[9.5px] text-white/50 font-light truncate w-full">{desc}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── ÉTAPE 3 : Chantier, Visite VIP & Localisation ── */}
+        {currentStep === 3 && (
+          <motion.div
+            key="step3"
+            initial={{ opacity: 0, x: 15 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -15 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-4"
+          >
+            {/* Avancement */}
+            <div>
+              <div className="flex items-center justify-between mb-2.5">
+                <h3 className="text-white font-heading text-sm sm:text-base font-medium">
+                  Où en est votre projet ?
+                </h3>
+                <span className="text-[10px] text-[#F2BD52]/80 uppercase tracking-wider font-semibold">1 choix</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                {AVANCEMENT_TYPES.map(({ id, label, desc }) => {
+                  const isActive = selectedAvancement === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setSelectedAvancement(id)}
+                      className={`flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        isActive
+                          ? 'border-[#E6A635] bg-[#E6A635]/15 text-[#F2BD52] shadow-sm'
+                          : 'border-[#E6A635]/20 bg-[#241812]/80 text-white/80 hover:border-[#E6A635]/50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className={`text-xs font-bold leading-tight ${isActive ? 'text-[#F2BD52]' : 'text-white'}`}>{label}</span>
+                        {isActive && <Check className="size-3.5 text-[#F2BD52] shrink-0" />}
+                      </div>
+                      <span className="text-[10px] text-white/50 font-light leading-tight mt-0.5">{desc}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Prestation VIP Visite Chantier */}
+            <div
+              onClick={() => setDemandeVisite(!demandeVisite)}
+              className={`p-3 sm:p-3.5 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-3 ${
+                demandeVisite
+                  ? 'border-[#E6A635] bg-gradient-to-r from-[#3B271C] to-[#241812] shadow-[0_2px_15px_rgba(230,166,53,0.25)]'
+                  : 'border-[#E6A635]/25 bg-[#241812]/80 hover:border-[#E6A635]/60'
+              }`}
+            >
+              <div className={`size-5 sm:size-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-colors ${
+                demandeVisite ? 'bg-[#E6A635] border-[#E6A635] text-[#1A110B]' : 'border-[#E6A635]/40 bg-[#1A110B]'
+              }`}>
+                {demandeVisite && <Check className="size-3.5 stroke-[3]" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs sm:text-sm font-bold text-white">Demander une visite d&apos;Ismail sur mon chantier</span>
+                  <span className="px-1.5 py-0.2 rounded-full bg-[#E6A635]/20 text-[#F2BD52] text-[8.5px] sm:text-[9px] font-bold uppercase tracking-wider">Prestation VIP</span>
+                </div>
+                <p className="text-[10px] sm:text-xs text-white/60 font-light leading-tight mt-0.5">
+                  Prise de cotes, examen hygrométrique des lieux et conseil en sélection des essences.
+                </p>
+              </div>
+            </div>
+
+            {/* Ville & Précisions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="relative">
+                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
+                <input
+                  type="text"
+                  value={ville}
+                  onChange={e => setVille(e.target.value)}
+                  placeholder="Ville / Gouvernorat (ex: Tunis, Sidi Bou Saïd...)"
+                  className={inputWithIconClasses}
+                />
+              </div>
+
+              <div className="relative">
+                <textarea
+                  value={projectDesc}
+                  onChange={e => setProjectDesc(e.target.value)}
+                  rows={1}
+                  placeholder="Précisions supplémentaires, délais, volume... (facultatif)"
+                  className={`${inputClasses} resize-none min-h-[42px] py-2.5`}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── ÉTAPE 4 : Vos Coordonnées & Envoi ── */}
+        {currentStep === 4 && (
+          <motion.div
+            key="step4"
+            initial={{ opacity: 0, x: 15 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -15 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-4"
+          >
+            {/* Summary capsule */}
+            <div className="p-2.5 sm:p-3 rounded-xl bg-[#1A110B]/80 border border-[#E6A635]/30 flex flex-wrap items-center gap-1.5 text-xs">
+              <span className="text-[#F2BD52] font-semibold flex items-center gap-1 text-[11px]">
+                <Sparkles className="size-3 text-[#E6A635]" /> Votre projet :
+              </span>
+              {selectedEspace && (
+                <span className="px-2 py-0.5 rounded-full bg-[#3B271C] border border-[#E6A635]/30 text-white text-[10px]">
+                  {ESPACE_TYPES.find(e => e.id === selectedEspace)?.label}
+                </span>
+              )}
+              {selectedStyle && (
+                <span className="px-2 py-0.5 rounded-full bg-[#3B271C] border border-[#E6A635]/30 text-white text-[10px]">
+                  Style {STYLE_TYPES.find(s => s.id === selectedStyle)?.label}
+                </span>
+              )}
+              {selectedElements.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-[#3B271C] border border-[#E6A635]/30 text-white text-[10px]">
+                  {selectedElements.length} boiserie{selectedElements.length > 1 ? 's' : ''}
+                </span>
+              )}
+              {ville && (
+                <span className="px-2 py-0.5 rounded-full bg-[#3B271C] border border-[#E6A635]/30 text-white text-[10px]">
+                  📍 {ville}
+                </span>
+              )}
+              {demandeVisite && (
+                <span className="px-2 py-0.5 rounded-full bg-[#E6A635]/20 border border-[#E6A635]/50 text-[#F2BD52] text-[10px] font-bold">
+                  ✦ Visite VIP
+                </span>
+              )}
+            </div>
+
+            {/* Inputs Coordonnées */}
+            <div className="space-y-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
+                <div className="relative">
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
+                  <input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={e => setFullName(e.target.value)}
+                    placeholder="Nom complet / Établissement *"
+                    className={inputWithIconClasses}
+                  />
+                </div>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    placeholder="Numéro de téléphone *"
+                    className={inputWithIconClasses}
+                  />
+                </div>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#E6A635]/60" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="Adresse e-mail *"
+                    className={inputWithIconClasses}
+                  />
+                </div>
+              </div>
+
+              {/* Canal de rappel */}
+              <div className="flex items-center gap-1.5 pt-0.5 flex-wrap">
+                <span className="text-[10.5px] text-white/60">Canal privilégié :</span>
+                {CONTACT_PREF_TYPES.map(({ id, label, icon: Icon }) => {
+                  const isActive = contactPref === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setContactPref(id)}
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${
+                        isActive
+                          ? 'border-[#E6A635] bg-[#E6A635]/20 text-[#F2BD52]'
+                          : 'border-[#E6A635]/20 bg-[#241812]/60 text-white/60 hover:text-white'
+                      }`}
+                    >
+                      <Icon className="size-2.5 text-[#E6A635]" />
+                      <span>{label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {error && (
+              <p className="text-xs text-red-300 bg-red-950/50 border border-red-500/30 rounded-xl px-3 py-2">{error}</p>
+            )}
+
+            {/* Submit Action Buttons */}
+            <div className="pt-2 space-y-2">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="btn-sheen flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-bold uppercase tracking-wider text-xs shadow-lg hover:scale-[1.01] transition-all disabled:opacity-60 cursor-pointer text-center"
+                >
+                  {submitting ? (
+                    <>
+                      <div className="size-4 border-2 border-[#1A110B] border-t-transparent rounded-full animate-spin" />
+                      <span>Transmission en cours...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="size-4" />
+                      <span>Envoyer Ma Demande de Projet</span>
+                    </>
+                  )}
+                </button>
+
+                <a
+                  href={getWhatsAppUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white text-xs font-bold uppercase tracking-wider shadow-md hover:scale-[1.01] transition-all cursor-pointer text-center"
+                >
+                  <MessageCircle className="size-4 fill-white/20" />
+                  <span>Envoyer sur WhatsApp</span>
+                </a>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 text-[10px] text-white/50 font-light text-center">
+                <span className="text-[#F2BD52]">✦</span>
+                <span>Étude d&apos;implantation &amp; Plans 3D sous 24-48h</span>
+                <span className="text-[#F2BD52] hidden sm:inline">•</span>
+                <span className="hidden sm:inline">Déplacement sur toute la Tunisie</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
       </AnimatePresence>
+
+      {/* ── STEPPER NAVIGATION (PRÉCÉDENT / CONTINUER) ── */}
+      <div className="pt-3 border-t border-[#E6A635]/20 flex items-center justify-between gap-3">
+        {currentStep > 1 ? (
+          <button
+            type="button"
+            onClick={handlePrev}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#E6A635]/35 bg-[#241812]/90 hover:bg-[#3B271C] text-white/80 hover:text-white text-xs font-semibold transition-all cursor-pointer"
+          >
+            <ChevronLeft className="size-3.5" />
+            <span>Précédent</span>
+          </button>
+        ) : (
+          <div />
+        )}
+
+        {currentStep < 4 ? (
+          <button
+            type="button"
+            onClick={handleNext}
+            className="btn-sheen inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow-md hover:scale-[1.02] transition-all cursor-pointer ml-auto"
+          >
+            <span>Continuer</span>
+            <ChevronRight className="size-3.5" />
+          </button>
+        ) : null}
+      </div>
+
+      {stepError && (
+        <p className="text-xs text-amber-300 bg-amber-950/40 border border-amber-500/30 rounded-xl px-3 py-2 text-center">
+          {stepError}
+        </p>
+      )}
+
+      {/* Direct WhatsApp Concierge Shortcut */}
+      <div className="pt-1 text-center">
+        <a
+          href={getWhatsAppUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-[10.5px] sm:text-[11px] text-[#F2BD52]/80 hover:text-[#F2BD52] transition-colors"
+        >
+          <MessageCircle className="size-3 text-[#25D366]" />
+          <span>Échanger directement avec Ismail sur WhatsApp</span>
+        </a>
+      </div>
+
     </form>
   )
 }
@@ -761,100 +937,42 @@ function TurnkeyProjectCard({
   }, [project])
 
   const coverPhotoSrc = allPhotos[0] || (project.image ? project.image.split(',')[0].trim() : '') || '/project-hotel.png'
-  const categoryLabel = filterTypes.find(t => t.id === project.type)?.label || project.type
 
   return (
     <div
       onClick={() => onOpen(project)}
-      className="group relative flex flex-col h-full rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-b from-[#342318]/95 via-[#2A1C14]/95 to-[#1F140E]/98 border border-[#E6A635]/30 hover:border-[#E6A635]/80 backdrop-blur-xl shadow-[0_12px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_22px_55px_rgba(230,166,53,0.25)] transition-all duration-500 cursor-pointer hover:-translate-y-1.5"
+      className="group relative flex flex-col h-full rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-b from-[#2A1C14] via-[#1E130D] to-[#140C08] border border-[#E6A635]/30 hover:border-[#E6A635]/85 backdrop-blur-xl shadow-[0_6px_20px_rgba(0,0,0,0.55)] hover:shadow-[0_12px_30px_rgba(230,166,53,0.25)] transition-all duration-300 cursor-pointer hover:-translate-y-1"
     >
-      {/* ── Cadre Couverture Photo (Optimisée, Légère & Rapide — Pas de vidéo lourde sur la couverture) ── */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#160E0A] shrink-0 border-b border-[#E6A635]/20">
+      {/* Liseré doré subtil au survol */}
+      <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-[#E6A635] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
+
+      {/* ── Cadre Photo de Prestige (Mise en avant de la réalisation) ── */}
+      <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full overflow-hidden bg-[#120B08] shrink-0 border-b border-[#E6A635]/20">
         <Image
           src={coverPhotoSrc}
           alt={project.title}
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-106"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1F140E] via-[#1F140E]/20 to-transparent opacity-85 group-hover:opacity-50 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#140C08]/90 via-[#140C08]/20 to-black/20 opacity-60 group-hover:opacity-30 transition-opacity duration-300" />
 
-        {/* Badges Flottants Haut */}
-        <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
-          {project.location ? (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-semibold backdrop-blur-md shadow-md">
-              <MapPin className="size-3 text-[#E6A635]" />
-              <span>{project.location}</span>
-            </div>
-          ) : <div />}
-
-          {/* Badge discret si vidéo disponible à l'intérieur */}
-          {hasVideo && (
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/95 border border-[#E6A635]/50 text-[#F2BD52] text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
-              <Film className="size-3 text-[#E6A635]" />
-              <span>Vidéo incluse</span>
-            </div>
-          )}
-        </div>
-
-        {/* Badge nombre de photos en bas à droite */}
-        <div className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/90 border border-white/20 text-white/90 text-[10px] font-medium backdrop-blur-md shadow-sm">
-          <ImageIcon className="size-3 text-[#E6A635]" />
-          <span>{allPhotos.length} photo{allPhotos.length > 1 ? 's' : ''}</span>
-        </div>
-      </div>
-
-      {/* ── 3. CORPS DE LA CARTE (Informations & Finitions Nobles) ── */}
-      <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 gap-3 text-left">
-        <div>
-          {/* Tag Catégorie */}
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#241812] border border-[#E6A635]/35 text-[#F2BD52] text-[9.5px] uppercase tracking-wider font-bold">
-              <Sparkles className="size-2.5 text-[#E6A635]" />
-              <span>{categoryLabel}</span>
+        {/* Indicateur vidéo subtil si le projet contient une vidéo */}
+        {hasVideo && (
+          <div className="absolute top-2 right-2 z-10 pointer-events-none">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1A110B]/85 border border-[#E6A635]/40 text-[#F2BD52] text-[9px] font-semibold backdrop-blur-md shadow-md">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <Film className="size-2.5 text-[#E6A635]" />
             </span>
           </div>
+        )}
+      </div>
 
-          {/* Titre */}
-          <h3 className="font-heading text-lg sm:text-xl text-white font-medium leading-snug group-hover:text-[#F2BD52] transition-colors mb-2 line-clamp-1">
-            {project.title}
-          </h3>
-
-          {/* Description */}
-          <p className="text-white/80 text-xs sm:text-[13px] font-light leading-relaxed line-clamp-2 mb-3">
-            {project.description}
-          </p>
-
-          {/* Aménagements réalisés (Pills) */}
-          {project.details && project.details.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-0.5">
-              {project.details.slice(0, 3).map((detail: string, idx: number) => (
-                <span
-                  key={idx}
-                  className="px-2.5 py-0.5 rounded-lg bg-[#241812]/90 border border-[#E6A635]/20 text-[10px] text-white/80 font-light truncate max-w-[200px]"
-                >
-                  {detail}
-                </span>
-              ))}
-              {project.details.length > 3 && (
-                <span className="px-2 py-0.5 rounded-lg bg-[#241812]/60 text-[10px] text-[#F2BD52] font-semibold">
-                  +{project.details.length - 3}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Action Footer */}
-        <div className="pt-3 border-t border-[#E6A635]/20 flex items-center justify-between text-xs text-[#F2BD52] font-semibold mt-auto">
-          <span className="inline-flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
-            <span>Explorer le projet</span>
-            <ArrowRight className="size-3.5" />
-          </span>
-          <span className="size-8 rounded-full bg-[#241812] border border-[#E6A635]/35 flex items-center justify-center text-[#F2BD52] group-hover:bg-[#E6A635] group-hover:text-[#1A110B] group-hover:scale-110 transition-all shadow-md">
-            <ArrowUpRight className="size-4" />
-          </span>
-        </div>
+      {/* ── CORPS DE LA CARTE: UNIQUEMENT LE NOM DU PROJET ── */}
+      <div className="p-2.5 sm:p-4 flex items-center justify-center text-center flex-1">
+        <h3 className="font-heading text-xs sm:text-base font-medium text-white leading-snug group-hover:text-[#F2BD52] transition-colors line-clamp-2 tracking-wide">
+          {project.title}
+        </h3>
       </div>
     </div>
   )
@@ -874,6 +992,8 @@ export default function TurnkeyProjectsPage() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isModalMuted, setIsModalMuted] = useState(true)
   const [modalActiveView, setModalActiveView] = useState<'video' | number>('video')
+  const [currentPage, setCurrentPage] = useState(1)
+  const PROJECTS_PER_PAGE = 4
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -947,6 +1067,27 @@ export default function TurnkeyProjectsPage() {
       return norm === filter
     })
   }, [liveProjects, filter])
+
+  // Réinitialiser à la première page lors d'un changement de filtre
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filter])
+
+  // Pagination calculée (4 projets par page pour un affichage aéré et prestigieux)
+  const totalPages = Math.max(1, Math.ceil(filteredProjects.length / PROJECTS_PER_PAGE))
+  const paginatedProjects = useMemo(() => {
+    const start = (currentPage - 1) * PROJECTS_PER_PAGE
+    return filteredProjects.slice(start, start + PROJECTS_PER_PAGE)
+  }, [filteredProjects, currentPage])
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return
+    setCurrentPage(newPage)
+    const el = document.getElementById('projects-section')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
 
   const handleOpenProject = (project: any) => {
     setSelectedProject(project)
@@ -1119,7 +1260,7 @@ export default function TurnkeyProjectsPage() {
           {/* ═══════════════════════════════════════════════════════════════ */}
           {/*  PROJECT CARDS — MODERN RESPONSIVE GRID                         */}
           {/* ═══════════════════════════════════════════════════════════════ */}
-          <div className="w-full mb-20 sm:mb-28">
+          <div id="projects-section" className="w-full mb-16 sm:mb-24 scroll-mt-28">
             <AnimatePresence mode="wait">
               {filteredProjects.length === 0 ? (
                 <motion.div
@@ -1144,24 +1285,89 @@ export default function TurnkeyProjectsPage() {
                   </button>
                 </motion.div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                  {filteredProjects.map((project, index) => (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4">
+                    {paginatedProjects.map((project, index) => (
+                      <motion.div
+                        key={project.id}
+                        layout
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.35, delay: index * 0.06 }}
+                      >
+                        <TurnkeyProjectCard
+                          project={project}
+                          onOpen={handleOpenProject}
+                          filterTypes={FILTER_TYPES}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* ── PAGINATION HAUT DE GAMME & MODERNE ── */}
+                  {totalPages > 1 && (
                     <motion.div
-                      key={project.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.96 }}
-                      transition={{ duration: 0.35, delay: index * 0.05 }}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-10 sm:mt-14 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#2A1C14]/90 via-[#231710]/95 to-[#1A110B]/90 border border-[#E6A635]/30 backdrop-blur-md shadow-xl"
                     >
-                      <TurnkeyProjectCard
-                        project={project}
-                        onOpen={handleOpenProject}
-                        filterTypes={FILTER_TYPES}
-                      />
+                      {/* Compteur d'affichage des réalisations */}
+                      <div className="text-xs text-white/75 font-light flex items-center gap-2">
+                        <span className="size-2 rounded-full bg-[#E6A635] animate-pulse" />
+                        <span>
+                          Affichage de <strong className="text-[#F2BD52] font-semibold">{(currentPage - 1) * PROJECTS_PER_PAGE + 1}</strong> à <strong className="text-[#F2BD52] font-semibold">{Math.min(currentPage * PROJECTS_PER_PAGE, filteredProjects.length)}</strong> sur <strong className="text-white font-medium">{filteredProjects.length}</strong> projets
+                        </span>
+                      </div>
+
+                      {/* Boutons de pagination */}
+                      <div className="flex items-center gap-2">
+                        {/* Bouton Précédent */}
+                        <button
+                          type="button"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-[#241812] border-[#E6A635]/30 text-white hover:text-[#F2BD52] hover:border-[#E6A635]/70 shadow-sm"
+                        >
+                          <ChevronLeft className="size-4" />
+                          <span className="hidden sm:inline">Précédent</span>
+                        </button>
+
+                        {/* Numéros de page */}
+                        <div className="flex items-center gap-1.5">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                            const isActive = pageNum === currentPage
+                            return (
+                              <button
+                                key={pageNum}
+                                type="button"
+                                onClick={() => handlePageChange(pageNum)}
+                                className={`size-9 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                                  isActive
+                                    ? 'bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] shadow-[0_0_15px_rgba(230,166,53,0.45)] scale-105'
+                                    : 'bg-[#241812] border border-[#E6A635]/25 text-white/80 hover:text-white hover:border-[#E6A635]/60 hover:bg-[#342318]'
+                                }`}
+                              >
+                                {pageNum}
+                              </button>
+                            )
+                          })}
+                        </div>
+
+                        {/* Bouton Suivant */}
+                        <button
+                          type="button"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-[#241812] border-[#E6A635]/30 text-white hover:text-[#F2BD52] hover:border-[#E6A635]/70 shadow-sm"
+                        >
+                          <span className="hidden sm:inline">Suivant</span>
+                          <ChevronRight className="size-4" />
+                        </button>
+                      </div>
                     </motion.div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
             </AnimatePresence>
           </div>
@@ -1212,7 +1418,7 @@ export default function TurnkeyProjectsPage() {
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 30 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="relative w-full max-w-5xl bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] flex flex-col md:flex-row max-h-[92vh] overflow-hidden"
+                className="relative w-full max-w-5xl bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] flex flex-col md:flex-row max-h-[92vh] overflow-y-auto md:overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Close Button */}
@@ -1224,7 +1430,37 @@ export default function TurnkeyProjectsPage() {
                   <X className="size-4 sm:size-5" />
                 </button>
 
-                {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif */}
+                {/* 📱 EN-TÊTE DU PROJET SUR MOBILE (EN HAUT : Titre & Description avant le média) */}
+                <div className="block md:hidden p-4 sm:p-5 pb-2.5 space-y-2 text-left bg-[#1A110B]/90 border-b border-[#E6A635]/25 pr-14">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9.5px] uppercase tracking-[0.15em] px-3 py-0.5 rounded-full font-bold shadow-sm">
+                      <Sparkles className="size-2.5" />
+                      {FILTER_TYPES.find(t => t.id === selectedProject.type)?.label || selectedProject.type}
+                    </span>
+                    {selectedProject.location && (
+                      <div className="flex items-center gap-1 text-[11px] text-[#F2BD52] font-medium">
+                        <MapPin className="size-3 text-[#E6A635]" />
+                        <span>{selectedProject.location}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <h3 className="font-heading text-xl sm:text-2xl text-gold-gradient font-light leading-snug">
+                    {selectedProject.title}
+                  </h3>
+
+                  {selectedProject.description ? (
+                    <p className="text-xs text-white/80 font-light leading-relaxed">
+                      {selectedProject.description}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-white/70 font-light leading-relaxed">
+                      Conception intégrale et aménagements artisanaux d&apos;exception réalisés par l&apos;Atelier Aschi.
+                    </p>
+                  )}
+                </div>
+
+                {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif (Au milieu sur mobile) */}
                 <div className="w-full md:w-[58%] flex flex-col border-b md:border-b-0 md:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/60">
                   
                   {/* Barre supérieure d'état du média */}
@@ -1416,8 +1652,8 @@ export default function TurnkeyProjectsPage() {
                 {/* RIGHT COLUMN: Détails de Prestige, Spécifications Nobles & CTA */}
                 <div className="w-full md:w-[42%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
                   
-                  {/* En-tête du projet */}
-                  <div className="space-y-2.5">
+                  {/* En-tête du projet (Desktop uniquement, affiché en haut sur mobile) */}
+                  <div className="hidden md:block space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
                       <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9.5px] sm:text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full font-bold shadow-sm">
                         <Sparkles className="size-2.5" />

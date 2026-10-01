@@ -7,8 +7,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/lib/cart-context'
 import { publicApi, Product } from '@/lib/api'
+import { cn, isBijouxOrHandleProduct } from '@/lib/utils'
 import { BohoRosace } from './boho-decor'
-import { cn } from '@/lib/utils'
 
 const DEFAULT_PRODUCT: Product = {
   id: 0,
@@ -32,35 +32,68 @@ export function HeroSplit() {
 
   useEffect(() => {
     async function loadLatestProduct() {
+      // 1. Pré-chargement immédiat depuis le cache local si disponible
+      try {
+        if (typeof window !== 'undefined') {
+          const cached = localStorage.getItem('aschi_latest_available_product')
+          if (cached) {
+            const parsed = JSON.parse(cached)
+            if (parsed && parsed.id && parsed.name) {
+              setLatestProduct(parsed)
+            }
+          }
+        }
+      } catch (_) {}
+
+      // 2. Chargement en direct depuis l'API publique
       try {
         const prodData = await publicApi.getProducts()
         if (prodData && prodData.length > 0) {
-          // Filtrer les créations / produits disponibles (hors catalogue sur commande et bijoux)
+          // Filtrer les pièces disponibles (exclure le catalogue d'inspiration et les bijoux de porte)
           const availableProds = prodData.filter((p) => {
-            const isCatalog = p.type === 'CATALOGUE'
-            const catName = p.category?.name?.toLowerCase() || ''
-            const prodName = p.name?.toLowerCase() || ''
-            const mat = p.materials?.toLowerCase() || ''
-            const isBijoux = catName.includes('bijou') || catName.includes('poignée') || catName.includes('bouton') || catName.includes('porte') || catName.includes('ronds') || catName.includes('ovales') ||
-                             prodName.includes('bijou') || prodName.includes('poignée') || prodName.includes('bouton') ||
-                             mat.includes('céramique') || mat.includes('majolique')
-            return !isCatalog && !isBijoux
+            return p.type !== 'CATALOGUE' && !isBijouxOrHandleProduct(p)
           })
 
           if (availableProds.length > 0) {
-            const sorted = [...availableProds].sort((a, b) => b.id - a.id)
-            setLatestProduct(sorted[0])
+            const sorted = [...availableProds].sort((a, b) => {
+              const timeB = new Date(b.createdAt || (b as any).createdDate || 0).getTime()
+              const timeA = new Date(a.createdAt || (a as any).createdDate || 0).getTime()
+              if (timeB && timeA && timeB !== timeA) {
+                return timeB - timeA
+              }
+              return b.id - a.id
+            })
+
+            const newest = sorted[0]
+            setLatestProduct(newest)
+
+            try {
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('aschi_latest_available_product', JSON.stringify(newest))
+              }
+            } catch (_) {}
+          } else {
+            try {
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('aschi_latest_available_product')
+              }
+            } catch (_) {}
+            setLatestProduct(DEFAULT_PRODUCT)
           }
         }
       } catch (err) {
-        console.warn('Failed to fetch latest product, using default')
+        console.warn('Failed to fetch latest product, using default:', err)
       }
     }
     loadLatestProduct()
   }, [])
 
-  const image = latestProduct.images?.find(img => img.isPrimary)?.imageUrl || latestProduct.images?.[0]?.imageUrl || '/placeholder.jpg'
-  const isVideo = image.match(/\.(mp4|webm|ogg|mov)$/i)
+  let rawImage = latestProduct.images?.find(img => img.isPrimary)?.imageUrl || latestProduct.images?.[0]?.imageUrl || (latestProduct as any).imageUrl || '/placeholder.jpg'
+  if (rawImage.includes('#color=')) {
+    rawImage = rawImage.split('#color=')[0]
+  }
+  const image = rawImage || '/placeholder.jpg'
+  const isVideo = Boolean(image.match(/\.(mp4|webm|ogg|mov)$/i))
 
   return (
     <div className="relative h-full w-full overflow-hidden flex items-center font-sans bg-transparent py-2 sm:py-4">
@@ -108,13 +141,13 @@ export function HeroSplit() {
                 <span>Acquérir cette pièce</span>
               </button>
               
-              {/* Button: Explore Creations */}
+              {/* Button: Explore Creations or Product */}
               <Link
-                href="/creations"
+                href={latestProduct.id ? `/produits/${latestProduct.id}` : "/creations"}
                 className="group relative inline-flex items-center justify-center gap-2 bg-[#3B271C]/90 text-white px-6 py-3.5 rounded-full text-xs font-semibold uppercase tracking-[0.16em] shadow-md border border-[#E6A635]/35 backdrop-blur-md hover:bg-[#4E3425] hover:text-[#F2BD52] transition-all"
               >
                 <Eye className="size-3.5 text-[#F2BD52]" />
-                <span>Voir la Collection</span>
+                <span>Découvrir la pièce</span>
               </Link>
             </div>
           </motion.div>
@@ -122,9 +155,10 @@ export function HeroSplit() {
 
         {/* Right Side (6.5 Cols): Arched Exhibition Frame with Door Reveal */}
         <div 
-          className="w-full lg:col-span-7 relative h-[45vh] sm:h-[50vh] lg:h-[58vh] max-h-[580px] cursor-pointer group z-10 order-2 flex justify-center lg:justify-end mt-2 lg:mt-0"
+          className="w-full lg:col-span-7 relative h-[45vh] sm:h-[50vh] lg:h-[58vh] max-h-[580px] cursor-pointer group z-10 order-2 flex justify-center lg:justify-end mt-2 lg:mt-0 select-none"
           onMouseEnter={() => setIsUnveiled(true)}
           onMouseLeave={() => setIsUnveiled(false)}
+          onClick={() => setIsUnveiled(prev => !prev)}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -203,10 +237,26 @@ export function HeroSplit() {
                 <div className="bg-[#3B271C]/90 backdrop-blur-md border border-[#E6A635]/60 px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 text-white">
                   <Sparkles className="size-3.5 text-[#E6A635] animate-pulse" />
                   <span className="text-[10.5px] uppercase tracking-[0.2em] font-semibold text-[#F2BD52]">
-                    Survolez pour dévoiler
+                    <span className="inline sm:hidden">Touchez pour dévoiler</span>
+                    <span className="hidden sm:inline">Survolez pour dévoiler</span>
                   </span>
                 </div>
               </div>
+
+              {/* Floating Link Badge when unveiled */}
+              {latestProduct.id ? (
+                <Link
+                  href={`/produits/${latestProduct.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className={cn(
+                    "absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-[#3B271C]/90 backdrop-blur-md border border-[#E6A635]/70 text-[#F2BD52] px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-1.5",
+                    isUnveiled ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                  )}
+                >
+                  <Eye className="size-3.5 text-[#E6A635]" />
+                  <span>Découvrir la pièce</span>
+                </Link>
+              ) : null}
 
             </div>
           </motion.div>

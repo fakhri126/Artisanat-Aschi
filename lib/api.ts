@@ -29,6 +29,8 @@ export interface Product {
   category: Category;
   images: ProductImage[];
   style?: string;
+  createdAt?: string;
+  createdDate?: string;
 }
 
 export interface Project {
@@ -201,10 +203,15 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const fetchOptions: RequestInit = {
     ...options,
     headers,
-  });
+  };
+  if (!fetchOptions.cache && (token || options.method === 'DELETE' || options.method === 'POST' || options.method === 'PUT' || options.method === 'PATCH')) {
+    fetchOptions.cache = 'no-store';
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
 
   if (response.status === 401 || response.status === 403) {
     if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {
@@ -228,9 +235,43 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 }
 
 export function parseProduct(product: Product): Product {
-  if (product && product.images && Array.isArray(product.images)) {
-    product.images = product.images.map(img => {
-      if (img.imageUrl && img.imageUrl.includes('#color=')) {
+  if (!product) return product;
+
+  const anyProd = product as any;
+  if (!product.images || !Array.isArray(product.images) || product.images.length === 0) {
+    if (Array.isArray(anyProd.imageUrls) && anyProd.imageUrls.length > 0) {
+      product.images = anyProd.imageUrls.map((url: string, idx: number) => ({
+        id: idx,
+        imageUrl: url,
+        isPrimary: idx === 0,
+        colorLabel: 'Original',
+      }));
+    } else if (anyProd.imageUrl) {
+      product.images = [{
+        id: 0,
+        imageUrl: anyProd.imageUrl,
+        isPrimary: true,
+        colorLabel: 'Original',
+      }];
+    } else {
+      product.images = [];
+    }
+  }
+
+  if (product.images && Array.isArray(product.images)) {
+    product.images = product.images.map((img: any, idx: number) => {
+      if (typeof img === 'string') {
+        let url = img;
+        let colorLabel: string | null = 'Original';
+        if (url.includes('#color=')) {
+          const [u, colorPart] = url.split('#color=');
+          url = u;
+          colorLabel = decodeURIComponent(colorPart);
+        }
+        return { id: idx, imageUrl: url, isPrimary: idx === 0, colorLabel };
+      }
+
+      if (img && img.imageUrl && img.imageUrl.includes('#color=')) {
         const [url, colorPart] = img.imageUrl.split('#color=');
         return { ...img, imageUrl: url, colorLabel: decodeURIComponent(colorPart) };
       }
@@ -415,7 +456,7 @@ export const adminApi = {
   },
 
   // Categories CRUD
-  getCategories: () => fetchApi<Category[]>('/public/categories'),
+  getCategories: () => fetchApi<Category[]>(`/public/categories?_t=${Date.now()}`, { cache: 'no-store' }),
   createCategory: (data: Omit<Category, 'id'>) => fetchApi<Category>('/admin/categories', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -429,7 +470,7 @@ export const adminApi = {
   }),
 
   // Products CRUD
-  getProducts: () => fetchApi<any>('/public/products').then(res => {
+  getProducts: () => fetchApi<any>(`/public/products?_t=${Date.now()}`, { cache: 'no-store' }).then(res => {
     const items: Product[] = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : []);
     return items.map(parseProduct);
   }),

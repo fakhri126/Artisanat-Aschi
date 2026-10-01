@@ -26,6 +26,7 @@ public class ProductService {
 
     @Autowired private ProductRepository productRepository;
     @Autowired private CategoryRepository categoryRepository;
+    @Autowired private com.artisanataschi.backend.repository.QuoteRequestRepository quoteRequestRepository;
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
@@ -159,7 +160,14 @@ public class ProductService {
     @Transactional
     @CacheEvict(value = {"products", "featuredProducts", "latestProducts"}, allEntries = true)
     public void deleteProduct(Long id) {
-        Product product = getProductById(id);
+        Product product = productRepository.findById(id).orElse(null);
+        if (product == null) {
+            // Already deleted from DB: CacheEvict will ensure no stale cache remains
+            return;
+        }
+        if (quoteRequestRepository != null) {
+            quoteRequestRepository.nullifyProductByProductId(id);
+        }
         productRepository.delete(product);
     }
 }

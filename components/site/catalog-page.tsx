@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Check, ChevronUp, LayoutGrid, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass, Lamp, Folder, Gem, Palette } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, formatImageUrl } from '@/lib/utils'
 import { FadeIn } from '@/components/motion/fade-in'
 import { publicApi, Product, Category, colorsApi, ColorSwatch } from '@/lib/api'
 import Link from 'next/link'
@@ -455,7 +455,8 @@ const CatalogProductCard = ({
     ? model.images[activeImageIndex] 
     : primaryImage
     
-  const image = currentImage?.imageUrl || '/placeholder.png'
+  const image = formatImageUrl(currentImage?.imageUrl, '/placeholder.png')
+  const variantImageUrl = variantImage ? formatImageUrl(variantImage.imageUrl, '/placeholder.png') : image
   const displayColor = isAIVariantDisplayed && variantImage ? variantImage.colorLabel : (hasMultipleImages ? currentImage.colorLabel : model.color)
 
   return (
@@ -486,11 +487,12 @@ const CatalogProductCard = ({
         {isAIVariantDisplayed && variantImage ? (
           <>
             <motion.img
-              src={variantImage.imageUrl}
+              src={variantImageUrl}
               alt={model.name}
               className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-sm"
               animate={{ scale: isHovered ? 1.05 : 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
+              onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
             />
             <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3 z-20 flex items-center gap-1.5 rounded-full bg-[#E6A635]/95 backdrop-blur-md px-2.5 sm:px-3 py-0.5 sm:py-1 shadow-md border border-[#F2BD52]">
               <Bot className="size-2.5 sm:size-3 text-[#1A110B]" />
@@ -509,6 +511,7 @@ const CatalogProductCard = ({
                 animate={{ opacity: 1, scale: isHovered ? 1.05 : 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
+                onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
               />
             </AnimatePresence>
           </>
@@ -650,7 +653,14 @@ const CatalogProductCard = ({
                   : 'border-white/30 opacity-60 hover:opacity-100 shadow-xs'
               }`}
             >
-              <img src={img.imageUrl} alt="" loading="lazy" decoding="async" className="size-full object-cover" />
+              <img
+                src={formatImageUrl(img.imageUrl, '/placeholder.png')}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="size-full object-cover"
+                onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
+              />
             </button>
           ))}
         </div>
@@ -1183,7 +1193,7 @@ export function CatalogPage() {
                 {quickViewProduct.images && quickViewProduct.images[quickViewImageIndex] && (
                   <div 
                     className="absolute inset-0 bg-cover bg-center blur-2xl opacity-35 scale-125"
-                    style={{ backgroundImage: `url(${quickViewProduct.images[quickViewImageIndex]?.imageUrl})` }}
+                    style={{ backgroundImage: `url(${formatImageUrl(quickViewProduct.images[quickViewImageIndex]?.imageUrl)})` }}
                   />
                 )}
 
@@ -1192,13 +1202,14 @@ export function CatalogPage() {
                     <AnimatePresence mode="wait">
                       <motion.img 
                         key={quickViewImageIndex}
-                        src={quickViewProduct.images[quickViewImageIndex]?.imageUrl} 
+                        src={formatImageUrl(quickViewProduct.images[quickViewImageIndex]?.imageUrl, '/placeholder.png')} 
                         alt={quickViewProduct.name}
                         className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-md rounded-xl"
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
                       />
                     </AnimatePresence>
 
@@ -1247,7 +1258,12 @@ export function CatalogPage() {
                                 idx === quickViewImageIndex ? 'border-[#F2BD52] scale-105 ring-2 ring-[#F2BD52]/40 opacity-100' : 'border-white/50 opacity-60 hover:opacity-100'
                               }`}
                             >
-                              <img src={img.imageUrl} alt="" className="size-full object-cover" />
+                              <img
+                                src={formatImageUrl(img.imageUrl, '/placeholder.png')}
+                                alt=""
+                                className="size-full object-cover"
+                                onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
+                              />
                             </button>
                           ))}
                         </div>
@@ -1466,11 +1482,11 @@ export function CatalogPage() {
                 if (dbProducts && dbProducts.length > 0) {
                   if (cat.id === 'Tout') {
                     const heroProd = dbProducts.find(p => p.isFeatured && p.images && p.images.length > 0) || dbProducts.find(p => p.images && p.images.length > 0)
-                    if (heroProd && heroProd.images?.[0]) displayImg = heroProd.images[0].imageUrl
+                    if (heroProd && heroProd.images?.[0]) displayImg = formatImageUrl(heroProd.images[0].imageUrl, '/placeholder.png')
                   } else {
                     const catProd = dbProducts.find(p => p.category?.name?.toLowerCase() === cat.id.toLowerCase() && p.isFeatured && p.images && p.images.length > 0)
                       || dbProducts.find(p => p.category?.name?.toLowerCase() === cat.id.toLowerCase() && p.images && p.images.length > 0)
-                    if (catProd && catProd.images?.[0]) displayImg = catProd.images[0].imageUrl
+                    if (catProd && catProd.images?.[0]) displayImg = formatImageUrl(catProd.images[0].imageUrl, '/placeholder.png')
                   }
                 }
 

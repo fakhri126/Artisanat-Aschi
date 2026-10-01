@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { Reveal } from './reveal'
 import { publicApi, Delivery } from '@/lib/api'
+import { formatImageUrl } from '@/lib/utils'
 import { Truck, MapPin, Calendar, ChevronLeft, ChevronRight, ShieldCheck, Star } from 'lucide-react'
 import Image from 'next/image'
 
@@ -114,7 +115,7 @@ export function WeeklyDelivery() {
                     />
                   ) : isInView ? (
                     <Image
-                      src={currentDelivery.imageUrl || '/images/bg-references.png'}
+                      src={formatImageUrl(currentDelivery.imageUrl, '/images/bg-references.png')}
                       alt={currentDelivery.title}
                       fill
                       sizes="(max-width: 1024px) 100vw, 40vw"

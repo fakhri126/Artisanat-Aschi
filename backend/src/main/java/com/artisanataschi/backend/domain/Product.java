@@ -46,6 +46,7 @@ public class Product {
     private LocalDateTime createdAt;
 
     @Version
+    @Column(name = "version", nullable = false)
     private Long version = 0L;
 
     public Product() {

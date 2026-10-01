@@ -3,10 +3,10 @@
 import { useEffect, useState, use, useMemo, useRef } from 'react'
 import Link from 'next/link';
 import { publicApi, Product, colorsApi, ColorSwatch } from '@/lib/api'
-import { cn } from '@/lib/utils'
+import { cn, formatImageUrl } from '@/lib/utils'
 import { Navbar } from '@/components/site/navbar'
 import { Footer } from '@/components/site/footer'
-import { ArrowLeft, Ruler, Hammer, Sparkles, MessageCircle, AlertCircle, X, ShoppingCart, Bot, Palette, SquareStack, Send, CheckCircle2, Check, ZoomIn, ZoomOut, RotateCcw, Move, Maximize2, ChevronLeft, ChevronRight, User, Mail, Phone, ShieldCheck, Clock, Truck } from 'lucide-react'
+import { ArrowLeft, Ruler, Hammer, Sparkles, MessageCircle, AlertCircle, X, ShoppingCart, Bot, Palette, SquareStack, Layers, SlidersHorizontal, Send, CheckCircle2, Check, ZoomIn, ZoomOut, RotateCcw, Move, Maximize2, ChevronLeft, ChevronRight, User, Mail, Phone, ShieldCheck, Clock, Truck } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -99,6 +99,38 @@ export default function ProductDetailPage({ params }: PageProps) {
     { id: 'custom',   label: 'Sur mesure',             sub: 'Au cm près' },
   ]
 
+  // ── Primary 4 Finishes shown in reference mockup ───────────────────────────
+  const PRIMARY_FINISHES = [
+    {
+      id: 'Original',
+      label: 'Original Atelier',
+      desc: 'Finition de la pièce artisanale',
+      isRainbow: true,
+      hex: null,
+    },
+    {
+      id: 'Blanc',
+      label: 'Blanc Pur',
+      desc: 'Patine blanche lumineuse',
+      isRainbow: false,
+      hex: '#FFFFFF',
+    },
+    {
+      id: 'Noir',
+      label: 'Noir Ébène Ciselé',
+      desc: 'Laque satinée contemporaine',
+      isRainbow: false,
+      hex: '#141414',
+    },
+    {
+      id: 'Noyer',
+      label: 'Noyer Foncé Noble',
+      desc: 'Finition bois précieux ch...',
+      isRainbow: false,
+      hex: '#5C3317',
+    },
+  ]
+
   // ── Configurator state ─────────────────────────────────────────────────────
   const [dynamicPalette, setDynamicPalette] = useState(ATELIER_PALETTE)
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0)
@@ -106,6 +138,8 @@ export default function ProductDetailPage({ params }: PageProps) {
   const [selectedSize, setSelectedSize] = useState({ id: 'original', label: 'Dimensions\noriginales', sub: 'Standard atelier' })
   const [customWidth, setCustomWidth] = useState('')
   const [customHeight, setCustomHeight] = useState('')
+  const [showAllColors, setShowAllColors] = useState(false)
+  const [showCustomSize, setShowCustomSize] = useState(false)
   const hasInitializedFromUrl = useRef(false)
 
   // ── Quote modal state ──────────────────────────────────────────────────────
@@ -147,8 +181,18 @@ export default function ProductDetailPage({ params }: PageProps) {
             })
           ])
         }
-        const allInCategory = await publicApi.getProducts({ category: data.category.name })
-        setSimilarProducts(allInCategory.filter(p => p.id !== productId).slice(0, 3))
+        const allInCategory = await publicApi.getProducts({ category: data.category?.name }).catch(() => [])
+        const inCategoryFiltered = (allInCategory || []).filter((p: Product) => p.id !== productId)
+        if (inCategoryFiltered.length >= 2) {
+          setSimilarProducts(inCategoryFiltered.slice(0, 4))
+        } else {
+          const generalProducts = await publicApi.getProducts({}).catch(() => [])
+          const combined = [
+            ...inCategoryFiltered,
+            ...(generalProducts || []).filter((p: Product) => p.id !== productId && !inCategoryFiltered.some((cp: Product) => cp.id === p.id))
+          ]
+          setSimilarProducts(combined.slice(0, 4))
+        }
       } catch (err: any) {
         setError(err.message || 'Impossible de charger ce produit.')
       } finally {
@@ -360,16 +404,108 @@ export default function ProductDetailPage({ params }: PageProps) {
     }
   }
 
+  // ── Helper: Format Title with Two-Tone Serif (White Prefix + Gold Model) ─────
+  const renderFormattedTitle = () => {
+    if (!product) return null
+    const name = product.name || 'Modèle 15'
+    const cat = product.category?.name || 'Applique'
+
+    if (name.includes('—')) {
+      const [prefix, ...rest] = name.split('—')
+      return (
+        <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-light leading-tight tracking-wide">
+          <span className="text-white">{prefix.trim()} — </span>
+          <span className="text-[#E6BF68]">{rest.join('—').trim()}</span>
+        </h1>
+      )
+    }
+    if (name.includes(' - ')) {
+      const [prefix, ...rest] = name.split(' - ')
+      return (
+        <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-light leading-tight tracking-wide">
+          <span className="text-white">{prefix.trim()} — </span>
+          <span className="text-[#E6BF68]">{rest.join(' - ').trim()}</span>
+        </h1>
+      )
+    }
+    if (!name.toLowerCase().includes(cat.toLowerCase())) {
+      return (
+        <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-light leading-tight tracking-wide">
+          <span className="text-white">{cat} — </span>
+          <span className="text-[#E6BF68]">{name}</span>
+        </h1>
+      )
+    }
+    const parts = name.split(' ')
+    if (parts.length > 1) {
+      const first = parts.slice(0, -1).join(' ')
+      const last = parts[parts.length - 1]
+      return (
+        <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-light leading-tight tracking-wide">
+          <span className="text-white">{first} — </span>
+          <span className="text-[#E6BF68]">{last}</span>
+        </h1>
+      )
+    }
+    return (
+      <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-light leading-tight tracking-wide">
+        <span className="text-[#E6BF68]">{name}</span>
+      </h1>
+    )
+  }
+
+  // ── Helper: Bottom Action Capsule Bar (Identical on Mobile & Web) ────────────
+  const renderActionCapsuleBar = () => (
+    <div className="rounded-full border border-[#D4AF37]/60 bg-[#110D0B]/95 backdrop-blur-xl p-1.5 sm:p-2 flex items-center justify-between gap-2 shadow-[0_10px_35px_rgba(0,0,0,0.8)]">
+      {/* 1. WHATSAPP */}
+      <a
+        href={`https://wa.me/21655743760?text=${encodeURIComponent(
+          `Bonjour Atelier Aschi, je souhaite commander le modèle « ${product?.name} » (${product?.category?.name || "Pièce d'art"}) en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product?.color || 'Standard')}.`
+        )}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 bg-[#057A3D] hover:bg-[#068F47] text-white py-2.5 sm:py-3 px-3 sm:px-4 rounded-full font-extrabold text-[11px] sm:text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+      >
+        <svg className="size-4 sm:size-4.5 fill-white shrink-0" viewBox="0 0 24 24">
+          <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.78 14.15c-.24.68-1.2 1.26-1.68 1.32-.47.06-.92.1-3.08-.8-2.6-1.08-4.29-3.72-4.42-3.89-.13-.17-1.06-1.41-1.06-2.69s.67-1.9 1.01-2.25c.34-.35.74-.44.99-.44.25 0 .5.01.71.02.23.01.53-.09.83.63.3.72 1.03 2.51 1.12 2.69.09.18.15.39.03.63-.12.24-.18.39-.36.6-.18.21-.38.47-.54.63-.18.18-.36.38-.16.73.21.35.92 1.52 1.98 2.46 1.36 1.21 2.5 1.59 2.86 1.76.36.17.57.15.78-.09.21-.24.9-1.05 1.14-1.41.24-.36.48-.3.8-.18.33.12 2.07.98 2.43 1.16.36.18.6.27.69.42.09.15.09.87-.15 1.55z" />
+        </svg>
+        <span>WHATSAPP</span>
+        <ChevronRight className="size-4 text-white shrink-0" />
+      </a>
+
+      {/* 2. PHONE */}
+      <a
+        href="tel:+21655743760"
+        className="size-10 sm:size-11 rounded-full border border-[#D4AF37] bg-[#1A140F] hover:bg-[#D4AF37]/15 text-[#D4AF37] flex items-center justify-center shrink-0 transition-transform active:scale-95 shadow-md cursor-pointer"
+        title="Appeler l'atelier (+216 55 743 760)"
+        aria-label="Appeler l'atelier"
+      >
+        <Phone className="size-4 sm:size-4.5 text-[#D4AF37]" />
+      </a>
+
+      {/* 3. CONTACT */}
+      <button
+        type="button"
+        onClick={openConfigQuote}
+        className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] hover:brightness-105 text-[#1A110B] py-2.5 sm:py-3 px-3 sm:px-4 rounded-full font-extrabold text-[11px] sm:text-xs uppercase tracking-wider transition-all shadow-lg active:scale-95 btn-sheen cursor-pointer"
+      >
+        <Sparkles className="size-3.5 sm:size-4 text-[#1A110B] shrink-0" />
+        <span>CONTACT</span>
+        <ChevronRight className="size-4 text-[#1A110B] shrink-0" />
+      </button>
+    </div>
+  )
+
   return (
     <>
       <Navbar />
-      <main className="bg-secondary pt-16 pb-24 sm:pt-24 sm:pb-28 md:py-32">
+      <main className="bg-[#0E0B09] text-[#E8DCCB] pt-16 pb-28 sm:pt-24 sm:pb-32 md:py-32 min-h-screen">
         <div className="mx-auto max-w-7xl px-4 sm:px-8">
 
           {/* Back button */}
           <Link
             href="/catalogue"
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground hover:text-[#C17D59] transition-colors mb-4 sm:mb-8"
+            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#A89F91] hover:text-[#D4AF37] transition-colors mb-4 sm:mb-8"
           >
             <ArrowLeft className="size-4" /> Retourner au catalogue
           </Link>
@@ -412,23 +548,33 @@ export default function ProductDetailPage({ params }: PageProps) {
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
-                className="relative aspect-[4/5] max-h-[55vh] sm:max-h-none bg-[#2C1E16]/5 border border-[#E8DCCB] overflow-hidden rounded-2xl shadow-xl sm:cursor-crosshair group select-none flex items-center justify-center"
+                className="relative aspect-[4/5] min-h-[360px] sm:min-h-[480px] max-h-[68vh] sm:max-h-[640px] bg-gradient-to-b from-[#1E1712] via-[#140F0C] to-[#0A0705] border-2 border-[#D4AF37]/50 ring-1 ring-[#D4AF37]/25 shadow-[0_25px_60px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(212,175,55,0.35)] overflow-hidden rounded-2xl sm:rounded-3xl sm:cursor-crosshair group select-none flex items-center justify-center p-3 sm:p-5"
               >
-                {/* Ambient Blurred Luxury Backdrop (Eliminates white empty bars seamlessly) */}
+                {/* Ambient Blurred Luxury Backdrop (Warm, rich, seamless fit) */}
                 <div 
-                  className="absolute inset-0 bg-cover bg-center blur-2xl opacity-35 scale-125 pointer-events-none"
-                  style={{ backgroundImage: `url(${activeImage || '/placeholder.png'})` }}
+                  className="absolute inset-0 bg-cover bg-center blur-3xl opacity-40 scale-125 pointer-events-none"
+                  style={{ backgroundImage: `url(${formatImageUrl(activeImage, '/placeholder.png')})` }}
                 />
 
-                {/* 100% COMPLETE PHOTO (Fully visible from top to bottom) */}
+                {/* Subtle Luxury Vignette Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-10" />
+
+                {/* Heritage Atelier Badge */}
+                <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-[#D4AF37]/40 text-[#D4AF37] text-[10px] font-bold uppercase tracking-wider shadow-md pointer-events-none">
+                  <Sparkles className="size-3 text-[#D4AF37]" />
+                  <span>Atelier Aschi • 1960</span>
+                </div>
+
+                {/* 100% COMPLETE PHOTO */}
                 <motion.img
                   key={activeImage}
-                  src={activeImage || '/placeholder.png'}
+                  src={formatImageUrl(activeImage, '/placeholder.png')}
                   alt={product.name}
-                  className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-[1.02]"
+                  className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-[0_20px_45px_rgba(0,0,0,0.85)] transition-transform duration-700 group-hover:scale-[1.03]"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.4 }}
+                  onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
                 />
 
                 {/* --- Interactive Loupe Lens (4x Ultra HD - Desktop Only) --- */}
@@ -440,7 +586,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                     style={{
                       top: lensPos.y - 96,
                       left: lensPos.x - 96,
-                      backgroundImage: `url(${activeImage})`,
+                      backgroundImage: `url(${formatImageUrl(activeImage, '/placeholder.png')})`,
                       backgroundPosition: `${imgPercent.x}% ${imgPercent.y}%`,
                       backgroundSize: '420%',
                     }}
@@ -473,7 +619,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                         setActiveImage(viewsForSelectedVariant[prevIdx].imageUrl)
                       }}
                       onMouseEnter={() => setShowZoomLens(false)}
-                      className="size-8 sm:size-11 bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border border-white/40 hover:scale-110 active:scale-95 group/arrow flex items-center justify-center cursor-pointer"
+                      className="size-8 sm:size-11 bg-[#16110D]/90 hover:bg-[#D4AF37] hover:text-[#1A110B] text-[#D4AF37] rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border border-[#D4AF37]/50 hover:scale-110 active:scale-95 group/arrow flex items-center justify-center cursor-pointer"
                       title="Vue précédente"
                     >
                       <ChevronLeft className="size-4 sm:size-5 transition-transform group-hover/arrow:-translate-x-0.5" />
@@ -488,7 +634,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                         setActiveImage(viewsForSelectedVariant[nextIdx].imageUrl)
                       }}
                       onMouseEnter={() => setShowZoomLens(false)}
-                      className="size-8 sm:size-11 bg-[#3A2A21]/90 hover:bg-[#C17D59] text-white rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border border-white/40 hover:scale-110 active:scale-95 group/arrow flex items-center justify-center cursor-pointer"
+                      className="size-8 sm:size-11 bg-[#16110D]/90 hover:bg-[#D4AF37] hover:text-[#1A110B] text-[#D4AF37] rounded-full backdrop-blur-md transition-all duration-300 pointer-events-auto shadow-2xl border border-[#D4AF37]/50 hover:scale-110 active:scale-95 group/arrow flex items-center justify-center cursor-pointer"
                       title="Vue suivante"
                     >
                       <ChevronRight className="size-4 sm:size-5 transition-transform group-hover/arrow:translate-x-0.5" />
@@ -526,11 +672,16 @@ export default function ProductDetailPage({ params }: PageProps) {
                       key={view.id}
                       onClick={() => setActiveImage(view.imageUrl)}
                       className={`relative size-14 sm:size-20 border rounded-lg sm:rounded-xl overflow-hidden shrink-0 transition-all ${
-                        activeImage === view.imageUrl ? 'border-[#C17D59] ring-2 ring-[#C17D59]/40 opacity-100 scale-105 shadow-md' : 'border-border opacity-60 hover:opacity-100'
+                        activeImage === view.imageUrl ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/50 opacity-100 scale-105 shadow-md' : 'border-white/15 opacity-60 hover:opacity-100'
                       }`}
                       title={`${selectedVariant.label} - Vue ${i + 1}`}
                     >
-                      <img src={view.imageUrl} alt={`${selectedVariant.label} vue ${i + 1}`} className="size-full object-cover" />
+                      <img
+                        src={formatImageUrl(view.imageUrl, '/placeholder.png')}
+                        alt={`${selectedVariant.label} vue ${i + 1}`}
+                        className="size-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
+                      />
                     </button>
                   ))}
                 </div>
@@ -550,136 +701,115 @@ export default function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* ── RIGHT: Info + Configurator ────────────────────────────── */}
-            <div className="flex flex-col text-left gap-5 sm:gap-6">
+            <div className="flex flex-col text-left gap-4 sm:gap-5">
 
-              {/* Product header */}
+              {/* 1. Category Pill Badge */}
               <div>
-                <span className="text-[11px] sm:text-xs uppercase tracking-[0.2em] text-[#C17D59] font-bold">
-                  {product.category?.name}
-                </span>
-                <h1 className="mt-1.5 font-heading text-2xl sm:text-4xl lg:text-5xl font-light text-foreground leading-tight">
-                  {product.name}
-                </h1>
-                <div className="mt-3 flex flex-wrap items-center gap-3 border-y border-border py-3">
-                  <p className="font-mono text-xl sm:text-2xl text-[#C17D59] font-bold">
-                    {product.type !== 'CATALOGUE'
-                      ? (product.price ? `${product.price.toLocaleString('fr-FR')} DT` : 'Prix sur demande')
-                      : 'Prix sur demande'}
+                <div className="inline-flex items-center px-4 py-1 rounded-full border border-[#D4AF37] bg-black/40 text-[#D4AF37] text-xs font-extrabold uppercase tracking-[0.2em] shadow-sm">
+                  {product.category?.name || 'APPLIQUE'}
+                </div>
+              </div>
+
+              {/* 2. Main Title (Two-tone Serif: White Prefix + Gold Model) */}
+              <div>
+                {renderFormattedTitle()}
+              </div>
+
+              {/* 3. Ornamental Divider with Gold Zellij/Floral Motif */}
+              <div className="flex items-center gap-3 my-1">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-[#D4AF37]/30" />
+                <span className="text-[#D4AF37] text-sm leading-none select-none">✤</span>
+                <div className="h-px flex-1 bg-gradient-to-l from-transparent via-[#D4AF37]/50 to-[#D4AF37]/30" />
+              </div>
+
+              {/* 4. Subtitle */}
+              <p className="font-heading italic sm:not-italic text-sm sm:text-base text-[#D8CEBF] font-light leading-relaxed whitespace-pre-line">
+                L&apos;authenticité de l&apos;artisanat tunisien,
+                {"\n"}au service de votre intérieur.
+              </p>
+
+              {/* 5. 4 Circular Icon Specifications Grid */}
+              <div className="grid grid-cols-4 divide-x divide-[#D4AF37]/20 border-y border-[#D4AF37]/20 py-4 my-1 sm:my-2">
+                {/* 1. Dimensions */}
+                <div className="flex flex-col items-center text-center px-1">
+                  <div className="size-10 sm:size-12 rounded-full border border-[#D4AF37]/75 bg-[#1C1611]/80 flex items-center justify-center mb-2 text-[#D4AF37] shadow-sm">
+                    <Ruler className="size-4.5 sm:size-5 text-[#D4AF37] -rotate-45" />
+                  </div>
+                  <p className="text-[10px] sm:text-xs font-bold text-white leading-tight">Dimensions</p>
+                  <p className="text-[8.5px] sm:text-[10.5px] text-[#A89F91] leading-tight mt-1 whitespace-pre-line">
+                    {selectedSize.id === 'custom'
+                      ? `${customWidth || '80'} × ${customHeight || '150'} cm\nSur-mesure`
+                      : (selectedSize.id !== 'original'
+                        ? `${selectedSize.label.replace('\n', ' ')}\n${selectedSize.sub}`
+                        : (product.dimensions || "Moyen (80–150 cm)\nAdaptable sur-mesure"))}
                   </p>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold uppercase tracking-wider ${
-                    product.availability === 'Disponible' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/10' :
-                    product.availability === 'Sur commande' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/10' :
-                    'bg-red-500/10 text-red-500 border border-red-500/10'
-                  }`}>
-                    {product.availability}
-                  </span>
-                </div>
-                <p className="mt-3 font-normal leading-relaxed text-[#4A3728] text-xs sm:text-base text-pretty">
-                  {product.description || "Cette pièce artisanale d'exception est fabriquée à la main dans notre atelier à partir de matériaux nobles. Chaque détail de sculpture et d'assemblage est façonné avec passion."}
-                </p>
-              </div>
-
-              {/* ═══ PRO BESPOKE ATELIER BANNER (CLEAR CUSTOM COLOR REALIZATION) ═══ */}
-              <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#241812] via-[#3B271C] to-[#241812] border-2 border-[#E6A635]/60 p-4 sm:p-6 shadow-xl relative overflow-hidden">
-                <div className="flex items-start gap-3 sm:gap-4">
-                  <div className="size-10 sm:size-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-[#E6A635] via-[#F2BD52] to-[#C78318] flex items-center justify-center text-[#1A110B] shrink-0 shadow-lg">
-                    <Palette className="size-5 sm:size-6" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#E6A635]/25 border border-[#E6A635]/50 text-[#F2BD52] text-[9.5px] sm:text-[11px] font-extrabold uppercase tracking-widest mb-1.5 sm:mb-2">
-                      <Sparkles className="size-3 sm:size-3.5" /> Confection Sur-Mesure en Atelier
-                    </div>
-                    <h3 className="text-sm sm:text-lg font-heading font-semibold text-[#FAF7F2] leading-snug">
-                      Vous aimez ce modèle ? Choisissez la couleur de vos rêves !
-                    </h3>
-                    <p className="mt-1 text-[11.5px] sm:text-sm text-[#EAE4D9]/90 font-light leading-relaxed">
-                      Même si ce meuble est présenté ici en <strong className="text-[#FAF7F2] font-semibold">{product.color || 'cette teinte'}</strong>, nos maîtres artisans peuvent le réaliser et le patiner pour vous en <span className="text-[#F2BD52] font-semibold">Bleu Majorelle, Noyer noble, Vert Olivier, Noir profond, Patine Or</span> ou selon vos dimensions exactes, <strong>même si la photo n&apos;existe pas encore au catalogue !</strong>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* ═══ PRO TECHNICAL SPECIFICATIONS & CRAFTSMANSHIP GRID ═══ */}
-              <div className="space-y-2.5 sm:space-y-3.5">
-                <div className="flex items-center justify-between border-b border-[#D8C7B4] pb-2">
-                  <span className="text-xs uppercase tracking-[0.2em] text-[#A26235] font-extrabold flex items-center gap-2">
-                    <Hammer className="size-4" /> Caractéristiques &amp; Savoir-Faire d&apos;Atelier
-                  </span>
-                  <span className="text-[10px] text-[#2C1E16] bg-[#E8DCCB] px-2.5 py-0.5 rounded-full uppercase tracking-widest font-extrabold border border-[#D8C7B4]">100% Fait Main</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  {/* 1. Dimensions */}
-                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
-                    <Ruler className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Dimensions</p>
-                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">{product.dimensions || 'Sur mesure'}</p>
-                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Adaptable sur-mesure</p>
-                    </div>
+                {/* 2. Matériaux nobles */}
+                <div className="flex flex-col items-center text-center px-1">
+                  <div className="size-10 sm:size-12 rounded-full border border-[#D4AF37]/75 bg-[#1C1611]/80 flex items-center justify-center mb-2 text-[#D4AF37] shadow-sm">
+                    <Layers className="size-4.5 sm:size-5 text-[#D4AF37]" />
                   </div>
+                  <p className="text-[10px] sm:text-xs font-bold text-white leading-tight">Matériaux nobles</p>
+                  <p className="text-[8.5px] sm:text-[10.5px] text-[#A89F91] leading-tight mt-1 whitespace-pre-line">
+                    {product.materials || "Noyer massif &\nCéramique"}
+                  </p>
+                </div>
 
-                  {/* 2. Matériaux */}
-                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
-                    <Hammer className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Matériaux Nobles</p>
-                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">{product.materials || 'Bois noble massif'}</p>
-                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Sélectionné &amp; stabilisé</p>
-                    </div>
+                {/* 3. Finition & patine */}
+                <div className="flex flex-col items-center text-center px-1">
+                  <div className="size-10 sm:size-12 rounded-full border border-[#D4AF37]/75 bg-[#1C1611]/80 flex items-center justify-center mb-2 text-[#D4AF37] shadow-sm">
+                    <Palette className="size-4.5 sm:size-5 text-[#D4AF37]" />
                   </div>
+                  <p className="text-[10px] sm:text-xs font-bold text-white leading-tight">Finition &amp; patine</p>
+                  <p className="text-[8.5px] sm:text-[10.5px] text-[#A89F91] leading-tight mt-1 whitespace-pre-line">
+                    {selectedCustomColor !== 'Original'
+                      ? `${selectedCustomColor}\nVernis satiné protecteur`
+                      : (product.color ? `${product.color}\nVernis satiné protecteur` : "Naturel\nVernis satiné protecteur")}
+                  </p>
+                </div>
 
-                  {/* 3. Teinte & Finition */}
-                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
-                    <Palette className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Finition &amp; Patine</p>
-                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">
-                        {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Au choix')}
-                      </p>
-                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Vernis satiné protecteur</p>
-                    </div>
+                {/* 4. Délai */}
+                <div className="flex flex-col items-center text-center px-1">
+                  <div className="size-10 sm:size-12 rounded-full border border-[#D4AF37]/75 bg-[#1C1611]/80 flex items-center justify-center mb-2 text-[#D4AF37] shadow-sm">
+                    <Clock className="size-4.5 sm:size-5 text-[#D4AF37]" />
                   </div>
-
-                  {/* 4. Délais & Livraison */}
-                  <div className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white border border-[#D8C7B4] flex items-start gap-2 sm:gap-3 shadow-xs">
-                    <Sparkles className="size-4 sm:size-4.5 text-[#A26235] shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <p className="text-[9.5px] sm:text-[10.5px] uppercase font-extrabold text-[#A26235] tracking-wider truncate">Délai</p>
-                      <p className="text-xs sm:text-sm font-bold text-[#2C1E16] mt-0.5 truncate">2 à 3 semaines</p>
-                      <p className="text-[10px] sm:text-[11px] font-semibold text-[#5C4535] mt-0.5 line-clamp-1">Livraison toute Tunisie</p>
-                    </div>
-                  </div>
+                  <p className="text-[10px] sm:text-xs font-bold text-white leading-tight">Délai</p>
+                  <p className="text-[8.5px] sm:text-[10.5px] text-[#A89F91] leading-tight mt-1 whitespace-pre-line">
+                    2 à 3 semaines{"\n"}Livraison toute Tunisie
+                  </p>
                 </div>
               </div>
 
-              {/* ═══ CONFIGURATOR: INTERACTIVE ATELIER PALETTE & DIMENSIONS ═══ */}
-              <div className="rounded-2xl sm:rounded-3xl border-2 border-[#D8C7B4] bg-[#FAF8F5] p-4 sm:p-7 space-y-4 sm:space-y-6 shadow-md">
+              {/* 6. CONFIGURATEUR & NUANCIER CARD */}
+              <div className="rounded-2xl sm:rounded-3xl bg-[#14100D]/95 border border-[#D4AF37]/40 p-4 sm:p-6 shadow-2xl space-y-4">
+                {/* Header inside card */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Palette className="size-4 sm:size-5 text-[#A26235]" />
-                    <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#2C1E16]">
-                      Configurateur &amp; Nuancier
+                    <SlidersHorizontal className="size-4 sm:size-4.5 text-[#D4AF37]" />
+                    <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-[0.18em] text-[#D4AF37]">
+                      CONFIGURATEUR &amp; NUANCIER
                     </h2>
                   </div>
-                  <span className="text-[10px] sm:text-[11px] font-bold text-[#F2BD52] bg-[#241812] px-2.5 sm:px-3.5 py-0.5 sm:py-1 rounded-full border border-[#E6A635]/50 shadow-xs">
-                    Sur-mesure
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowCustomSize(prev => !prev)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#D4AF37]/70 bg-[#1D1610] hover:bg-[#D4AF37]/15 text-[#D4AF37] text-[10.5px] sm:text-[11px] font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                  >
+                    <Sparkles className="size-3 text-[#D4AF37]" />
+                    <span>Sur-mesure</span>
+                  </button>
                 </div>
 
-                {/* ── 1. NUANCIER DES COULEURS D'ATELIER (TOUJOURS DISPONIBLE) ── */}
+                {/* 1. Finition / Couleur */}
                 <div>
-                  <div className="flex items-center justify-between mb-2.5">
-                    <p className="text-[11px] sm:text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold">
-                      1. Finition / Couleur souhaitée :
-                    </p>
-                    <span className="text-[11px] sm:text-xs font-extrabold text-[#2C1E16] bg-[#E8DCCB] px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-lg border border-[#D8C7B4]">
-                      {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Original')}
-                    </span>
-                  </div>
+                  <p className="text-[11px] sm:text-xs uppercase tracking-wider text-[#FAF7F2] font-bold mb-2.5">
+                    1. FINITION / COULEUR SOUHAITÉE :
+                  </p>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
-                    {dynamicPalette.map((c) => {
+                  {/* 2x2 Grid of Finishes matching photo */}
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                    {PRIMARY_FINISHES.map((c) => {
                       const isSelected = selectedCustomColor === c.id || (selectedCustomColor === 'Original' && c.id === 'Original')
                       return (
                         <button
@@ -691,8 +821,8 @@ export default function ProductDetailPage({ params }: PageProps) {
                               setSelectedVariantIdx(0)
                               setActiveImage(product.images?.[0]?.imageUrl || '/placeholder.png')
                             } else {
-                              const matchingVariantIdx = colorVariants.findIndex(v => 
-                                v.label.toLowerCase().includes(c.id.toLowerCase()) || 
+                              const matchingVariantIdx = colorVariants.findIndex(v =>
+                                v.label.toLowerCase().includes(c.id.toLowerCase()) ||
                                 c.id.toLowerCase().includes(v.label.toLowerCase())
                               )
                               if (matchingVariantIdx !== -1) {
@@ -704,201 +834,188 @@ export default function ProductDetailPage({ params }: PageProps) {
                             }
                           }}
                           className={cn(
-                            'flex items-center gap-2 p-2 sm:p-3 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
+                            'flex items-center justify-between gap-2 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border transition-all duration-200 cursor-pointer text-left',
                             isSelected
-                              ? 'border-[#E6A635] bg-[#241812] text-[#FAF7F2] ring-2 ring-[#E6A635]/60 shadow-md'
-                              : 'border-[#D8C7B4] bg-white hover:bg-[#FAF7F2] hover:border-[#A26235] text-[#2C1E16]'
+                              ? 'border-2 border-[#D4AF37] bg-[#221B14] ring-1 ring-[#D4AF37]/40 shadow-[0_0_15px_rgba(212,175,55,0.15)] text-white'
+                              : 'border border-white/10 bg-[#1A1613] hover:border-[#D4AF37]/40 text-[#E8DCCB]'
                           )}
                         >
-                          <div
-                            className={cn(
-                              'size-4 sm:size-5 rounded-full border-2 shrink-0 transition-transform shadow-xs',
-                              isSelected ? 'scale-110 border-white ring-2 ring-[#E6A635]' : (c.hex === '#FFFFFF' ? 'border-stone-400 bg-white' : 'border-stone-300')
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            {c.isRainbow ? (
+                              <div
+                                className="size-5 sm:size-6 rounded-full border-2 border-white shrink-0 shadow-xs"
+                                style={{ background: 'conic-gradient(red, yellow, green, cyan, blue, magenta, red)' }}
+                              />
+                            ) : (
+                              <div
+                                className="size-5 sm:size-6 rounded-full border shrink-0 shadow-xs"
+                                style={{
+                                  backgroundColor: c.hex || '#FFFFFF',
+                                  borderColor: c.hex === '#FFFFFF' ? '#A8A29E' : '#57534E',
+                                }}
+                              />
                             )}
-                            style={c.hex ? { backgroundColor: c.hex } : { background: 'conic-gradient(red, yellow, green, cyan, blue, magenta, red)' }}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className={cn(
-                              'text-[11px] sm:text-xs font-extrabold truncate leading-tight',
-                              isSelected ? 'text-[#F2BD52]' : 'text-[#2C1E16]'
-                            )}>
-                              {c.label}
-                            </p>
-                            <p className={cn(
-                              'text-[9.5px] sm:text-[10.5px] truncate mt-0.5',
-                              isSelected ? 'text-[#FAF7F2] font-medium' : 'text-[#5C4535] font-semibold'
-                            )}>
-                              {c.desc}
-                            </p>
+                            <div className="min-w-0">
+                              <p className={cn('text-xs font-bold truncate leading-tight', isSelected ? 'text-white' : 'text-[#FAF7F2]')}>
+                                {c.label}
+                              </p>
+                              <p className="text-[10px] text-[#A89F91] truncate leading-tight mt-0.5">
+                                {c.desc}
+                              </p>
+                            </div>
                           </div>
-                          {isSelected && <Check className="size-3.5 sm:size-4 text-[#F2BD52] shrink-0" />}
+                          {isSelected && (
+                            <Check className="size-4 sm:size-5 text-[#D4AF37] shrink-0" />
+                          )}
                         </button>
                       )
                     })}
                   </div>
 
-                  {/* Dynamic Reassurance Alert for Custom Colors */}
-                  {selectedCustomColor !== 'Original' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#241812] border-2 border-[#E6A635]/50 text-xs text-[#FAF7F2] flex items-start gap-2.5 sm:gap-3 shadow-md"
-                    >
-                      <Sparkles className="size-4 text-[#F2BD52] shrink-0 mt-0.5" />
-                      <p className="text-[11.5px] sm:text-xs leading-relaxed text-[#FAF7F2]">
-                        <strong className="text-[#F2BD52] font-bold">Fabrication personnalisée :</strong> Ce meuble sera confectionné pour vous dans la finition <strong className="text-[#F2BD52] font-bold">&laquo; {selectedCustomColor} &raquo;</strong> par nos ébénistes. Même si la photo actuelle présente une autre teinte, nous appliquerons votre patine sur-mesure !
-                      </p>
-                    </motion.div>
+                  {/* Optional extra finishes expander */}
+                  {dynamicPalette.filter(p => !PRIMARY_FINISHES.some(pf => pf.id === p.id)).length > 0 && (
+                    <div className="mt-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setShowAllColors(prev => !prev)}
+                        className="text-[10.5px] text-[#D4AF37] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                      >
+                        <span>{showAllColors ? 'Masquer les autres teintes' : '+ Voir d’autres finitions d’atelier (Bleu, Vert, Or...)'}</span>
+                      </button>
+
+                      <AnimatePresence>
+                        {showAllColors && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-[#D4AF37]/20"
+                          >
+                            {dynamicPalette.filter(p => !PRIMARY_FINISHES.some(pf => pf.id === p.id)).map((c) => {
+                              const isSelected = selectedCustomColor === c.id
+                              return (
+                                <button
+                                  key={c.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedCustomColor(c.id)
+                                    const matchingVariantIdx = colorVariants.findIndex(v =>
+                                      v.label.toLowerCase().includes(c.id.toLowerCase()) ||
+                                      c.id.toLowerCase().includes(v.label.toLowerCase())
+                                    )
+                                    if (matchingVariantIdx !== -1) {
+                                      setSelectedVariantIdx(matchingVariantIdx)
+                                      setActiveImage(colorVariants[matchingVariantIdx].imageUrl)
+                                    }
+                                  }}
+                                  className={cn(
+                                    'flex items-center justify-between gap-2 p-2 rounded-xl border text-left cursor-pointer transition-all',
+                                    isSelected
+                                      ? 'border-2 border-[#D4AF37] bg-[#221B14] text-white shadow-xs'
+                                      : 'border border-white/10 bg-[#1A1613] hover:border-[#D4AF37]/40 text-[#E8DCCB]'
+                                  )}
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <div
+                                      className="size-4.5 rounded-full border border-stone-600 shrink-0 shadow-xs"
+                                      style={{ backgroundColor: c.hex || '#C9A84C' }}
+                                    />
+                                    <div className="min-w-0">
+                                      <p className="text-[11px] font-bold text-white truncate">{c.label}</p>
+                                      <p className="text-[9.5px] text-[#A89F91] truncate">{c.desc}</p>
+                                    </div>
+                                  </div>
+                                  {isSelected && <Check className="size-3.5 text-[#D4AF37] shrink-0" />}
+                                </button>
+                              )
+                            })}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   )}
                 </div>
 
-                {/* ── 2. DIMENSIONS ── */}
-                <div>
-                  <p className="text-[11px] sm:text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold mb-2.5">
-                    2. Dimensions souhaitées :
-                  </p>
-                  <div className="flex flex-wrap gap-2 sm:gap-2.5">
-                    {SIZES.map((s) => {
-                      const isSizeSelected = selectedSize.id === s.id
-                      return (
-                        <button
-                          key={s.id}
-                          type="button"
-                          onClick={() => handleSelectSize(s)}
-                          className={cn(
-                            'flex flex-col items-center px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border-2 text-xs transition-all duration-200 cursor-pointer shadow-xs active:scale-95',
-                            isSizeSelected
-                              ? 'border-[#E6A635] bg-[#241812] text-[#F2BD52] ring-2 ring-[#E6A635]/60 shadow-md font-bold'
-                              : 'border-[#D8C7B4] bg-white hover:bg-[#FAF7F2] hover:border-[#A26235] text-[#2C1E16]'
-                          )}
-                        >
-                          <span className={cn(
-                            'font-extrabold whitespace-pre-line text-center leading-tight',
-                            isSizeSelected ? 'text-[#F2BD52]' : 'text-[#2C1E16]'
-                          )}>
-                            {s.label}
-                          </span>
-                          {s.sub && (
-                            <span className={cn(
-                              'text-[10px] mt-0.5',
-                              isSizeSelected ? 'text-[#FAF7F2] font-medium' : 'text-[#5C4535] font-semibold'
-                            )}>
-                              {s.sub}
-                            </span>
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
-
-                  {/* Custom dimension inputs */}
-                  <AnimatePresence>
-                    {selectedSize.id === 'custom' && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="mt-3 grid grid-cols-2 gap-3 overflow-hidden"
-                      >
-                        <div>
-                          <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-bold mb-1.5 block">Largeur (cm)</label>
-                          <input
-                            type="number"
-                            min="1"
-                            placeholder="Ex: 180"
-                            value={customWidth}
-                            onChange={e => setCustomWidth(e.target.value)}
-                            className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] rounded-xl p-2.5 text-sm font-bold text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-bold mb-1.5 block">Hauteur (cm)</label>
-                          <input
-                            type="number"
-                            min="1"
-                            placeholder="Ex: 90"
-                            value={customHeight}
-                            onChange={e => setCustomHeight(e.target.value)}
-                            className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] rounded-xl p-2.5 text-sm font-bold text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs"
-                          />
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Live config recap */}
+                {/* 2. Dimensions & Sur-mesure Accordion */}
                 <AnimatePresence>
-                  {(selectedCustomColor !== 'Original' || selectedSize.id !== 'original') && (
+                  {(showCustomSize || selectedSize.id !== 'original') && (
                     <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      className="rounded-2xl bg-[#241812] border-2 border-[#E6A635]/50 p-4 space-y-2.5 text-[#FAF7F2] shadow-md"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="pt-2 border-t border-[#D4AF37]/20 space-y-3"
                     >
-                      <div className="flex items-center gap-2 mb-1">
-                        <SquareStack className="size-4.5 text-[#F2BD52]" />
-                        <p className="text-xs font-bold uppercase tracking-widest text-[#F2BD52]">Votre Configuration Sur-Mesure</p>
+                      <p className="text-[11px] sm:text-xs uppercase tracking-wider text-[#FAF7F2] font-bold">
+                        2. DIMENSIONS SOUHAITÉES :
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {SIZES.map((s) => {
+                          const isSizeSelected = selectedSize.id === s.id
+                          return (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => handleSelectSize(s)}
+                              className={cn(
+                                'flex flex-col items-center px-3 py-1.5 rounded-xl border text-xs transition-all cursor-pointer',
+                                isSizeSelected
+                                  ? 'border-2 border-[#D4AF37] bg-[#221B14] text-[#F2BD52] font-bold shadow-xs'
+                                  : 'border border-white/10 bg-[#1A1613] hover:border-[#D4AF37]/40 text-[#E8DCCB]'
+                              )}
+                            >
+                              <span className="font-bold leading-tight">{s.label.replace('\n', ' ')}</span>
+                              {s.sub && <span className="text-[9.5px] text-[#A89F91] mt-0.5">{s.sub}</span>}
+                            </button>
+                          )
+                        })}
                       </div>
-                      <div className="space-y-1.5 text-xs sm:text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-[#D8C7B4] font-medium">Modèle :</span>
-                          <span className="text-white font-bold">{product.name}</span>
+
+                      {selectedSize.id === 'custom' && (
+                        <div className="grid grid-cols-2 gap-2.5 pt-1">
+                          <div>
+                            <label className="text-[10.5px] uppercase font-bold text-[#FAF7F2] block mb-1">Largeur (cm)</label>
+                            <input
+                              type="number"
+                              min="1"
+                              placeholder="Ex: 120"
+                              value={customWidth}
+                              onChange={e => setCustomWidth(e.target.value)}
+                              className="w-full bg-[#1A1613] border border-[#D4AF37]/40 focus:border-[#D4AF37] rounded-xl p-2 text-xs font-bold text-white placeholder:text-stone-500 outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10.5px] uppercase font-bold text-[#FAF7F2] block mb-1">Hauteur (cm)</label>
+                            <input
+                              type="number"
+                              min="1"
+                              placeholder="Ex: 80"
+                              value={customHeight}
+                              onChange={e => setCustomHeight(e.target.value)}
+                              className="w-full bg-[#1A1613] border border-[#D4AF37]/40 focus:border-[#D4AF37] rounded-xl p-2 text-xs font-bold text-white placeholder:text-stone-500 outline-none"
+                            />
+                          </div>
                         </div>
-                        {selectedCustomColor !== 'Original' && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-[#D8C7B4] font-medium">Finition choisie :</span>
-                            <span className="font-bold text-[#F2BD52] flex items-center gap-1.5">
-                              <span className="size-2.5 rounded-full inline-block bg-[#F2BD52]" />
-                              {selectedCustomColor}
-                            </span>
-                          </div>
-                        )}
-                        {selectedSize.id !== 'original' && (
-                          <div className="flex justify-between">
-                            <span className="text-[#D8C7B4] font-medium">Dimensions :</span>
-                            <span className="font-bold text-[#F2BD52]">
-                              {selectedSize.id === 'custom'
-                                ? `${customWidth || '?'} × ${customHeight || '?'} cm`
-                                : `${selectedSize.label} (${selectedSize.sub})`}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
 
-              {/* ═══ ACTION BUTTONS ═══ */}
-              <div className="flex flex-col gap-3 pt-1">
+              {/* 7. Action Capsule Bar for Desktop (Web) */}
+              <div className="hidden sm:block pt-1">
+                {renderActionCapsuleBar()}
+              </div>
+
+              {/* 8. Additional Actions (Cart + Reset) */}
+              <div className="flex flex-col gap-2 pt-1">
                 {product.type !== 'CATALOGUE' && (
                   <button
                     onClick={() => addToCart(product)}
-                    className="w-full flex items-center justify-center gap-2 rounded-full bg-[#E8DCCB] hover:bg-[#E8DCCB]/95 py-4 text-xs font-bold uppercase tracking-[0.16em] text-walnut transition-all shadow-md cursor-pointer active:scale-98"
+                    className="w-full flex items-center justify-center gap-2 rounded-full border border-[#D4AF37]/40 bg-[#1A1410] hover:bg-[#241C15] py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#E8DCCB] transition-all shadow-md cursor-pointer active:scale-98"
                   >
-                    <ShoppingCart className="size-4" /> Ajouter au panier
+                    <ShoppingCart className="size-4 text-[#D4AF37]" /> Ajouter au panier
                   </button>
                 )}
-
-                <button
-                  onClick={openConfigQuote}
-                  className="btn-sheen w-full flex items-center justify-center gap-2 rounded-full py-4 text-xs font-bold uppercase tracking-wider transition-all shadow-xl bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] cursor-pointer hover:scale-[1.01] active:scale-98"
-                >
-                  <MessageCircle className="size-4 text-[#1A110B]" />
-                  {selectedCustomColor !== 'Original'
-                    ? `Commander ce modèle en ${selectedCustomColor}`
-                    : `Commander ce modèle`}
-                </button>
-
-                <a
-                  href={`https://wa.me/21698338166?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite des informations pour commander le modèle « ${product.name} » en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Standard')}.`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 rounded-full border border-[#25D366]/50 bg-[#25D366]/15 hover:bg-[#25D366]/25 py-3.5 text-xs font-bold uppercase tracking-wider text-[#25D366] transition-all cursor-pointer"
-                >
-                  <MessageCircle className="size-4" /> Discuter directement sur WhatsApp
-                </a>
 
                 {(selectedCustomColor !== 'Original' || selectedSize.id !== 'original') && (
                   <button
@@ -908,7 +1025,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                       setSelectedSize(SIZES[0])
                       setActiveImage(product.images?.[0]?.imageUrl || '') 
                     }}
-                    className="text-xs text-muted-foreground hover:text-[#C17D59] transition-colors text-center underline underline-offset-4 cursor-pointer mt-1"
+                    className="text-xs text-[#A89F91] hover:text-[#D4AF37] transition-colors text-center underline underline-offset-4 cursor-pointer mt-1"
                   >
                     Réinitialiser la personnalisation
                   </button>
@@ -917,62 +1034,70 @@ export default function ProductDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Similar Products */}
+          {/* Similar Products Section */}
           {similarProducts.length > 0 && (
-            <section className="mt-24 border-t border-border pt-16 text-left">
-              <h3 className="font-heading text-3xl font-light text-foreground mb-8">Créations similaires</h3>
-              <div className="grid gap-6 sm:grid-cols-3">
-                {similarProducts.map((p) => (
-                  <Link key={p.id} href={`/produits/${p.id}`} className="group block space-y-3">
-                    <div className="aspect-[4/5] overflow-hidden rounded-xl bg-zinc-900 border border-border">
-                      <img
-                        src={p.images[0]?.imageUrl || '/placeholder.png'}
-                        alt={p.name}
-                        className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="flex justify-between items-baseline">
-                      <h4 className="font-heading text-lg font-medium text-foreground group-hover:text-[#C17D59] transition-colors">{p.name}</h4>
-                      <span className="text-xs uppercase tracking-wider text-[#C17D59]">{p.category?.name}</span>
-                    </div>
-                  </Link>
-                ))}
+            <section className="mt-16 sm:mt-24 border-t border-[#D4AF37]/25 pt-12 sm:pt-16 text-left">
+              {/* Header with clear explanation for the client */}
+              <div className="max-w-2xl mb-6 sm:mb-8 space-y-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#D4AF37]/50 bg-[#1A1410] text-[#D4AF37] text-[10.5px] font-extrabold uppercase tracking-widest shadow-xs">
+                  <Sparkles className="size-3 text-[#D4AF37]" />
+                  <span>Dans le même esprit d&apos;atelier</span>
+                </div>
+                <h3 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-tight">
+                  Produits Similaires &amp; Suggestions
+                </h3>
+                <p className="text-xs sm:text-sm text-[#C5B8A5] font-light leading-relaxed">
+                  Ces créations partagent le même savoir-faire d&apos;ébénisterie d&apos;art et les mêmes patines nobles. Tout comme ce modèle, chacune peut être sculptée et personnalisée sur-mesure aux dimensions et finitions de votre choix.
+                </p>
+              </div>
+
+              {/* 2 Photos side-by-side grid (Deux photos l'une près de l'autre), compact optimized cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5">
+                {similarProducts.slice(0, 4).map((p) => {
+                  const pImage = p.images?.[0]?.imageUrl || '/placeholder.png'
+                  return (
+                    <Link
+                      key={p.id}
+                      href={`/produits/${p.id}`}
+                      className="group relative rounded-xl sm:rounded-2xl bg-[#14100D] border border-[#D4AF37]/25 hover:border-[#D4AF37]/75 p-2 sm:p-2.5 transition-all duration-300 shadow-lg hover:shadow-[0_8px_25px_rgba(212,175,55,0.15)] flex flex-col justify-between hover:-translate-y-0.5"
+                    >
+                      {/* Compact Image Container */}
+                      <div className="relative aspect-[4/5] sm:aspect-square w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#0E0B09] border border-white/5">
+                        <img
+                          src={pImage}
+                          alt={p.name}
+                          className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span className="absolute top-1.5 left-1.5 z-10 px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-xs text-[8.5px] sm:text-[9.5px] font-bold text-[#D4AF37] uppercase tracking-wider border border-[#D4AF37]/30">
+                          {p.category?.name || 'Atelier'}
+                        </span>
+                      </div>
+
+                      {/* Compact Details */}
+                      <div className="pt-2 px-0.5">
+                        <h4 className="font-heading text-xs sm:text-sm font-semibold text-white group-hover:text-[#F2BD52] transition-colors truncate">
+                          {p.name}
+                        </h4>
+                        <div className="flex items-center justify-between mt-1 text-[10px] sm:text-[11px]">
+                          <span className="text-[#A89F91] truncate">{p.dimensions || 'Sur mesure'}</span>
+                          <span className="font-mono font-bold text-[#F2BD52] shrink-0">
+                            {p.price ? `${p.price} DT` : 'Sur devis'}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
             </section>
           )}
         </div>
       </main>
 
-      {/* ═══ MOBILE FLOATING STICKY ACTION BAR ═══ */}
-      <div className="fixed bottom-0 inset-x-0 z-40 bg-[#241812]/95 backdrop-blur-md border-t border-[#E6A635]/35 px-4 py-2.5 sm:hidden flex items-center justify-between gap-3 shadow-[0_-8px_25px_rgba(0,0,0,0.6)]">
-        <div className="min-w-0 flex-1">
-          <p className="text-[10px] uppercase tracking-wider font-extrabold text-[#F2BD52] truncate">
-            {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Sur-mesure')}
-          </p>
-          <p className="font-mono text-sm font-bold text-white truncate">
-            {product.type !== 'CATALOGUE'
-              ? (product.price ? `${product.price.toLocaleString('fr-FR')} DT` : 'Prix sur demande')
-              : 'Prix sur demande'}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <a
-            href={`https://wa.me/21698338166?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite des informations pour commander le modèle « ${product.name} » en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Standard')}.`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Contacter sur WhatsApp"
-            className="size-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-md active:scale-95 transition-transform"
-          >
-            <MessageCircle className="size-5 text-white" />
-          </a>
-          <button
-            type="button"
-            onClick={openConfigQuote}
-            className="btn-sheen px-4 py-2.5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] font-extrabold text-xs uppercase tracking-wider shadow-lg flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer"
-          >
-            <span>Commander</span>
-          </button>
-        </div>
+      {/* ═══ MOBILE FLOATING STICKY ACTION BAR (MATCHING REFERENCE DESIGN) ═══ */}
+      <div className="fixed bottom-3 inset-x-3 z-40 max-w-md mx-auto sm:hidden">
+        {renderActionCapsuleBar()}
       </div>
 
       {/* ═══ QUOTE MODAL (pre-filled, chic & luxury atelier design) ═══ */}
@@ -983,26 +1108,26 @@ export default function ProductDetailPage({ params }: PageProps) {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.94, opacity: 0, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="bg-[#FDFBF7] border-2 border-[#D8C7B4] w-full max-w-xl rounded-2xl sm:rounded-[28px] overflow-hidden shadow-[0_30px_70px_-15px_rgba(26,17,11,0.4)] flex flex-col max-h-[92vh] text-[#2C1E16] my-auto"
+            className="bg-[#18130F] border-2 border-[#D4AF37]/50 w-full max-w-xl rounded-2xl sm:rounded-[28px] overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,0.8)] flex flex-col max-h-[92vh] text-[#FAF7F2] my-auto"
           >
             {/* Modal Header */}
-            <header className="px-4 py-4 sm:px-6 sm:py-5 border-b-2 border-[#E8DCCB] bg-gradient-to-b from-white via-white to-[#FAF7F2]">
+            <header className="px-4 py-4 sm:px-6 sm:py-5 border-b border-[#D4AF37]/25 bg-gradient-to-b from-[#241C15] via-[#201812] to-[#18130E]">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6A635]/15 border border-[#E6A635]/40 text-[#8F562B] text-[10.5px] font-extrabold uppercase tracking-widest mb-1.5 shadow-xs">
-                    <Sparkles className="size-3.5 text-[#C17D59]" /> Atelier Sur-Mesure • Pièce d&apos;Art
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6A635]/15 border border-[#E6A635]/40 text-[#F2BD52] text-[10.5px] font-extrabold uppercase tracking-widest mb-1.5 shadow-xs">
+                    <Sparkles className="size-3.5 text-[#F2BD52]" /> Atelier Sur-Mesure • Pièce d&apos;Art
                   </div>
-                  <h2 className="font-heading text-2xl sm:text-3xl font-bold text-[#2C1E16] tracking-tight">
+                  <h2 className="font-heading text-2xl sm:text-3xl font-bold text-white tracking-tight">
                     {isCustomized ? 'Votre Commande Personnalisée' : 'Demande de Confection d\'Atelier'}
                   </h2>
-                  <p className="text-xs text-[#7A6250] font-medium mt-0.5">
+                  <p className="text-xs text-[#C5B8A5] font-medium mt-0.5">
                     Confection artisanale sur-mesure par les maîtres ébénistes d&apos;Atelier Aschi
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="size-9 rounded-full bg-stone-100 hover:bg-[#241812] text-[#5C4535] hover:text-[#F2BD52] flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0 mt-1"
+                  className="size-9 rounded-full bg-[#241812] hover:bg-[#332219] text-[#C5B8A5] hover:text-[#F2BD52] border border-[#D4AF37]/30 flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0 mt-1"
                   title="Fermer"
                 >
                   <X className="size-5" />
@@ -1010,16 +1135,16 @@ export default function ProductDetailPage({ params }: PageProps) {
               </div>
 
               {/* Product Showcase Card */}
-              <div className="mt-4 p-3.5 rounded-2xl bg-white border-2 border-[#E8DCCB] flex items-center gap-3.5 shadow-xs">
-                <div className="size-14 sm:size-16 rounded-xl overflow-hidden border border-[#D8C7B4] shrink-0 bg-stone-100 shadow-inner">
+              <div className="mt-4 p-3.5 rounded-2xl bg-[#120E0A] border border-[#D4AF37]/30 flex items-center gap-3.5 shadow-xs">
+                <div className="size-14 sm:size-16 rounded-xl overflow-hidden border border-[#D4AF37]/40 shrink-0 bg-black/40 shadow-inner">
                   <img src={activeImage || product.images?.[0]?.imageUrl || '/placeholder.png'} alt={product.name} className="size-full object-cover" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#A26235] block">
+                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-[#D4AF37] block">
                     {product.category?.name || 'Mobilier d\'Art'}
                   </span>
-                  <h3 className="text-sm sm:text-base font-bold text-[#2C1E16] truncate">{product.name}</h3>
-                  <p className="text-xs text-[#665040] font-medium mt-0.5 flex items-center gap-1.5">
+                  <h3 className="text-sm sm:text-base font-bold text-white truncate">{product.name}</h3>
+                  <p className="text-xs text-[#A89F91] font-medium mt-0.5 flex items-center gap-1.5">
                     <span className="size-1.5 rounded-full bg-emerald-500" />
                     Fait main au centimètre près • Patine exclusive
                   </p>
@@ -1028,53 +1153,53 @@ export default function ProductDetailPage({ params }: PageProps) {
             </header>
 
             {quoteSent ? (
-              <div className="p-10 text-center space-y-4 bg-white">
-                <div className="size-16 rounded-full bg-emerald-100 text-emerald-700 border-2 border-emerald-400 flex items-center justify-center mx-auto shadow-sm">
+              <div className="p-10 text-center space-y-4 bg-[#18130F]">
+                <div className="size-16 rounded-full bg-emerald-950/80 text-emerald-400 border-2 border-emerald-500 flex items-center justify-center mx-auto shadow-sm">
                   <Check className="size-8" />
                 </div>
-                <h3 className="font-heading text-2xl font-bold text-[#2C1E16]">Demande envoyée avec succès !</h3>
-                <p className="text-sm font-medium text-[#5C4535] max-w-sm mx-auto leading-relaxed">
-                  Votre demande pour « <strong className="text-[#2C1E16]">{product.name}</strong> » a été transmise directement à nos maîtres artisans. Nous vous recontacterons avec votre étude personnalisée sous 24h.
+                <h3 className="font-heading text-2xl font-bold text-white">Demande envoyée avec succès !</h3>
+                <p className="text-sm font-medium text-[#C5B8A5] max-w-sm mx-auto leading-relaxed">
+                  Votre demande pour « <strong className="text-white">{product.name}</strong> » a été transmise directement à nos maîtres artisans. Nous vous recontacterons avec votre étude personnalisée sous 24h.
                 </p>
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="mt-4 rounded-full bg-[#241812] text-[#FAF7F2] hover:bg-[#3A2A1E] px-8 py-3 text-xs font-bold uppercase tracking-wider shadow-md transition-all cursor-pointer"
+                  className="mt-4 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-8 py-3 text-xs font-bold uppercase tracking-wider shadow-md transition-all cursor-pointer"
                 >
                   Fermer
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleQuoteSubmit} className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-5 text-left bg-[#FDFBF7]">
+              <form onSubmit={handleQuoteSubmit} className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-5 text-left bg-[#18130F]">
                 {quoteError && (
-                  <div className="p-4 rounded-xl bg-red-100 border-2 border-red-400 text-red-900 text-sm font-bold flex items-center gap-3">
-                    <AlertCircle className="size-5 shrink-0 text-red-600" /><p>{quoteError}</p>
+                  <div className="p-4 rounded-xl bg-red-950/60 border border-red-500/50 text-red-300 text-sm font-bold flex items-center gap-3">
+                    <AlertCircle className="size-5 shrink-0 text-red-400" /><p>{quoteError}</p>
                   </div>
                 )}
 
                 {/* Chic Configuration Card */}
-                <div className="rounded-2xl bg-[#241812] border-2 border-[#E6A635]/60 p-4 text-[#FAF7F2] shadow-md space-y-3">
-                  <div className="flex items-center justify-between border-b border-[#E6A635]/30 pb-2.5">
+                <div className="rounded-2xl bg-[#120E0A] border border-[#D4AF37]/50 p-4 text-[#FAF7F2] shadow-md space-y-3">
+                  <div className="flex items-center justify-between border-b border-[#D4AF37]/25 pb-2.5">
                     <div className="flex items-center gap-2">
                       <Sparkles className="size-4 text-[#F2BD52]" />
                       <span className="text-xs uppercase font-extrabold tracking-wider text-[#F2BD52]">
                         Configuration demandée pour l&apos;atelier
                       </span>
                     </div>
-                    <span className="text-[10px] uppercase font-bold text-[#F2BD52] bg-white/10 px-2.5 py-0.5 rounded-full border border-[#E6A635]/40">
+                    <span className="text-[10px] uppercase font-bold text-[#F2BD52] bg-white/10 px-2.5 py-0.5 rounded-full border border-[#D4AF37]/40">
                       Sur-mesure
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                     {/* Finition */}
-                    <div className="flex items-center gap-2.5 bg-white/10 p-2.5 rounded-xl border border-white/10">
+                    <div className="flex items-center gap-2.5 bg-white/5 p-2.5 rounded-xl border border-white/10">
                       <div
                         className="size-4.5 rounded-full border-2 border-white shrink-0 shadow-xs"
                         style={{ backgroundColor: ATELIER_PALETTE.find(c => c.id === selectedCustomColor)?.hex || '#8B5E3C' }}
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[10px] uppercase font-bold text-[#D8C7B4] tracking-wider">Teinte &amp; Patine</p>
+                        <p className="text-[10px] uppercase font-bold text-[#A89F91] tracking-wider">Teinte &amp; Patine</p>
                         <p className="font-extrabold text-[#FAF7F2] truncate">
                           {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Originale d\'Atelier')}
                         </p>
@@ -1082,10 +1207,10 @@ export default function ProductDetailPage({ params }: PageProps) {
                     </div>
 
                     {/* Dimensions */}
-                    <div className="flex items-center gap-2.5 bg-white/10 p-2.5 rounded-xl border border-white/10">
+                    <div className="flex items-center gap-2.5 bg-white/5 p-2.5 rounded-xl border border-white/10">
                       <Ruler className="size-4.5 text-[#F2BD52] shrink-0" />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[10px] uppercase font-bold text-[#D8C7B4] tracking-wider">Dimensions</p>
+                        <p className="text-[10px] uppercase font-bold text-[#A89F91] tracking-wider">Dimensions</p>
                         <p className="font-extrabold text-[#FAF7F2] truncate">
                           {selectedSize.id === 'custom'
                             ? `${customWidth || '?'} × ${customHeight || '?'} cm`
@@ -1099,10 +1224,10 @@ export default function ProductDetailPage({ params }: PageProps) {
                 {/* Client Info Fields */}
                 <div className="space-y-4 pt-1">
                   <div className="space-y-1.5">
-                    <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold flex items-center gap-1.5">
-                      <User className="size-3.5 text-[#A26235]" />
+                    <label className="text-xs uppercase tracking-wider text-[#FAF7F2] font-extrabold flex items-center gap-1.5">
+                      <User className="size-3.5 text-[#D4AF37]" />
                       <span>Votre Nom complet</span>
-                      <span className="text-red-500 font-bold">*</span>
+                      <span className="text-red-400 font-bold">*</span>
                     </label>
                     <input
                       type="text"
@@ -1110,16 +1235,16 @@ export default function ProductDetailPage({ params }: PageProps) {
                       placeholder="Ex: Sonia Ben Miled"
                       value={fullName}
                       onChange={e => setFullName(e.target.value)}
-                      className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] focus:ring-4 focus:ring-[#A26235]/15 rounded-xl px-4 py-3.5 text-sm font-bold text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs transition-all"
+                      className="w-full bg-[#120E0A] border border-[#D4AF37]/40 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 rounded-xl px-4 py-3.5 text-sm font-bold text-white placeholder:text-stone-500 outline-none shadow-xs transition-all"
                     />
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold flex items-center gap-1.5">
-                        <Mail className="size-3.5 text-[#A26235]" />
+                      <label className="text-xs uppercase tracking-wider text-[#FAF7F2] font-extrabold flex items-center gap-1.5">
+                        <Mail className="size-3.5 text-[#D4AF37]" />
                         <span>Adresse Email</span>
-                        <span className="text-red-500 font-bold">*</span>
+                        <span className="text-red-400 font-bold">*</span>
                       </label>
                       <input
                         type="email"
@@ -1127,15 +1252,15 @@ export default function ProductDetailPage({ params }: PageProps) {
                         placeholder="votre@email.com"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] focus:ring-4 focus:ring-[#A26235]/15 rounded-xl px-4 py-3.5 text-sm font-bold text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs transition-all"
+                        className="w-full bg-[#120E0A] border border-[#D4AF37]/40 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 rounded-xl px-4 py-3.5 text-sm font-bold text-white placeholder:text-stone-500 outline-none shadow-xs transition-all"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold flex items-center gap-1.5">
-                        <Phone className="size-3.5 text-[#A26235]" />
+                      <label className="text-xs uppercase tracking-wider text-[#FAF7F2] font-extrabold flex items-center gap-1.5">
+                        <Phone className="size-3.5 text-[#D4AF37]" />
                         <span>Numéro de Téléphone</span>
-                        <span className="text-red-500 font-bold">*</span>
+                        <span className="text-red-400 font-bold">*</span>
                       </label>
                       <input
                         type="tel"
@@ -1143,70 +1268,70 @@ export default function ProductDetailPage({ params }: PageProps) {
                         placeholder="+216 22 222 222"
                         value={phone}
                         onChange={e => setPhone(e.target.value)}
-                        className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] focus:ring-4 focus:ring-[#A26235]/15 rounded-xl px-4 py-3.5 text-sm font-bold text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs transition-all"
+                        className="w-full bg-[#120E0A] border border-[#D4AF37]/40 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 rounded-xl px-4 py-3.5 text-sm font-bold text-white placeholder:text-stone-500 outline-none shadow-xs transition-all"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs uppercase tracking-wider text-[#2C1E16] font-extrabold flex items-center gap-1.5">
-                        <MessageCircle className="size-3.5 text-[#A26235]" />
+                      <label className="text-xs uppercase tracking-wider text-[#FAF7F2] font-extrabold flex items-center gap-1.5">
+                        <MessageCircle className="size-3.5 text-[#D4AF37]" />
                         <span>Message &amp; Précisions pour les Artisans</span>
-                        <span className="text-red-500 font-bold">*</span>
+                        <span className="text-red-400 font-bold">*</span>
                       </label>
-                      <span className="text-[10.5px] text-[#7A6250] font-semibold">Personnalisable</span>
+                      <span className="text-[10.5px] text-[#A89F91] font-semibold">Personnalisable</span>
                     </div>
                     <textarea
                       required
                       rows={4}
                       value={message}
                       onChange={e => setMessage(e.target.value)}
-                      className="w-full bg-white border-2 border-[#D8C7B4] focus:border-[#A26235] focus:ring-4 focus:ring-[#A26235]/15 rounded-xl p-3.5 text-sm font-medium text-[#2C1E16] placeholder:text-stone-400 outline-none shadow-xs transition-all resize-none leading-relaxed"
+                      className="w-full bg-[#120E0A] border border-[#D4AF37]/40 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 rounded-xl p-3.5 text-sm font-medium text-white placeholder:text-stone-500 outline-none shadow-xs transition-all resize-none leading-relaxed"
                     />
-                    <p className="text-[11px] text-[#7A6250] italic">
+                    <p className="text-[11px] text-[#A89F91] italic">
                       Indiquez toute particularité : essences de bois souhaitées, teintes de votre intérieur, etc.
                     </p>
                   </div>
                 </div>
 
                 {/* Reassurance Ribbon */}
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#D8C7B4]">
-                  <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-white border border-[#D8C7B4]/70 shadow-xs">
-                    <ShieldCheck className="size-4 text-[#C17D59] mb-1" />
-                    <span className="text-[10.5px] font-extrabold text-[#2C1E16] uppercase tracking-wider">Atelier Direct</span>
-                    <span className="text-[9.5px] text-[#7A6250]">Sans engagement</span>
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#D4AF37]/20">
+                  <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-[#120E0A] border border-[#D4AF37]/30 shadow-xs">
+                    <ShieldCheck className="size-4 text-[#D4AF37] mb-1" />
+                    <span className="text-[10.5px] font-extrabold text-white uppercase tracking-wider">Atelier Direct</span>
+                    <span className="text-[9.5px] text-[#A89F91]">Sans engagement</span>
                   </div>
-                  <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-white border border-[#D8C7B4]/70 shadow-xs">
-                    <Clock className="size-4 text-[#C17D59] mb-1" />
-                    <span className="text-[10.5px] font-extrabold text-[#2C1E16] uppercase tracking-wider">Réponse 24h</span>
-                    <span className="text-[9.5px] text-[#7A6250]">Proposition directe</span>
+                  <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-[#120E0A] border border-[#D4AF37]/30 shadow-xs">
+                    <Clock className="size-4 text-[#D4AF37] mb-1" />
+                    <span className="text-[10.5px] font-extrabold text-white uppercase tracking-wider">Réponse 24h</span>
+                    <span className="text-[9.5px] text-[#A89F91]">Proposition directe</span>
                   </div>
-                  <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-white border border-[#D8C7B4]/70 shadow-xs">
-                    <Truck className="size-4 text-[#C17D59] mb-1" />
-                    <span className="text-[10.5px] font-extrabold text-[#2C1E16] uppercase tracking-wider">Livraison Pro</span>
-                    <span className="text-[9.5px] text-[#7A6250]">Toute la Tunisie</span>
+                  <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-[#120E0A] border border-[#D4AF37]/30 shadow-xs">
+                    <Truck className="size-4 text-[#D4AF37] mb-1" />
+                    <span className="text-[10.5px] font-extrabold text-white uppercase tracking-wider">Livraison Pro</span>
+                    <span className="text-[9.5px] text-[#A89F91]">Toute la Tunisie</span>
                   </div>
                 </div>
 
                 {/* WhatsApp direct alternative */}
                 <div className="pt-1 text-center">
                   <a
-                    href={`https://wa.me/21698338166?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite commander le modèle « ${product.name} » en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Standard')}.`)}`}
+                    href={`https://wa.me/21655743760?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite commander le modèle « ${product.name} » en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Standard')}.`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E7E34] hover:text-[#155724] underline underline-offset-4 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#25D366] hover:underline cursor-pointer"
                   >
                     <MessageCircle className="size-3.5" />
-                    Ou discutez directement sur WhatsApp avec Ismail Aschi (+216 98 338 166)
+                    Ou discutez directement sur WhatsApp avec l&apos;Atelier Aschi (+216 55 743 760)
                   </a>
                 </div>
 
-                <footer className="pt-4 border-t-2 border-[#D8C7B4] flex flex-col sm:flex-row items-center justify-between gap-3">
+                <footer className="pt-4 border-t border-[#D4AF37]/20 flex flex-col sm:flex-row items-center justify-between gap-3">
                   <button
                     type="button"
                     onClick={() => setModalOpen(false)}
-                    className="w-full sm:w-auto rounded-full border-2 border-[#D8C7B4] bg-white hover:bg-stone-100 px-6 py-3 text-xs font-extrabold uppercase tracking-wider text-[#2C1E16] transition-all cursor-pointer shadow-xs order-2 sm:order-1"
+                    className="w-full sm:w-auto rounded-full border border-[#D4AF37]/40 bg-[#120E0A] hover:bg-[#1C1611] px-6 py-3 text-xs font-extrabold uppercase tracking-wider text-[#FAF7F2] transition-all cursor-pointer shadow-xs order-2 sm:order-1"
                   >
                     Annuler
                   </button>
@@ -1224,40 +1349,6 @@ export default function ProductDetailPage({ params }: PageProps) {
           </motion.div>
         </div>
       )}
-
-      {/* ── STICKY MOBILE BOTTOM BAR (Optimisation Mobile Maximale) ────────────────── */}
-      <div className="fixed bottom-0 inset-x-0 bg-[#241812]/95 backdrop-blur-xl border-t border-[#E6A635]/35 p-3.5 z-40 lg:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.7)] flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className="size-11 rounded-xl overflow-hidden bg-black/40 border border-[#E6A635]/40 shrink-0">
-            <img src={activeImage || '/placeholder.png'} alt="" className="size-full object-cover" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold text-[#F7F4EE] truncate leading-tight">{product.name}</p>
-            <p className="text-[10px] text-[#F2BD52] truncate font-semibold mt-0.5">
-              Teinte : {selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Finition Atelier')}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <a
-            href={`https://wa.me/21698338166?text=${encodeURIComponent(`Bonjour Atelier Aschi, je souhaite commander le modèle « ${product.name} » en finition ${selectedCustomColor !== 'Original' ? selectedCustomColor : (product.color || 'Standard')}.`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="size-10 rounded-full bg-[#25D366] text-[#1A110B] flex items-center justify-center shadow-md active:scale-95 transition-all"
-            title="WhatsApp"
-          >
-            <MessageCircle className="size-5" />
-          </a>
-          <button
-            type="button"
-            onClick={openConfigQuote}
-            className="btn-sheen rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-4 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <Sparkles className="size-3.5" /> Commander
-          </button>
-        </div>
-      </div>
 
       <Footer />
     </>

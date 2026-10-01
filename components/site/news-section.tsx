@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Clock, Sparkles, Share2, Check, ArrowRight, ChevronLeft, ChevronRight, BookOpen, X } from 'lucide-react'
 import { Reveal } from './reveal'
 import { publicApi, News } from '@/lib/api'
+import { isBijouxOrHandleProduct, formatImageUrl } from '@/lib/utils'
 import Image from 'next/image'
 
 const getReadTime = (text: string) => {
@@ -41,18 +42,15 @@ export function NewsSection() {
 
         if (productsData && productsData.length > 0) {
           const availableProds = productsData.filter((p) => {
-            const catName = p.category?.name?.toLowerCase() || ''
-            const prodName = p.name?.toLowerCase() || ''
-            const mat = p.materials?.toLowerCase() || ''
-
-            const isCatalog = p.type === 'CATALOGUE' || catName.includes('catalogue') || catName.includes('inspiration') || prodName.includes('catalogue')
-            const isBijoux = catName.includes('bijou') || catName.includes('poignée') || catName.includes('bouton') || catName.includes('porte') || catName.includes('ronds') || catName.includes('ovales') ||
-                             prodName.includes('bijou') || prodName.includes('poignée') || prodName.includes('bouton') || prodName.includes('porte') ||
-                             mat.includes('céramique') || mat.includes('majolique')
-            return !isCatalog && !isBijoux
+            return p.type !== 'CATALOGUE' && !isBijouxOrHandleProduct(p)
           })
           if (availableProds.length > 0) {
-            const latestProduct = availableProds.sort((a, b) => b.id - a.id)[0]
+            const latestProduct = [...availableProds].sort((a, b) => {
+              const timeB = new Date(b.createdAt || (b as any).createdDate || 0).getTime()
+              const timeA = new Date(a.createdAt || (a as any).createdDate || 0).getTime()
+              if (timeB && timeA && timeB !== timeA) return timeB - timeA
+              return b.id - a.id
+            })[0]
             
             const productNews: News = {
               id: -latestProduct.id,
@@ -170,7 +168,7 @@ export function NewsSection() {
                 className="relative z-10 w-full aspect-[16/10] overflow-hidden rounded-2xl shrink-0 border border-[#E6A635]/40 shadow-md cursor-pointer bg-[#241812]"
               >
                 <Image
-                  src={currentMobileItem.imageUrl || '/news-exposition.jpg'}
+                  src={formatImageUrl(currentMobileItem.imageUrl, '/placeholder.jpg')}
                   alt={currentMobileItem.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 320px"
@@ -308,7 +306,7 @@ export function NewsSection() {
                     className="relative z-10 w-72 lg:w-80 aspect-[16/10] overflow-hidden rounded-2xl shrink-0 border-2 border-[#E6A635]/40 shadow-xl group/img cursor-pointer bg-[#241812]"
                   >
                     <Image
-                      src={item.imageUrl || '/news-exposition.jpg'}
+                      src={formatImageUrl(item.imageUrl, '/placeholder.jpg')}
                       alt={item.title}
                       fill
                       sizes="320px"
@@ -431,7 +429,7 @@ export function NewsSection() {
 
               <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden mb-4 border border-[#E6A635]/40 bg-black">
                 <Image
-                  src={selectedArticle.imageUrl || '/news-exposition.jpg'}
+                  src={formatImageUrl(selectedArticle.imageUrl, '/placeholder.jpg')}
                   alt={selectedArticle.title}
                   fill
                   className="object-cover"

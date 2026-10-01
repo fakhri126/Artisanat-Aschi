@@ -510,8 +510,31 @@ export default function AdminProductsPage() {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette pièce disponible ?')) return
     try {
       await adminApi.deleteProduct(id)
-      setProducts(products.filter(p => p.id !== id))
+      setProducts(prev => prev.filter(p => p.id !== id))
+      try {
+        const cached = localStorage.getItem('aschi_latest_available_product')
+        if (cached) {
+          const parsed = JSON.parse(cached)
+          if (parsed && parsed.id === id) {
+            localStorage.removeItem('aschi_latest_available_product')
+          }
+        }
+      } catch (_) {}
     } catch (err: any) {
+      if (err?.message?.includes('not found') || err?.message?.includes('404')) {
+        // Le produit est déjà supprimé de la base de données
+        setProducts(prev => prev.filter(p => p.id !== id))
+        try {
+          const cached = localStorage.getItem('aschi_latest_available_product')
+          if (cached) {
+            const parsed = JSON.parse(cached)
+            if (parsed && parsed.id === id) {
+              localStorage.removeItem('aschi_latest_available_product')
+            }
+          }
+        } catch (_) {}
+        return
+      }
       alert(err.message || 'Erreur de suppression.')
     }
   }
@@ -563,9 +586,19 @@ export default function AdminProductsPage() {
 
     try {
       if (editingProduct) {
-        await adminApi.updateProduct(editingProduct.id, payload)
+        const updated = await adminApi.updateProduct(editingProduct.id, payload)
+        if (updated && updated.type !== 'CATALOGUE') {
+          try {
+            localStorage.setItem('aschi_latest_available_product', JSON.stringify(updated))
+          } catch (_) {}
+        }
       } else {
-        await adminApi.createProduct(payload)
+        const created = await adminApi.createProduct(payload)
+        if (created && created.type !== 'CATALOGUE') {
+          try {
+            localStorage.setItem('aschi_latest_available_product', JSON.stringify(created))
+          } catch (_) {}
+        }
       }
       setModalOpen(false)
       loadData()
