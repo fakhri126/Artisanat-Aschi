@@ -34,6 +34,14 @@ const nextConfig = {
         port: '8081',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
     ],
   },
   experimental: {
@@ -56,6 +64,10 @@ const nextConfig = {
       {
         source: '/backend-api/:path*',
         destination: `${process.env.INTERNAL_BACKEND_URL || 'http://localhost:8081/api'}/:path*`,
+      },
+      {
+        source: '/api/uploads/:path*',
+        destination: `${process.env.INTERNAL_BACKEND_URL || 'http://localhost:8081/api'}/uploads/:path*`,
       },
     ]
   },

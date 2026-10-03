@@ -56,13 +56,13 @@ public class AdminController {
 
     // --- Categories CRUD ---
     @PostMapping("/categories")
-    public ResponseEntity<Category> createCategory(@Valid @RequestBody Category category) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(category));
+    public ResponseEntity<Category> createCategory(@Valid @RequestBody com.artisanataschi.backend.dto.CategoryRequestDto categoryDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(categoryDto));
     }
 
     @PutMapping("/categories/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @Valid @RequestBody Category category) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, category));
+    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @Valid @RequestBody com.artisanataschi.backend.dto.CategoryRequestDto categoryDto) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, categoryDto));
     }
 
     @DeleteMapping("/categories/{id}")
@@ -90,13 +90,13 @@ public class AdminController {
 
     // --- Relooking CRUD ---
     @PostMapping("/relookings")
-    public ResponseEntity<Relooking> createRelooking(@Valid @RequestBody Relooking relooking) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(relookingService.createRelooking(relooking));
+    public ResponseEntity<Relooking> createRelooking(@Valid @RequestBody com.artisanataschi.backend.dto.RelookingRequestDto relookingDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(relookingService.createRelooking(relookingDto));
     }
 
     @PutMapping("/relookings/{id}")
-    public ResponseEntity<Relooking> updateRelooking(@PathVariable Long id, @Valid @RequestBody Relooking relooking) {
-        return ResponseEntity.ok(relookingService.updateRelooking(id, relooking));
+    public ResponseEntity<Relooking> updateRelooking(@PathVariable Long id, @Valid @RequestBody com.artisanataschi.backend.dto.RelookingRequestDto relookingDto) {
+        return ResponseEntity.ok(relookingService.updateRelooking(id, relookingDto));
     }
 
     @DeleteMapping("/relookings/{id}")
@@ -121,13 +121,13 @@ public class AdminController {
 
     // --- Projects CRUD ---
     @PostMapping("/projects")
-    public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(project));
+    public ResponseEntity<Project> createProject(@Valid @RequestBody com.artisanataschi.backend.dto.ProjectRequestDto projectDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(projectDto));
     }
 
     @PutMapping("/projects/{id}")
-    public ResponseEntity<Project> updateProject(@PathVariable Long id, @Valid @RequestBody Project project) {
-        return ResponseEntity.ok(projectService.updateProject(id, project));
+    public ResponseEntity<Project> updateProject(@PathVariable Long id, @Valid @RequestBody com.artisanataschi.backend.dto.ProjectRequestDto projectDto) {
+        return ResponseEntity.ok(projectService.updateProject(id, projectDto));
     }
 
     @DeleteMapping("/projects/{id}")
@@ -138,13 +138,13 @@ public class AdminController {
 
     // --- News CRUD ---
     @PostMapping("/news")
-    public ResponseEntity<News> createNews(@Valid @RequestBody News news) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(newsService.createNews(news));
+    public ResponseEntity<News> createNews(@Valid @RequestBody com.artisanataschi.backend.dto.NewsRequestDto newsDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(newsService.createNews(newsDto));
     }
 
     @PutMapping("/news/{id}")
-    public ResponseEntity<News> updateNews(@PathVariable Long id, @Valid @RequestBody News news) {
-        return ResponseEntity.ok(newsService.updateNews(id, news));
+    public ResponseEntity<News> updateNews(@PathVariable Long id, @Valid @RequestBody com.artisanataschi.backend.dto.NewsRequestDto newsDto) {
+        return ResponseEntity.ok(newsService.updateNews(id, newsDto));
     }
 
     @DeleteMapping("/news/{id}")
@@ -155,13 +155,13 @@ public class AdminController {
 
     // --- Delivery CRUD ---
     @PostMapping("/deliveries")
-    public ResponseEntity<Delivery> createDelivery(@Valid @RequestBody Delivery delivery) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(deliveryService.saveDelivery(delivery));
+    public ResponseEntity<Delivery> createDelivery(@Valid @RequestBody com.artisanataschi.backend.dto.DeliveryRequestDto deliveryDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(deliveryService.saveDelivery(deliveryDto));
     }
 
     @PutMapping("/deliveries/{id}")
-    public ResponseEntity<Delivery> updateDelivery(@PathVariable Long id, @Valid @RequestBody Delivery delivery) {
-        return ResponseEntity.ok(deliveryService.updateDelivery(id, delivery));
+    public ResponseEntity<Delivery> updateDelivery(@PathVariable Long id, @Valid @RequestBody com.artisanataschi.backend.dto.DeliveryRequestDto deliveryDto) {
+        return ResponseEntity.ok(deliveryService.updateDelivery(id, deliveryDto));
     }
 
     @DeleteMapping("/deliveries/{id}")

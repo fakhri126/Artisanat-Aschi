@@ -1,6 +1,7 @@
 package com.artisanataschi.backend.service;
 
 import com.artisanataschi.backend.service.storage.StorageService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,9 @@ import java.util.UUID;
 
 @Service
 public class FileStorageService implements StorageService {
+
+    @Value("${app.storage.cdn-url:}")
+    private String cdnUrl;
 
     private final Path uploadPath;
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(".jpg", ".jpeg", ".png", ".webp", ".mp4", ".webm", ".mov");
@@ -75,7 +79,27 @@ public class FileStorageService implements StorageService {
             throw new RuntimeException("Erreur lors de l'enregistrement du fichier.", e);
         }
 
-        return "/uploads/" + fileName;
+        if (cdnUrl != null && !cdnUrl.isBlank()) {
+            return cdnUrl.replaceAll("/+$", "") + "/" + fileName;
+        }
+        if (request == null) {
+            return "/uploads/" + fileName;
+        }
+        // Construction sécurisée de l'URL respectant les reverse proxies (X-Forwarded-Proto / Host)
+        String scheme = request.getHeader("X-Forwarded-Proto");
+        if (scheme == null) scheme = request.getScheme();
+
+        String host = request.getHeader("X-Forwarded-Host");
+        if (host == null) {
+            host = request.getServerName();
+            int port = request.getServerPort();
+            if ((scheme.equals("http") && port != 80) || (scheme.equals("https") && port != 443)) {
+                host = host + ":" + port;
+            }
+        }
+
+        String contextPath = request.getContextPath(); // /api
+        return scheme + "://" + host + contextPath + "/uploads/" + fileName;
     }
 
     @Override
@@ -149,5 +173,11 @@ public class FileStorageService implements StorageService {
         } catch (IOException e) {
             throw new IllegalArgumentException("Impossible de lire les données du fichier.", e);
         }
+    }
+
+    @Override
+    public com.artisanataschi.backend.dto.UploadResponseDto uploadMedia(MultipartFile file, String folder, HttpServletRequest request) {
+        String url = storeFile(file, request);
+        return new com.artisanataschi.backend.dto.UploadResponseDto(url, folder + "/" + file.getOriginalFilename(), file.getContentType(), file.getSize());
     }
 }

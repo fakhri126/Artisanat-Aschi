@@ -76,11 +76,23 @@ export default function AdminProductsPage() {
     try {
       await adminApi.deleteProduct(id)
       setProducts(prev => prev.filter(p => p.id !== id))
+      try {
+        const cached = localStorage.getItem('aschi_latest_available_product')
+        if (cached) {
+          const parsed = JSON.parse(cached)
+          if (parsed && parsed.id === id) {
+            localStorage.removeItem('aschi_latest_available_product')
+          }
+        }
+      } catch (_) {}
     } catch (err: any) {
+      if (err?.message?.includes('not found') || err?.message?.includes('404')) {
+        setProducts(prev => prev.filter(p => p.id !== id))
+        return
+      }
       alert(err.message || 'Erreur lors de la suppression.')
     }
   }
-
   return (
     <div className="p-6 md:p-10 space-y-8 text-left text-[#0F172A]">
       {/* ─── Header ─── */}

@@ -11,12 +11,19 @@ spring:
     password: ${DB_PASSWORD:Aqwzsx 126002}
     driver-class-name: org.postgresql.Driver
     hikari:
+      pool-name: AschiHikariPool
       maximum-pool-size: 10
-      minimum-idle: 2
+      minimum-idle: 5
       idle-timeout: 300000 # 5 minutes
-      max-lifetime: 600000 # 10 minutes
-      connection-timeout: 20000 # 20 seconds
-      leak-detection-threshold: 30000 # 30 seconds
+      max-lifetime: 1800000 # 30 minutes (optimisé pour Supavisor / PgBouncer)
+      connection-timeout: 10000 # 10 secondes
+      leak-detection-threshold: 30000 # 30 secondes
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -31,27 +38,33 @@ spring:
           order_inserts: true
           order_updates: true
   cache:
-    type: caffeine
+    type: ${CACHE_TYPE:caffeine} # Bascule transparente entre caffeine (local) et redis (production)
     cache-names:
       - categories
       - featuredProducts
       - latestProducts
+      - products
       - projects
       - news
+      - colors
+      - reels
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
 
-# Actuator monitoring endpoints
+# Actuator & Prometheus monitoring endpoints
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: when_authorized
+  metrics:
+    tags:
+      application: artisanat-aschi-backend
 
 # App, JWT and Security properties
 app:
@@ -61,7 +74,15 @@ app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://artisanat-aschi.com,https://www.artisanat-aschi.com}
 
+# Supabase Storage Configuration
+supabase:
+  url: ${SUPABASE_URL:https://uerbqswgxsinayfyntsm.supabase.co}
+  service-key: ${SUPABASE_SERVICE_KEY:}
+  storage:
+    bucket: ${SUPABASE_STORAGE_BUCKET:artisanat-aschi-media}
+
 logging:
   level:
     org.springframework.security: INFO
     com.artisanataschi: INFO
+    org.hibernate.SQL: WARN

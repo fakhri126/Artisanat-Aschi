@@ -20,6 +20,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     private static final int MAX_LOGIN_PER_MINUTE = 5;
     private static final int MAX_QUOTES_PER_HOUR = 10;
+    private static final int MAX_PUBLIC_API_PER_MINUTE = 180;
 
     // Bounded in-memory caches with automatic sliding-window eviction (prevents memory leak)
     private final Cache<String, AtomicInteger> loginAttempts = Caffeine.newBuilder()
@@ -29,6 +30,11 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final Cache<String, AtomicInteger> quoteAttempts = Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.HOURS)
+            .maximumSize(5000)
+            .build();
+
+    private final Cache<String, AtomicInteger> publicApiAttempts = Caffeine.newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
             .maximumSize(5000)
             .build();
 
@@ -48,6 +54,11 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         } else if ("POST".equalsIgnoreCase(method) && uri.endsWith("/public/quotes")) {
             if (isRateLimited(quoteAttempts, clientIp, MAX_QUOTES_PER_HOUR)) {
                 respondWithRateLimit(response, "Trop de demandes de devis enregistrées depuis votre adresse. Veuillez patienter.");
+                return;
+            }
+        } else if (uri.contains("/public/")) {
+            if (isRateLimited(publicApiAttempts, clientIp, MAX_PUBLIC_API_PER_MINUTE)) {
+                respondWithRateLimit(response, "Limite de requêtes atteinte. Veuillez espacer vos requêtes.");
                 return;
             }
         }

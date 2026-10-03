@@ -2,6 +2,7 @@ package com.artisanataschi.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 
 public class DeliveryRequestDto {
     @NotBlank(message = "Le titre de la livraison est obligatoire")
@@ -10,8 +11,7 @@ public class DeliveryRequestDto {
 
     private String description;
     private String imageUrl;
-    private String location;
-    private String clientReview;
+    private LocalDate deliveryDate;
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -22,9 +22,6 @@ public class DeliveryRequestDto {
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
-
-    public String getClientReview() { return clientReview; }
-    public void setClientReview(String clientReview) { this.clientReview = clientReview; }
+    public LocalDate getDeliveryDate() { return deliveryDate; }
+    public void setDeliveryDate(LocalDate deliveryDate) { this.deliveryDate = deliveryDate; }
 }

@@ -1,18 +1,24 @@
 package com.artisanataschi.backend.service;
 
 import com.artisanataschi.backend.domain.Delivery;
+import com.artisanataschi.backend.dto.DeliveryRequestDto;
 import com.artisanataschi.backend.repository.DeliveryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class DeliveryService {
 
-    @Autowired
-    private DeliveryRepository deliveryRepository;
+    private final DeliveryRepository deliveryRepository;
+
+    public DeliveryService(DeliveryRepository deliveryRepository) {
+        this.deliveryRepository = deliveryRepository;
+    }
 
     public List<Delivery> getAllDeliveries() {
         return deliveryRepository.findAll();
@@ -22,10 +28,35 @@ public class DeliveryService {
         return deliveryRepository.findById(id);
     }
 
+    @Transactional
+    public Delivery saveDelivery(DeliveryRequestDto dto) {
+        Delivery delivery = new Delivery();
+        delivery.setTitle(dto.getTitle());
+        delivery.setDescription(dto.getDescription());
+        delivery.setImageUrl(dto.getImageUrl());
+        delivery.setDeliveryDate(dto.getDeliveryDate() != null ? dto.getDeliveryDate() : LocalDate.now());
+        return deliveryRepository.save(delivery);
+    }
+
+    @Transactional
     public Delivery saveDelivery(Delivery delivery) {
         return deliveryRepository.save(delivery);
     }
 
+    @Transactional
+    public Delivery updateDelivery(Long id, DeliveryRequestDto dto) {
+        return deliveryRepository.findById(id).map(delivery -> {
+            delivery.setTitle(dto.getTitle());
+            delivery.setDescription(dto.getDescription());
+            delivery.setImageUrl(dto.getImageUrl());
+            if (dto.getDeliveryDate() != null) {
+                delivery.setDeliveryDate(dto.getDeliveryDate());
+            }
+            return deliveryRepository.save(delivery);
+        }).orElseThrow(() -> new RuntimeException("Delivery not found with id " + id));
+    }
+
+    @Transactional
     public Delivery updateDelivery(Long id, Delivery deliveryDetails) {
         return deliveryRepository.findById(id).map(delivery -> {
             delivery.setTitle(deliveryDetails.getTitle());
@@ -36,6 +67,7 @@ public class DeliveryService {
         }).orElseThrow(() -> new RuntimeException("Delivery not found with id " + id));
     }
 
+    @Transactional
     public void deleteDelivery(Long id) {
         deliveryRepository.deleteById(id);
     }

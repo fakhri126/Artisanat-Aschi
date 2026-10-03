@@ -5,7 +5,6 @@ import { WhyAschi } from "@/components/site/why-aschi"
 import { Projects } from "@/components/site/projects"
 import { References } from "@/components/site/references"
 import { NewsSection } from "@/components/site/news-section"
-import { MediaSection } from "@/components/site/media-section"
 import { WeeklyDelivery } from "@/components/site/weekly-delivery"
 import { VideoReel } from "@/components/site/video-reel"
 import { Footer } from "@/components/site/footer"
@@ -58,12 +57,7 @@ export default function Page() {
           <NewsSection />
         </div>
 
-        {/* 7. Passage Média & Télévision (Reportage télévisé) */}
-        <div className="cv-auto">
-          <MediaSection />
-        </div>
-
-        {/* 8. Livraison de la semaine & Installations */}
+        {/* 7. Livraison de la semaine & Installations */}
         <div className="cv-auto">
           <WeeklyDelivery />
         </div>

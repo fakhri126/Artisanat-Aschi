@@ -2,23 +2,27 @@ package com.artisanataschi.backend.service;
 
 import com.artisanataschi.backend.dto.DashboardStats;
 import com.artisanataschi.backend.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class DashboardService {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
+    private final ProjectRepository projectRepository;
+    private final QuoteRequestRepository quoteRequestRepository;
+    private final NewsRepository newsRepository;
 
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private QuoteRequestRepository quoteRequestRepository;
-
-    @Autowired
-    private NewsRepository newsRepository;
+    public DashboardService(ProductRepository productRepository,
+                            ProjectRepository projectRepository,
+                            QuoteRequestRepository quoteRequestRepository,
+                            NewsRepository newsRepository) {
+        this.productRepository = productRepository;
+        this.projectRepository = projectRepository;
+        this.quoteRequestRepository = quoteRequestRepository;
+        this.newsRepository = newsRepository;
+    }
 
     public DashboardStats getStats() {
         long totalProducts = productRepository.count();

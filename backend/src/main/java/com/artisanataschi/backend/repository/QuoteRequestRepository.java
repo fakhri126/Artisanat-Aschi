@@ -7,4 +7,8 @@ import java.util.List;
 public interface QuoteRequestRepository extends JpaRepository<QuoteRequest, Long> {
     List<QuoteRequest> findAllByOrderByCreatedDateDesc();
     long countByStatusIgnoreCase(String status);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE QuoteRequest q SET q.product = null WHERE q.product.id = :productId")
+    void nullifyProductByProductId(@org.springframework.data.repository.query.Param("productId") Long productId);
 }

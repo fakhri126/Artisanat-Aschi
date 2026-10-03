@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, Phone, Sparkles, FileText } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export function MobileFloatingVIP() {
   const [visible, setVisible] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +18,10 @@ export function MobileFloatingVIP() {
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  if (pathname?.startsWith('/produits/')) {
+    return null
+  }
 
   return (
     <AnimatePresence>
@@ -54,7 +60,7 @@ export function MobileFloatingVIP() {
               className="flex-1 btn-sheen flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-md active:scale-95 transition-transform"
             >
               <Sparkles className="size-3 text-[#1A110B]" />
-              <span>Nous Contacter</span>
+              <span>Contact</span>
             </Link>
           </div>
         </motion.div>

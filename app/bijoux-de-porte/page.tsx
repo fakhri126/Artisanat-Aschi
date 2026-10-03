@@ -8,6 +8,7 @@ import { Navbar } from '@/components/site/navbar'
 import { Footer } from '@/components/site/footer'
 import { MobileFloatingVIP } from '@/components/site/mobile-floating-vip'
 import { publicApi } from '@/lib/api'
+import { formatImageUrl } from '@/lib/utils'
 
 // Types TypeScript
 export type MainCategory = 'portes' | 'meubles'
@@ -209,10 +210,11 @@ export default function BijouxDePortePage() {
         </section>
 
         {/* ========================================================================= */}
+        {/* ========================================================================= */}
         {/* SÉLECTEUR MAÎTRE NIVEAU 1 : 2 GRANDS TYPES (PORTES vs MEUBLES)           */}
         {/* ========================================================================= */}
         <section className="w-full max-w-4xl mx-auto mb-8 sm:mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-6">
             
             {/* Type 1 : Poignées de Portes */}
             <button
@@ -225,7 +227,7 @@ export default function BijouxDePortePage() {
               }`}
             >
               {/* Image Visuelle */}
-              <div className="relative w-full aspect-[18/9] sm:aspect-[16/10] overflow-hidden bg-[#1A110B]">
+              <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] overflow-hidden bg-[#1A110B]">
                 <Image
                   src="/poignees/type_poignee_porte.jpg"
                   alt="Poignées de Portes"
@@ -236,34 +238,35 @@ export default function BijouxDePortePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#241812] via-transparent to-black/30" />
                 
                 {/* Badge d'état Actif / Découvrir */}
-                <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10">
+                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10">
                   {mainCat === 'portes' ? (
-                    <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 shadow-lg">
-                      <CheckCircle2 className="size-3 sm:size-3.5" />
-                      Univers Sélectionné
+                    <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-[8.5px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 shadow-lg">
+                      <CheckCircle2 className="size-2.5 sm:size-3.5 shrink-0" />
+                      <span className="hidden sm:inline">Univers Sélectionné</span>
+                      <span className="sm:hidden">Choisi</span>
                     </span>
                   ) : (
-                    <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#1A110B]/85 border border-white/20 text-white/80 text-[10px] sm:text-[11px] font-medium flex items-center gap-1 sm:gap-1.5 backdrop-blur-sm group-hover:border-[#E6A635] group-hover:text-[#F2BD52] transition-colors">
-                      Découvrir
-                      <ArrowRight className="size-2.5 sm:size-3" />
+                    <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#1A110B]/85 border border-white/20 text-white/80 text-[8.5px] sm:text-[11px] font-medium flex items-center gap-1 sm:gap-1.5 backdrop-blur-sm group-hover:border-[#E6A635] group-hover:text-[#F2BD52] transition-colors">
+                      <span>Découvrir</span>
+                      <ArrowRight className="size-2 sm:size-3 shrink-0" />
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Contenu Texte */}
-              <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between space-y-1.5 sm:space-y-2.5">
+              <div className="p-2.5 sm:p-5 flex-1 flex flex-col justify-between space-y-1 sm:space-y-2.5">
                 <div>
-                  <h2 className="font-heading text-base sm:text-2xl text-white group-hover:text-[#F2BD52] transition-colors flex items-center gap-2 sm:gap-2.5">
-                    <DoorOpen className={`size-4.5 sm:size-6 ${mainCat === 'portes' ? 'text-[#E6A635]' : 'text-white/60 group-hover:text-[#E6A635]'}`} />
-                    Poignées de Portes
+                  <h2 className="font-heading text-xs sm:text-2xl text-white group-hover:text-[#F2BD52] transition-colors flex items-center gap-1.5 sm:gap-2.5 font-medium leading-tight">
+                    <DoorOpen className={`size-3.5 sm:size-6 shrink-0 ${mainCat === 'portes' ? 'text-[#E6A635]' : 'text-white/60 group-hover:text-[#E6A635]'}`} />
+                    <span>Poignées de Portes</span>
                   </h2>
-                  <p className="text-[11px] sm:text-sm text-white/70 font-light mt-0.5 sm:mt-1.5 leading-snug sm:leading-relaxed">
+                  <p className="text-[9.5px] sm:text-sm text-white/70 font-light mt-0.5 sm:mt-1.5 leading-snug sm:leading-relaxed line-clamp-2">
                     Rosaces monumentales en majolique, tirants sculptés &amp; caches serrures d&apos;apparat.
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 pt-2 sm:pt-3 border-t border-white/10 text-[9.5px] sm:text-[10.5px]">
+                <div className="hidden sm:flex flex-wrap items-center gap-1 sm:gap-1.5 pt-2 sm:pt-3 border-t border-white/10 text-[9.5px] sm:text-[10.5px]">
                   <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/80">
                     Céramique
                   </span>
@@ -288,7 +291,7 @@ export default function BijouxDePortePage() {
               }`}
             >
               {/* Image Visuelle */}
-              <div className="relative w-full aspect-[18/9] sm:aspect-[16/10] overflow-hidden bg-[#1A110B]">
+              <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] overflow-hidden bg-[#1A110B]">
                 <Image
                   src="/poignees/type_poignee_meuble.jpg"
                   alt="Poignées de Meubles"
@@ -299,34 +302,35 @@ export default function BijouxDePortePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#241812] via-transparent to-black/30" />
                 
                 {/* Badge d'état Actif / Découvrir */}
-                <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10">
+                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10">
                   {mainCat === 'meubles' ? (
-                    <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 shadow-lg">
-                      <CheckCircle2 className="size-3 sm:size-3.5" />
-                      Univers Sélectionné
+                    <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-[8.5px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 shadow-lg">
+                      <CheckCircle2 className="size-2.5 sm:size-3.5 shrink-0" />
+                      <span className="hidden sm:inline">Univers Sélectionné</span>
+                      <span className="sm:hidden">Choisi</span>
                     </span>
                   ) : (
-                    <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#1A110B]/85 border border-white/20 text-white/80 text-[10px] sm:text-[11px] font-medium flex items-center gap-1 sm:gap-1.5 backdrop-blur-sm group-hover:border-[#E6A635] group-hover:text-[#F2BD52] transition-colors">
-                      Découvrir
-                      <ArrowRight className="size-2.5 sm:size-3" />
+                    <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-[#1A110B]/85 border border-white/20 text-white/80 text-[8.5px] sm:text-[11px] font-medium flex items-center gap-1 sm:gap-1.5 backdrop-blur-sm group-hover:border-[#E6A635] group-hover:text-[#F2BD52] transition-colors">
+                      <span>Découvrir</span>
+                      <ArrowRight className="size-2 sm:size-3 shrink-0" />
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Contenu Texte */}
-              <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between space-y-1.5 sm:space-y-2.5">
+              <div className="p-2.5 sm:p-5 flex-1 flex flex-col justify-between space-y-1 sm:space-y-2.5">
                 <div>
-                  <h2 className="font-heading text-base sm:text-2xl text-white group-hover:text-[#F2BD52] transition-colors flex items-center gap-2 sm:gap-2.5">
-                    <Sofa className={`size-4.5 sm:size-6 ${mainCat === 'meubles' ? 'text-[#E6A635]' : 'text-white/60 group-hover:text-[#E6A635]'}`} />
-                    Poignées de Meubles
+                  <h2 className="font-heading text-xs sm:text-2xl text-white group-hover:text-[#F2BD52] transition-colors flex items-center gap-1.5 sm:gap-2.5 font-medium leading-tight">
+                    <Sofa className={`size-3.5 sm:size-6 shrink-0 ${mainCat === 'meubles' ? 'text-[#E6A635]' : 'text-white/60 group-hover:text-[#E6A635]'}`} />
+                    <span>Poignées de Meubles</span>
                   </h2>
-                  <p className="text-[11px] sm:text-sm text-white/70 font-light mt-0.5 sm:mt-1.5 leading-snug sm:leading-relaxed">
+                  <p className="text-[9.5px] sm:text-sm text-white/70 font-light mt-0.5 sm:mt-1.5 leading-snug sm:leading-relaxed line-clamp-2">
                     Boutons ronds &amp; ovales en céramique peinte main, et poignées sculptées en bois noble.
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 pt-2 sm:pt-3 border-t border-white/10 text-[9.5px] sm:text-[10.5px]">
+                <div className="hidden sm:flex flex-wrap items-center gap-1 sm:gap-1.5 pt-2 sm:pt-3 border-t border-white/10 text-[9.5px] sm:text-[10.5px]">
                   <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/80">
                     Céramique (3 Formats)
                   </span>
@@ -383,7 +387,7 @@ export default function BijouxDePortePage() {
                 Aucun modèle de poignée de porte enregistré pour le moment.
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6 lg:gap-8">
               {filteredBoards.map((board) => (
                 <div 
                   key={board.id}
@@ -397,7 +401,7 @@ export default function BijouxDePortePage() {
                     {/* Fond d'ambiance harmonisé (halo doux flouté) */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                       <Image
-                        src={board.image}
+                        src={formatImageUrl(board.image, '/placeholder.png')}
                         alt=""
                         fill
                         className="object-cover scale-125 blur-3xl opacity-35 brightness-75"
@@ -407,15 +411,15 @@ export default function BijouxDePortePage() {
                     </div>
 
                     {/* Cadre de mise en valeur de la pièce d'artisanat */}
-                    <div className="relative w-full h-full p-2 sm:p-3.5 flex items-center justify-center">
+                    <div className="relative w-full h-full p-1.5 sm:p-3.5 flex items-center justify-center">
                       <div className="relative w-full h-full rounded-lg sm:rounded-2xl overflow-hidden border border-[#E6A635]/30 shadow-[0_8px_24px_rgba(0,0,0,0.7)] bg-[#140C07] group-hover:border-[#E6A635]/80 transition-all duration-500">
                         <Image
-                          src={board.image}
+                          src={formatImageUrl(board.image, '/placeholder.png')}
                           alt={board.title}
                           fill
                           className={`transition-transform duration-700 ease-out group-hover:scale-105 ${
                             board.id === 'porte-cache-serrure' || board.id === 'porte-cache-cellule'
-                              ? 'object-contain p-2 sm:p-3'
+                              ? 'object-contain p-1.5 sm:p-3'
                               : board.id === 'porte-ceramique-rameaux-verts'
                               ? 'object-cover object-[80%_center]'
                               : 'object-cover object-center'
@@ -426,15 +430,15 @@ export default function BijouxDePortePage() {
                       </div>
                     </div>
 
-                    {/* Badge Agrandir HD transparent */}
-                    <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/30 backdrop-blur-sm border border-white/20 text-[#F2BD52] text-[9px] sm:text-[10px] font-medium flex items-center gap-1 sm:gap-1.5 shadow-md group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-all">
-                      <ZoomIn className="size-2.5 sm:size-3" />
-                      <span>Agrandir HD</span>
+                    {/* Badge Agrandir HD en verre dépoli */}
+                    <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/70 backdrop-blur-md border border-[#E6A635]/50 text-[#F2BD52] text-[8px] sm:text-[10.5px] font-bold flex items-center gap-1 sm:gap-1.5 shadow-lg group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-all">
+                      <ZoomIn className="size-2 sm:size-3" />
+                      <span>Zoom HD</span>
                     </div>
 
-                    {/* Badge d'authenticité Atelier Aschi transparent */}
-                    <div className="absolute bottom-2.5 left-2.5 sm:bottom-4 sm:left-4 z-10">
-                      <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/30 backdrop-blur-sm border border-white/15 text-[#F2BD52] text-[8.5px] sm:text-[9.5px] font-medium uppercase tracking-wider shadow flex items-center gap-1 sm:gap-1.5">
+                    {/* Badge d'authenticité Atelier Aschi (Desktop uniquement) */}
+                    <div className="absolute bottom-2.5 left-2.5 sm:bottom-4 sm:left-4 z-10 hidden sm:block">
+                      <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/75 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[8.5px] sm:text-[10px] font-bold uppercase tracking-wider shadow-lg flex items-center gap-1 sm:gap-1.5">
                         <span className="size-1.5 rounded-full bg-[#E6A635] animate-pulse" />
                         Atelier Aschi
                       </span>
@@ -442,31 +446,31 @@ export default function BijouxDePortePage() {
                   </div>
 
                   {/* Fiche descriptive & actions */}
-                  <div className="p-3.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2.5 sm:space-y-4">
+                  <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-1.5 sm:space-y-4">
                     <div>
-                      <h4 className="font-heading text-[15px] sm:text-xl text-white group-hover:text-[#F2BD52] transition-colors leading-tight">
+                      <h4 className="font-heading text-xs sm:text-xl text-white group-hover:text-[#F2BD52] transition-colors leading-tight line-clamp-1 sm:line-clamp-none">
                         {board.title}
                       </h4>
-                      <p className="text-[10.5px] sm:text-xs text-[#F2BD52] font-medium mt-0.5 sm:mt-1">{board.subtitle}</p>
+                      <p className="text-[9px] sm:text-xs text-[#F2BD52] font-medium mt-0.5 sm:mt-1 truncate">{board.subtitle}</p>
                       
                       {board.dimensions && (
-                        <div className="mt-1.5 sm:mt-2.5 inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-[#E6A635]/10 border border-[#E6A635]/25 text-[#F2BD52] text-[10px] sm:text-[11px] font-medium">
-                          <Ruler className="size-2.5 sm:size-3 text-[#E6A635]" />
+                        <div className="mt-1 sm:mt-2.5 inline-flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded sm:rounded-lg bg-[#E6A635]/10 border border-[#E6A635]/25 text-[#F2BD52] text-[8.5px] sm:text-[11px] font-medium">
+                          <Ruler className="size-2 sm:size-3 text-[#E6A635]" />
                           <span>{board.dimensions}</span>
                         </div>
                       )}
 
-                      <p className="text-[11px] sm:text-sm text-white/70 font-light mt-2 sm:mt-3 leading-relaxed line-clamp-3 sm:line-clamp-none">
+                      <p className="hidden sm:block text-[11px] sm:text-sm text-white/70 font-light mt-2 sm:mt-3 leading-relaxed">
                         {board.description}
                       </p>
 
-                      <div className="mt-2 sm:mt-3 p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-[#1A110B]/60 border border-white/5 text-[10px] sm:text-[11px] text-white/80">
+                      <div className="hidden sm:block mt-2 sm:mt-3 p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-[#1A110B]/60 border border-white/5 text-[10px] sm:text-[11px] text-white/80">
                         <span className="font-bold text-[#E6A635]">Usage idéal : </span>{board.idealFor}
                       </div>
                     </div>
 
-                    <div className="pt-2 sm:pt-3 border-t border-white/10 flex flex-col gap-2 sm:gap-3">
-                      <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                    <div className="pt-1.5 sm:pt-3 border-t border-white/10 flex flex-col gap-1.5 sm:gap-3">
+                      <div className="hidden sm:flex flex-wrap gap-1 sm:gap-1.5">
                         {board.tags.map((tag, idx) => (
                           <span key={idx} className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full bg-white/5 text-white/60 border border-white/5">
                             {tag}
@@ -474,17 +478,17 @@ export default function BijouxDePortePage() {
                         ))}
                       </div>
 
-                      <div className="flex items-center gap-1.5 sm:gap-2 pt-0.5 sm:pt-1">
+                      <div className="flex items-center gap-1 sm:gap-2 pt-0.5 sm:pt-1">
                         <button
                           type="button"
                           onClick={() => {
                             setDoorStudyData(prev => ({ ...prev, typeChoice: board.title }))
                             setShowDoorStudyModal(true)
                           }}
-                          className="flex-1 py-2 sm:py-2.5 px-2.5 sm:px-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] hover:brightness-110 text-[10.5px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow cursor-pointer"
+                          className="flex-1 py-1.5 sm:py-2.5 px-2 sm:px-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] hover:brightness-110 text-[9px] sm:text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all shadow cursor-pointer"
                         >
-                          <span>Étudier ce modèle</span>
-                          <ArrowRight className="size-3 sm:size-3.5" />
+                          <span>Étudier</span>
+                          <ArrowRight className="size-2.5 sm:size-3.5" />
                         </button>
 
                         <a
@@ -493,10 +497,10 @@ export default function BijouxDePortePage() {
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-[#241812] border border-[#E6A635]/30 hover:border-[#25D366] hover:bg-[#25D366]/15 text-white/80 hover:text-[#25D366] transition-all cursor-pointer"
+                          className="p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl bg-[#241812] border border-[#E6A635]/30 hover:border-[#25D366] hover:bg-[#25D366]/15 text-white/80 hover:text-[#25D366] transition-all cursor-pointer shrink-0"
                           title="Discuter sur WhatsApp"
                         >
-                          <MessageCircle className="size-3.5 sm:size-4" />
+                          <MessageCircle className="size-3 sm:size-4" />
                         </a>
                       </div>
                     </div>
@@ -596,7 +600,7 @@ export default function BijouxDePortePage() {
                 Aucun modèle de poignée de meuble enregistré pour le moment.
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
               {filteredBoards.map((board) => (
                 <div 
                   key={board.id}
@@ -605,12 +609,12 @@ export default function BijouxDePortePage() {
                   {/* Image Planche avec Zoom Cliquable & Galerie d'Exception */}
                   <div 
                     onClick={() => setLightboxImage({ url: board.image, title: board.title, subtitle: board.subtitle })}
-                    className="relative w-full aspect-[16/11] sm:aspect-[4/3] bg-[#140C07] overflow-hidden cursor-zoom-in group/img"
+                    className="relative w-full aspect-[4/3] sm:aspect-[4/3] bg-[#140C07] overflow-hidden cursor-zoom-in group/img"
                   >
                     {/* Fond d'ambiance harmonisé flouté */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                       <Image
-                        src={board.image}
+                        src={formatImageUrl(board.image, '/placeholder.png')}
                         alt=""
                         fill
                         className="object-cover scale-125 blur-2xl opacity-30 brightness-75"
@@ -623,7 +627,7 @@ export default function BijouxDePortePage() {
                     <div className="relative w-full h-full p-1.5 sm:p-2.5 flex items-center justify-center">
                       <div className="relative w-full h-full rounded-lg sm:rounded-2xl overflow-hidden border border-[#E6A635]/25 shadow-[0_6px_20px_rgba(0,0,0,0.6)] bg-[#140C07] group-hover:border-[#E6A635]/70 transition-all duration-500">
                         <Image
-                          src={board.image}
+                          src={formatImageUrl(board.image, '/placeholder.png')}
                           alt={board.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -633,15 +637,15 @@ export default function BijouxDePortePage() {
                       </div>
                     </div>
 
-                    {/* Badge Zoom HD transparent */}
-                    <div className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 z-10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/30 backdrop-blur-sm border border-white/20 text-[#F2BD52] text-[8.5px] sm:text-[9.5px] font-medium flex items-center gap-1 shadow group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-all">
-                      <ZoomIn className="size-2.5 sm:size-3" />
+                    {/* Badge Zoom HD en verre dépoli */}
+                    <div className="absolute top-2 right-2 sm:top-3.5 sm:right-3.5 z-10 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/70 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[8px] sm:text-[10px] font-bold flex items-center gap-1 shadow group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-all">
+                      <ZoomIn className="size-2 sm:size-3" />
                       <span>Zoom HD</span>
                     </div>
 
                     {board.dimensions && (
-                      <div className="absolute bottom-2.5 left-2.5 sm:bottom-3.5 sm:left-3.5 z-10">
-                        <span className="px-2 py-0.5 rounded-full bg-black/30 backdrop-blur-sm border border-white/15 text-[#F2BD52] text-[8.5px] sm:text-[9px] font-medium shadow">
+                      <div className="absolute bottom-2 left-2 sm:bottom-3.5 sm:left-3.5 z-10">
+                        <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-md border border-[#E6A635]/30 text-[#F2BD52] text-[8px] sm:text-[9.5px] font-medium shadow">
                           {board.dimensions}
                         </span>
                       </div>
@@ -649,28 +653,28 @@ export default function BijouxDePortePage() {
                   </div>
 
                   {/* Fiche d'information */}
-                  <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3">
+                  <div className="p-2.5 sm:p-5 flex-1 flex flex-col justify-between space-y-1.5 sm:space-y-3">
                     <div>
-                      <h4 className="font-heading text-[14px] sm:text-lg text-white group-hover:text-[#F2BD52] transition-colors leading-tight">
+                      <h4 className="font-heading text-xs sm:text-lg text-white group-hover:text-[#F2BD52] transition-colors leading-tight line-clamp-1 sm:line-clamp-none">
                         {board.title}
                       </h4>
-                      <p className="text-[10px] sm:text-[11px] text-[#F2BD52] font-medium mt-0.5">{board.subtitle}</p>
+                      <p className="text-[9px] sm:text-[11px] text-[#F2BD52] font-medium mt-0.5 truncate">{board.subtitle}</p>
                       
-                      <p className="text-[11px] sm:text-xs text-white/70 font-light mt-1.5 leading-relaxed line-clamp-3 sm:line-clamp-none">
+                      <p className="hidden sm:block text-[11px] sm:text-xs text-white/70 font-light mt-1.5 leading-relaxed">
                         {board.description}
                       </p>
 
-                      <div className="mt-1.5 sm:mt-2.5 p-1.5 sm:p-2 rounded-lg bg-[#1A110B]/60 border border-white/5 text-[9.5px] sm:text-[10.5px] text-white/80">
+                      <div className="hidden sm:block mt-1.5 sm:mt-2.5 p-1.5 sm:p-2 rounded-lg bg-[#1A110B]/60 border border-white/5 text-[9.5px] sm:text-[10.5px] text-white/80">
                         <span className="font-bold text-[#E6A635]">Recommandé pour : </span>
                         {board.idealFor}
                       </div>
                     </div>
 
                     {/* Boutons d'Appel / Commande par Téléphone */}
-                    <div className="pt-2 sm:pt-3 border-t border-white/10 flex items-center gap-1.5 sm:gap-2">
+                    <div className="pt-1.5 sm:pt-3 border-t border-white/10 flex items-center gap-1 sm:gap-2">
                       <a
                         href="tel:+21655743760"
-                        className="flex-1 py-1.5 sm:py-2 px-3 rounded-lg sm:rounded-xl bg-[#E6A635] text-[#1A110B] hover:bg-[#F3C45E] text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 transition-colors shadow"
+                        className="flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg sm:rounded-xl bg-[#E6A635] text-[#1A110B] hover:bg-[#F3C45E] text-[9.5px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 transition-colors shadow"
                       >
                         <Phone className="size-2.5 sm:size-3" />
                         <span>Commander</span>
@@ -682,7 +686,7 @@ export default function BijouxDePortePage() {
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-1.5 px-2.5 sm:py-2 sm:px-3 rounded-lg sm:rounded-xl bg-[#25D366]/20 border border-[#25D366]/50 text-[#25D366] hover:bg-[#25D366] hover:text-white text-[10.5px] sm:text-[11px] font-bold flex items-center justify-center transition-colors"
+                        className="py-1.5 px-2 sm:py-2 sm:px-3 rounded-lg sm:rounded-xl bg-[#25D366]/20 border border-[#25D366]/50 text-[#25D366] hover:bg-[#25D366] hover:text-white text-[9.5px] sm:text-[11px] font-bold flex items-center justify-center transition-colors shrink-0"
                         title="Commander par WhatsApp"
                       >
                         <MessageCircle className="size-3 sm:size-3.5" />
@@ -769,9 +773,10 @@ export default function BijouxDePortePage() {
               {/* Image en grand */}
               <div className="relative flex-1 min-h-[40vh] sm:min-h-[70vh] bg-black/40 flex items-center justify-center p-2">
                 <img
-                  src={lightboxImage.url}
+                  src={formatImageUrl(lightboxImage.url, '/placeholder.png')}
                   alt={lightboxImage.title}
                   className="max-h-[60vh] sm:max-h-[75vh] w-auto object-contain rounded-lg mx-auto"
+                  onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
                 />
               </div>
 

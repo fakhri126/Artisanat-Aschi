@@ -10,6 +10,29 @@ import { publicApi, Relooking } from '@/lib/api'
 import { Sparkles, ArrowRightLeft, Mail, Phone, Hammer, MessageCircle, ArrowRight } from 'lucide-react'
 import { Reveal } from '@/components/site/reveal'
 
+import { formatImageUrl } from '@/lib/utils'
+
+const DEMO_RELOOKINGS: Relooking[] = [
+  {
+    id: 901,
+    title: "Commode Louis XV en Noyer d'Ébénisterie",
+    category: "Commode Ancienne",
+    description: "Restauration complète des marqueteries, décapage artisanal du vernis jauni, et application d'une patine satinée avec rechampis à la cire d'abeille naturelle.",
+    imageAvantUrl: "/gallery-1.png",
+    imageApresUrl: "/relooking_service.jpg",
+    createdDate: "2026-02-15"
+  },
+  {
+    id: 902,
+    title: "Fauteuil Bergère d'Époque Sublimé",
+    category: "Sièges & Sculptures",
+    description: "Consolidation des assemblages en tenon-mortaise, sculpture manuelle restaurée, laque d'atelier noir mat profond et garnissage traditionnel soyeux.",
+    imageAvantUrl: "/gallery-2.png",
+    imageApresUrl: "/herochaise.png",
+    createdDate: "2026-03-01"
+  }
+]
+
 function BeforeAfterItem({ item }: { item: Relooking }) {
   const [sliderPosition, setSliderPosition] = useState(50) // 0 to 100
   const [isDragging, setIsDragging] = useState(false)
@@ -47,6 +70,9 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
     }
   }, [isDragging])
 
+  const apresSrc = formatImageUrl(item.imageApresUrl, '/relooking_service.jpg')
+  const avantSrc = formatImageUrl(item.imageAvantUrl, '/gallery-1.png')
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-center bg-[#3B271C]/90 rounded-3xl p-5 sm:p-7 md:p-8 border border-[#E6A635]/35 hover:border-[#E6A635]/75 backdrop-blur-xl shadow-[0_15px_35px_rgba(0,0,0,0.65)] transition-all duration-300">
       {/* Draggable Slider Area */}
@@ -54,45 +80,63 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
         ref={containerRef}
         onMouseMove={handleMouseMove}
         onTouchMove={handleTouchMove}
-        onMouseDown={() => setIsDragging(true)}
-        onTouchStart={() => setIsDragging(true)}
+        onMouseDown={(e) => {
+          setIsDragging(true)
+          handleMove(e.clientX)
+        }}
+        onTouchStart={(e) => {
+          setIsDragging(true)
+          if (e.touches.length > 0) handleMove(e.touches[0].clientX)
+        }}
         className="relative w-full lg:w-[50%] aspect-[16/10] rounded-2xl overflow-hidden shadow-xl select-none cursor-ew-resize border border-[#E6A635]/30 shrink-0 bg-[#241812]"
       >
-        {/* After Image (Full Base) */}
-        <Image
-          src={item.imageApresUrl}
-          alt={`Après : ${item.title}`}
-          fill
-          className="object-cover pointer-events-none"
-        />
-        <div className="absolute top-3.5 right-3.5 bg-[#241812]/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#F2BD52] border border-[#E6A635]/40 pointer-events-none shadow-md">
-          Après
+        {/* Base Layer: Après Image */}
+        <div className="absolute inset-0">
+          <img
+            src={apresSrc}
+            alt={`Après : ${item.title}`}
+            className="absolute inset-0 w-full h-full object-cover block pointer-events-none"
+            onError={(e) => {
+              const target = e.currentTarget
+              if (!target.dataset.fallback) {
+                target.dataset.fallback = '1'
+                target.src = '/relooking_service.jpg'
+              }
+            }}
+          />
+          <div className="absolute top-3.5 right-3.5 bg-[#241812]/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#F2BD52] border border-[#E6A635]/40 pointer-events-none shadow-md z-10">
+            Après
+          </div>
         </div>
 
-        {/* Before Image (Clipped Left Layer) */}
+        {/* Clipped Top Layer: Avant Image */}
         <div
-          className="absolute inset-0 overflow-hidden pointer-events-none"
-          style={{ width: `${sliderPosition}%` }}
+          className="absolute inset-0 pointer-events-none overflow-hidden"
+          style={{
+            clipPath: `inset(0 ${100 - sliderPosition}% 0 0)`,
+            WebkitClipPath: `inset(0 ${100 - sliderPosition}% 0 0)`
+          }}
         >
-          <div 
-            className="relative h-full min-h-full"
-            style={{ width: containerRef.current ? `${containerRef.current.offsetWidth}px` : '100%' }}
-          >
-            <Image
-              src={item.imageAvantUrl}
-              alt={`Avant : ${item.title}`}
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="absolute top-3.5 left-3.5 bg-[#1A110B]/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#EAE4D9] border border-white/20 pointer-events-none shadow-md">
+          <img
+            src={avantSrc}
+            alt={`Avant : ${item.title}`}
+            className="absolute inset-0 w-full h-full object-cover block pointer-events-none"
+            onError={(e) => {
+              const target = e.currentTarget
+              if (!target.dataset.fallback) {
+                target.dataset.fallback = '1'
+                target.src = '/gallery-1.png'
+              }
+            }}
+          />
+          <div className="absolute top-3.5 left-3.5 bg-[#1A110B]/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#EAE4D9] border border-white/20 pointer-events-none shadow-md z-10">
             Avant
           </div>
         </div>
 
         {/* Vertical Divider Line & Handle */}
         <div
-          className="absolute top-0 bottom-0 w-0.5 bg-[#E6A635] shadow-[0_0_10px_#E6A635] pointer-events-none z-10"
+          className="absolute top-0 bottom-0 w-0.5 bg-[#E6A635] shadow-[0_0_10px_#E6A635] pointer-events-none z-20"
           style={{ left: `${sliderPosition}%` }}
         >
           <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-9 rounded-full bg-[#E6A635] text-[#1A110B] flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.8)] border-2 border-white pointer-events-auto cursor-ew-resize hover:scale-110 active:scale-95 transition-transform">
@@ -157,11 +201,14 @@ export default function RelookingPage() {
       })
   }, [])
 
+  const validDbItems = items.filter(i => (i.imageAvantUrl && i.imageAvantUrl.trim() !== '') || (i.imageApresUrl && i.imageApresUrl.trim() !== ''))
+  const displayItems = validDbItems.length > 0 ? validDbItems : DEMO_RELOOKINGS
+
   return (
     <main className="relative w-full min-h-screen flex flex-col text-[#F7F4EE] overflow-x-hidden bg-[#241812]">
-      {/* 🌟 FOND MAÎTRE SCROLLABLE UNIFORME (Luminosité constante sur toute la page, sans dégradé) */}
+      {/* 🌟 FOND MAÎTRE SCROLLABLE UNIFORME */}
       <div className="absolute inset-0 z-0 opacity-75 brightness-80 pointer-events-none bg-[url('/images/bg-relooking.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat bg-performance-layer transform-gpu" />
-      {/* Voile d'ombrage plat et uniforme (100% même luminosité de haut en bas, aucun dégradé) */}
+      {/* Voile d'ombrage plat et uniforme */}
       <div className="absolute inset-0 bg-[#241812]/65 pointer-events-none z-0" />
 
       <div className="relative z-10 w-full">
@@ -193,12 +240,8 @@ export default function RelookingPage() {
                 <div className="text-center py-16 text-[#F2BD52] animate-pulse">
                   Chargement de nos restaurations...
                 </div>
-              ) : items.length === 0 ? (
-                <div className="text-center py-16 text-[#EAE4D9]/70">
-                  Aucune pièce en cours de démonstration.
-                </div>
               ) : (
-                items.map(item => (
+                displayItems.map(item => (
                   <Reveal key={item.id}>
                     <BeforeAfterItem item={item} />
                   </Reveal>

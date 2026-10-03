@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { Paintbrush, Sparkles, ArrowRight, ArrowLeftRight } from 'lucide-react'
 import Link from 'next/link'
 import { publicApi, Relooking } from '@/lib/api'
+import { formatImageUrl } from '@/lib/utils'
 
 export function HeroRelooking() {
   const [relooking, setRelooking] = useState<Relooking | null>(null)
@@ -43,8 +44,8 @@ export function HeroRelooking() {
     if (isDragging) handleMove(e.touches[0].clientX)
   }
 
-  const beforeImg = relooking?.imageAvantUrl || '/images/about-atelier-stand.jpg'
-  const afterImg = relooking?.imageApresUrl || '/prod1.jpg'
+  const beforeImg = formatImageUrl(relooking?.imageAvantUrl, '/gallery-1.png')
+  const afterImg = formatImageUrl(relooking?.imageApresUrl, '/relooking_service.jpg')
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-transparent flex items-center justify-center font-sans py-2 sm:py-4">
@@ -105,31 +106,29 @@ export function HeroRelooking() {
           >
             {/* After Image (Full width background) */}
             <div className="absolute inset-0">
-              <Image 
+              <img 
                 src={afterImg} 
                 alt="Après Restauration d'Art" 
-                fill 
-                className="object-cover" 
+                className="size-full object-cover pointer-events-none" 
+                onError={(e) => { (e.target as HTMLImageElement).src = '/relooking_service.jpg' }}
               />
-              <div className="absolute top-3.5 right-3.5 bg-[#3B271C]/95 backdrop-blur-md px-3.5 py-1 rounded-full border border-[#E6A635]/40 text-[9.5px] uppercase tracking-[0.2em] font-bold text-[#F2BD52] shadow-md">
+              <div className="absolute top-3.5 right-3.5 bg-[#3B271C]/95 backdrop-blur-md px-3.5 py-1 rounded-full border border-[#E6A635]/40 text-[9.5px] uppercase tracking-[0.2em] font-bold text-[#F2BD52] shadow-md z-10">
                 Après Restauration
               </div>
             </div>
 
             {/* Before Image (Clipped with sliderPosition) */}
             <div 
-              className="absolute inset-0 overflow-hidden"
-              style={{ width: `${sliderPosition}%` }}
+              className="absolute inset-0 overflow-hidden pointer-events-none"
+              style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
             >
-              <div className="relative w-full h-full max-w-none" style={{ width: containerRef.current ? containerRef.current.clientWidth : '100%' }}>
-                <Image 
-                  src={beforeImg} 
-                  alt="Avant Restauration" 
-                  fill 
-                  className="object-cover" 
-                />
-              </div>
-              <div className="absolute top-3.5 left-3.5 bg-[#1A110B]/90 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/25 text-[9.5px] uppercase tracking-[0.2em] font-bold text-white shadow-md">
+              <img 
+                src={beforeImg} 
+                alt="Avant Restauration" 
+                className="size-full object-cover" 
+                onError={(e) => { (e.target as HTMLImageElement).src = '/gallery-1.png' }}
+              />
+              <div className="absolute top-3.5 left-3.5 bg-[#1A110B]/90 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/25 text-[9.5px] uppercase tracking-[0.2em] font-bold text-white shadow-md z-10">
                 État Initial
               </div>
             </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, isBijouxOrHandleProduct } from '@/lib/utils'
 import { Reveal } from './reveal'
 import { publicApi, Product } from '@/lib/api'
 import Link from 'next/link'
@@ -26,14 +26,7 @@ export function Creations() {
 
         // Only keep available products (not inspiration ones) and exclude Bijoux de Porte
         const availableProds = prodData.filter((p) => {
-          const isCatalog = p.type === 'CATALOGUE'
-          const catName = p.category?.name?.toLowerCase() || ''
-          const prodName = p.name?.toLowerCase() || ''
-          const mat = p.materials?.toLowerCase() || ''
-          const isBijoux = catName.includes('bijou') || catName.includes('poignée') || catName.includes('bouton') || catName.includes('porte') || catName.includes('ronds') || catName.includes('ovales') ||
-                           prodName.includes('bijou') || prodName.includes('poignée') || prodName.includes('bouton') ||
-                           mat.includes('céramique') || mat.includes('majolique')
-          return !isCatalog && !isBijoux
+          return p.type !== 'CATALOGUE' && !isBijouxOrHandleProduct(p)
         })
         setAllProducts(availableProds)
 

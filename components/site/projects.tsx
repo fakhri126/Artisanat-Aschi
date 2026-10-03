@@ -25,6 +25,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Reveal } from './reveal'
 import { publicApi } from '@/lib/api'
+import { formatImageUrl } from '@/lib/utils'
 
 export interface ProjectItem {
   id: number
@@ -78,7 +79,88 @@ const PROCESS_STEPS = [
 ]
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/*  BENTO PROJECT CARD (1 Grande, 1 Moyenne, 2 Petites)                       */
+/*  DEFAULT PRESTIGE PROJECTS FALLBACK                                        */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+const DEFAULT_PROJECTS: ProjectItem[] = [
+  {
+    id: 1,
+    title: 'Hôtel Dar El Jeld',
+    category: 'Hôtels & Palaces',
+    filterType: 'hotel',
+    imageUrl: '/project-hotel.png',
+    gallery: ['/project-hotel.png', '/gallery-1.png', '/gallery-2.png', '/porte.png'],
+    description: 'Aménagement monumental complet de l\'établissement de luxe. Portes cochères sculptées en noyer massif, habillages muraux géométriques d\'inspiration andalouse, et mobilier de salon d\'exception.',
+    location: 'Médina de Tunis',
+    details: 'Portes monumentales, Boiseries d\'art, Salons de réception, Luminaires',
+    detailsList: ['Portes monumentales', 'Boiseries d\'art', 'Salons de réception', 'Luminaires'],
+    materials: 'Noyer noble, bois séché & finitions d\'art',
+    videoUrl: '/Video.mp4',
+    video: '/Video.mp4',
+  },
+  {
+    id: 2,
+    title: 'Maison d\'Hôtes Dar Said',
+    category: 'Maisons d\'Hôtes',
+    filterType: 'guesthouse',
+    imageUrl: '/project-guesthouse.png',
+    gallery: ['/project-guesthouse.png', '/gallery-3.png', '/gallery-4.png', '/miroir.png'],
+    description: 'Conception sur-mesure d\'éléments de mobilier pour les suites de prestige. Lits à baldaquin sculptés, commodes incrustées de laiton poli et cadres de miroirs dorés à la feuille d\'or.',
+    location: 'Sidi Bou Saïd',
+    details: 'Mobilier de chambre, Miroirs sculptés, Incrustations laiton, Consoles',
+    detailsList: ['Mobilier de chambre', 'Miroirs sculptés', 'Incrustations laiton', 'Consoles'],
+    materials: 'Noyer noble, bois séché & finitions d\'art',
+    videoUrl: '/test-video.mp4',
+    video: '/test-video.mp4',
+  },
+  {
+    id: 3,
+    title: 'Villa de Maître Carthage',
+    category: 'Villas & Résidences Privées',
+    filterType: 'villa',
+    imageUrl: '/project-villa.png',
+    gallery: ['/project-villa.png', '/gallery-1.png', '/creation-unique.png'],
+    description: 'Création intégrale de menuiserie d\'art pour une résidence privée de prestige. Portes monumentales extérieures cloutées, plafonds à caissons en noyer et habillages muraux sculptés.',
+    location: 'Carthage',
+    details: 'Portes monumentales, Plafonds à caissons, Moucharabiehs, Mobilier de salon',
+    detailsList: ['Portes monumentales', 'Plafonds à caissons', 'Moucharabiehs', 'Mobilier de salon'],
+    materials: 'Noyer noble, bois séché & finitions d\'art',
+    videoUrl: '/Video.mp4',
+    video: '/Video.mp4',
+  },
+  {
+    id: 4,
+    title: 'Résidence Panorama Marina',
+    category: 'Projets Immobiliers',
+    filterType: 'immobilier',
+    imageUrl: '/creation-model.png',
+    gallery: ['/creation-model.png', '/project-hotel.png', '/gallery-2.png'],
+    description: 'Conception et fabrication en série sur-mesure pour un programme immobilier de grand standing. Portes palières sculptées, agencements de halls d\'entrée et claustras décoratifs.',
+    location: 'Gammarth',
+    details: 'Portes de standing, Habillage hall d\'accueil, Claustras et moucharabiehs',
+    detailsList: ['Portes de standing', 'Habillage hall d\'accueil', 'Claustras et moucharabiehs'],
+    materials: 'Noyer noble, bois séché & finitions d\'art',
+    videoUrl: '/test-video.mp4',
+    video: '/test-video.mp4',
+  },
+  {
+    id: 5,
+    title: 'Bureaux Corporate & Restaurant L\'Ébène',
+    category: 'Espaces Professionnels & Commerciaux',
+    filterType: 'pro_commercial',
+    imageUrl: '/project-restaurant.png',
+    gallery: ['/project-restaurant.png', '/gallery-5.png', '/gallery-6.png', '/buffet.png'],
+    description: 'Aménagement prestigieux de la salle du conseil d\'administration et de l\'espace restaurant lounge. Table de réunion de 6 mètres en chêne massif et habillage acoustique sculpté.',
+    location: 'Les Berges du Lac, Tunis',
+    details: 'Table de conférence, Comptoir de bar d\'art, Habillages acoustiques',
+    detailsList: ['Table de conférence', 'Comptoir de bar d\'art', 'Habillages acoustiques'],
+    materials: 'Noyer noble, bois séché & finitions d\'art',
+    videoUrl: '/test-video.mp4',
+    video: '/test-video.mp4',
+  }
+]
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  COMPACT PROJECT CARD (Moderne, Côte à Côte, Sans Description)             */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 function BentoProjectCard({
   project,
@@ -89,89 +171,54 @@ function BentoProjectCard({
   index: number
   onOpen: (p: ProjectItem) => void
 }) {
-  const isGrande = index === 0
-  const isMoyenne = index === 3
-
-  // Disposition Bento géométrique :
-  // - Index 0 (Grande)  : 2 colonnes x 2 lignes sur lg, 2 colonnes x 2 lignes sur sm
-  // - Index 1 (Petite)  : 1 colonne x 1 ligne
-  // - Index 2 (Petite)  : 1 colonne x 1 ligne
-  // - Index 3 (Moyenne) : 2 colonnes x 1 ligne
-  const spanClass = isGrande
-    ? 'sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2 min-h-[24rem] sm:min-h-[28rem] lg:min-h-0'
-    : isMoyenne
-      ? 'sm:col-span-2 lg:col-span-2 min-h-[16rem] sm:min-h-[18rem] lg:min-h-0'
-      : 'sm:col-span-1 lg:col-span-1 min-h-[16rem] sm:min-h-[18rem] lg:min-h-0'
-
-  // Image et vidéo
-  let displayImage = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
-  if (displayImage.match(/\.(mp4|webm|ogg|mov)$/i)) {
+  // Image fixe optimisée
+  let rawDisplay = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
+  if (rawDisplay.match(/\.(mp4|webm|ogg|mov)$/i)) {
     const fallbackPhoto = project.gallery?.find((g) => !g.match(/\.(mp4|webm|ogg|mov)$/i))
-    displayImage = (fallbackPhoto ? fallbackPhoto.split(',')[0].trim() : '') || '/project-hotel.png'
+    rawDisplay = (fallbackPhoto ? fallbackPhoto.split(',')[0].trim() : '') || '/project-hotel.png'
   }
+  const displayImage = formatImageUrl(rawDisplay, '/project-hotel.png')
+  const hasVideo = Boolean(project.videoUrl || project.video)
 
   return (
     <Reveal
-      delay={index * 90}
-      className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl cursor-pointer ${spanClass}`}
+      delay={index * 70}
+      className="group relative overflow-hidden rounded-xl sm:rounded-2xl cursor-pointer h-full"
     >
       <div
         onClick={() => onOpen(project)}
-        className="w-full h-full relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-[#E6A635]/30 hover:border-[#E6A635]/80 transition-all duration-500 hover:shadow-[0_0_40px_rgba(230,166,53,0.3)] bg-[#1A110B] flex flex-col justify-end"
+        className="w-full h-full relative rounded-xl sm:rounded-2xl overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.55)] border border-[#E6A635]/30 hover:border-[#E6A635]/85 transition-all duration-300 hover:shadow-[0_12px_30px_rgba(230,166,53,0.25)] bg-gradient-to-b from-[#2A1C14] via-[#1E130D] to-[#140C08] flex flex-col justify-between hover:-translate-y-1"
       >
-        {/* Photo de couverture exclusive sur l'extérieur (pas de vidéo en extérieur) */}
-        <Image
-          src={displayImage}
-          alt={project.title}
-          fill
-          unoptimized
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 50vw"
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-90 group-hover:opacity-100"
-          loading={isGrande ? 'eager' : 'lazy'}
-          onError={(e) => {
-            const filename = displayImage.split('/').pop()?.split('#')[0]
-            if (filename && displayImage.startsWith('http')) {
-              e.currentTarget.src = `/uploads/${filename}`
-            } else {
-              e.currentTarget.src = '/project-hotel.png'
-            }
-          }}
-        />
+        {/* Liseré doré supérieur au survol */}
+        <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-[#E6A635] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
 
-        {/* Voile d'ambiance ultra-doux préservant la pleine clarté et luminosité de la photo d'art */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent transition-opacity duration-500 group-hover:opacity-90 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-transparent opacity-60 pointer-events-none" />
+        {/* ── Cadre Photo de Prestige (Mise en avant de la réalisation) ── */}
+        <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full overflow-hidden bg-[#120B08] shrink-0 border-b border-[#E6A635]/20">
+          <Image
+            src={displayImage}
+            alt={project.title}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-106"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#140C08]/90 via-[#140C08]/20 to-black/20 opacity-60 group-hover:opacity-30 transition-opacity duration-300" />
 
-        {/* Bouton flèche en haut à droite transparent et discret */}
-        <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10 pointer-events-none">
-          <span className="size-8 sm:size-9 rounded-full bg-black/30 backdrop-blur-sm border border-white/20 text-[#F2BD52] flex items-center justify-center group-hover:bg-[#E6A635] group-hover:text-[#1A110B] group-hover:rotate-45 transition-all duration-300 shadow-md">
-            <ArrowUpRight className="size-4" />
-          </span>
+          {/* Indicateur vidéo subtil et discret */}
+          {hasVideo && (
+            <div className="absolute top-2 right-2 z-10 pointer-events-none">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1A110B]/85 border border-[#E6A635]/40 text-[#F2BD52] text-[9px] font-semibold backdrop-blur-md shadow-md">
+                <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <Film className="size-2.5 text-[#E6A635]" />
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Contenu textuel 100% transparent : Ne masque pas l'image */}
-        <div className="relative z-10 p-4 sm:p-6 text-left bg-transparent">
-          {/* Ligne de sur-titre discret */}
-          <div className="flex items-center gap-1.5 mb-1.5 text-[9.5px] sm:text-[10.5px] uppercase font-bold tracking-[0.16em] text-[#F2BD52] drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
-            <span className="size-1.5 rounded-full bg-[#E6A635] shadow-[0_0_6px_#E6A635]" />
-            <span>{project.location ? `${project.category} • ${project.location}` : project.category}</span>
-          </div>
-
-          {/* Titre Noble */}
-          <h3
-            className={`font-heading font-medium text-white leading-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] group-hover:text-[#F2BD52] transition-colors truncate ${
-              isGrande
-                ? 'text-xl sm:text-2xl lg:text-3xl'
-                : isMoyenne
-                  ? 'text-lg sm:text-xl lg:text-2xl'
-                  : 'text-base sm:text-lg'
-            }`}
-          >
+        {/* ── Contenu épuré : UNIQUEMENT LE NOM DU PROJET ── */}
+        <div className="p-2.5 sm:p-4 flex items-center justify-center text-center flex-1">
+          <h3 className="font-heading font-medium text-white group-hover:text-[#F2BD52] transition-colors line-clamp-2 text-xs sm:text-base leading-snug tracking-wide">
             {project.title}
           </h3>
-
-          {/* Liseré or discret animé au survol */}
-          <div className="mt-2 h-[1px] w-6 bg-[#E6A635]/60 group-hover:w-14 group-hover:bg-[#E6A635] transition-all duration-500 drop-shadow-md" />
         </div>
       </div>
     </Reveal>
@@ -179,7 +226,7 @@ function BentoProjectCard({
 }
 
 export function Projects() {
-  const [projects, setProjects] = useState<ProjectItem[]>([])
+  const [projects, setProjects] = useState<ProjectItem[]>(DEFAULT_PROJECTS)
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [lightboxProject, setLightboxProject] = useState<{ images: string[]; currentIndex: number; title: string } | null>(null)
@@ -256,16 +303,39 @@ export function Projects() {
           setProjects(mapped)
         }
       } catch (err) {
-        console.warn('Backend unavailable:', err)
-        setProjects([])
+        console.warn('Backend unavailable, using default projects:', err)
       }
     }
     loadDynamicProjects()
   }, [])
 
-  // Exactement jusqu'à 4 projets affichés sur l'accueil dans la disposition Bento
+  // Sélectionner exactement 4 projets prestigieux pour l'accueil : 1 de chaque type distinct
   const displayProjects = useMemo(() => {
-    return projects.slice(0, 4)
+    const TARGET_TYPES = ['hotel', 'guesthouse', 'villa', 'immobilier']
+    const selected: ProjectItem[] = []
+    const usedIds = new Set<number>()
+
+    // 1. Prendre un projet représentatif de chaque type distinct
+    for (const type of TARGET_TYPES) {
+      const match = projects.find(p => p.filterType === type && !usedIds.has(p.id))
+      if (match) {
+        selected.push(match)
+        usedIds.add(match.id)
+      }
+    }
+
+    // 2. Si un type manque, compléter avec les projets restants jusqu'à avoir 4 projets
+    if (selected.length < 4) {
+      for (const p of projects) {
+        if (!usedIds.has(p.id)) {
+          selected.push(p)
+          usedIds.add(p.id)
+          if (selected.length === 4) break
+        }
+      }
+    }
+
+    return selected.slice(0, 4)
   }, [projects])
 
   // Reset gallery index and video audio state when opening a new project
@@ -331,10 +401,10 @@ export function Projects() {
         </div>
 
         {/* ================================================================= */}
-        {/* DISPOSITION BENTO : 1 GRANDE, 2 PETITES, 1 MOYENNE (4 PROJETS)    */}
+        {/* GRILLE PROJETS CLÉS EN MAIN (Côte à côte 2 colonnes sur mobile, 2 à 4 sur écran large) */}
         {/* ================================================================= */}
         {displayProjects.length > 0 && (
-          <div className="mt-8 sm:mt-12 grid auto-rows-[16rem] sm:auto-rows-[18rem] lg:auto-rows-[19rem] grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="mt-6 sm:mt-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4">
             {displayProjects.map((p, idx) => (
               <BentoProjectCard
                 key={p.id || idx}
@@ -448,7 +518,7 @@ export function Projects() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.25 }}
-              className="relative w-full max-w-[96vw] xl:max-w-7xl 2xl:max-w-[1550px] bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] z-10 flex flex-col lg:flex-row max-h-[94vh] h-[92vh] overflow-hidden"
+              className="relative w-full max-w-5xl bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] z-10 flex flex-col md:flex-row max-h-[92vh] overflow-y-auto md:overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -459,8 +529,38 @@ export function Projects() {
                 <X className="size-4 sm:size-5" />
               </button>
 
-              {/* LEFT COLUMN: Grand Écran Média Cinématique Agrandie + Ruban de Miniatures */}
-              <div className="w-full lg:w-[68%] xl:w-[70%] flex flex-col border-b lg:border-b-0 lg:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/70 min-h-0">
+              {/* 📱 EN-TÊTE DU PROJET SUR MOBILE (EN HAUT : Titre & Description avant le média) */}
+              <div className="block md:hidden p-4 sm:p-5 pb-2.5 space-y-2 text-left bg-[#1A110B]/90 border-b border-[#E6A635]/25 pr-14">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9.5px] uppercase tracking-[0.15em] px-3 py-0.5 rounded-full font-bold shadow-sm">
+                    <Sparkles className="size-2.5" />
+                    {selectedProject.category}
+                  </span>
+                  {selectedProject.location && (
+                    <div className="flex items-center gap-1 text-[11px] text-[#F2BD52] font-medium">
+                      <MapPin className="size-3 text-[#E6A635]" />
+                      <span>{selectedProject.location}</span>
+                    </div>
+                  )}
+                </div>
+
+                <h3 className="font-heading text-xl sm:text-2xl text-gold-gradient font-light leading-snug">
+                  {selectedProject.title}
+                </h3>
+
+                {selectedProject.description ? (
+                  <p className="text-xs text-white/80 font-light leading-relaxed">
+                    {selectedProject.description}
+                  </p>
+                ) : (
+                  <p className="text-xs text-white/70 font-light leading-relaxed">
+                    Conception intégrale et aménagements artisanaux d&apos;exception réalisés par l&apos;Atelier Aschi.
+                  </p>
+                )}
+              </div>
+
+              {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif (Au milieu sur mobile) */}
+              <div className="w-full md:w-[58%] flex flex-col border-b md:border-b-0 md:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/60">
                 
                 {/* Barre supérieure d'état du média */}
                 <div className="flex items-center justify-between">
@@ -574,9 +674,10 @@ export function Projects() {
                   ) : (
                     <>
                       {(() => {
-                        const modalImg = (selectedProject.gallery && selectedProject.gallery[typeof modalActiveView === 'number' ? modalActiveView : 0]?.split(',')[0]?.trim()) ||
+                        const rawImg = (selectedProject.gallery && selectedProject.gallery[typeof modalActiveView === 'number' ? modalActiveView : 0]?.split(',')[0]?.trim()) ||
                           (selectedProject.imageUrl ? selectedProject.imageUrl.split(',')[0].trim() : '') ||
                           '/project-hotel.png'
+                        const modalImg = formatImageUrl(rawImg, '/project-hotel.png')
                         return (
                           <Image
                             src={modalImg}
@@ -683,7 +784,8 @@ export function Projects() {
 
                     {/* Miniatures des Photos */}
                     {selectedProject.gallery && selectedProject.gallery.map((img: string, idx: number) => {
-                      const thumbUrl = img.split(',')[0].trim()
+                      const cleanUrl = img.split(',')[0].trim()
+                      const thumbUrl = formatImageUrl(cleanUrl, '/project-hotel.png')
                       return (
                         <button
                           key={idx}
@@ -702,8 +804,8 @@ export function Projects() {
                             unoptimized
                             className="object-cover"
                             onError={(e) => {
-                              const filename = thumbUrl.split('/').pop()?.split('#')[0]
-                              if (filename && thumbUrl.startsWith('http')) {
+                              const filename = cleanUrl.split('/').pop()?.split('#')[0]
+                              if (filename && cleanUrl.startsWith('http')) {
                                 e.currentTarget.src = `/uploads/${filename}`
                               } else {
                                 e.currentTarget.src = '/project-hotel.png'
@@ -724,8 +826,8 @@ export function Projects() {
               {/* RIGHT COLUMN: Détails de Prestige, Spécifications Nobles & CTA */}
               <div className="w-full lg:w-[32%] xl:w-[30%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
                 
-                {/* En-tête du projet */}
-                <div className="space-y-2.5">
+                {/* En-tête du projet (Desktop uniquement, affiché en haut sur mobile) */}
+                <div className="hidden md:block space-y-2.5">
                   <div className="flex items-center justify-between gap-2">
                     <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9.5px] sm:text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full font-bold shadow-sm">
                       <Sparkles className="size-2.5" />
@@ -885,7 +987,7 @@ export function Projects() {
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={lightboxProject.images[lightboxProject.currentIndex]?.split(',')[0]?.trim() || '/project-hotel.png'}
+                src={formatImageUrl(lightboxProject.images[lightboxProject.currentIndex]?.split(',')[0]?.trim(), '/project-hotel.png')}
                 alt={lightboxProject.title}
                 fill
                 unoptimized
@@ -944,6 +1046,7 @@ export function Projects() {
               >
                 {lightboxProject.images.map((img, idx) => {
                   const cleanImg = img.split(',')[0].trim()
+                  const thumbUrl = formatImageUrl(cleanImg, '/project-hotel.png')
                   return (
                     <button
                       key={idx}
@@ -955,7 +1058,7 @@ export function Projects() {
                       }`}
                     >
                       <Image
-                        src={cleanImg}
+                        src={thumbUrl}
                         alt="Miniature"
                         fill
                         unoptimized

@@ -49,3 +49,45 @@ export function isBijouxOrHandleProduct(p: { name?: string; category?: { name?: 
   return isHandleName || isCeramicHandle
 }
 
+export function formatImageUrl(url: string | null | undefined, fallback: string = '/placeholder.png'): string {
+  if (!url || typeof url !== 'string') return fallback
+
+  let cleaned = url.trim()
+  if (!cleaned) return fallback
+
+  // Strip variant color hashtag (e.g. /uploads/image.jpg#color=Bleu)
+  if (cleaned.includes('#color=')) {
+    cleaned = cleaned.split('#color=')[0]
+  }
+
+  // Normalize Windows backslashes
+  cleaned = cleaned.replace(/\\+/g, '/')
+
+  // Inline data / blob URIs
+  if (cleaned.startsWith('data:') || cleaned.startsWith('blob:')) {
+    return cleaned
+  }
+
+  // Strip backend host prefix if pointing to local backend port 8081
+  cleaned = cleaned.replace(/^https?:\/\/(localhost|127\.0\.0\.1):8081\/api\//, '/')
+  cleaned = cleaned.replace(/^https?:\/\/(localhost|127\.0\.0\.1):8081\//, '/')
+
+  // Convert project Supabase Storage URLs to local /uploads/ proxy so they resolve correctly
+  // either from local public/uploads/ or via the /uploads proxy fallback
+  cleaned = cleaned.replace(/^https?:\/\/[a-z0-9.-]+\.supabase\.co\/storage\/v1\/object\/public\/(media|artisanat-aschi-media)\//i, '/uploads/')
+
+  // Keep valid external absolute URLs (e.g. https://...)
+  if (/^https?:\/\//i.test(cleaned)) {
+    return cleaned
+  }
+
+  // Strip leading 'public/' or '/public/'
+  cleaned = cleaned.replace(/^\/?public\//, '/')
+
+  // Ensure leading slash for relative paths
+  if (!cleaned.startsWith('/')) {
+    cleaned = `/${cleaned}`
+  }
+
+  return cleaned
+}
