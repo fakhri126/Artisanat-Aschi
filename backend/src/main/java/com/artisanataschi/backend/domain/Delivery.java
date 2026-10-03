@@ -16,6 +16,7 @@ public class Delivery {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     private LocalDate deliveryDate;

@@ -6,9 +6,8 @@ import Link from 'next/link'
 import { 
   LayoutDashboard, 
   Package, 
-  MessageSquareCode, 
   Newspaper, 
-  MessageSquare, 
+  Video,
   LogOut, 
   Menu, 
   X, 
@@ -26,7 +25,6 @@ import { cn } from '@/lib/utils'
 
 const SIDEBAR_ITEMS = [
   { href: '/admin/dashboard', label: 'Statistiques', icon: LayoutDashboard },
-  { href: '/admin/quotes', label: 'Devis (Sur-mesure & Relooking)', icon: MessageSquareCode },
   { href: '/admin/bijoux-de-porte', label: 'Bijoux de Porte', icon: Sparkles },
   { href: '/admin/espaces-d-exception', label: 'Projets clés en main', icon: Briefcase },
   { href: '/admin/products', label: 'Produits disponibles', icon: Package },
@@ -34,7 +32,7 @@ const SIDEBAR_ITEMS = [
   { href: '/admin/news', label: 'Actualités', icon: Newspaper },
   { href: '/admin/relooking', label: 'Relookings', icon: ArrowLeftRight },
   { href: '/admin/deliveries', label: 'Livraisons', icon: Package },
-  { href: '/admin/testimonials', label: 'Témoignages', icon: MessageSquare },
+  { href: '/admin/videos', label: 'Gestion des Vidéos', icon: Video },
 ]
 
 export default function AdminLayout({

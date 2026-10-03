@@ -44,6 +44,42 @@ export function Workshop() {
   const [isMuted, setIsMuted] = useState(true)
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [hasLoaded, setHasLoaded] = useState(false)
+  const [isVertical, setIsVertical] = useState(false)
+
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) {
+      const { videoWidth, videoHeight } = videoRef.current
+      if (videoWidth && videoHeight) {
+        setIsVertical(videoHeight > videoWidth)
+      }
+    }
+  }
+
+  // Les données sont initialisées vides et proviennent exclusivement du dashboard (/api/videos)
+  const [savoirFaireData, setSavoirFaireData] = useState({
+    videoUrl: '',
+    title: 'Le Geste Artisanal en 4 Séquences',
+    subtitle: "Démonstration d'Atelier en Vidéo",
+    description: 'Suivez les 4 grandes étapes de fabrication au rythme des mains expertes de nos maîtres ébénistes.',
+    posterUrl: '/images/raw-sculptures.jpg'
+  })
+
+  useEffect(() => {
+    fetch('/api/videos')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.savoir_faire) {
+          setSavoirFaireData(prev => ({
+            videoUrl: data.savoir_faire.videoUrl || '',
+            title: data.savoir_faire.title || prev.title,
+            subtitle: data.savoir_faire.subtitle || prev.subtitle,
+            description: data.savoir_faire.description || prev.description,
+            posterUrl: data.savoir_faire.poster || data.savoir_faire.posterUrl || prev.posterUrl
+          }))
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const toggleSound = () => {
     if (videoRef.current) {
@@ -53,7 +89,7 @@ export function Workshop() {
   }
 
   useEffect(() => {
-    if (!videoRef.current) return
+    if (!videoRef.current || !savoirFaireData.videoUrl) return
 
     if (isInView) {
       setHasLoaded(true)
@@ -61,7 +97,7 @@ export function Workshop() {
     } else if (hasLoaded) {
       videoRef.current.pause()
     }
-  }, [isInView, hasLoaded])
+  }, [isInView, hasLoaded, savoirFaireData.videoUrl])
 
   const handleTimeUpdate = () => {
     if (!videoRef.current) return
@@ -77,7 +113,7 @@ export function Workshop() {
 
   const jumpToStep = (index: number) => {
     setActiveStepIndex(index)
-    if (videoRef.current) {
+    if (videoRef.current && savoirFaireData.videoUrl) {
       const duration = videoRef.current.duration || 20
       const segmentDuration = duration / 4
       videoRef.current.currentTime = segmentDuration * index
@@ -96,64 +132,102 @@ export function Workshop() {
           <Reveal>
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#3B271C]/90 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.2em] mb-2.5 shadow-md">
               <Sparkles className="size-2.5 sm:size-3 text-[#E6A635] animate-pulse" />
-              <span>Démonstration d&apos;Atelier en Vidéo</span>
+              <span>{savoirFaireData.subtitle || "Démonstration d'Atelier en Vidéo"}</span>
             </div>
           </Reveal>
 
           <Reveal delay={60}>
             <h2 className="font-heading text-2xl sm:text-4xl md:text-5xl font-light text-gold-gradient drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)] tracking-tight mb-2">
-              Le Geste Artisanal en 4 Séquences
+              {savoirFaireData.title || "Le Geste Artisanal en 4 Séquences"}
             </h2>
           </Reveal>
 
           <Reveal delay={100}>
             <p className="text-white drop-shadow font-normal max-w-2xl mx-auto text-xs sm:text-sm md:text-base leading-relaxed px-1">
-              Suivez les 4 grandes étapes de fabrication au rythme des mains expertes de nos maîtres ébénistes.
+              {savoirFaireData.description}
             </p>
           </Reveal>
         </div>
 
         {/* Video Frame with Glass & Gold Border */}
         <Reveal delay={120} className="relative w-full max-w-5xl mx-auto">
-          <div className="relative w-full aspect-video min-h-[220px] sm:min-h-[380px] md:min-h-[480px] rounded-2xl sm:rounded-3xl overflow-hidden border-2 sm:border-4 border-[#E6A635]/45 shadow-[0_20px_50px_rgba(0,0,0,0.85)] bg-[#1A110B]">
+          <div className={`relative w-full ${isVertical ? 'aspect-[4/5] sm:aspect-[16/9] min-h-[380px] sm:min-h-[500px] md:min-h-[580px]' : 'aspect-video min-h-[220px] sm:min-h-[380px] md:min-h-[480px]'} rounded-2xl sm:rounded-3xl overflow-hidden border-2 sm:border-4 border-[#E6A635]/45 shadow-[0_20px_50px_rgba(0,0,0,0.85)] bg-[#1A110B] flex items-center justify-center`}>
             
-            {/* Video Element */}
-            <video
-              ref={videoRef}
-              src={hasLoaded ? "/Video-art.mp4" : undefined}
-              poster="/images/raw-sculptures.jpg"
-              autoPlay
-              muted={isMuted}
-              loop
-              playsInline
-              preload="none"
-              onTimeUpdate={handleTimeUpdate}
-              className="absolute inset-0 size-full object-cover opacity-90"
-            />
+            {/* Vidéo ajoutée exclusivement depuis le dashboard */}
+            {savoirFaireData.videoUrl ? (
+              <>
+                {/* 1. Fond d'ambiance flou dynamique (pour remplir les côtés harmonieusement sans bandes noires brutes) */}
+                {isVertical && (
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none -z-0">
+                    <video
+                      src={hasLoaded ? savoirFaireData.videoUrl : undefined}
+                      muted
+                      loop
+                      playsInline
+                      aria-hidden="true"
+                      className="size-full object-cover blur-3xl opacity-35 scale-125 transform-gpu"
+                    />
+                    <div className="absolute inset-0 bg-[#1A110B]/60 backdrop-blur-sm" />
+                  </div>
+                )}
+
+                {/* 2. Vidéo Principale Nette (100% visible, AUCUN rognage de l'artisan) */}
+                <video
+                  ref={videoRef}
+                  src={hasLoaded ? savoirFaireData.videoUrl : undefined}
+                  poster={savoirFaireData.posterUrl || "/images/raw-sculptures.jpg"}
+                  autoPlay
+                  muted={isMuted}
+                  loop
+                  playsInline
+                  preload="none"
+                  onTimeUpdate={handleTimeUpdate}
+                  onLoadedMetadata={handleLoadedMetadata}
+                  className={`relative z-10 size-full ${
+                    isVertical ? 'object-contain max-h-[580px] mx-auto drop-shadow-[0_15px_35px_rgba(0,0,0,0.85)]' : 'object-cover'
+                  }`}
+                />
+
+                {/* Sound Toggle Button (Top Right) */}
+                <button
+                  onClick={toggleSound}
+                  className="absolute top-3 right-3 sm:top-5 sm:right-5 z-30 flex items-center gap-1.5 sm:gap-2 bg-[#241812]/90 hover:bg-[#E6A635] text-[#F2BD52] hover:text-[#1A110B] backdrop-blur-md px-3 py-1.5 rounded-full border border-[#E6A635]/40 shadow-xl transition-all duration-300 cursor-pointer"
+                  aria-label={isMuted ? "Activer le son" : "Couper le son"}
+                >
+                  {isMuted ? (
+                    <>
+                      <VolumeX className="size-3.5" />
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider hidden sm:inline">Activer le son</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="size-3.5 text-emerald-400 animate-pulse" />
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-emerald-400 hidden sm:inline">Son actif</span>
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              /* État d'attente propre si aucune vidéo n'est encore configurée dans le dashboard */
+              <div className="absolute inset-0 flex items-center justify-center">
+                <img
+                  src={savoirFaireData.posterUrl || "/images/raw-sculptures.jpg"}
+                  alt={savoirFaireData.title}
+                  className="absolute inset-0 size-full object-cover opacity-40"
+                />
+                <div className="relative z-10 text-center px-4">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 text-[#F2BD52] text-xs font-semibold shadow-lg">
+                    <Sparkles className="size-3 text-[#E6A635] animate-pulse" />
+                    <span>Vidéo configurable depuis le tableau de bord</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Gradient Overlays */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/95 via-transparent to-black/30 pointer-events-none" />
 
-            {/* Sound Toggle Button (Top Right) */}
-            <button
-              onClick={toggleSound}
-              className="absolute top-3 right-3 sm:top-5 sm:right-5 z-30 flex items-center gap-1.5 sm:gap-2 bg-[#241812]/90 hover:bg-[#E6A635] text-[#F2BD52] hover:text-[#1A110B] backdrop-blur-md px-3 py-1.5 rounded-full border border-[#E6A635]/40 shadow-xl transition-all duration-300 cursor-pointer"
-              aria-label={isMuted ? "Activer le son" : "Couper le son"}
-            >
-              {isMuted ? (
-                <>
-                  <VolumeX className="size-3.5" />
-                  <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider hidden sm:inline">Activer le son</span>
-                </>
-              ) : (
-                <>
-                  <Volume2 className="size-3.5 text-emerald-400 animate-pulse" />
-                  <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-emerald-400 hidden sm:inline">Son actif</span>
-                </>
-              )}
-            </button>
-
-            {/* Synchronized Caption (Inside video on Desktop, clean overlay) */}
+            {/* Synchronized Caption */}
             <div className="absolute bottom-3 left-3 right-3 sm:left-8 sm:bottom-8 z-20 max-w-xl">
               <AnimatePresence mode="wait">
                 <motion.div

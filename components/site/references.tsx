@@ -1,39 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Reveal } from './reveal'
-import { publicApi, Reference } from '@/lib/api'
 import { Sparkles } from 'lucide-react'
 
+// Liste fixe des prestigieuses demeures & partenaires officiels
+const PRESTIGE_BRANDS = [
+  'Hôtel Dar El Jeld',
+  'Maison d\'Hôtes Dar Said',
+  'La Badira Hammamet',
+  'Villa Didon Carthage',
+  'Office National de l\'Artisanat',
+  'Résidence Panorama Marina',
+  'L\'Ébène Corporate & Lounge',
+  'Palais & Villas Privées de Carthage'
+]
+
 export function References() {
-  const [references, setReferences] = useState<Reference[]>([])
-
-  useEffect(() => {
-    async function loadReferences() {
-      try {
-        const data = await publicApi.getReferences()
-        if (data && Array.isArray(data)) setReferences(data)
-      } catch (err) {
-        console.error('Error fetching references from API:', err)
-      }
-    }
-    loadReferences()
-  }, [])
-
-  if (references.length === 0) return null
-
-  const brandsList = references.map(r => r.name)
-  const halfLength = Math.ceil(brandsList.length / 2)
-  const row1 = brandsList.slice(0, halfLength)
-  const row2 = brandsList.slice(halfLength)
+  const halfLength = Math.ceil(PRESTIGE_BRANDS.length / 2)
+  const row1 = PRESTIGE_BRANDS.slice(0, halfLength)
+  const row2 = PRESTIGE_BRANDS.slice(halfLength)
 
   return (
     <section id="references" className="bg-transparent py-8 sm:py-12 relative overflow-hidden border-none scroll-mt-20">
       <div className="relative mx-auto max-w-7xl px-3.5 sm:px-6 lg:px-8 z-20">
         
-        {/* ========================================================================= */}
-        {/* 1. EN-TÊTE ÉPURÉ & STATUTAIRE                                             */}
-        {/* ========================================================================= */}
+        {/* En-tête Épuré & Statutaire */}
         <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
           <Reveal>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3B271C]/90 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.2em] mb-2 shadow-md">
@@ -49,9 +40,7 @@ export function References() {
           </Reveal>
         </div>
 
-        {/* ========================================================================= */}
-        {/* 2. DOUBLE BANDEAU DÉROULANT CONTINU (Double Marquee Luxe)                 */}
-        {/* ========================================================================= */}
+        {/* Double Bandeau Déroulant Continu (Marquee Luxe) */}
         <div className="space-y-2.5 sm:space-y-3">
           
           {/* Marquee Row 1 */}

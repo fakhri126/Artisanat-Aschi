@@ -32,7 +32,8 @@ export function HeroDelivery() {
     )
   }
 
-  const image = latestDelivery.imageUrl || '/images/bg-weekly-delivery-2.jpg'
+  const imageList = (latestDelivery.imageUrl || '').split(',').map(s => s.trim()).filter(Boolean)
+  const image = imageList[0] || '/images/bg-weekly-delivery-2.jpg'
   const isVideo = image.match(/\.(mp4|webm|ogg|mov)$/i)
 
   return (

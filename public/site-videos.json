@@ -1,0 +1,23 @@
+{
+  "temoignage": {
+    "videoUrl": "/uploads/1791058503119-WhatsApp_Video_2026-10-03_at_06.20.12.mp4",
+    "badge": "Témoignage & Gestes d'Atelier",
+    "title": "L'Expérience Aschi en Vidéo",
+    "subtitle": "Atelier Familial & Réalisations d'Exception",
+    "description": "Découvrez en vidéo la passion de nos maîtres ébénistes, la noblesse du travail du noyer massif et la satisfaction de nos clients d'exception."
+  },
+  "savoir_faire": {
+    "videoUrl": "/uploads/1790852145325-lv_0_20260921162458.mp4",
+    "title": "Savoir-Faire & Gestes d'Atelier",
+    "subtitle": "Sculpture sur Noyer Massif & Ébénisterie Ancestrale",
+    "description": "Immersion au cœur de notre atelier familial fondé en 1960. Découvrez le geste précis du maître artisan, le choix des essences nobles de noyer et le façonnage traditionnel des ferrures et majoliques d'art.",
+    "poster": "/images/about-atelier-stand.jpg"
+  },
+  "media": {
+    "videoUrl": "/video-media-aschi.mp4",
+    "badge": "Passage Média & Télévision",
+    "title": "L'Artisanat Aschi à l'Écran",
+    "subtitle": "Reportage Télévisé Intégral • Format Source 100% Sans Recadrage",
+    "description": "Plongez dans les coulisses de notre atelier familial à travers ce reportage télévisé dédié à la haute sculpture sur noyer et la sauvegarde de nos arts traditionnels."
+  }
+}

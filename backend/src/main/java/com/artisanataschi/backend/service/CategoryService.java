@@ -3,18 +3,22 @@ package com.artisanataschi.backend.service;
 import com.artisanataschi.backend.domain.Category;
 import com.artisanataschi.backend.dto.CategoryRequestDto;
 import com.artisanataschi.backend.repository.CategoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class CategoryService {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
+
+    public CategoryService(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
     @Cacheable(value = "categories")
     public List<Category> getAllCategories() {
@@ -26,6 +30,7 @@ public class CategoryService {
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
     }
 
+    @Transactional
     @CacheEvict(value = "categories", allEntries = true)
     public Category createCategory(CategoryRequestDto dto) {
         if (categoryRepository.findByName(dto.getName()).isPresent()) {
@@ -41,6 +46,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    @Transactional
     @CacheEvict(value = "categories", allEntries = true)
     public Category createCategory(Category category) {
         if (categoryRepository.findByName(category.getName()).isPresent()) {
@@ -49,6 +55,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    @Transactional
     @CacheEvict(value = "categories", allEntries = true)
     public Category updateCategory(Long id, CategoryRequestDto dto) {
         Category category = getCategoryById(id);
@@ -63,6 +70,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    @Transactional
     @CacheEvict(value = "categories", allEntries = true)
     public Category updateCategory(Long id, Category categoryDetails) {
         Category category = getCategoryById(id);
@@ -71,6 +79,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    @Transactional
     @CacheEvict(value = "categories", allEntries = true)
     public void deleteCategory(Long id) {
         Category category = getCategoryById(id);

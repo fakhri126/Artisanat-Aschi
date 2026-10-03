@@ -4,7 +4,6 @@ import com.artisanataschi.backend.domain.*;
 import com.artisanataschi.backend.dto.QuoteRequestDto;
 import com.artisanataschi.backend.service.*;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,32 +17,29 @@ import java.util.List;
 @RequestMapping("/public")
 public class PublicController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
+    private final CategoryService categoryService;
+    private final ProjectService projectService;
+    private final NewsService newsService;
+    private final RelookingService relookingService;
+    private final QuoteRequestService quoteRequestService;
+    private final DeliveryService deliveryService;
 
-    @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
-    private ProjectService projectService;
-
-    @Autowired
-    private NewsService newsService;
-
-    @Autowired
-    private ReferenceService referenceService;
-
-    @Autowired
-    private TestimonialService testimonialService;
-
-    @Autowired
-    private RelookingService relookingService;
-
-    @Autowired
-    private QuoteRequestService quoteRequestService;
-
-    @Autowired
-    private DeliveryService deliveryService;
+    public PublicController(ProductService productService,
+                            CategoryService categoryService,
+                            ProjectService projectService,
+                            NewsService newsService,
+                            RelookingService relookingService,
+                            QuoteRequestService quoteRequestService,
+                            DeliveryService deliveryService) {
+        this.productService = productService;
+        this.categoryService = categoryService;
+        this.projectService = projectService;
+        this.newsService = newsService;
+        this.relookingService = relookingService;
+        this.quoteRequestService = quoteRequestService;
+        this.deliveryService = deliveryService;
+    }
 
     // --- Products ---
     @GetMapping("/products")
@@ -79,11 +75,7 @@ public class PublicController {
 
     @GetMapping("/products/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(productService.getProductById(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(productService.getProductById(id));
     }
 
     // --- Categories ---
@@ -100,11 +92,7 @@ public class PublicController {
 
     @GetMapping("/projects/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(projectService.getProjectById(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(projectService.getProjectById(id));
     }
 
     // --- News (Actualités) ---
@@ -115,28 +103,12 @@ public class PublicController {
 
     @GetMapping("/news/{id}")
     public ResponseEntity<News> getNewsById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(newsService.getNewsById(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    // --- References ---
-    @GetMapping("/references")
-    public ResponseEntity<List<Reference>> getReferences() {
-        return ResponseEntity.ok(referenceService.getAllReferences());
-    }
-
-    // --- Testimonials ---
-    @GetMapping("/testimonials")
-    public ResponseEntity<List<Testimonial>> getTestimonials() {
-        return ResponseEntity.ok(testimonialService.getAllTestimonials());
+        return ResponseEntity.ok(newsService.getNewsById(id));
     }
 
     // --- Submit Quote Request ---
     @PostMapping("/quotes")
-    public ResponseEntity<QuoteRequest> submitQuoteRequest(@Valid @RequestBody com.artisanataschi.backend.dto.QuoteRequestDto dto) {
+    public ResponseEntity<QuoteRequest> submitQuoteRequest(@Valid @RequestBody QuoteRequestDto dto) {
         QuoteRequest request = quoteRequestService.createQuoteRequest(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(request);
     }

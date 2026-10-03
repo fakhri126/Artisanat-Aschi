@@ -30,18 +30,24 @@ import java.util.stream.Collectors;
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
+    private final RateLimitingFilter rateLimitingFilter;
+    private final JwtUtils jwtUtils;
 
-    @Autowired
-    private RateLimitingFilter rateLimitingFilter;
+    public WebSecurityConfig(CustomUserDetailsService userDetailsService,
+                             RateLimitingFilter rateLimitingFilter,
+                             JwtUtils jwtUtils) {
+        this.userDetailsService = userDetailsService;
+        this.rateLimitingFilter = rateLimitingFilter;
+        this.jwtUtils = jwtUtils;
+    }
 
     @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:3001,https://artisanat-aschi.com,https://www.artisanat-aschi.com}")
     private String allowedOrigins;
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
+        return new AuthTokenFilter(jwtUtils, userDetailsService);
     }
 
     @Bean
@@ -75,6 +81,7 @@ public class WebSecurityConfig {
             .headers(headers -> headers
                 .contentTypeOptions(org.springframework.security.config.Customizer.withDefaults())
                 .frameOptions(frame -> frame.deny())
+                .referrerPolicy(referrer -> referrer.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
             )
             // Authorization rules - paths are relative to the servlet context-path (/api)
             .authorizeHttpRequests(auth -> auth

@@ -82,14 +82,14 @@ export default function AtelierPage() {
           <Story />
         </div>
 
-        {/* 3. Les Matières Premières Nobles */}
-        <div className="cv-auto">
-          <RawMaterials />
-        </div>
-
-        {/* 4. Film & Démonstration Vidéo des 4 Séquences */}
+        {/* 3. Savoir-Faire : Film & Démonstration Vidéo des 4 Séquences */}
         <div className="cv-auto">
           <Workshop />
+        </div>
+
+        {/* 4. L'Essence : Les Matières Premières Nobles */}
+        <div className="cv-auto">
+          <RawMaterials />
         </div>
 
         {/* ========================================================================= */}

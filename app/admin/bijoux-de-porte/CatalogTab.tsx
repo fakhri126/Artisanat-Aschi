@@ -74,48 +74,16 @@ export default function CatalogTab() {
   const [tagsInput, setTagsInput] = useState('')
 
   const [loading, setLoading] = useState(false)
-  const [hasLocalBackup, setHasLocalBackup] = useState(false)
-  const [localBackupBoards, setLocalBackupBoards] = useState<BoardModel[]>([])
 
   useEffect(() => {
     loadBoards()
     if (typeof window !== 'undefined') {
       try {
-        const local = localStorage.getItem('aschi_bijoux_boards_user_v1') || localStorage.getItem('aschi_bijoux_boards')
-        if (local) {
-          const parsed = JSON.parse(local)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setLocalBackupBoards(parsed)
-            setHasLocalBackup(true)
-          }
-        }
-      } catch (e) {
-        console.error('Erreur lecture localStorage backup:', e)
-      }
+        localStorage.removeItem('aschi_bijoux_boards_user_v1')
+        localStorage.removeItem('aschi_bijoux_boards')
+      } catch (_) {}
     }
   }, [])
-
-  const handleRestoreLocalToSupabase = async () => {
-    if (!localBackupBoards.length) return
-    if (!confirm('Remplacer définitivement les images de Supabase par celles que vous avez placées dans votre navigateur ?')) return
-    try {
-      setLoading(true)
-      for (const b of localBackupBoards) {
-        await fetch('/api/bijoux-de-porte', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(b)
-        })
-      }
-      alert('Vos images personnalisées ont été enregistrées dans Supabase avec succès !')
-      setHasLocalBackup(false)
-      await loadBoards()
-    } catch (e) {
-      alert('Erreur lors de la synchronisation vers Supabase.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const loadBoards = async () => {
     try {
@@ -199,7 +167,9 @@ export default function CatalogTab() {
     try {
       setUploading(true)
       const res = await adminApi.uploadImage(file)
-      setFormData(prev => ({ ...prev, image: res.url }))
+      // Normalisation systématique en chemin relatif /uploads/...
+      const cleanUrl = res.url.replace(/^https?:\/\/[^/]+(?:\/api)?/, '')
+      setFormData(prev => ({ ...prev, image: cleanUrl }))
     } catch (err: any) {
       alert(err.message || "Erreur lors du téléversement de l'image.")
     } finally {
@@ -272,29 +242,6 @@ export default function CatalogTab() {
 
   return (
     <div className="p-6 md:p-10 space-y-8 text-left text-ivory">
-      
-      {/* Alerte de restauration des images personnalisées locales */}
-      {hasLocalBackup && (
-        <div className="p-4 sm:p-5 rounded-2xl bg-[#E6A635]/15 border-2 border-[#E6A635]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
-          <div>
-            <div className="font-heading text-base font-bold text-white flex items-center gap-2">
-              <Sparkles className="size-5 text-[#F2BD52]" />
-              Vos images personnalisées placées précédemment ont été détectées !
-            </div>
-            <p className="text-xs text-white/80 mt-1">
-              Votre navigateur conserve les modèles et photos que vous aviez configurés. Cliquez ci-contre pour les transférer et les enregistrer définitivement dans Supabase.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleRestoreLocalToSupabase}
-            disabled={loading}
-            className="px-5 py-2.5 rounded-xl bg-[#E6A635] text-[#140C07] font-heading font-bold text-xs uppercase tracking-wider hover:bg-[#F2BD52] transition-all cursor-pointer whitespace-nowrap shadow-lg shrink-0"
-          >
-            {loading ? 'Synchronisation...' : 'Enregistrer mes images dans Supabase'}
-          </button>
-        </div>
-      )}
 
       {/* ========================================================================= */}
       {/* SÉLECTEUR DE NIVEAU 1 : 2 UNIVERS (PORTES vs MEUBLES)                    */}

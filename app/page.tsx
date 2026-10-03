@@ -24,14 +24,8 @@ export default function Page() {
       <div 
         className="absolute inset-0 z-0 opacity-80 brightness-95 pointer-events-none bg-[url('/images/bg-stats-about.jpg')] bg-[length:100%_auto] md:bg-[length:50%_auto] bg-top bg-repeat bg-performance-layer transform-gpu" 
       />
-      {/* Voile d'ombrage doux pour haute lisibilité des cartes et typographies */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#241812]/80 via-black/25 to-[#241812]/85 pointer-events-none" />
-      
-      {/* Halos d'ambiance atelier répartis sur toute la hauteur */}
-      <div className="absolute top-[8%] left-1/4 size-[450px] rounded-full bg-[#E6A635]/18 blur-[140px] pointer-events-none z-0" />
-      <div className="absolute top-[35%] right-1/4 size-[450px] rounded-full bg-[#C78318]/15 blur-[140px] pointer-events-none z-0" />
-      <div className="absolute top-[65%] left-1/3 size-[450px] rounded-full bg-[#E6A635]/15 blur-[140px] pointer-events-none z-0" />
-      <div className="absolute top-[90%] right-1/3 size-[450px] rounded-full bg-[#C78318]/15 blur-[140px] pointer-events-none z-0" />
+      {/* Voile d'ombrage parfaitement uniforme sur toute la hauteur (sans aucun dégradé, identique au haut) */}
+      <div className="absolute inset-0 z-0 bg-[#241812]/80 pointer-events-none" />
 
       <div className="relative z-10 w-full">
         <Navbar />

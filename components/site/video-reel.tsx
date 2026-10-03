@@ -14,16 +14,31 @@ export function VideoReel() {
   const [isMuted, setIsMuted] = useState(true)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [videoUrl, setVideoUrl] = useState('/Video-art.mp4')
   const [hasLoaded, setHasLoaded] = useState(false)
 
+  const [reelData, setReelData] = useState({
+    videoUrl: '/uploads/1787567246786-WhatsAppVideo2026-08-11at15.33.26.mp4',
+    badge: "Témoignage & Gestes d'Atelier",
+    title: "L'Expérience Aschi en Vidéo",
+    description: "Découvrez en vidéo la passion de nos maîtres ébénistes, la noblesse du travail du noyer massif et la satisfaction de nos clients d'exception."
+  })
+
   useEffect(() => {
-    fetch('/api/reel')
+    fetch('/api/videos')
       .then(res => res.json())
       .then(data => {
-        if (data.videoUrl) setVideoUrl(data.videoUrl)
+        if (data?.temoignage) {
+          setReelData(prev => ({
+            videoUrl: data.temoignage.videoUrl || prev.videoUrl,
+            badge: data.temoignage.badge || prev.badge,
+            title: data.temoignage.title || prev.title,
+            description: data.temoignage.description || prev.description
+          }))
+        } else if (data?.videoUrl) {
+          setReelData(prev => ({ ...prev, videoUrl: data.videoUrl }))
+        }
       })
-      .catch(err => console.error("Failed to load reel config", err))
+      .catch(() => {})
   }, [])
 
   // Smart lazy loading & auto-pause via IntersectionObserver
@@ -99,19 +114,19 @@ export function VideoReel() {
           <Reveal>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3B271C]/90 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.2em] mb-2.5 shadow-md">
               <Sparkles className="size-2.5 sm:size-3 text-[#E6A635] animate-pulse" />
-              <span>Témoignages &amp; Gestes d&apos;Atelier</span>
+              <span>{reelData.badge || "Témoignage & Gestes d'Atelier"}</span>
             </div>
           </Reveal>
 
           <Reveal delay={60}>
             <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-gold-gradient drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] tracking-tight mb-2">
-              L&apos;Expérience Aschi en Vidéo
+              {reelData.title || "L'Expérience Aschi en Vidéo"}
             </h2>
           </Reveal>
 
           <Reveal delay={100}>
             <p className="text-white drop-shadow text-xs sm:text-sm font-normal max-w-2xl mx-auto leading-relaxed px-1">
-              Découvrez la passion de nos maîtres ébénistes au cœur de l&apos;atelier et la rigueur du travail du Noyer Massif.
+              {reelData.description}
             </p>
           </Reveal>
         </div>
@@ -130,7 +145,7 @@ export function VideoReel() {
               >
                 <video
                   ref={videoRef}
-                  src={hasLoaded ? videoUrl : undefined}
+                  src={hasLoaded ? (reelData.videoUrl || "/uploads/1787567246786-WhatsAppVideo2026-08-11at15.33.26.mp4") : undefined}
                   poster="/images/raw-sculptures.jpg"
                   muted={isMuted}
                   preload="none"

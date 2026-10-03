@@ -2,18 +2,22 @@ package com.artisanataschi.backend.service;
 
 import com.artisanataschi.backend.domain.Project;
 import com.artisanataschi.backend.repository.ProjectRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class ProjectService {
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
+
+    public ProjectService(ProjectRepository projectRepository) {
+        this.projectRepository = projectRepository;
+    }
 
     @Cacheable(value = "projects")
     public List<Project> getAllProjects() {
@@ -32,11 +36,13 @@ public class ProjectService {
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
     }
 
+    @Transactional
     @CacheEvict(value = "projects", allEntries = true)
     public Project createProject(Project project) {
         return projectRepository.save(project);
     }
 
+    @Transactional
     @CacheEvict(value = "projects", allEntries = true)
     public Project updateProject(Long id, Project projectDetails) {
         Project project = getProjectById(id);
@@ -50,6 +56,7 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
+    @Transactional
     @CacheEvict(value = "projects", allEntries = true)
     public void deleteProject(Long id) {
         Project project = getProjectById(id);

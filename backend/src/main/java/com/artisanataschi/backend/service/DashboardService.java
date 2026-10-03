@@ -20,20 +20,13 @@ public class DashboardService {
     @Autowired
     private NewsRepository newsRepository;
 
-    @Autowired
-    private TestimonialRepository testimonialRepository;
-
     public DashboardStats getStats() {
         long totalProducts = productRepository.count();
         long totalProjects = projectRepository.count();
         long totalNews = newsRepository.count();
-        long totalTestimonials = testimonialRepository.count();
-
         long totalQuotes = quoteRequestRepository.count();
-        long pendingQuotes = quoteRequestRepository.findAll().stream()
-                .filter(q -> "PENDING".equalsIgnoreCase(q.getStatus()))
-                .count();
+        long pendingQuotes = quoteRequestRepository.countByStatusIgnoreCase("PENDING");
 
-        return new DashboardStats(totalProducts, totalProjects, totalQuotes, pendingQuotes, totalNews, totalTestimonials);
+        return new DashboardStats(totalProducts, totalProjects, totalQuotes, pendingQuotes, totalNews, 0L);
     }
 }

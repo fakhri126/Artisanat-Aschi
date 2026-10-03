@@ -57,7 +57,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => {
-              setUsername('admin')
+              setUsername('ismail')
               setPassword('adminpassword')
             }}
             className="text-[10px] bg-[#E8DCCB]/20 hover:bg-[#E8DCCB]/30 text-[#FAF7F2] px-2.5 py-1 rounded-md transition-colors font-medium cursor-pointer"

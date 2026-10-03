@@ -12,27 +12,24 @@ const MASTERPIECES = [
     id: 'buffet',
     label: "Buffet d'Apparat",
     title: "Buffet d'Apparat Sculpté",
-    subtitle: 'Noyer Massif, Patine Bleue & Clous Laiton',
-    image: '/images/buffet-bleu-ciel.jpg',
-    objectPosition: 'object-[center_18%]',
+    subtitle: "Noyer Massif, Céramique d'Art & Clous Laiton",
+    image: '/buffet.png',
     tag: 'Mobilier Monumental'
   },
   {
-    id: 'banquette',
-    label: "Banquette d'Art",
-    title: 'Banquette en Noyer Noble',
-    subtitle: 'Sculpture Ciselée à la Main & Finitions Dorées',
-    image: '/images/catalog_bench_cropped.jpg',
-    objectPosition: 'object-center',
-    tag: "Assise d'Exception"
+    id: 'table',
+    label: "Table Basse d'Art",
+    title: "Table Basse Majolique & Fer Forgé",
+    subtitle: "Bois Massif Sculpté, Majolique & Fer Forgé Ciselé",
+    image: '/table-artisanat.jpg',
+    tag: "Mobilier d'Exception"
   },
   {
     id: 'miroir',
     label: 'Miroir Sculpté',
-    title: "Miroir d'Apparat Barocco",
-    subtitle: 'Bois Doré & Ornements Ciselés à la Main',
+    title: "Miroir d'Apparat Majolique",
+    subtitle: 'Bois Précieux, Émaux Façonnés & Laiton',
     image: '/miroir.png',
-    objectPosition: 'object-center',
     tag: "Miroiterie d'Art"
   }
 ]
@@ -127,65 +124,79 @@ export function HeroCatalogue() {
         {/* ========================================================================= */}
         <div className="w-full lg:col-span-7 flex flex-col items-center lg:items-end order-2 mt-2 lg:mt-0">
           
-          {/* 🖼️ Grand Cadre Photo d'Art Immersif (Proportions élégantes et aérées) */}
-          <div className="relative w-full max-w-[580px] aspect-[4/3] sm:aspect-[16/12] rounded-3xl overflow-hidden border-2 border-[#E6A635]/50 bg-[#241711] shadow-[0_25px_60px_rgba(0,0,0,0.85)] group">
+          {/* 🖼️ Grand Cadre Photo d'Art Immersif (Affichage TOTAL de la pièce sans recadrage) */}
+          <div className="relative w-full max-w-[580px] aspect-[4/3] sm:aspect-[16/11] rounded-2xl sm:rounded-3xl overflow-hidden border border-[#E6A635]/40 bg-gradient-to-b from-[#1C120C] via-[#140C08] to-[#0D0805] shadow-[0_25px_60px_rgba(0,0,0,0.85)] group">
             
             <AnimatePresence mode="wait">
               <motion.div
                 key={activePiece.id}
-                initial={{ opacity: 0, scale: 0.97 }}
+                initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.02 }}
-                transition={{ duration: 0.45, ease: "easeOut" }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
                 className="relative size-full"
               >
-                <Image
-                  src={activePiece.image}
-                  alt={activePiece.title}
-                  fill
-                  priority
-                  className={`object-cover ${activePiece.objectPosition || 'object-center'} group-hover:scale-105 transition-transform duration-1000`}
-                />
+                {/* Fond d'ambiance flouté très doux pour créer de la profondeur sans masquer l'objet */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <Image
+                    src={activePiece.image}
+                    alt=""
+                    fill
+                    className="object-cover blur-2xl opacity-20 scale-110"
+                    aria-hidden="true"
+                  />
+                  <div className="absolute inset-0 bg-[#160E09]/60 backdrop-blur-[2px]" />
+                </div>
 
-                {/* Voile dégradé subtil en bas pour lisibilité sans étouffer la pièce */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#140E0A]/90 via-transparent to-black/20 pointer-events-none" />
-                
+                {/* Photo Principale : Affichage 100% Intégral (object-contain) sans coupure */}
+                <div className="relative size-full p-3 sm:p-4 pb-16 sm:pb-16 flex items-center justify-center">
+                  <div className="relative size-full">
+                    <Image
+                      src={activePiece.image}
+                      alt={activePiece.title}
+                      fill
+                      priority
+                      className="object-contain drop-shadow-[0_12px_28px_rgba(0,0,0,0.7)] group-hover:scale-[1.02] transition-transform duration-700"
+                    />
+                  </div>
+                </div>
+
                 {/* Badge Tag en Haut à Droite */}
-                <div className="absolute top-3.5 right-3.5 bg-[#2B1B13]/90 backdrop-blur-md border border-[#E6A635]/50 px-3 py-1 rounded-full text-[9.5px] font-bold uppercase tracking-wider text-[#F2BD52] shadow-md z-10">
+                <div className="absolute top-3.5 right-3.5 bg-[#2B1B13]/90 backdrop-blur-md border border-[#E6A635]/40 px-3 py-1 rounded-full text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider text-[#F2BD52] shadow-md z-10">
                   {activePiece.tag}
                 </div>
 
-                {/* Flèches de navigation rapide gauche / droite intégrées au cadre */}
+                {/* Flèches de navigation discrètes gauche / droite */}
                 <button
                   onClick={handlePrev}
                   aria-label="Pièce précédente"
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 size-8 rounded-full bg-[#241711]/70 hover:bg-[#E6A635] text-white hover:text-[#1A110B] border border-[#E6A635]/40 flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-10 shadow-lg cursor-pointer"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 size-8 rounded-full bg-[#241711]/80 hover:bg-[#E6A635] text-white hover:text-[#1A110B] border border-[#E6A635]/40 flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-10 shadow-lg cursor-pointer"
                 >
                   <ChevronLeft className="size-4" />
                 </button>
                 <button
                   onClick={handleNext}
                   aria-label="Pièce suivante"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 size-8 rounded-full bg-[#241711]/70 hover:bg-[#E6A635] text-white hover:text-[#1A110B] border border-[#E6A635]/40 flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-10 shadow-lg cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 size-8 rounded-full bg-[#241711]/80 hover:bg-[#E6A635] text-white hover:text-[#1A110B] border border-[#E6A635]/40 flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 z-10 shadow-lg cursor-pointer"
                 >
                   <ChevronRight className="size-4" />
                 </button>
 
-                {/* Étiquette d'Apparat Raffinée & Aérée en Bas */}
-                <div className="absolute bottom-3 left-3 right-3 bg-[#241711]/85 backdrop-blur-md border border-[#E6A635]/40 px-3.5 py-2.5 rounded-2xl flex items-center justify-between text-white shadow-xl z-10">
+                {/* Étiquette d'Apparat Transparente en Bas (Ne masque pas la pièce) */}
+                <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-black/30 backdrop-blur-sm border border-white/15 px-3.5 py-2 rounded-xl flex items-center justify-between text-white shadow-lg z-10">
                   <div className="min-w-0 pr-2">
-                    <h4 className="font-heading text-xs sm:text-sm font-semibold text-white leading-tight truncate">
+                    <h4 className="font-heading text-xs sm:text-[13px] font-semibold text-white leading-tight truncate">
                       {activePiece.title}
                     </h4>
-                    <p className="text-[10px] sm:text-[11px] text-[#F2BD52] font-medium mt-0.5 truncate">
+                    <p className="text-[10px] sm:text-[10.5px] text-[#F2BD52] font-medium mt-0.5 truncate">
                       {activePiece.subtitle}
                     </p>
                   </div>
                   <Link
                     href="/catalogue"
-                    className="shrink-0 size-8 rounded-full bg-gradient-to-tr from-[#F3C45E] to-[#C78318] text-[#1A110B] flex items-center justify-center hover:scale-110 transition-transform shadow-md"
+                    className="shrink-0 size-7 sm:size-7.5 rounded-full bg-gradient-to-tr from-[#F3C45E] to-[#C78318] text-[#1A110B] flex items-center justify-center hover:scale-110 transition-transform shadow-md"
                   >
-                    <ArrowRight className="size-4" />
+                    <ArrowRight className="size-3.5" />
                   </Link>
                 </div>
               </motion.div>
@@ -193,41 +204,46 @@ export function HeroCatalogue() {
 
           </div>
 
-          {/* 🔘 Sélecteur de Miniatures Interactif Rehaussé */}
-          <div className="w-full max-w-[580px] flex items-center justify-between gap-2 sm:gap-3 mt-3.5">
+          {/* 🔘 Sélecteur de Badges Inférieurs : Ultra-Fins, Épurés et Délicats */}
+          <div className="w-full max-w-[580px] grid grid-cols-3 gap-2 sm:gap-2.5 mt-2.5">
             {MASTERPIECES.map((piece, idx) => {
               const isActive = activeIndex === idx
               return (
                 <button
                   key={piece.id}
                   onClick={() => setActiveIndex(idx)}
-                  className={`group relative flex-1 flex items-center gap-2 sm:gap-2.5 p-1.5 sm:p-2 rounded-2xl transition-all duration-300 cursor-pointer text-left ${
+                  className={`group relative flex items-center gap-2 px-2.5 py-1.5 sm:py-2 rounded-xl transition-all duration-300 cursor-pointer text-left backdrop-blur-sm ${
                     isActive
-                      ? 'bg-gradient-to-r from-[#3B271C] to-[#2B1B13] border-2 border-[#E6A635] shadow-[0_0_18px_rgba(230,166,53,0.35)] scale-[1.02]'
-                      : 'bg-[#2B1B13]/70 border border-[#E6A635]/25 hover:border-[#E6A635]/60 hover:bg-[#3B271C]/90 opacity-80 hover:opacity-100'
+                      ? 'bg-[#352116]/95 border border-[#E6A635] shadow-[0_0_12px_rgba(230,166,53,0.3)] ring-1 ring-[#E6A635]/40'
+                      : 'bg-[#241711]/60 border border-[#E6A635]/20 hover:border-[#E6A635]/50 hover:bg-[#2E1D14]/80 opacity-75 hover:opacity-100'
                   }`}
                 >
-                  {/* Miniature Photo plus grande et valorisée */}
-                  <div className="relative size-9 sm:size-11 rounded-xl overflow-hidden shrink-0 border border-[#E6A635]/40 shadow-inner bg-[#1A110B]">
+                  {/* Miniature Fine */}
+                  <div className="relative size-7 sm:size-8 rounded-lg overflow-hidden shrink-0 border border-[#E6A635]/30 bg-[#120B07] p-0.5">
                     <Image
                       src={piece.image}
                       alt={piece.label}
                       fill
-                      className={`object-cover ${piece.objectPosition || 'object-center'}`}
+                      className="object-contain"
                     />
                   </div>
                   
-                  {/* Libellé et indicateur */}
-                  <div className="min-w-0 pr-1 flex-1">
-                    <span className={`block font-heading text-[10.5px] sm:text-xs font-semibold leading-tight truncate ${
-                      isActive ? 'text-[#F2BD52]' : 'text-white/90'
+                  {/* Libellé Fin & Typographie Délicate */}
+                  <div className="min-w-0 flex-1">
+                    <span className={`block font-heading text-[10.5px] sm:text-[11.5px] font-semibold leading-tight truncate ${
+                      isActive ? 'text-[#F2BD52]' : 'text-white/85 group-hover:text-white'
                     }`}>
                       {piece.label}
                     </span>
-                    <span className="block text-[8.5px] sm:text-[9.5px] text-white/50 truncate font-sans mt-0.5">
-                      {idx === 0 ? 'Sculpture & Laiton' : idx === 1 ? 'Noyer d\'Élite' : 'Orfèvrerie & Bois'}
+                    <span className="block text-[8.5px] sm:text-[9px] text-[#D8B98A]/60 truncate font-sans">
+                      {idx === 0 ? 'Noyer & Laiton' : idx === 1 ? 'Majolique & Fer' : 'Miroir & Émaux'}
                     </span>
                   </div>
+
+                  {/* Petit point indicateur doré si actif */}
+                  {isActive && (
+                    <span className="size-1.5 rounded-full bg-[#E6A635] shrink-0 shadow-[0_0_6px_#E6A635]" />
+                  )}
                 </button>
               )
             })}

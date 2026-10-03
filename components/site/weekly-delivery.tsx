@@ -44,7 +44,17 @@ export function WeeklyDelivery() {
   if (!isMounted || deliveries.length === 0) return null
 
   const currentDelivery = deliveries[currentIndex]
-  const isVideo = currentDelivery?.imageUrl?.match(/\.(mp4|webm|ogg|mov)$/i)
+  const currentImages = (currentDelivery?.imageUrl || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+  const [activePhotoIdx, setActivePhotoIdx] = useState(0)
+
+  useEffect(() => {
+    setActivePhotoIdx(0)
+  }, [currentIndex])
+
+  const displayImage = currentImages[activePhotoIdx] || currentImages[0] || '/images/bg-references.png'
 
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev === 0 ? deliveries.length - 1 : prev - 1))
@@ -101,20 +111,11 @@ export function WeeklyDelivery() {
             >
               
               {/* Left Column (5 Cols): Arched Showcase Photo */}
-              <div className="lg:col-span-5 relative w-full flex justify-center">
+              <div className="lg:col-span-5 relative w-full flex flex-col items-center justify-center">
                 <div className="relative w-full max-w-[320px] sm:max-w-[360px] h-[220px] sm:h-[280px] md:h-[320px] rounded-2xl sm:rounded-t-full sm:rounded-b-3xl overflow-hidden border-2 sm:border-[4px] border-[#E6A635]/60 shadow-[0_15px_40px_rgba(0,0,0,0.9)] bg-[#241812] group">
-                  {isInView && isVideo ? (
-                    <video
-                      src={currentDelivery.imageUrl}
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
-                      className="object-cover w-full h-full transition-transform duration-[10s] group-hover:scale-105"
-                    />
-                  ) : isInView ? (
+                  {isInView ? (
                     <Image
-                      src={currentDelivery.imageUrl || '/images/bg-references.png'}
+                      src={displayImage}
                       alt={currentDelivery.title}
                       fill
                       sizes="(max-width: 1024px) 100vw, 40vw"
@@ -132,6 +133,25 @@ export function WeeklyDelivery() {
                     <span>{new Date(currentDelivery.deliveryDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                   </div>
                 </div>
+
+                {/* Thumbnails row if multiple images */}
+                {currentImages.length > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-3 z-20">
+                    {currentImages.map((img, pIdx) => (
+                      <button
+                        key={pIdx}
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setActivePhotoIdx(pIdx); }}
+                        className={`relative size-9 rounded-xl overflow-hidden border-2 transition-all cursor-pointer shadow-md ${
+                          activePhotoIdx === pIdx ? 'border-[#E6A635] scale-105 ring-2 ring-[#E6A635]/40' : 'border-white/20 opacity-60 hover:opacity-100'
+                        }`}
+                        title={`Angle / Photo ${pIdx + 1}`}
+                      >
+                        <img src={img} alt="" className="size-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Right Column (7 Cols): Content Details */}

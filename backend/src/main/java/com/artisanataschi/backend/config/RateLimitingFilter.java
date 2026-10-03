@@ -1,5 +1,7 @@
 package com.artisanataschi.backend.config;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
@@ -19,18 +21,16 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     private static final int MAX_LOGIN_PER_MINUTE = 5;
     private static final int MAX_QUOTES_PER_HOUR = 10;
 
-    private static class RateTracker {
-        long windowStartTime;
-        AtomicInteger count;
+    // Bounded in-memory caches with automatic sliding-window eviction (prevents memory leak)
+    private final Cache<String, AtomicInteger> loginAttempts = Caffeine.newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .maximumSize(5000)
+            .build();
 
-        RateTracker(long windowStartTime) {
-            this.windowStartTime = windowStartTime;
-            this.count = new AtomicInteger(1);
-        }
-    }
-
-    private final ConcurrentHashMap<String, RateTracker> loginAttempts = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, RateTracker> quoteAttempts = new ConcurrentHashMap<>();
+    private final Cache<String, AtomicInteger> quoteAttempts = Caffeine.newBuilder()
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .maximumSize(5000)
+            .build();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -39,15 +39,14 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String method = request.getMethod();
         String clientIp = getClientIp(request);
-        long now = System.currentTimeMillis();
 
         if ("POST".equalsIgnoreCase(method) && uri.endsWith("/auth/login")) {
-            if (isRateLimited(loginAttempts, clientIp, MAX_LOGIN_PER_MINUTE, 60_000L, now)) {
+            if (isRateLimited(loginAttempts, clientIp, MAX_LOGIN_PER_MINUTE)) {
                 respondWithRateLimit(response, "Trop de tentatives de connexion. Veuillez patienter 1 minute avant de réessayer.");
                 return;
             }
         } else if ("POST".equalsIgnoreCase(method) && uri.endsWith("/public/quotes")) {
-            if (isRateLimited(quoteAttempts, clientIp, MAX_QUOTES_PER_HOUR, 3600_000L, now)) {
+            if (isRateLimited(quoteAttempts, clientIp, MAX_QUOTES_PER_HOUR)) {
                 respondWithRateLimit(response, "Trop de demandes de devis enregistrées depuis votre adresse. Veuillez patienter.");
                 return;
             }
@@ -56,16 +55,9 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isRateLimited(ConcurrentHashMap<String, RateTracker> map, String key, int maxAllowed, long windowDurationMs, long now) {
-        RateTracker tracker = map.compute(key, (k, existing) -> {
-            if (existing == null || (now - existing.windowStartTime) > windowDurationMs) {
-                return new RateTracker(now);
-            } else {
-                existing.count.incrementAndGet();
-                return existing;
-            }
-        });
-        return tracker.count.get() > maxAllowed;
+    private boolean isRateLimited(Cache<String, AtomicInteger> cache, String key, int maxAllowed) {
+        AtomicInteger counter = cache.get(key, k -> new AtomicInteger(0));
+        return counter != null && counter.incrementAndGet() > maxAllowed;
     }
 
     private String getClientIp(HttpServletRequest request) {

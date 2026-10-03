@@ -7,7 +7,7 @@ import { promisify } from 'util'
 const execFileAsync = promisify(execFile)
 
 export const dynamic = 'force-dynamic'
-export const maxDuration = 60
+export const maxDuration = 300
 
 export async function POST(request: Request) {
   try {
@@ -18,13 +18,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Aucun fichier sélectionné.' }, { status: 400 })
     }
 
-    // Limit incoming video size (max 60 MB hard server limit)
-    const MAX_VIDEO_SIZE = 60 * 1024 * 1024
+    // Limit incoming video size (increased to 300 MB for high quality videos)
+    const MAX_VIDEO_SIZE = 300 * 1024 * 1024
     if (file.size > MAX_VIDEO_SIZE) {
       const sizeMb = (file.size / (1024 * 1024)).toFixed(1)
       return NextResponse.json(
         {
-          error: `Vidéo trop volumineuse (${sizeMb} Mo). La taille maximale autorisée est de 60 Mo. Veuillez exporter la vidéo en 720p avant l'envoi.`,
+          error: `Vidéo trop volumineuse (${sizeMb} Mo). La taille maximale autorisée est de 300 Mo.`,
         },
         { status: 400 }
       )
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
           '-y'
         ]
 
-        await execFileAsync(ffmpegPath, ffmpegArgs, { timeout: 45000 })
+        await execFileAsync(ffmpegPath, ffmpegArgs, { timeout: 180000 })
 
         if (fs.existsSync(finalFilepath) && fs.statSync(finalFilepath).size > 0) {
           compressionSuccess = true
@@ -99,7 +99,31 @@ export async function POST(request: Request) {
       fs.copyFileSync(finalFilepath, backendFilepath)
     } catch (_) {}
 
-    return NextResponse.json({ url: `/uploads/${finalFilename}` })
+    // Upload to Supabase Storage if configured
+    let finalUrl = `/uploads/${finalFilename}`
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js')
+        const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
+        const videoBuffer = fs.readFileSync(finalFilepath)
+        const { error: uploadError } = await supabase.storage
+          .from('media')
+          .upload(finalFilename, videoBuffer, {
+            contentType: 'video/mp4',
+            upsert: true,
+          })
+        if (!uploadError) {
+          console.log(`Supabase backup upload succeeded for ${finalFilename}`)
+        }
+      } catch (sbErr) {
+        console.warn('Supabase video upload fallback to local:', sbErr)
+      }
+    }
+
+    return NextResponse.json({ url: finalUrl })
   } catch (error: any) {
     console.error('Error uploading video:', error)
     return NextResponse.json({ error: error.message || 'Failed to upload video' }, { status: 500 })

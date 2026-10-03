@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  serverExternalPackages: ['@ffmpeg-installer/ffmpeg'],
   turbopack: {
     root: process.cwd(),
   },
@@ -12,6 +13,16 @@ const nextConfig = {
     minimumCacheTTL: 60,
     remotePatterns: [
       {
+        protocol: 'https',
+        hostname: 'uerbqswgxsinayfyntsm.supabase.co',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/**',
+      },
+      {
         protocol: 'http',
         hostname: 'localhost',
         port: '8081',
@@ -23,16 +34,12 @@ const nextConfig = {
         port: '8081',
         pathname: '/**',
       },
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
     ],
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion', '@base-ui/react'],
     serverActions: {
-      bodySizeLimit: '100mb',
+      bodySizeLimit: '300mb',
     },
   },
   async redirects() {

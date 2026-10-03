@@ -5,51 +5,15 @@ import { Navbar } from '@/components/site/navbar'
 import { Footer } from '@/components/site/footer'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Calendar, Clock, ArrowLeft, Share2, Sparkles, Newspaper, Bookmark, Check } from 'lucide-react'
+import { Calendar, Clock, ArrowLeft, Sparkles } from 'lucide-react'
 import { Reveal } from '@/components/site/reveal'
 import { publicApi, News } from '@/lib/api'
-
-const FALLBACK_NEWS: News[] = [
-  {
-    id: 1,
-    title: 'Exposition Artisanale de Tunis 2026',
-    content: `L'Atelier Artisanat Aschi a le plaisir d'annoncer sa participation officielle au Salon National de l'Artisanat au Kram.
-
-Pendant dix jours, notre maison présentera une sélection exclusive de ses plus belles pièces sculptées à la main. Vous pourrez y admirer des commodes en noyer massif aux arabesques ciselées, des miroirs Ottomans dorés à la feuille d'or fin, ainsi qu'une avant-première de notre nouvelle ligne de céramiques de majolique.
-
-Démonstrations en direct :
-Chaque jour à 15h, nos maîtres artisans Adel et Ismail Aschi animeront des ateliers de démonstration publique. Vous découvrirez les techniques ancestrales du traçage au compas de laiton, de la taille à la gouge et du polissage à la cire d'abeille naturelle.
-
-Informations Pratiques :
-• Lieu : Parc des Expositions du Kram, Stand N° 42
-• Dates : Du 10 au 20 Avril 2026
-• Horaires : De 10h00 à 19h00`,
-    imageUrl: '/news-exposition.jpg',
-    createdDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 2,
-    title: 'Transmission de Savoir-Faire : Nos Jeunes Apprentis',
-    content: `Depuis sa fondation par Hachemi Aschi, la transmission des gestes nobles est le véritable cœur battant de notre maison d'art.
-
-Ce mois-ci, nous mettons à l'honneur Youssef et Malek, nos deux nouveaux apprentis ébénistes sculpteurs qui ont rejoint l'atelier de La Goulette après deux ans de sélection rigoureuse.
-
-Un Apprentissage Exigeant :
-Pendant trois années, sous la tutelle directe des frères Aschi, ils apprennent la patience du travail du bois de noyer noble : comprendre la fibre du bois, sélectionner les meilleures pièces séchées naturellement au bord de la mer, affûter les ciseaux d'ébéniste et maîtriser l'équilibre des volumes.
-
-"Transmettre, ce n'est pas simplement enseigner une technique, c'est léguer une passion et le respect du travail bien fait." — Adel Aschi`,
-    imageUrl: '/news-apprentis.jpg',
-    createdDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString()
-  }
-]
 
 export default function ActualiteDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
   const [article, setArticle] = useState<News | null>(null)
   const [otherNews, setOtherNews] = useState<News[]>([])
   const [loading, setLoading] = useState(true)
-  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     async function loadData() {
@@ -60,16 +24,11 @@ export default function ActualiteDetailPage({ params }: { params: Promise<{ id: 
           setArticle(found)
           setOtherNews(data.filter(n => n.id.toString() !== resolvedParams.id))
         } else {
-          // Fallback to static news item
-          const fallbackFound = FALLBACK_NEWS.find(n => n.id.toString() === resolvedParams.id) || FALLBACK_NEWS[0]
-          setArticle(fallbackFound)
-          setOtherNews(FALLBACK_NEWS.filter(n => n.id !== fallbackFound.id))
+          setArticle(null)
         }
       } catch (err) {
         console.error('Error fetching news detail:', err)
-        const fallbackFound = FALLBACK_NEWS.find(n => n.id.toString() === resolvedParams.id) || FALLBACK_NEWS[0]
-        setArticle(fallbackFound)
-        setOtherNews(FALLBACK_NEWS.filter(n => n.id !== fallbackFound.id))
+        setArticle(null)
       } finally {
         setLoading(false)
       }
@@ -77,17 +36,9 @@ export default function ActualiteDetailPage({ params }: { params: Promise<{ id: 
     loadData()
   }, [resolvedParams.id])
 
-  const handleShare = () => {
-    if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(window.location.href)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2500)
-    }
-  }
-
   if (loading) {
     return (
-      <main className="min-h-screen flex flex-col  text-[#3A2A21] justify-center items-center">
+      <main className="min-h-screen flex flex-col text-[#3A2A21] justify-center items-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#E8DCCB] border-t-transparent"></div>
       </main>
     )
@@ -95,9 +46,11 @@ export default function ActualiteDetailPage({ params }: { params: Promise<{ id: 
 
   if (!article) {
     return (
-      <main className="min-h-screen flex flex-col  text-[#3A2A21] justify-center items-center">
+      <main className="min-h-screen flex flex-col text-[#3A2A21] justify-center items-center">
         <p className="text-[#3A2A21]/60">Actualité non trouvée.</p>
-        <Link href="/#actualites" className="mt-4 text-[#C17D59] hover:underline text-xs uppercase tracking-widest">Retour à l&apos;accueil</Link>
+        <Link href="/#actualites" className="mt-4 text-[#C17D59] hover:underline text-xs uppercase tracking-widest">
+          Retour à l&apos;accueil
+        </Link>
       </main>
     )
   }
@@ -112,9 +65,8 @@ export default function ActualiteDetailPage({ params }: { params: Promise<{ id: 
   const readTime = `${Math.max(1, Math.ceil(words / 200))} min`
 
   return (
-    <main className="min-h-screen flex flex-col  text-[#3A2A21]">
+    <main className="min-h-screen flex flex-col text-[#3A2A21]">
       <Navbar />
-      
 
       <article className="flex-1 pt-28 pb-24 px-5 sm:px-8 max-w-4xl mx-auto w-full text-left">
         {/* Back Link */}
@@ -170,26 +122,9 @@ export default function ActualiteDetailPage({ params }: { params: Promise<{ id: 
           </div>
         </Reveal>
 
-        {/* Article Actions & Share */}
-        <div className="mt-10 pt-6 border-t border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-[#3A2A21]/50 uppercase tracking-widest">Maison Artisanat Aschi</span>
-          </div>
-
-          <button
-            onClick={handleShare}
-            className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-5 py-2.5 text-xs uppercase tracking-wider text-[#C17D59] hover:bg-[#E8DCCB] hover:text-walnut transition-all"
-          >
-            {copied ? (
-              <>
-                <Check className="size-3.5 text-emerald-400" /> Lien copié !
-              </>
-            ) : (
-              <>
-                <Share2 className="size-3.5" /> Partager cet article
-              </>
-            )}
-          </button>
+        {/* Article Footer Signature */}
+        <div className="mt-10 pt-6 border-t border-[#E8DCCB]/15 flex items-center">
+          <span className="text-xs text-[#3A2A21]/50 uppercase tracking-widest">Maison Artisanat Aschi</span>
         </div>
 
         {/* Related Articles Section */}
@@ -204,13 +139,20 @@ export default function ActualiteDetailPage({ params }: { params: Promise<{ id: 
                   className="bg-stone-950/30 border border-[#E8DCCB]/10 rounded-2xl p-5 hover:border-[#E8DCCB]/30 hover:bg-stone-950/60 transition-all flex gap-4 items-center group"
                 >
                   <div className="relative size-20 rounded-xl overflow-hidden shrink-0 bg-stone-900 border border-white/10">
-                    <Image src={item.imageUrl || '/news-exposition.jpg'} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform" />
+                    <Image
+                      src={item.imageUrl || '/news-exposition.jpg'}
+                      alt={item.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform"
+                    />
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] text-[#C17D59] uppercase tracking-wider font-semibold">
                       {new Date(item.createdDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                     </span>
-                    <h4 className="font-heading text-lg text-white group-hover:text-[#C17D59] transition-colors line-clamp-2">{item.title}</h4>
+                    <h4 className="font-heading text-lg text-white group-hover:text-[#C17D59] transition-colors line-clamp-2">
+                      {item.title}
+                    </h4>
                   </div>
                 </Link>
               ))}

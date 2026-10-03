@@ -33,6 +33,31 @@ export function MediaSection() {
   const [showControls, setShowControls] = useState(true)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+  const [mediaData, setMediaData] = useState({
+    videoUrl: '/video-media-aschi.mp4',
+    badge: 'Passage Média & Télévision',
+    title: "L'Artisanat Aschi à l'Écran",
+    subtitle: 'Reportage Télévisé Intégral • Format Source 100% Sans Recadrage',
+    description: 'Plongez dans les coulisses de notre atelier familial à travers ce reportage télévisé dédié à la haute sculpture sur noyer et la sauvegarde de nos arts traditionnels.'
+  })
+
+  useEffect(() => {
+    fetch('/api/videos')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.media) {
+          setMediaData(prev => ({
+            videoUrl: data.media.videoUrl || prev.videoUrl,
+            badge: data.media.badge || prev.badge,
+            title: data.media.title || prev.title,
+            subtitle: data.media.subtitle || prev.subtitle,
+            description: data.media.description || prev.description,
+          }))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   // Pause video if scrolled out of view
   useEffect(() => {
     if (!videoRef.current) return
@@ -174,19 +199,19 @@ export function MediaSection() {
           <Reveal>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#3B271C]/90 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-xs font-bold uppercase tracking-[0.2em] mb-3 shadow-lg">
               <Tv className="size-3.5 text-[#E6A635]" />
-              <span>Passage Média &amp; Télévision</span>
+              <span>{mediaData.badge || 'Passage Média & Télévision'}</span>
             </div>
           </Reveal>
 
           <Reveal delay={60}>
             <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-gold-gradient drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] tracking-tight mb-3">
-              L&apos;Artisanat Aschi à l&apos;Écran
+              {mediaData.title || "L'Artisanat Aschi à l'Écran"}
             </h2>
           </Reveal>
 
           <Reveal delay={100}>
             <p className="text-white drop-shadow text-sm sm:text-base font-normal max-w-2xl mx-auto leading-relaxed">
-              Plongez dans les coulisses de notre atelier familial à travers ce reportage télévisé dédié à la haute sculpture sur noyer et la sauvegarde de nos arts traditionnels.
+              {mediaData.description}
             </p>
           </Reveal>
         </div>
@@ -209,7 +234,7 @@ export function MediaSection() {
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 backdrop-blur-md shadow-sm">
                 <Film className="size-3 text-[#E6A635]" />
                 <span className="text-[10.5px] sm:text-xs font-semibold text-white/90">
-                  Format Source Complet • 100% Sans Recadrage
+                  {mediaData.subtitle || 'Format Source Complet • 100% Sans Recadrage'}
                 </span>
               </div>
             </div>
@@ -237,7 +262,7 @@ export function MediaSection() {
                 */}
                 <video
                   ref={videoRef}
-                  src="/video-media-aschi.mp4"
+                  src={mediaData.videoUrl || "/video-media-aschi.mp4"}
                   muted={isMuted}
                   playsInline
                   preload="auto"

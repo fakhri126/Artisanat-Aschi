@@ -109,8 +109,6 @@ function BentoProjectCard({
     const fallbackPhoto = project.gallery?.find((g) => !g.match(/\.(mp4|webm|ogg|mov)$/i))
     displayImage = (fallbackPhoto ? fallbackPhoto.split(',')[0].trim() : '') || '/project-hotel.png'
   }
-  const hasVideo = Boolean(project.videoUrl || project.video)
-  const videoSrc = project.videoUrl || project.video || ''
 
   return (
     <Reveal
@@ -126,47 +124,42 @@ function BentoProjectCard({
           src={displayImage}
           alt={project.title}
           fill
+          unoptimized
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 50vw"
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-90 group-hover:opacity-100"
           loading={isGrande ? 'eager' : 'lazy'}
+          onError={(e) => {
+            const filename = displayImage.split('/').pop()?.split('#')[0]
+            if (filename && displayImage.startsWith('http')) {
+              e.currentTarget.src = `/uploads/${filename}`
+            } else {
+              e.currentTarget.src = '/project-hotel.png'
+            }
+          }}
         />
 
-        {/* Dégradés d'ombrage pour lisibilité optimale */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#160E0A]/95 via-[#160E0A]/50 to-black/20 transition-opacity duration-500 group-hover:opacity-85 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60 pointer-events-none" />
+        {/* Voile d'ambiance ultra-doux préservant la pleine clarté et luminosité de la photo d'art */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent transition-opacity duration-500 group-hover:opacity-90 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-transparent opacity-60 pointer-events-none" />
 
-        {/* Badges & Bouton en haut */}
-        <div className="absolute top-3.5 sm:top-5 left-3.5 sm:left-5 right-3.5 sm:right-5 z-10 flex items-center justify-between pointer-events-none">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
-              <Sparkles className="size-3 text-[#E6A635]" />
-              <span>{project.category}</span>
-            </span>
-            {project.location && (
-              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#1A110B]/80 border border-white/15 text-white/80 text-[10px] backdrop-blur-md">
-                <MapPin className="size-2.5 text-[#E6A635]" />
-                <span>{project.location}</span>
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            {hasVideo && (
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/50 text-[#F2BD52] text-[9.5px] font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
-                <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Vidéo HD</span>
-              </span>
-            )}
-            <span className="size-8 sm:size-10 rounded-full bg-[#1A110B]/85 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] flex items-center justify-center group-hover:bg-[#E6A635] group-hover:text-[#1A110B] group-hover:rotate-45 transition-all duration-300 shadow-lg">
-              <ArrowUpRight className="size-4 sm:size-5" />
-            </span>
-          </div>
+        {/* Bouton flèche en haut à droite transparent et discret */}
+        <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10 pointer-events-none">
+          <span className="size-8 sm:size-9 rounded-full bg-black/30 backdrop-blur-sm border border-white/20 text-[#F2BD52] flex items-center justify-center group-hover:bg-[#E6A635] group-hover:text-[#1A110B] group-hover:rotate-45 transition-all duration-300 shadow-md">
+            <ArrowUpRight className="size-4" />
+          </span>
         </div>
 
-        {/* Contenu textuel en bas */}
-        <div className="relative z-10 p-4 sm:p-6 md:p-7 text-left text-white">
+        {/* Contenu textuel 100% transparent : Ne masque pas l'image */}
+        <div className="relative z-10 p-4 sm:p-6 text-left bg-transparent">
+          {/* Ligne de sur-titre discret */}
+          <div className="flex items-center gap-1.5 mb-1.5 text-[9.5px] sm:text-[10.5px] uppercase font-bold tracking-[0.16em] text-[#F2BD52] drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+            <span className="size-1.5 rounded-full bg-[#E6A635] shadow-[0_0_6px_#E6A635]" />
+            <span>{project.location ? `${project.category} • ${project.location}` : project.category}</span>
+          </div>
+
+          {/* Titre Noble */}
           <h3
-            className={`font-heading font-light text-white leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] group-hover:text-[#F2BD52] transition-colors mb-2 ${
+            className={`font-heading font-medium text-white leading-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] group-hover:text-[#F2BD52] transition-colors truncate ${
               isGrande
                 ? 'text-xl sm:text-2xl lg:text-3xl'
                 : isMoyenne
@@ -177,58 +170,8 @@ function BentoProjectCard({
             {project.title}
           </h3>
 
-          <p
-            className={`text-white/85 text-xs sm:text-sm font-light leading-relaxed drop-shadow-md line-clamp-2 ${
-              isGrande ? 'sm:line-clamp-3 max-w-md' : 'max-w-sm'
-            }`}
-          >
-            {project.description}
-          </p>
-
-          {/* Pastilles d'aménagements si présents */}
-          {project.detailsList && project.detailsList.length > 0 && (
-            <div className="mt-3 hidden sm:flex flex-wrap gap-1.5">
-              {project.detailsList.slice(0, isGrande ? 3 : 2).map((detail, idx) => (
-                <span
-                  key={idx}
-                  className="px-2.5 py-0.5 rounded-full bg-[#241812]/80 border border-[#E6A635]/25 text-[10px] text-white/90 backdrop-blur-sm"
-                >
-                  {detail}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Miniatures photos si galerie multiple */}
-          {project.gallery && project.gallery.length > 1 && (
-            <div 
-              className="mt-3 flex items-center gap-1.5 z-20 pointer-events-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {project.gallery.slice(0, isGrande ? 4 : 3).map((img, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => onOpen(project)}
-                  className="relative size-7 sm:size-8 rounded-md overflow-hidden border border-white/30 hover:border-[#E6A635] hover:scale-110 transition-all cursor-pointer shadow-md"
-                  title={`Voir photo ${i + 1}`}
-                >
-                  <Image src={img.split(',')[0].trim()} alt="Miniature" fill className="object-cover" />
-                </button>
-              ))}
-              {project.gallery.length > (isGrande ? 4 : 3) && (
-                <span className="text-[9.5px] text-[#F2BD52] font-bold px-2 py-0.5 rounded-full bg-black/75 border border-[#E6A635]/40 backdrop-blur-md">
-                  +{project.gallery.length - (isGrande ? 4 : 3)} photos
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Indication d'interaction */}
-          <div className="mt-3 flex items-center gap-1.5 text-[11px] sm:text-xs text-[#F2BD52] font-semibold opacity-90 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
-            <span>Découvrir le projet</span>
-            <ChevronRight className="size-3.5" />
-          </div>
+          {/* Liseré or discret animé au survol */}
+          <div className="mt-2 h-[1px] w-6 bg-[#E6A635]/60 group-hover:w-14 group-hover:bg-[#E6A635] transition-all duration-500 drop-shadow-md" />
         </div>
       </div>
     </Reveal>
@@ -242,6 +185,7 @@ export function Projects() {
   const [lightboxProject, setLightboxProject] = useState<{ images: string[]; currentIndex: number; title: string } | null>(null)
   const [isModalMuted, setIsModalMuted] = useState(true)
   const [modalActiveView, setModalActiveView] = useState<'video' | number>('video')
+  const [isVideoBuffering, setIsVideoBuffering] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   const toggleModalMute = () => {
@@ -331,6 +275,7 @@ export function Projects() {
     if (selectedProject) {
       const hasVid = Boolean(selectedProject.video || selectedProject.videoUrl)
       setModalActiveView(hasVid ? 'video' : 0)
+      setIsVideoBuffering(false)
     }
   }, [selectedProject])
 
@@ -402,37 +347,49 @@ export function Projects() {
         )}
 
         {/* ================================================================= */}
-        {/* 3-STEP PROCESS: ÉTUDE → FAÇONNAGE → POSE                          */}
+        {/* 3-STEP PROCESS: ÉTUDE → FAÇONNAGE → POSE (3 Cartes Flottantes)    */}
         {/* ================================================================= */}
         <Reveal delay={100} className="mt-10 sm:mt-14">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#3B271C]/90 to-[#241812]/95 backdrop-blur-xl border border-[#E6A635]/35 shadow-xl">
-            {PROCESS_STEPS.map((s, i) => {
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-5">
+            {PROCESS_STEPS.map((s) => {
               const Icon = s.icon
               return (
-                <div key={s.step} className="flex items-start gap-3 sm:gap-4 relative">
-                  {/* Step Number */}
-                  <div className="relative shrink-0">
-                    <div className="size-10 sm:size-12 rounded-xl sm:rounded-2xl bg-[#241812] border border-[#E6A635]/40 flex items-center justify-center shadow-md">
-                      <Icon className="size-5 sm:size-6 text-[#F2BD52]" />
+                <div
+                  key={s.step}
+                  className="group relative rounded-2xl p-5 sm:p-6 bg-gradient-to-b from-[#281810]/75 to-[#160E09]/85 backdrop-blur-md border border-[#E6A635]/25 hover:border-[#E6A635]/60 hover:bg-[#321E14]/90 transition-all duration-300 shadow-xl hover:shadow-[0_12px_32px_rgba(230,166,53,0.18)] flex flex-col justify-between overflow-hidden"
+                >
+                  {/* Filigrane discret du grand chiffre en arrière-plan */}
+                  <span className="absolute -bottom-3 -right-1 font-heading text-6xl sm:text-7xl font-light text-[#E6A635]/[0.06] pointer-events-none select-none group-hover:text-[#E6A635]/[0.12] transition-colors">
+                    {s.step}
+                  </span>
+
+                  <div>
+                    {/* En-tête : Badge Étape + Icône Fine */}
+                    <div className="flex items-center justify-between mb-3.5">
+                      <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-[#E6A635]/15 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-bold tracking-wider font-heading">
+                        ÉTAPE {s.step}
+                      </span>
+                      <div className="size-8 rounded-xl bg-[#20140E] border border-[#E6A635]/30 flex items-center justify-center text-[#F2BD52] group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-colors shadow-sm">
+                        <Icon className="size-4" />
+                      </div>
                     </div>
-                    <span className="absolute -top-1.5 -right-1.5 size-5 sm:size-6 rounded-full bg-gradient-to-br from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9px] sm:text-[10px] font-extrabold flex items-center justify-center shadow-sm">
-                      {s.step}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-heading text-sm sm:text-base font-medium text-white mb-0.5">
+
+                    {/* Titre Noble */}
+                    <h4 className="font-heading text-base sm:text-lg font-medium text-white tracking-wide group-hover:text-[#F2BD52] transition-colors mb-2">
                       {s.title}
                     </h4>
-                    <p className="text-[10px] sm:text-[11px] text-white/75 font-light leading-snug">
+
+                    {/* Description */}
+                    <p className="text-xs sm:text-[12.5px] text-white/70 font-light leading-relaxed">
                       {s.desc}
                     </p>
                   </div>
-                  {/* Connector arrow (desktop only, not on last) */}
-                  {i < PROCESS_STEPS.length - 1 && (
-                    <div className="hidden sm:flex absolute -right-3.5 top-1/2 -translate-y-1/2 z-10">
-                      <ChevronRight className="size-4 text-[#E6A635]/50" />
-                    </div>
-                  )}
+
+                  {/* Liseré fin inférieur de prestige */}
+                  <div className="mt-5 pt-3 border-t border-[#E6A635]/15 flex items-center justify-between text-[10px] text-[#E6A635]/70 font-medium">
+                    <span>Maison Aschi</span>
+                    <span className="size-1 rounded-full bg-[#E6A635]/60" />
+                  </div>
                 </div>
               )
             })}
@@ -550,15 +507,50 @@ export function Projects() {
                 <div className="relative w-full flex-1 aspect-[16/9] min-h-[340px] sm:min-h-[460px] lg:min-h-[520px] xl:min-h-[580px] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#0D0805] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group/media">
                   {modalActiveView === 'video' && (selectedProject.video || selectedProject.videoUrl) ? (
                     <>
-                      <video
-                        ref={videoRef}
-                        src={selectedProject.video || selectedProject.videoUrl}
-                        muted={isModalMuted}
-                        autoPlay
-                        loop
-                        playsInline
-                        className="w-full h-full object-contain sm:object-cover bg-black"
-                      />
+                      {(() => {
+                        const rawVideoUrl = (() => {
+                          const v = (selectedProject.video || selectedProject.videoUrl || '').trim()
+                          if (!v) return ''
+                          // Mapper les URLs distantes Supabase vers le fichier local équivalent pour un streaming 0ms
+                          const match = v.match(/\/media\/([^/?#]+\.mp4)/i)
+                          if (match && match[1]) {
+                            return `/uploads/${match[1]}`
+                          }
+                          return v
+                        })()
+                        const posterUrl = (selectedProject.gallery && selectedProject.gallery[0]?.split(',')[0]?.trim()) ||
+                          (selectedProject.imageUrl ? selectedProject.imageUrl.split(',')[0]?.trim() : '') ||
+                          '/project-hotel.png'
+
+                        return (
+                          <video
+                            ref={videoRef}
+                            key={rawVideoUrl}
+                            src={rawVideoUrl}
+                            poster={posterUrl}
+                            muted={isModalMuted}
+                            autoPlay
+                            loop
+                            playsInline
+                            preload="metadata"
+                            className="w-full h-full object-contain sm:object-cover bg-black"
+                            onWaiting={() => setIsVideoBuffering(true)}
+                            onPlaying={() => setIsVideoBuffering(false)}
+                            onPlay={() => setIsVideoBuffering(false)}
+                            onTimeUpdate={() => setIsVideoBuffering(false)}
+                            onCanPlay={() => setIsVideoBuffering(false)}
+                            onLoadedData={() => setIsVideoBuffering(false)}
+                          />
+                        )
+                      })()}
+
+                      {/* Spinner discret uniquement en cas de chargement réel, sans texte bloquant */}
+                      {isVideoBuffering && (
+                        <div className="absolute inset-0 z-15 flex items-center justify-center pointer-events-none transition-opacity duration-300">
+                          <div className="size-10 rounded-full border-2 border-[#E6A635]/30 border-t-[#E6A635] animate-spin shadow-[0_0_15px_rgba(230,166,53,0.4)]" />
+                        </div>
+                      )}
+
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
                       {/* Badge HD discret en haut à droite */}
@@ -581,21 +573,33 @@ export function Projects() {
                     </>
                   ) : (
                     <>
-                      <Image
-                        src={
-                          (selectedProject.gallery && selectedProject.gallery[typeof modalActiveView === 'number' ? modalActiveView : 0]?.split(',')[0]?.trim()) ||
+                      {(() => {
+                        const modalImg = (selectedProject.gallery && selectedProject.gallery[typeof modalActiveView === 'number' ? modalActiveView : 0]?.split(',')[0]?.trim()) ||
                           (selectedProject.imageUrl ? selectedProject.imageUrl.split(',')[0].trim() : '') ||
                           '/project-hotel.png'
-                        }
-                        alt={selectedProject.title}
-                        fill
-                        className="object-cover transition-transform duration-700 ease-out group-hover/media:scale-105 cursor-zoom-in"
-                        onClick={() => setLightboxProject({
-                          images: selectedProject.gallery,
-                          currentIndex: typeof modalActiveView === 'number' ? modalActiveView : 0,
-                          title: selectedProject.title
-                        })}
-                      />
+                        return (
+                          <Image
+                            src={modalImg}
+                            alt={selectedProject.title}
+                            fill
+                            unoptimized
+                            className="object-cover transition-transform duration-700 ease-out group-hover/media:scale-105 cursor-zoom-in"
+                            onClick={() => setLightboxProject({
+                              images: selectedProject.gallery,
+                              currentIndex: typeof modalActiveView === 'number' ? modalActiveView : 0,
+                              title: selectedProject.title
+                            })}
+                            onError={(e) => {
+                              const filename = modalImg.split('/').pop()?.split('#')[0]
+                              if (filename && modalImg.startsWith('http')) {
+                                e.currentTarget.src = `/uploads/${filename}`
+                              } else {
+                                e.currentTarget.src = '/project-hotel.png'
+                              }
+                            }}
+                          />
+                        )
+                      })()}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
                       {/* Flèches de navigation photo */}
@@ -644,48 +648,74 @@ export function Projects() {
 
                   <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-thin items-center">
                     {/* Miniature Vidéo si disponible */}
-                    {(selectedProject.video || selectedProject.videoUrl) && (
-                      <button
-                        type="button"
-                        onClick={() => setModalActiveView('video')}
-                        className={`relative w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer flex flex-col items-center justify-center bg-black ${
-                          modalActiveView === 'video'
-                            ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.5)] scale-[0.98]'
-                            : 'border-[#E6A635]/25 opacity-60 hover:opacity-100 hover:border-[#E6A635]/60'
-                        }`}
-                      >
-                        <video
-                          src={selectedProject.video || selectedProject.videoUrl}
-                          muted
-                          playsInline
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#E6A635] text-[#1A110B] text-[8.5px] font-extrabold uppercase shadow-sm">
-                            <Film className="size-2.5 fill-current" /> Vidéo
-                          </span>
-                        </div>
-                      </button>
-                    )}
+                    {(selectedProject.video || selectedProject.videoUrl) && (() => {
+                      const thumbPoster = (selectedProject.gallery && selectedProject.gallery[0]?.split(',')[0]?.trim()) ||
+                        (selectedProject.imageUrl ? selectedProject.imageUrl.split(',')[0]?.trim() : '') ||
+                        '/project-hotel.png'
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setModalActiveView('video')
+                            setIsVideoBuffering(false)
+                          }}
+                          className={`relative w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer flex flex-col items-center justify-center bg-black group/vidthumb ${
+                            modalActiveView === 'video'
+                              ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.5)] scale-[0.98]'
+                              : 'border-[#E6A635]/25 opacity-70 hover:opacity-100 hover:border-[#E6A635]/60'
+                          }`}
+                        >
+                          <Image
+                            src={thumbPoster}
+                            alt="Aperçu vidéo"
+                            fill
+                            unoptimized
+                            className="object-cover transition-transform duration-300 group-hover/vidthumb:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-black/45 flex items-center justify-center">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#E6A635] text-[#1A110B] text-[8.5px] font-extrabold uppercase shadow-sm">
+                              <Film className="size-2.5 fill-current" /> Vidéo
+                            </span>
+                          </div>
+                        </button>
+                      )
+                    })()}
 
                     {/* Miniatures des Photos */}
-                    {selectedProject.gallery && selectedProject.gallery.map((img: string, idx: number) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => setModalActiveView(idx)}
-                        className={`relative w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
-                          modalActiveView === idx
-                            ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.5)] scale-[0.98]'
-                            : 'border-[#E6A635]/25 opacity-60 hover:opacity-100 hover:border-[#E6A635]/60'
-                        }`}
-                      >
-                        <Image src={img.split(',')[0].trim()} alt="Miniature" fill className="object-cover" />
-                        <span className="absolute bottom-1 right-1 px-1.5 py-0.2 rounded bg-black/75 text-[8.5px] text-white/90 font-medium">
-                          {idx + 1}
-                        </span>
-                      </button>
-                    ))}
+                    {selectedProject.gallery && selectedProject.gallery.map((img: string, idx: number) => {
+                      const thumbUrl = img.split(',')[0].trim()
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setModalActiveView(idx)}
+                          className={`relative w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                            modalActiveView === idx
+                              ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.5)] scale-[0.98]'
+                              : 'border-[#E6A635]/25 opacity-60 hover:opacity-100 hover:border-[#E6A635]/60'
+                          }`}
+                        >
+                          <Image
+                            src={thumbUrl}
+                            alt={`Miniature ${idx + 1}`}
+                            fill
+                            unoptimized
+                            className="object-cover"
+                            onError={(e) => {
+                              const filename = thumbUrl.split('/').pop()?.split('#')[0]
+                              if (filename && thumbUrl.startsWith('http')) {
+                                e.currentTarget.src = `/uploads/${filename}`
+                              } else {
+                                e.currentTarget.src = '/project-hotel.png'
+                              }
+                            }}
+                          />
+                          <span className="absolute bottom-1 right-1 px-1.5 py-0.2 rounded bg-black/75 text-[8.5px] text-white/90 font-medium">
+                            {idx + 1}
+                          </span>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
@@ -858,9 +888,19 @@ export function Projects() {
                 src={lightboxProject.images[lightboxProject.currentIndex]?.split(',')[0]?.trim() || '/project-hotel.png'}
                 alt={lightboxProject.title}
                 fill
+                unoptimized
                 className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)]"
                 sizes="100vw"
                 priority
+                onError={(e) => {
+                  const cur = lightboxProject.images[lightboxProject.currentIndex]?.split(',')[0]?.trim()
+                  const filename = cur?.split('/').pop()?.split('#')[0]
+                  if (filename && cur?.startsWith('http')) {
+                    e.currentTarget.src = `/uploads/${filename}`
+                  } else {
+                    e.currentTarget.src = '/project-hotel.png'
+                  }
+                }}
               />
             </motion.div>
 
@@ -902,19 +942,36 @@ export function Projects() {
                 className="absolute bottom-3 sm:bottom-4 inset-x-4 flex justify-center gap-2 overflow-x-auto py-2 z-20 scrollbar-thin"
                 onClick={(e) => e.stopPropagation()}
               >
-                {lightboxProject.images.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setLightboxProject(prev => prev ? { ...prev, currentIndex: idx } : null)}
-                    className={`relative w-12 sm:w-16 aspect-[16/10] rounded-lg overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
-                      lightboxProject.currentIndex === idx
-                        ? 'border-[#E6A635] scale-105 shadow-[0_0_12px_rgba(230,166,53,0.5)]'
-                        : 'border-white/20 opacity-50 hover:opacity-100'
-                    }`}
-                  >
-                    <Image src={img.split(',')[0].trim()} alt="Miniature" fill className="object-cover" />
-                  </button>
-                ))}
+                {lightboxProject.images.map((img, idx) => {
+                  const cleanImg = img.split(',')[0].trim()
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setLightboxProject(prev => prev ? { ...prev, currentIndex: idx } : null)}
+                      className={`relative w-12 sm:w-16 aspect-[16/10] rounded-lg overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                        lightboxProject.currentIndex === idx
+                          ? 'border-[#E6A635] scale-105 shadow-[0_0_12px_rgba(230,166,53,0.5)]'
+                          : 'border-white/20 opacity-50 hover:opacity-100'
+                      }`}
+                    >
+                      <Image
+                        src={cleanImg}
+                        alt="Miniature"
+                        fill
+                        unoptimized
+                        className="object-cover"
+                        onError={(e) => {
+                          const filename = cleanImg.split('/').pop()?.split('#')[0]
+                          if (filename && cleanImg.startsWith('http')) {
+                            e.currentTarget.src = `/uploads/${filename}`
+                          } else {
+                            e.currentTarget.src = '/project-hotel.png'
+                          }
+                        }}
+                      />
+                    </button>
+                  )
+                })}
               </div>
             )}
           </motion.div>

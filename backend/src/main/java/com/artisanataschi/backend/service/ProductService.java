@@ -7,7 +7,6 @@ import com.artisanataschi.backend.dto.ProductRequest;
 import com.artisanataschi.backend.repository.CategoryRepository;
 import com.artisanataschi.backend.repository.ProductRepository;
 import com.artisanataschi.backend.repository.ProductSpecification;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -22,10 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class ProductService {
 
-    @Autowired private ProductRepository productRepository;
-    @Autowired private CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+    }
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
@@ -155,6 +160,7 @@ public class ProductService {
         return images;
     }
 
+    @Transactional
     @CacheEvict(value = {"featuredProducts", "latestProducts"}, allEntries = true)
     public void deleteProduct(Long id) {
         Product product = getProductById(id);

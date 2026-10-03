@@ -3,6 +3,7 @@ package com.artisanataschi.backend.config;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,9 +24,16 @@ public class JwtUtils {
     @Value("${app.jwt.expirationMs}")
     private long jwtExpirationMs;
 
-    private SecretKey getSigningKey() {
+    private SecretKey cachedKey;
+
+    @PostConstruct
+    public void init() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
+        this.cachedKey = Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private SecretKey getSigningKey() {
+        return this.cachedKey;
     }
 
     public String generateJwtToken(Authentication authentication) {

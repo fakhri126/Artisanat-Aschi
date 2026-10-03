@@ -66,13 +66,39 @@ export async function POST(request: Request) {
     const filepath = path.join(uploadsDir, finalFilename)
     const backendFilepath = path.join(backendUploadsDir, finalFilename)
 
-    // Write processed file to both directories
+    // Write processed file to both directories (local cache/backup)
     fs.writeFileSync(filepath, processedBuffer)
     try {
       fs.writeFileSync(backendFilepath, processedBuffer)
     } catch (_) {}
 
-    return NextResponse.json({ url: `/uploads/${finalFilename}` })
+    // Upload to Supabase Storage if configured
+    let finalUrl = `/uploads/${finalFilename}`
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js')
+        const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
+        const { error: uploadError } = await supabase.storage
+          .from('media')
+          .upload(finalFilename, processedBuffer, {
+            contentType: isImage && !isSvg && !isGif ? 'image/webp' : (file.type || 'application/octet-stream'),
+            upsert: true,
+          })
+        if (!uploadError) {
+          const { data: pubData } = supabase.storage.from('media').getPublicUrl(finalFilename)
+          if (pubData?.publicUrl) {
+            finalUrl = pubData.publicUrl
+          }
+        }
+      } catch (sbErr) {
+        console.warn('Supabase image upload fallback to local:', sbErr)
+      }
+    }
+
+    return NextResponse.json({ url: finalUrl })
   } catch (error: any) {
     console.error('Error uploading image to public/uploads:', error)
     return NextResponse.json({ error: error.message || "Erreur lors de l'enregistrement de l'image." }, { status: 500 })

@@ -10,6 +10,8 @@ __v0_jsx-dev-runtime.ts
 .agents/
 
 # Environment variables
+.env
+.env*
 .env*.local
 
 # Common ignores
@@ -24,6 +26,10 @@ tsconfig.tsbuildinfo
 # Backend ignores
 backend/target/
 backend/.idea/
+backend/uploads/
+
+# Uploads
+public/uploads/
 
 # Scratch directory
 scratch/

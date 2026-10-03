@@ -5,7 +5,6 @@ import com.artisanataschi.backend.dto.DashboardStats;
 import com.artisanataschi.backend.dto.ProductRequest;
 import com.artisanataschi.backend.service.*;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,40 +12,41 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Autowired
-    private DashboardService dashboardService;
+    private final DashboardService dashboardService;
+    private final CategoryService categoryService;
+    private final ProductService productService;
+    private final ProjectService projectService;
+    private final NewsService newsService;
+    private final QuoteRequestService quoteRequestService;
+    private final RelookingService relookingService;
+    private final DeliveryService deliveryService;
+    private final FileStorageService fileStorageService;
 
-    @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
-    private ProductService productService;
-
-    @Autowired
-    private ProjectService projectService;
-
-    @Autowired
-    private NewsService newsService;
-
-    @Autowired
-    private ReferenceService referenceService;
-
-    @Autowired
-    private TestimonialService testimonialService;
-
-    @Autowired
-    private QuoteRequestService quoteRequestService;
-
-    @Autowired
-    private RelookingService relookingService;
-
-    @Autowired
-    private DeliveryService deliveryService;
+    public AdminController(DashboardService dashboardService,
+                           CategoryService categoryService,
+                           ProductService productService,
+                           ProjectService projectService,
+                           NewsService newsService,
+                           QuoteRequestService quoteRequestService,
+                           RelookingService relookingService,
+                           DeliveryService deliveryService,
+                           FileStorageService fileStorageService) {
+        this.dashboardService = dashboardService;
+        this.categoryService = categoryService;
+        this.productService = productService;
+        this.projectService = projectService;
+        this.newsService = newsService;
+        this.quoteRequestService = quoteRequestService;
+        this.relookingService = relookingService;
+        this.deliveryService = deliveryService;
+        this.fileStorageService = fileStorageService;
+    }
 
     // --- Statistics ---
     @GetMapping("/stats")
@@ -105,20 +105,17 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    @Autowired
-    private FileStorageService fileStorageService;
-
     @PostMapping("/upload")
-    public ResponseEntity<java.util.Map<String, String>> uploadImage(
+    public ResponseEntity<Map<String, String>> uploadImage(
             @RequestParam("file") MultipartFile file,
             HttpServletRequest request) {
         try {
             String fileUrl = fileStorageService.storeFile(file, request);
-            return ResponseEntity.ok(java.util.Map.of("url", fileUrl));
+            return ResponseEntity.ok(Map.of("url", fileUrl));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(java.util.Map.of("error", "Erreur lors de l'enregistrement de l'image: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("error", "Erreur lors de l'enregistrement de l'image: " + e.getMessage()));
         }
     }
 
@@ -170,40 +167,6 @@ public class AdminController {
     @DeleteMapping("/deliveries/{id}")
     public ResponseEntity<Void> deleteDelivery(@PathVariable Long id) {
         deliveryService.deleteDelivery(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // --- References CRUD ---
-    @PostMapping("/references")
-    public ResponseEntity<Reference> createReference(@Valid @RequestBody Reference reference) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(referenceService.createReference(reference));
-    }
-
-    @PutMapping("/references/{id}")
-    public ResponseEntity<Reference> updateReference(@PathVariable Long id, @Valid @RequestBody Reference reference) {
-        return ResponseEntity.ok(referenceService.updateReference(id, reference));
-    }
-
-    @DeleteMapping("/references/{id}")
-    public ResponseEntity<Void> deleteReference(@PathVariable Long id) {
-        referenceService.deleteReference(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // --- Testimonials CRUD ---
-    @PostMapping("/testimonials")
-    public ResponseEntity<Testimonial> createTestimonial(@Valid @RequestBody Testimonial testimonial) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(testimonialService.createTestimonial(testimonial));
-    }
-
-    @PutMapping("/testimonials/{id}")
-    public ResponseEntity<Testimonial> updateTestimonial(@PathVariable Long id, @Valid @RequestBody Testimonial testimonial) {
-        return ResponseEntity.ok(testimonialService.updateTestimonial(id, testimonial));
-    }
-
-    @DeleteMapping("/testimonials/{id}")
-    public ResponseEntity<Void> deleteTestimonial(@PathVariable Long id) {
-        testimonialService.deleteTestimonial(id);
         return ResponseEntity.noContent().build();
     }
 

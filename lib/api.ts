@@ -376,7 +376,10 @@ export const adminApi = {
       });
       if (res.ok) {
         const json = await res.json();
-        if (json.url) return json;
+        if (json.url) {
+          const cleanUrl = json.url.replace(/^https?:\/\/[^/]+(?:\/api)?/, '');
+          return { url: cleanUrl };
+        }
       }
     } catch (e) {
       console.warn('Next.js direct upload fallback:', e);
@@ -385,29 +388,34 @@ export const adminApi = {
     // 2. Fallback to Spring Boot backend /admin/upload
     const formData = new FormData();
     formData.append('file', file);
-    return fetchApi<{ url: string }>('/admin/upload', {
+    const backendRes = await fetchApi<{ url: string }>('/admin/upload', {
       method: 'POST',
       body: formData,
     });
+    const cleanUrl = backendRes.url ? backendRes.url.replace(/^https?:\/\/[^/]+(?:\/api)?/, '') : backendRes.url;
+    return { url: cleanUrl };
   },
 
   uploadVideo: async (file: File) => {
     try {
-      // Prioritize uploading to the Spring Boot backend
-      return await adminApi.uploadImage(file);
-    } catch (backendError) {
-      console.warn('Backend upload failed, falling back to Next.js upload-video:', backendError);
+      // Prioritize Next.js /api/upload-video (with FFmpeg compression and +faststart)
       const formData = new FormData();
       formData.append('file', file);
       const res = await fetch('/api/upload-video', {
         method: 'POST',
         body: formData,
       });
-      if (!res.ok) {
-        throw new Error('Erreur lors du téléchargement de la vidéo');
+      if (res.ok) {
+        return (await res.json()) as { url: string };
       }
-      return res.json() as Promise<{ url: string }>;
+      const err = await res.json().catch(() => ({}));
+      console.warn('Next.js upload-video returned error:', err);
+    } catch (e) {
+      console.warn('Next.js upload-video failed, falling back to direct upload:', e);
     }
+
+    // Fallback: direct backend upload
+    return await adminApi.uploadImage(file);
   },
 
   uploadProductImage: (file: File) => {

@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface QuoteRequestRepository extends JpaRepository<QuoteRequest, Long> {
     List<QuoteRequest> findAllByOrderByCreatedDateDesc();
+    long countByStatusIgnoreCase(String status);
 }

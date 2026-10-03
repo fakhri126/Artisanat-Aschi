@@ -1,8 +1,5 @@
 /**
  * Script de migration automatique des médias (images & vidéos) vers Supabase Storage
- * 
- * Utilisation :
- *   $env:SUPABASE_KEY="eyJhbGciOi..."; node scripts/migrate-media-to-supabase.js
  */
 
 const fs = require('fs');
@@ -10,8 +7,25 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const { Client: PgClient } = require('pg');
 
+// Lire le fichier .env si présent
+if (fs.existsSync(path.join(process.cwd(), '.env'))) {
+  const envContent = fs.readFileSync(path.join(process.cwd(), '.env'), 'utf-8');
+  envContent.split('\n').forEach(line => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+      const idx = trimmed.indexOf('=');
+      const key = trimmed.slice(0, idx).trim();
+      const val = trimmed.slice(idx + 1).trim();
+      if (!process.env[key]) process.env[key] = val;
+    }
+  });
+}
+
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://uerbqswgxsinayfyntsm.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+                     process.env.SUPABASE_KEY || 
+                     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
+                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlcmJxc3dneHNpbmF5ZnludHNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMDcyMTcsImV4cCI6MjEwMzg4MzIxN30.xoxyBPIb5ZOxM5ggsIsgPxyMF2K8BjO9_JwE8mtKygI';
 const SUPABASE_DB_URL = process.env.SUPABASE_DB_URL || 'postgresql://postgres.uerbqswgxsinayfyntsm:Aqwzsx%20126002@aws-1-eu-west-3.pooler.supabase.com:5432/postgres';
 const BUCKET_NAME = 'media';
 
@@ -43,67 +57,46 @@ function getMimeType(filename) {
   }
 }
 
+function replaceUploadUrl(url, publicBaseUrl) {
+  if (!url || typeof url !== 'string') return url;
+  if (!url.includes('/uploads/') && !url.includes('localhost:8081')) return url;
+
+  const [cleanPath, hash] = url.split('#');
+  const filename = path.basename(cleanPath);
+  const newUrl = `${publicBaseUrl}${filename}${hash ? '#' + hash : ''}`;
+  return newUrl;
+}
+
+function replaceCommaSeparatedUrls(urlsString, publicBaseUrl) {
+  if (!urlsString || typeof urlsString !== 'string') return urlsString;
+  const parts = urlsString.split(',').map(s => s.trim());
+  return parts.map(part => replaceUploadUrl(part, publicBaseUrl)).join(',');
+}
+
 async function migrate() {
   console.log('===============================================================');
   console.log('🚀 MIGRATION DES MÉDIAS (IMAGES & VIDÉOS) VERS SUPABASE STORAGE');
   console.log('===============================================================');
 
-  if (!SUPABASE_KEY) {
-    console.error('\n❌ ERREUR : La clé API Supabase est manquante !');
-    console.error('Veuillez définir la variable d\'environnement SUPABASE_KEY ou SUPABASE_SERVICE_ROLE_KEY.');
-    console.error('Exemple :');
-    console.error('  $env:SUPABASE_KEY="eyJhbGciOi..."; node scripts/migrate-media-to-supabase.js\n');
-    process.exit(1);
-  }
-
-  // 1. Initialiser le client Supabase et PostgreSQL
-  console.log('1. Connexion à Supabase Storage & PostgreSQL...');
+  // 1. Initialiser le client Supabase
+  console.log('\n1. Initialisation du client Supabase Storage...');
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: false }
   });
+  console.log('✅ Client Supabase prêt.');
 
-  const pgClient = new PgClient({
-    connectionString: SUPABASE_DB_URL,
-    ssl: { rejectUnauthorized: false }
-  });
+  // 2. Récupérer les fichiers déjà présents sur Supabase Storage
+  console.log(`\n2. Vérification des fichiers déjà téléversés dans le bucket '${BUCKET_NAME}'...`);
+  const { data: existingFilesData, error: listErr } = await supabase.storage.from(BUCKET_NAME).list('', { limit: 1000 });
+  const existingSet = new Set((existingFilesData || []).map(f => f.name));
+  console.log(`  ℹ️ ${existingSet.size} fichiers déjà présents sur Supabase Storage.`);
 
-  await pgClient.connect();
-  console.log('✅ Connecté à PostgreSQL Supabase.');
-
-  // 2. Vérifier / Créer le bucket 'media'
-  console.log(`\n2. Vérification du bucket '${BUCKET_NAME}' sur Supabase Storage...`);
-  const { data: buckets, error: bucketsErr } = await supabase.storage.listBuckets();
-  if (bucketsErr) {
-    console.error('❌ Impossible de lister les buckets:', bucketsErr.message);
-  }
-
-  const bucketExists = buckets && buckets.some(b => b.name === BUCKET_NAME);
-  if (!bucketExists) {
-    console.log(`  + Création du bucket public '${BUCKET_NAME}'...`);
-    const { data: newBucket, error: createErr } = await supabase.storage.createBucket(BUCKET_NAME, {
-      public: true,
-      fileSizeLimit: 104857600 // 100 MB max
-    });
-    if (createErr) {
-      console.warn(`  ⚠️ Création de bucket via API : ${createErr.message}. Tentative d'insertion SQL directe...`);
-      await pgClient.query(`
-        INSERT INTO storage.buckets (id, name, public, file_size_limit)
-        VALUES ('${BUCKET_NAME}', '${BUCKET_NAME}', true, 104857600)
-        ON CONFLICT (id) DO UPDATE SET public = true;
-      `).catch(e => console.warn('SQL Bucket warn:', e.message));
-    } else {
-      console.log(`  ✅ Bucket public '${BUCKET_NAME}' créé avec succès.`);
-    }
-  } else {
-    console.log(`  ✅ Bucket '${BUCKET_NAME}' déjà existant.`);
-  }
-
-  // 3. Récupérer la liste des fichiers locaux
+  // 3. Récupérer la liste des fichiers locaux actifs
   const pubFiles = fs.existsSync(publicUploads) ? fs.readdirSync(publicUploads) : [];
   const backFiles = fs.existsSync(backendUploads) ? fs.readdirSync(backendUploads) : [];
-  const allFiles = Array.from(new Set([...pubFiles, ...backFiles])).filter(f => f !== '.gitkeep');
+  const allFiles = Array.from(new Set([...pubFiles, ...backFiles])).filter(f => f !== '.gitkeep' && !f.startsWith('.'));
 
-  console.log(`\n3. Upload de ${allFiles.length} fichiers vers Supabase Storage...`);
+  console.log(`\n3. Upload des fichiers manquants vers Supabase Storage (total : ${allFiles.length})...`);
 
   let successCount = 0;
   let skippedCount = 0;
@@ -117,6 +110,12 @@ async function migrate() {
     }
 
     if (!fs.existsSync(filePath)) continue;
+
+    if (existingSet.has(filename)) {
+      skippedCount++;
+      successCount++;
+      continue;
+    }
 
     const mimeType = getMimeType(filename);
     const fileStat = fs.statSync(filePath);
@@ -148,11 +147,35 @@ async function migrate() {
   }
 
   console.log(`\nRésultat du téléversement :`);
-  console.log(`  - Réussis : ${successCount}`);
-  console.log(`  - Échecs   : ${errorCount}`);
+  console.log(`  - Total présents : ${successCount}`);
+  console.log(`  - Nouveaux envoyés : ${successCount - skippedCount}`);
+  console.log(`  - Déjà présents : ${skippedCount}`);
+  console.log(`  - Échecs : ${errorCount}`);
 
   // 4. Mettre à jour les références en base de données PostgreSQL
-  console.log('\n4. Mise à jour des URLs dans la base de données PostgreSQL...');
+  console.log('\n4. Connexion à PostgreSQL et mise à jour des URLs...');
+  const pgClient = new PgClient({
+    connectionString: SUPABASE_DB_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+  pgClient.on('error', err => console.warn('PG warning (non-fatal):', err.message));
+  await pgClient.connect();
+  console.log('✅ Connecté à PostgreSQL Supabase.');
+
+  console.log('  + Élargissement des colonnes URL en type TEXT...');
+  await pgClient.query(`
+    ALTER TABLE projects ALTER COLUMN image_url TYPE TEXT;
+    ALTER TABLE projects ALTER COLUMN video_url TYPE TEXT;
+    ALTER TABLE product_images ALTER COLUMN image_url TYPE TEXT;
+    ALTER TABLE news ALTER COLUMN image_url TYPE TEXT;
+    ALTER TABLE bijoux_boards ALTER COLUMN image TYPE TEXT;
+    DO $$ BEGIN ALTER TABLE relookings ALTER COLUMN image_avant_url TYPE TEXT; EXCEPTION WHEN others THEN null; END $$;
+    DO $$ BEGIN ALTER TABLE relookings ALTER COLUMN image_apres_url TYPE TEXT; EXCEPTION WHEN others THEN null; END $$;
+    DO $$ BEGIN ALTER TABLE deliveries ALTER COLUMN image_url TYPE TEXT; EXCEPTION WHEN others THEN null; END $$;
+    DO $$ BEGIN ALTER TABLE testimonials ALTER COLUMN image_url TYPE TEXT; EXCEPTION WHEN others THEN null; END $$;
+    DO $$ BEGIN ALTER TABLE testimonials ALTER COLUMN video_url TYPE TEXT; EXCEPTION WHEN others THEN null; END $$;
+  `).catch(e => console.warn('Alter tables warning:', e.message));
+
   const publicBaseUrl = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/`;
 
   // 4.1 Projets (image_url et video_url)
@@ -160,25 +183,8 @@ async function migrate() {
   let updatedProjects = 0;
 
   for (const proj of projects) {
-    let newImageUrl = proj.image_url;
-    let newVideoUrl = proj.video_url;
-
-    if (newImageUrl) {
-      const parts = newImageUrl.split(',').map(s => s.trim());
-      const updatedParts = parts.map(part => {
-        const cleanName = path.basename(part);
-        if (part.includes('/uploads/') || part.includes('localhost:8081')) {
-          return `${publicBaseUrl}${cleanName}`;
-        }
-        return part;
-      });
-      newImageUrl = updatedParts.join(',');
-    }
-
-    if (newVideoUrl && (newVideoUrl.includes('/uploads/') || newVideoUrl.includes('localhost:8081'))) {
-      const cleanVideoName = path.basename(newVideoUrl);
-      newVideoUrl = `${publicBaseUrl}${cleanVideoName}`;
-    }
+    const newImageUrl = replaceCommaSeparatedUrls(proj.image_url, publicBaseUrl);
+    const newVideoUrl = replaceUploadUrl(proj.video_url, publicBaseUrl);
 
     if (newImageUrl !== proj.image_url || newVideoUrl !== proj.video_url) {
       await pgClient.query(
@@ -196,9 +202,8 @@ async function migrate() {
   let updatedProdImages = 0;
 
   for (const pImg of productImages) {
-    if (pImg.image_url && (pImg.image_url.includes('/uploads/') || pImg.image_url.includes('localhost:8081'))) {
-      const cleanName = path.basename(pImg.image_url);
-      const newUrl = `${publicBaseUrl}${cleanName}`;
+    const newUrl = replaceUploadUrl(pImg.image_url, publicBaseUrl);
+    if (newUrl !== pImg.image_url) {
       await pgClient.query(
         "UPDATE product_images SET image_url = $1 WHERE id = $2",
         [newUrl, pImg.id]
@@ -212,9 +217,8 @@ async function migrate() {
   const newsRows = (await pgClient.query("SELECT id, title, image_url FROM news")).rows;
   let updatedNews = 0;
   for (const n of newsRows) {
-    if (n.image_url && (n.image_url.includes('/uploads/') || n.image_url.includes('localhost:8081'))) {
-      const cleanName = path.basename(n.image_url);
-      const newUrl = `${publicBaseUrl}${cleanName}`;
+    const newUrl = replaceUploadUrl(n.image_url, publicBaseUrl);
+    if (newUrl !== n.image_url) {
       await pgClient.query("UPDATE news SET image_url = $1 WHERE id = $2", [newUrl, n.id]);
       updatedNews++;
     }
@@ -225,9 +229,8 @@ async function migrate() {
   const bijouxRows = (await pgClient.query("SELECT id, image FROM bijoux_boards").catch(() => ({ rows: [] }))).rows;
   let updatedBijoux = 0;
   for (const b of bijouxRows) {
-    if (b.image && (b.image.includes('/uploads/') || b.image.includes('localhost:8081'))) {
-      const cleanName = path.basename(b.image);
-      const newUrl = `${publicBaseUrl}${cleanName}`;
+    const newUrl = replaceUploadUrl(b.image, publicBaseUrl);
+    if (newUrl !== b.image) {
       await pgClient.query("UPDATE bijoux_boards SET image = $1 WHERE id = $2", [newUrl, b.id]);
       updatedBijoux++;
     }
@@ -236,10 +239,54 @@ async function migrate() {
     console.log(`  Bijoux boards actualisés : ${updatedBijoux}/${bijouxRows.length}`);
   }
 
+  // 4.5 Relookings
+  const relookingsRows = (await pgClient.query("SELECT id, image_avant_url, image_apres_url FROM relookings").catch(() => ({ rows: [] }))).rows;
+  let updatedRelookings = 0;
+  for (const r of relookingsRows) {
+    const newAvant = replaceUploadUrl(r.image_avant_url, publicBaseUrl);
+    const newApres = replaceUploadUrl(r.image_apres_url, publicBaseUrl);
+    if (newAvant !== r.image_avant_url || newApres !== r.image_apres_url) {
+      await pgClient.query("UPDATE relookings SET image_avant_url = $1, image_apres_url = $2 WHERE id = $3", [newAvant, newApres, r.id]);
+      updatedRelookings++;
+    }
+  }
+  if (relookingsRows.length > 0) {
+    console.log(`  Relookings actualisés : ${updatedRelookings}/${relookingsRows.length}`);
+  }
+
+  // 4.6 Deliveries
+  const deliveriesRows = (await pgClient.query("SELECT id, image_url FROM deliveries").catch(() => ({ rows: [] }))).rows;
+  let updatedDeliveries = 0;
+  for (const d of deliveriesRows) {
+    const newUrl = replaceUploadUrl(d.image_url, publicBaseUrl);
+    if (newUrl !== d.image_url) {
+      await pgClient.query("UPDATE deliveries SET image_url = $1 WHERE id = $2", [newUrl, d.id]);
+      updatedDeliveries++;
+    }
+  }
+  if (deliveriesRows.length > 0) {
+    console.log(`  Livraisons actualisées : ${updatedDeliveries}/${deliveriesRows.length}`);
+  }
+
+  // 4.7 Testimonials
+  const testimonialsRows = (await pgClient.query("SELECT id, image_url, video_url FROM testimonials").catch(() => ({ rows: [] }))).rows;
+  let updatedTestimonials = 0;
+  for (const t of testimonialsRows) {
+    const newImageUrl = replaceUploadUrl(t.image_url, publicBaseUrl);
+    const newVideoUrl = replaceUploadUrl(t.video_url, publicBaseUrl);
+    if (newImageUrl !== t.image_url || newVideoUrl !== t.video_url) {
+      await pgClient.query("UPDATE testimonials SET image_url = $1, video_url = $2 WHERE id = $3", [newImageUrl, newVideoUrl, t.id]);
+      updatedTestimonials++;
+    }
+  }
+  if (testimonialsRows.length > 0) {
+    console.log(`  Témoignages actualisés : ${updatedTestimonials}/${testimonialsRows.length}`);
+  }
+
   await pgClient.end();
 
   console.log('\n===============================================================');
-  console.log('🎉 MIGRATION COMPLÈTE VERS SUPABASE STORAGE TERMINÉE !');
+  console.log('🎉 MIGRATION COMPLÈTE VERS SUPABASE STORAGE TERMINÉE AVEC SUCCÈS !');
   console.log(`📁 Bucket public : ${BUCKET_NAME}`);
   console.log(`🌐 Base URL : ${publicBaseUrl}`);
   console.log('===============================================================\n');

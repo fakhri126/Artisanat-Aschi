@@ -64,25 +64,18 @@ public class FileStorageService implements StorageService {
 
         try {
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            // Also mirror file into Next.js public/uploads folder if it exists
+            try {
+                Path frontendPublicUploads = Paths.get("..", "public", "uploads").toAbsolutePath().normalize();
+                if (Files.exists(frontendPublicUploads)) {
+                    Files.copy(filePath, frontendPublicUploads.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (Exception ignored) {}
         } catch (IOException e) {
             throw new RuntimeException("Erreur lors de l'enregistrement du fichier.", e);
         }
 
-        // Construction sécurisée de l'URL respectant les reverse proxies (X-Forwarded-Proto / Host)
-        String scheme = request.getHeader("X-Forwarded-Proto");
-        if (scheme == null) scheme = request.getScheme();
-
-        String host = request.getHeader("X-Forwarded-Host");
-        if (host == null) {
-            host = request.getServerName();
-            int port = request.getServerPort();
-            if ((scheme.equals("http") && port != 80) || (scheme.equals("https") && port != 443)) {
-                host = host + ":" + port;
-            }
-        }
-
-        String contextPath = request.getContextPath(); // /api
-        return scheme + "://" + host + contextPath + "/uploads/" + fileName;
+        return "/uploads/" + fileName;
     }
 
     @Override

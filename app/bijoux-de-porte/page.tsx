@@ -104,34 +104,11 @@ export default function BijouxDePortePage() {
         if (res.ok) {
           const data = await res.json()
           if (Array.isArray(data) && data.length > 0) {
-            // Détection si l'utilisateur a des images personnalisées placées dans son localStorage
+            // Nettoyage de sécurité pour supprimer les anciens caches locaux du navigateur
             try {
-              const localSaved = localStorage.getItem('aschi_bijoux_boards_user_v1') || localStorage.getItem('aschi_bijoux_boards')
-              if (localSaved) {
-                const parsed = JSON.parse(localSaved)
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                  const hasCustomImages = parsed.some(lb => {
-                    const sb = data.find(d => d.id === lb.id)
-                    return sb && sb.image !== lb.image
-                  })
-                  if (hasCustomImages) {
-                    console.log('🔄 Images personnalisées détectées dans le navigateur : mise à jour de Supabase en cours...')
-                    setBoards(parsed)
-                    // Synchronisation vers Supabase en arrière-plan pour écraser les anciennes images
-                    for (const lb of parsed) {
-                      fetch('/api/bijoux-de-porte', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(lb)
-                      }).catch(() => {})
-                    }
-                    return
-                  }
-                }
-              }
-            } catch (e) {
-              console.error('Erreur lecture localStorage:', e)
-            }
+              localStorage.removeItem('aschi_bijoux_boards_user_v1')
+              localStorage.removeItem('aschi_bijoux_boards')
+            } catch (_) {}
 
             setBoards(data)
             return
@@ -449,15 +426,15 @@ export default function BijouxDePortePage() {
                       </div>
                     </div>
 
-                    {/* Badge Agrandir HD en verre dépoli */}
-                    <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/70 backdrop-blur-md border border-[#E6A635]/50 text-[#F2BD52] text-[9px] sm:text-[10.5px] font-bold flex items-center gap-1 sm:gap-1.5 shadow-lg group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-all">
+                    {/* Badge Agrandir HD transparent */}
+                    <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/30 backdrop-blur-sm border border-white/20 text-[#F2BD52] text-[9px] sm:text-[10px] font-medium flex items-center gap-1 sm:gap-1.5 shadow-md group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-all">
                       <ZoomIn className="size-2.5 sm:size-3" />
                       <span>Agrandir HD</span>
                     </div>
 
-                    {/* Badge d'authenticité Atelier Aschi */}
+                    {/* Badge d'authenticité Atelier Aschi transparent */}
                     <div className="absolute bottom-2.5 left-2.5 sm:bottom-4 sm:left-4 z-10">
-                      <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/75 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[8.5px] sm:text-[10px] font-bold uppercase tracking-wider shadow-lg flex items-center gap-1 sm:gap-1.5">
+                      <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/30 backdrop-blur-sm border border-white/15 text-[#F2BD52] text-[8.5px] sm:text-[9.5px] font-medium uppercase tracking-wider shadow flex items-center gap-1 sm:gap-1.5">
                         <span className="size-1.5 rounded-full bg-[#E6A635] animate-pulse" />
                         Atelier Aschi
                       </span>
@@ -656,15 +633,15 @@ export default function BijouxDePortePage() {
                       </div>
                     </div>
 
-                    {/* Badge Zoom HD en verre dépoli */}
-                    <div className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 z-10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/70 backdrop-blur-md border border-[#E6A635]/40 text-[#F2BD52] text-[8.5px] sm:text-[10px] font-bold flex items-center gap-1 shadow group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-all">
+                    {/* Badge Zoom HD transparent */}
+                    <div className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 z-10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-black/30 backdrop-blur-sm border border-white/20 text-[#F2BD52] text-[8.5px] sm:text-[9.5px] font-medium flex items-center gap-1 shadow group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-all">
                       <ZoomIn className="size-2.5 sm:size-3" />
                       <span>Zoom HD</span>
                     </div>
 
                     {board.dimensions && (
                       <div className="absolute bottom-2.5 left-2.5 sm:bottom-3.5 sm:left-3.5 z-10">
-                        <span className="px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-md border border-[#E6A635]/30 text-[#F2BD52] text-[8.5px] sm:text-[9.5px] font-medium shadow">
+                        <span className="px-2 py-0.5 rounded-full bg-black/30 backdrop-blur-sm border border-white/15 text-[#F2BD52] text-[8.5px] sm:text-[9px] font-medium shadow">
                           {board.dimensions}
                         </span>
                       </div>

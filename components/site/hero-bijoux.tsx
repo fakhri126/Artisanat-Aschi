@@ -7,9 +7,9 @@ import { Sparkles, ArrowRight } from 'lucide-react'
 import { BohoBand } from './boho-decor'
 
 const KNOBS = [
-  { src: '/poignees/hq_knob_1.jpg', bg: '/poignees/user_wood_motif.png', delay: 0 },
-  { src: '/poignees/hq_knob_2.jpg', bg: '/poignees/user_wood_motif.png', delay: 0.2 },
-  { src: '/poignees/hq_knob_3.jpg', bg: '/poignees/user_wood_motif.png', delay: 0.4 },
+  { src: '/poignees/type_poignee_porte.jpg', bg: '/poignees/user_wood_motif.png', delay: 0 },
+  { src: '/poignees/type_poignee_meuble.jpg', bg: '/poignees/user_wood_motif.png', delay: 0.2 },
+  { src: '/bijoux-de-porte.jpg', bg: '/poignees/user_wood_motif.png', delay: 0.4 },
 ]
 
 export function HeroBijoux() {
@@ -118,7 +118,7 @@ export function HeroBijoux() {
                   {/* Céramique de Majolique Centrale */}
                   <div className="relative size-16 sm:size-20 md:size-22 rounded-full overflow-hidden shadow-[0_10px_25px_rgba(0,0,0,0.9),0_0_15px_rgba(230,166,53,0.4)] z-10 border-2 border-[#E6A635]">
                     <Image 
-                      src="/poignees/hq_knob_1.jpg" 
+                      src="/poignees/type_poignee_porte.jpg" 
                       alt="Grande poignée artisanale" 
                       fill 
                       className="object-cover pointer-events-none" 
@@ -204,10 +204,10 @@ export function HeroBijoux() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/70 via-transparent to-transparent pointer-events-none" />
               
-              {/* Badge flottant en bas de l'image */}
-              <div className="absolute bottom-3 left-3 right-3 bg-[#3B271C]/95 backdrop-blur-md border border-[#E6A635]/40 px-3.5 py-2 rounded-xl flex items-center justify-between text-white shadow-lg">
-                <span className="font-heading text-xs sm:text-sm font-semibold text-white">Émaux &amp; Céramiques d&apos;Art</span>
-                <span className="text-[9px] sm:text-[10px] text-[#F2BD52] uppercase font-bold tracking-wider">Peint à la main</span>
+              {/* Badge flottant transparent en bas de l'image (Ne masque pas les créations) */}
+              <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-black/30 backdrop-blur-sm border border-white/15 px-3.5 py-2 rounded-xl flex items-center justify-between text-white shadow-lg">
+                <span className="font-heading text-xs sm:text-sm font-semibold text-white drop-shadow-sm">Émaux &amp; Céramiques d&apos;Art</span>
+                <span className="text-[9px] sm:text-[10px] text-[#F2BD52] uppercase font-bold tracking-wider drop-shadow-sm">Peint à la main</span>
               </div>
             </motion.div>
           </div>
