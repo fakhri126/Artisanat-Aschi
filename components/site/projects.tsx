@@ -171,9 +171,29 @@ function BentoProjectCard({
   index: number
   onOpen: (p: ProjectItem) => void
 }) {
+<<<<<<< HEAD
   // Image fixe optimisée
   let rawDisplay = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
   if (rawDisplay.match(/\.(mp4|webm|ogg|mov)$/i)) {
+=======
+  const isGrande = index === 0
+  const isMoyenne = index === 3
+
+  // Disposition Bento géométrique :
+  // - Index 0 (Grande)  : 2 colonnes x 2 lignes sur lg, 2 colonnes x 2 lignes sur sm
+  // - Index 1 (Petite)  : 1 colonne x 1 ligne
+  // - Index 2 (Petite)  : 1 colonne x 1 ligne
+  // - Index 3 (Moyenne) : 2 colonnes x 1 ligne
+  const spanClass = isGrande
+    ? 'sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2 min-h-[24rem] sm:min-h-[28rem] lg:min-h-0'
+    : isMoyenne
+      ? 'sm:col-span-2 lg:col-span-2 min-h-[16rem] sm:min-h-[18rem] lg:min-h-0'
+      : 'sm:col-span-1 lg:col-span-1 min-h-[16rem] sm:min-h-[18rem] lg:min-h-0'
+
+  // Image et vidéo
+  let displayImage = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
+  if (displayImage.match(/\.(mp4|webm|ogg|mov)$/i)) {
+>>>>>>> a5eb1a6e1094ae581b449686d120dedf3cd3aaa0
     const fallbackPhoto = project.gallery?.find((g) => !g.match(/\.(mp4|webm|ogg|mov)$/i))
     rawDisplay = (fallbackPhoto ? fallbackPhoto.split(',')[0].trim() : '') || '/project-hotel.png'
   }
@@ -187,6 +207,7 @@ function BentoProjectCard({
     >
       <div
         onClick={() => onOpen(project)}
+<<<<<<< HEAD
         className="w-full h-full relative rounded-xl sm:rounded-2xl overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.55)] border border-[#E6A635]/30 hover:border-[#E6A635]/85 transition-all duration-300 hover:shadow-[0_12px_30px_rgba(230,166,53,0.25)] bg-gradient-to-b from-[#2A1C14] via-[#1E130D] to-[#140C08] flex flex-col justify-between hover:-translate-y-1"
       >
         {/* Liseré doré supérieur au survol */}
@@ -202,6 +223,23 @@ function BentoProjectCard({
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-106"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#140C08]/90 via-[#140C08]/20 to-black/20 opacity-60 group-hover:opacity-30 transition-opacity duration-300" />
+=======
+        className="w-full h-full relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-[#E6A635]/30 hover:border-[#E6A635]/80 transition-all duration-500 hover:shadow-[0_0_40px_rgba(230,166,53,0.3)] bg-[#1A110B] flex flex-col justify-end"
+      >
+        {/* Photo de couverture exclusive sur l'extérieur (pas de vidéo en extérieur) */}
+        <Image
+          src={displayImage}
+          alt={project.title}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 50vw"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-90 group-hover:opacity-100"
+          loading={isGrande ? 'eager' : 'lazy'}
+        />
+
+        {/* Dégradés d'ombrage pour lisibilité optimale */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#160E0A]/95 via-[#160E0A]/50 to-black/20 transition-opacity duration-500 group-hover:opacity-85 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60 pointer-events-none" />
+>>>>>>> a5eb1a6e1094ae581b449686d120dedf3cd3aaa0
 
           {/* Indicateur vidéo subtil et discret */}
           {hasVideo && (
@@ -504,7 +542,11 @@ export function Projects() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.25 }}
+<<<<<<< HEAD
               className="relative w-full max-w-5xl bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] z-10 flex flex-col md:flex-row max-h-[92vh] overflow-y-auto md:overflow-hidden"
+=======
+              className="relative w-full max-w-[96vw] xl:max-w-7xl 2xl:max-w-[1550px] bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] z-10 flex flex-col lg:flex-row max-h-[94vh] h-[92vh] overflow-hidden"
+>>>>>>> a5eb1a6e1094ae581b449686d120dedf3cd3aaa0
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -515,6 +557,7 @@ export function Projects() {
                 <X className="size-4 sm:size-5" />
               </button>
 
+<<<<<<< HEAD
               {/* 📱 EN-TÊTE DU PROJET SUR MOBILE (EN HAUT : Titre & Description avant le média) */}
               <div className="block md:hidden p-4 sm:p-5 pb-2.5 space-y-2 text-left bg-[#1A110B]/90 border-b border-[#E6A635]/25 pr-14">
                 <div className="flex items-center justify-between gap-2">
@@ -547,6 +590,10 @@ export function Projects() {
 
               {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif (Au milieu sur mobile) */}
               <div className="w-full md:w-[58%] flex flex-col border-b md:border-b-0 md:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/60">
+=======
+              {/* LEFT COLUMN: Grand Écran Média Cinématique Agrandie + Ruban de Miniatures */}
+              <div className="w-full lg:w-[68%] xl:w-[70%] flex flex-col border-b lg:border-b-0 lg:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/70 min-h-0">
+>>>>>>> a5eb1a6e1094ae581b449686d120dedf3cd3aaa0
                 
                 {/* Barre supérieure d'état du média */}
                 <div className="flex items-center justify-between">
@@ -589,8 +636,8 @@ export function Projects() {
                   )}
                 </div>
 
-                {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE (16:9) ── */}
-                <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#120B08] shadow-[0_10px_30px_rgba(0,0,0,0.8)] group/media">
+                {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE AGRANDI ── */}
+                <div className="relative w-full flex-1 aspect-[16/9] min-h-[340px] sm:min-h-[460px] lg:min-h-[520px] xl:min-h-[580px] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#0D0805] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group/media">
                   {modalActiveView === 'video' && (selectedProject.video || selectedProject.videoUrl) ? (
                     <>
                       <video
@@ -600,7 +647,7 @@ export function Projects() {
                         autoPlay
                         loop
                         playsInline
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain sm:object-cover bg-black"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
@@ -735,7 +782,7 @@ export function Projects() {
               </div>
 
               {/* RIGHT COLUMN: Détails de Prestige, Spécifications Nobles & CTA */}
-              <div className="w-full md:w-[42%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
+              <div className="w-full lg:w-[32%] xl:w-[30%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
                 
                 {/* En-tête du projet (Desktop uniquement, affiché en haut sur mobile) */}
                 <div className="hidden md:block space-y-2.5">

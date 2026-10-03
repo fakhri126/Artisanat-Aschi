@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import { Plus, X } from 'lucide-react'
+import { compressImage } from '@/lib/image-compression'
 
 interface ImageUploaderProps {
   /** Current image URL value (for single-image use) */
@@ -41,12 +42,31 @@ export function ImageUploader({
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Limit video file size (max 50 MB)
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024
+    if (file.type.startsWith('video/') && file.size > MAX_VIDEO_SIZE) {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1)
+      alert(
+        `⚠️ La vidéo sélectionnée est trop volumineuse (${sizeMb} Mo).\n` +
+        `La taille maximale autorisée est de 50 Mo pour garantir la rapidité du site.\n\n` +
+        `Veuillez compresser votre vidéo ou l'exporter en résolution 720p avant de l'envoyer.`
+      )
+      if (inputRef.current) inputRef.current.value = ''
+      return
+    }
+
     setUploading(true)
     try {
-      const data = await uploadFn(file)
+      // Auto-compress photos in the browser before upload
+      const fileToUpload = file.type.startsWith('image/')
+        ? await compressImage(file)
+        : file
+
+      const data = await uploadFn(fileToUpload)
       if (data.url) onUploaded(data.url)
     } catch (err: any) {
-      alert(err.message || "Erreur lors de l'envoi de l'image.")
+      alert(err.message || "Erreur lors de l'envoi du fichier.")
     } finally {
       setUploading(false)
       if (inputRef.current) inputRef.current.value = ''
@@ -176,14 +196,32 @@ export function MultiImageUploader({
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : []
     if (files.length === 0) return
+
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024
+    for (const f of files) {
+      if (f.type.startsWith('video/') && f.size > MAX_VIDEO_SIZE) {
+        const sizeMb = (f.size / (1024 * 1024)).toFixed(1)
+        alert(
+          `⚠️ Le fichier "${f.name}" est trop volumineux (${sizeMb} Mo).\n` +
+          `La taille maximale autorisée est de 50 Mo pour garantir la rapidité du site.\n\n` +
+          `Veuillez compresser votre vidéo ou l'exporter en résolution 720p avant de l'envoyer.`
+        )
+        if (inputRef.current) inputRef.current.value = ''
+        return
+      }
+    }
+
     setUploading(true)
     try {
       for (const file of files) {
-        const data = await uploadFn(file)
+        const fileToUpload = file.type.startsWith('image/')
+          ? await compressImage(file)
+          : file
+        const data = await uploadFn(fileToUpload)
         if (data.url) onAdd(data.url)
       }
     } catch (err: any) {
-      alert(err.message || "Erreur lors de l'envoi des images.")
+      alert(err.message || "Erreur lors de l'envoi des fichiers.")
     } finally {
       setUploading(false)
       if (inputRef.current) inputRef.current.value = ''

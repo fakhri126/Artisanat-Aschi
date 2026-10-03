@@ -943,11 +943,16 @@ function TurnkeyProjectCard({
       onClick={() => onOpen(project)}
       className="group relative flex flex-col h-full rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-b from-[#2A1C14] via-[#1E130D] to-[#140C08] border border-[#E6A635]/30 hover:border-[#E6A635]/85 backdrop-blur-xl shadow-[0_6px_20px_rgba(0,0,0,0.55)] hover:shadow-[0_12px_30px_rgba(230,166,53,0.25)] transition-all duration-300 cursor-pointer hover:-translate-y-1"
     >
+<<<<<<< HEAD
       {/* Liseré doré subtil au survol */}
       <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-[#E6A635] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
 
       {/* ── Cadre Photo de Prestige (Mise en avant de la réalisation) ── */}
       <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full overflow-hidden bg-[#120B08] shrink-0 border-b border-[#E6A635]/20">
+=======
+      {/* ── Cadre Couverture Photo (Exclusif Photo — Pas de vidéo sur l'extérieur) ── */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#160E0A] shrink-0 border-b border-[#E6A635]/20">
+>>>>>>> a5eb1a6e1094ae581b449686d120dedf3cd3aaa0
         <Image
           src={coverPhotoSrc}
           alt={project.title}
@@ -957,12 +962,48 @@ function TurnkeyProjectCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#140C08]/90 via-[#140C08]/20 to-black/20 opacity-60 group-hover:opacity-30 transition-opacity duration-300" />
 
+<<<<<<< HEAD
         {/* Indicateur vidéo subtil si le projet contient une vidéo */}
         {hasVideo && (
           <div className="absolute top-2 right-2 z-10 pointer-events-none">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1A110B]/85 border border-[#E6A635]/40 text-[#F2BD52] text-[9px] font-semibold backdrop-blur-md shadow-md">
               <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <Film className="size-2.5 text-[#E6A635]" />
+=======
+        {/* Badges Flottants Haut */}
+        <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
+          {project.location ? (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-semibold backdrop-blur-md shadow-md">
+              <MapPin className="size-3 text-[#E6A635]" />
+              <span>{project.location}</span>
+            </div>
+          ) : <div />}
+
+          {/* Badge discret si vidéo disponible à l'intérieur */}
+          {hasVideo && (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/95 border border-[#E6A635]/50 text-[#F2BD52] text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
+              <Film className="size-3 text-[#E6A635]" />
+              <span>Vidéo incluse</span>
+            </div>
+          )}
+        </div>
+
+        {/* Badge nombre de photos en bas à droite */}
+        <div className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/90 border border-white/20 text-white/90 text-[10px] font-medium backdrop-blur-md shadow-sm">
+          <ImageIcon className="size-3 text-[#E6A635]" />
+          <span>{allPhotos.length} photo{allPhotos.length > 1 ? 's' : ''}</span>
+        </div>
+      </div>
+
+      {/* ── Corps de la carte extérieure ── */}
+      <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 gap-3 text-left">
+        <div>
+          {/* Tag Catégorie */}
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#241812] border border-[#E6A635]/35 text-[#F2BD52] text-[9.5px] uppercase tracking-wider font-bold">
+              <Sparkles className="size-2.5 text-[#E6A635]" />
+              <span>{categoryLabel}</span>
+>>>>>>> a5eb1a6e1094ae581b449686d120dedf3cd3aaa0
             </span>
           </div>
         )}
@@ -1418,7 +1459,11 @@ export default function TurnkeyProjectsPage() {
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 30 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+<<<<<<< HEAD
                 className="relative w-full max-w-5xl bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] flex flex-col md:flex-row max-h-[92vh] overflow-y-auto md:overflow-hidden"
+=======
+                className="relative w-full max-w-[96vw] xl:max-w-7xl 2xl:max-w-[1550px] bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] flex flex-col lg:flex-row max-h-[94vh] h-[92vh] overflow-hidden"
+>>>>>>> a5eb1a6e1094ae581b449686d120dedf3cd3aaa0
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Close Button */}
@@ -1430,6 +1475,7 @@ export default function TurnkeyProjectsPage() {
                   <X className="size-4 sm:size-5" />
                 </button>
 
+<<<<<<< HEAD
                 {/* 📱 EN-TÊTE DU PROJET SUR MOBILE (EN HAUT : Titre & Description avant le média) */}
                 <div className="block md:hidden p-4 sm:p-5 pb-2.5 space-y-2 text-left bg-[#1A110B]/90 border-b border-[#E6A635]/25 pr-14">
                   <div className="flex items-center justify-between gap-2">
@@ -1462,6 +1508,10 @@ export default function TurnkeyProjectsPage() {
 
                 {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif (Au milieu sur mobile) */}
                 <div className="w-full md:w-[58%] flex flex-col border-b md:border-b-0 md:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/60">
+=======
+                {/* LEFT COLUMN: Grand Écran Média Cinématique Agrandie + Ruban de Miniatures */}
+                <div className="w-full lg:w-[68%] xl:w-[70%] flex flex-col border-b lg:border-b-0 lg:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/70 min-h-0">
+>>>>>>> a5eb1a6e1094ae581b449686d120dedf3cd3aaa0
                   
                   {/* Barre supérieure d'état du média */}
                   <div className="flex items-center justify-between">
@@ -1504,8 +1554,8 @@ export default function TurnkeyProjectsPage() {
                     )}
                   </div>
 
-                  {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE (16:9) ── */}
-                  <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#120B08] shadow-[0_10px_30px_rgba(0,0,0,0.8)] group/media">
+                  {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE AGRANDI ── */}
+                  <div className="relative w-full flex-1 aspect-[16/9] min-h-[340px] sm:min-h-[460px] lg:min-h-[520px] xl:min-h-[580px] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#0D0805] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group/media">
                     {modalActiveView === 'video' && (selectedProject.video || selectedProject.videoUrl) ? (
                       <>
                         <video
@@ -1515,7 +1565,7 @@ export default function TurnkeyProjectsPage() {
                           autoPlay
                           loop
                           playsInline
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain sm:object-cover bg-black"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
@@ -1650,7 +1700,7 @@ export default function TurnkeyProjectsPage() {
                 </div>
 
                 {/* RIGHT COLUMN: Détails de Prestige, Spécifications Nobles & CTA */}
-                <div className="w-full md:w-[42%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
+                <div className="w-full lg:w-[32%] xl:w-[30%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
                   
                   {/* En-tête du projet (Desktop uniquement, affiché en haut sur mobile) */}
                   <div className="hidden md:block space-y-2.5">
