@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. Backend Spring Boot (Java 21)
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: artisanat-aschi-backend
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      # Connexion Database Supabase PostgreSQL
+      - DB_URL=${DB_URL:-jdbc:postgresql://aws-1-eu-west-3.pooler.supabase.com:5432/postgres?sslmode=require}
+      - DB_USERNAME=${DB_USERNAME:-postgres.uerbqswgxsinayfyntsm}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - HIBERNATE_DDL_AUTO=${HIBERNATE_DDL_AUTO:-update}
+      
+      # Configuration Supabase Storage (Photos & Vidéos)
+      - SUPABASE_URL=${SUPABASE_URL:-https://uerbqswgxsinayfyntsm.supabase.co}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - SUPABASE_STORAGE_BUCKET=${SUPABASE_STORAGE_BUCKET:-artisanat-aschi-media}
+
+      # Sécurité & CORS
+      - JWT_SECRET=${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001}
+      - CACHE_TYPE=caffeine
+    volumes:
+      - backend_uploads:/app/uploads
+
+  # ==========================================
+  # 2. Frontend Next.js 16
+  # ==========================================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8081/api}
+    container_name: artisanat-aschi-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - INTERNAL_BACKEND_URL=http://backend:8081/api
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8081/api}
+    depends_on:
+      - backend
+
+volumes:
+  backend_uploads:

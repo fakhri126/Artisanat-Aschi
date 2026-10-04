@@ -16,6 +16,7 @@ export function WeeklyDelivery() {
   const [isMounted, setIsMounted] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
+  const [activePhotoIdx, setActivePhotoIdx] = useState(0)
 
   useEffect(() => {
     setIsMounted(true)
@@ -42,6 +43,10 @@ export function WeeklyDelivery() {
     return () => clearInterval(timer)
   }, [deliveries.length, isPaused])
 
+  useEffect(() => {
+    setActivePhotoIdx(0)
+  }, [currentIndex])
+
   if (!isMounted || deliveries.length === 0) return null
 
   const currentDelivery = deliveries[currentIndex]
@@ -49,11 +54,6 @@ export function WeeklyDelivery() {
     .split(',')
     .map(s => s.trim())
     .filter(Boolean)
-  const [activePhotoIdx, setActivePhotoIdx] = useState(0)
-
-  useEffect(() => {
-    setActivePhotoIdx(0)
-  }, [currentIndex])
 
   const displayImage = currentImages[activePhotoIdx] || currentImages[0] || '/images/bg-references.png'
 
