@@ -89,8 +89,8 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Error endpoint must be public to avoid 403 on Spring error forwarding
                 .requestMatchers("/error").permitAll()
-                // Public actuator health check
-                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                // Public actuator endpoints (health check, metrics, info)
+                .requestMatchers("/actuator/**").permitAll()
                 // Public auth routes
                 .requestMatchers("/auth/**").permitAll()
                 // All public API routes open to everyone
