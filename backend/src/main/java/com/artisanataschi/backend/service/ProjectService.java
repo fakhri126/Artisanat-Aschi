@@ -38,7 +38,35 @@ public class ProjectService {
 
     @Transactional
     @CacheEvict(value = "projects", allEntries = true)
+    public Project createProject(com.artisanataschi.backend.dto.ProjectRequestDto dto) {
+        Project project = new Project();
+        project.setTitle(dto.getTitle());
+        project.setDescription(dto.getDescription());
+        project.setCategory(dto.getCategory());
+        project.setLocation(dto.getLocation());
+        project.setDetails(dto.getDetails());
+        project.setImageUrl(dto.getImageUrl());
+        project.setVideoUrl(dto.getVideoUrl());
+        return projectRepository.save(project);
+    }
+
+    @Transactional
+    @CacheEvict(value = "projects", allEntries = true)
     public Project createProject(Project project) {
+        return projectRepository.save(project);
+    }
+
+    @Transactional
+    @CacheEvict(value = "projects", allEntries = true)
+    public Project updateProject(Long id, com.artisanataschi.backend.dto.ProjectRequestDto dto) {
+        Project project = getProjectById(id);
+        project.setTitle(dto.getTitle());
+        project.setDescription(dto.getDescription());
+        project.setCategory(dto.getCategory());
+        project.setLocation(dto.getLocation());
+        project.setDetails(dto.getDetails());
+        project.setImageUrl(dto.getImageUrl());
+        project.setVideoUrl(dto.getVideoUrl());
         return projectRepository.save(project);
     }
 

@@ -53,8 +53,8 @@ public class CacheBehaviorTest {
         }
 
         @Bean
-        public ProductService productService() {
-            return new ProductService();
+        public ProductService productService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+            return new ProductService(productRepository, categoryRepository);
         }
     }
 

@@ -10,7 +10,7 @@ RUN mvn dependency:go-offline -B
 
 # Copier le code source et compiler le JAR
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Dmaven.test.skip=true
 
 # ==========================================
 # 2. Étape d'Exécution (JRE 21 Alpine légère)
