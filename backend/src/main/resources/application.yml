@@ -62,6 +62,9 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+  health:
+    redis:
+      enabled: false
   metrics:
     tags:
       application: artisanat-aschi-backend

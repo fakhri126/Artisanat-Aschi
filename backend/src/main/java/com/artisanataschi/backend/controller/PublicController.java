@@ -43,6 +43,11 @@ public class PublicController {
         this.deliveryService = deliveryService;
     }
 
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("OK");
+    }
+
     // --- Products ---
     @GetMapping("/products")
     public ResponseEntity<?> getProducts(
