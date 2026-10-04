@@ -38,4 +38,4 @@ services:
     plan: free
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        sync: false
+        value: https://artisanat-aschi-backend.onrender.com/api

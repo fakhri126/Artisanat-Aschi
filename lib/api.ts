@@ -1,4 +1,22 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api';
+export function getApiBaseUrl(): string {
+  // 1. Variable explicitement définie et non-localhost
+  if (process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes('localhost')) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
+  }
+  // 2. Détection dynamique dans le navigateur en production (Render ou autre domaine)
+  if (typeof window !== 'undefined') {
+    if (window.location.hostname.includes('onrender.com')) {
+      return 'https://artisanat-aschi-backend.onrender.com/api';
+    }
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return (process.env.NEXT_PUBLIC_API_URL || 'https://artisanat-aschi-backend.onrender.com/api').replace(/\/+$/, '');
+    }
+  }
+  // 3. Fallback développement local
+  return (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api').replace(/\/+$/, '');
+}
+
+export const API_BASE_URL = getApiBaseUrl();
 
 // --- Type Definitions ---
 
@@ -211,7 +229,8 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     fetchOptions.cache = 'no-store';
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
+  const baseUrl = getApiBaseUrl();
+  const response = await fetch(`${baseUrl}${endpoint}`, fetchOptions);
 
   if (response.status === 401 || response.status === 403) {
     if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {
