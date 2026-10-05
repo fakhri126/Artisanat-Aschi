@@ -12,7 +12,11 @@ export function getApiBaseUrl(): string {
       return (process.env.NEXT_PUBLIC_API_URL || 'https://artisanat-aschi-backend.onrender.com/api').replace(/\/+$/, '');
     }
   }
-  // 3. Fallback développement local
+  // 3. Fallback production côté serveur (SSR Node.js)
+  if (process.env.NODE_ENV === 'production') {
+    return (process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://artisanat-aschi-backend.onrender.com/api').replace(/\/+$/, '');
+  }
+  // 4. Fallback développement local
   return (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api').replace(/\/+$/, '');
 }
 
@@ -211,8 +215,12 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   const token = getAuthToken();
   const headers = new Headers(options.headers || {});
   
-  if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
-    headers.set('Content-Type', 'application/json');
+  // Set Content-Type only when sending a body (POST, PUT, PATCH)
+  const method = (options.method || 'GET').toUpperCase();
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH' || (options.body && !(options.body instanceof FormData))) {
+    if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
+      headers.set('Content-Type', 'application/json');
+    }
   }
   
   // Attach token only for protected endpoints (never for /public/ or /auth/)
@@ -230,7 +238,34 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   const baseUrl = getApiBaseUrl();
-  const response = await fetch(`${baseUrl}${endpoint}`, fetchOptions);
+  let response: Response;
+
+  try {
+    response = await fetch(`${baseUrl}${endpoint}`, fetchOptions);
+  } catch (networkErr: any) {
+    // If browser direct call fails (e.g. CORS, cold start, privacy blocks), fallback to local Next.js rewrite /backend-api
+    if (typeof window !== 'undefined' && !baseUrl.startsWith('/backend-api') && !endpoint.startsWith('/api/')) {
+      try {
+        console.warn(`[API] Retrying via Next.js proxy (/backend-api${endpoint}):`, networkErr);
+        response = await fetch(`/backend-api${endpoint}`, fetchOptions);
+      } catch {
+        throw networkErr;
+      }
+    } else {
+      throw networkErr;
+    }
+  }
+
+  // Also fallback if status is 5xx (e.g. gateway error during spin-up)
+  if (!response.ok && response.status >= 500 && typeof window !== 'undefined' && !baseUrl.startsWith('/backend-api') && !endpoint.startsWith('/api/')) {
+    try {
+      console.warn(`[API] Server returned ${response.status}, retrying via Next.js proxy (/backend-api${endpoint})`);
+      const fallbackRes = await fetch(`/backend-api${endpoint}`, fetchOptions);
+      if (fallbackRes.ok) {
+        response = fallbackRes;
+      }
+    } catch {}
+  }
 
   if (response.status === 401 || response.status === 403) {
     if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {

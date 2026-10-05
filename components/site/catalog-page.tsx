@@ -727,6 +727,7 @@ export function CatalogPage() {
   const [dbProducts, setDbProducts] = useState<Product[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [catFilterOpen, setCatFilterOpen] = useState(true)
   const [colorFilterOpen, setColorFilterOpen] = useState(true)
@@ -869,72 +870,108 @@ export function CatalogPage() {
 
   const [dbCategories, setDbCategories] = useState<Category[]>([])
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [prodData, catData, colorData] = await Promise.all([
-          publicApi.getProducts({ type: 'CATALOGUE' }),
-          publicApi.getCategories(),
-          colorsApi.getColors().catch(() => [])
-        ])
-        const isHandleProduct = (p: Product) => {
-          const catName = p.category?.name?.toLowerCase() || ''
-          const name = p.name?.toLowerCase() || ''
-          if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux") || name.includes("porte bijou") || name.includes("porte-bijou") || name.includes("porte bijoux")) {
-            return false
-          }
-          return (
-            catName.includes("bijoux de porte") || 
-            catName.includes("ronds") || 
-            catName.includes("ovales") || 
-            catName.includes("poignée") ||
-            catName.includes("poignee") ||
-            name.includes("bouton majolique") || 
-            name.includes("petite poignée") ||
-            name.includes("grand rond") ||
-            name.includes("bouton ovale")
-          )
-        }
-        setDbProducts(prodData.filter(p => !isHandleProduct(p)))
-
-        if (Array.isArray(colorData) && colorData.length > 0) {
-          setAvailableColors([
-            { label: 'Tout', hex: null, border: 'border-border' },
-            ...colorData.map((c: ColorSwatch) => ({
-              label: c.name || c.label,
-              hex: c.hex,
-              border: (c.name || c.label).toLowerCase().includes('blanc') ? 'border-stone-300' : 'border-border'
-            }))
-          ])
-        }
-        
-        const isHandleCat = (c: Category) => {
-          const catName = c.name?.toLowerCase() || ''
-          if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux")) {
-            return false
-          }
-          return (
-            catName.includes("bijoux de porte") || 
-            catName.includes("ronds") || 
-            catName.includes("ovales") || 
-            catName.includes("poignée") ||
-            catName.includes("poignee")
-          )
-        }
-        const rawCats = catData.filter(c => !isHandleCat(c))
-        if (!rawCats.some(c => c.name.toLowerCase().includes('lustre'))) {
-          rawCats.push({ id: 999, name: 'Lustres', description: 'Lustres et suspensions artisanales' } as any)
-        }
-        if (!rawCats.some(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux'))) {
-          rawCats.push({ id: 998, name: 'Porte Bijoux', description: 'Porte-bijoux et présentoirs artisanaux' } as any)
-        }
-        setDbCategories(rawCats)
-      } catch (err) {
-        console.error("Failed to load catalog products:", err)
-      } finally {
-        setLoading(false)
-      }
+  const isHandleProduct = (p: Product) => {
+    const catName = p.category?.name?.toLowerCase() || ''
+    const name = p.name?.toLowerCase() || ''
+    if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux") || name.includes("porte bijou") || name.includes("porte-bijou") || name.includes("porte bijoux")) {
+      return false
     }
+    return (
+      catName.includes("bijoux de porte") || 
+      catName.includes("ronds") || 
+      catName.includes("ovales") || 
+      catName.includes("poignée") ||
+      catName.includes("poignee") ||
+      name.includes("bouton majolique") || 
+      name.includes("petite poignée") ||
+      name.includes("grand rond") ||
+      name.includes("bouton ovale")
+    )
+  }
+
+  async function loadData(retryCount = 0) {
+    setLoading(true)
+    setLoadError(false)
+    try {
+      console.log(`[Catalog] Chargement des créations (tentative ${retryCount + 1})...`)
+      
+      // Fetch products, categories, colors in parallel but with individual fallbacks
+      const [prodData, catData, colorData] = await Promise.all([
+        publicApi.getProducts({ type: 'CATALOGUE' })
+          .catch(async (err) => {
+            console.warn('[Catalog] Filtre CATALOGUE a échoué, essai avec fallback global:', err)
+            return publicApi.getProducts().catch(() => [])
+          }),
+        publicApi.getCategories().catch(err => {
+          console.warn('[Catalog] getCategories a échoué:', err)
+          return [] as Category[]
+        }),
+        colorsApi.getColors().catch(() => [])
+      ])
+
+      const validProds = Array.isArray(prodData) ? prodData : []
+      
+      // If empty on first attempt and retryCount < 2, auto-retry in 2s (in case backend is waking up on Render)
+      if (validProds.length === 0 && retryCount < 2) {
+        console.log(`[Catalog] Réponse vide, nouvelle tentative dans 2.5s (${retryCount + 1}/3)...`)
+        setTimeout(() => loadData(retryCount + 1), 2500)
+        return
+      }
+
+      if (validProds.length === 0) {
+        setLoadError(true)
+      } else {
+        const catalogItems = validProds.filter(p => !isHandleProduct(p))
+        setDbProducts(catalogItems.length > 0 ? catalogItems : validProds)
+        setLoadError(false)
+      }
+
+      if (Array.isArray(colorData) && colorData.length > 0) {
+        setAvailableColors([
+          { label: 'Tout', hex: null, border: 'border-border' },
+          ...colorData.map((c: ColorSwatch) => ({
+            label: c.name || c.label,
+            hex: c.hex,
+            border: (c.name || c.label).toLowerCase().includes('blanc') ? 'border-stone-300' : 'border-border'
+          }))
+        ])
+      }
+
+      const validCats = Array.isArray(catData) ? catData : []
+      const isHandleCat = (c: Category) => {
+        const catName = c.name?.toLowerCase() || ''
+        if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux")) {
+          return false
+        }
+        return (
+          catName.includes("bijoux de porte") || 
+          catName.includes("ronds") || 
+          catName.includes("ovales") || 
+          catName.includes("poignée") ||
+          catName.includes("poignee")
+        )
+      }
+      const rawCats = validCats.filter(c => !isHandleCat(c))
+      if (!rawCats.some(c => c.name.toLowerCase().includes('lustre'))) {
+        rawCats.push({ id: 999, name: 'Lustres', description: 'Lustres et suspensions artisanales' } as any)
+      }
+      if (!rawCats.some(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux'))) {
+        rawCats.push({ id: 998, name: 'Porte Bijoux', description: 'Porte-bijoux et présentoirs artisanaux' } as any)
+      }
+      setDbCategories(rawCats)
+    } catch (err) {
+      console.error("[Catalog] Erreur lors du chargement des créations:", err)
+      if (retryCount < 2) {
+        setTimeout(() => loadData(retryCount + 1), 2500)
+        return
+      }
+      setLoadError(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     loadData()
   }, [])
 
@@ -2039,26 +2076,50 @@ export function CatalogPage() {
         {/* Grid / Empty State */}
         <AnimatePresence mode="wait">
           {loading ? (
-            <div className="flex items-center justify-center py-24">
+            <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
               <div className="size-10 animate-spin rounded-full border-4 border-[#E6A635]/20 border-t-[#E6A635]" />
+              <p className="text-xs text-[#EAE4D9]/80 font-light tracking-wide">Chargement de nos créations d&apos;art...</p>
             </div>
           ) : products.length === 0 ? (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-20 text-center bg-[#3B271C]/90 rounded-3xl border border-[#E6A635]/35 col-span-full shadow-xl p-8"
-            >
-              <div className="p-3.5 rounded-full bg-[#241812] border border-[#E6A635]/30 mb-3">
-                <Sparkles className="size-6 text-[#F2BD52]" />
-              </div>
-              <p className="font-heading text-2xl text-[#F7F4EE] mb-2">Aucun modèle trouvé</p>
-              <p className="text-xs text-[#EAE4D9]/80 max-w-md">Essayez d&apos;autres critères ou transmettez-nous directement votre idée pour une étude sur-mesure.</p>
-              <Link href="/contact" className="btn-sheen mt-5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-md">
-                Contacter nos artisans
-              </Link>
-            </motion.div>
+            loadError ? (
+              <motion.div
+                key="load-error"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center py-20 text-center bg-[#3B271C]/90 rounded-3xl border border-[#E6A635]/35 col-span-full shadow-xl p-8"
+              >
+                <div className="p-3.5 rounded-full bg-[#241812] border border-[#E6A635]/30 mb-3">
+                  <Sparkles className="size-6 text-[#F2BD52]" />
+                </div>
+                <p className="font-heading text-2xl text-[#F7F4EE] mb-2">Connexion à l&apos;Atelier Aschi</p>
+                <p className="text-xs text-[#EAE4D9]/80 max-w-md">Le serveur se réveille après une période d&apos;inactivité. Cliquez ci-dessous pour charger immédiatement le catalogue.</p>
+                <button
+                  type="button"
+                  onClick={() => loadData(0)}
+                  className="btn-sheen mt-5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer hover:brightness-105 active:scale-95 transition-all"
+                >
+                  Charger le catalogue
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center py-20 text-center bg-[#3B271C]/90 rounded-3xl border border-[#E6A635]/35 col-span-full shadow-xl p-8"
+              >
+                <div className="p-3.5 rounded-full bg-[#241812] border border-[#E6A635]/30 mb-3">
+                  <Sparkles className="size-6 text-[#F2BD52]" />
+                </div>
+                <p className="font-heading text-2xl text-[#F7F4EE] mb-2">Aucun modèle trouvé</p>
+                <p className="text-xs text-[#EAE4D9]/80 max-w-md">Essayez d&apos;autres critères ou transmettez-nous directement votre idée pour une étude sur-mesure.</p>
+                <Link href="/contact" className="btn-sheen mt-5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-md">
+                  Contacter nos artisans
+                </Link>
+              </motion.div>
+            )
           ) : (
             <>
               {/* Anchor for smooth scroll back to top */}
