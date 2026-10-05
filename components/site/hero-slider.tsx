@@ -73,10 +73,14 @@ export function HeroSlider() {
     // Pause auto-play if hovered (so Modals or interactive slides stay visible)
     if (isHovered) return
 
+    // Interactive slides (like relooking comparison) require more time so visitors can compare
+    const isInteractive = SLIDES[current]?.id === 'relooking'
+    const intervalTime = isInteractive ? 14000 : 6000
+
     const timer = setInterval(() => {
       setDirection(1)
       setCurrent((prev) => (prev + 1) % SLIDES.length)
-    }, 6000)
+    }, intervalTime)
     return () => clearInterval(timer)
   }, [current, isHovered])
 

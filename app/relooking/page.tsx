@@ -14,22 +14,22 @@ import { formatImageUrl } from '@/lib/utils'
 
 const DEMO_RELOOKINGS: Relooking[] = [
   {
-    id: 901,
-    title: "Commode Louis XV en Noyer d'Ébénisterie",
-    category: "Commode Ancienne",
-    description: "Restauration complète des marqueteries, décapage artisanal du vernis jauni, et application d'une patine satinée avec rechampis à la cire d'abeille naturelle.",
-    imageAvantUrl: "/gallery-1.png",
-    imageApresUrl: "/relooking_service.jpg",
-    createdDate: "2026-02-15"
+    id: 6,
+    title: "Banc Traditionnel Restauré en Blanc Patiné & Incrustations de Jelliz",
+    category: "Mobilier d'Art",
+    description: "Redonnez une seconde vie à votre intérieur avec ce banc artisanal en bois massif entièrement rénové. Sublimé par une finition blanc vieilli à effet patiné, il intègre des détails sculptés raffinés et des carreaux de zellige traditionnels.",
+    imageAvantUrl: "/images/relooking/banc-avant.jpg",
+    imageApresUrl: "/images/relooking/banc-apres.jpg",
+    createdDate: "2026-09-27"
   },
   {
-    id: 902,
-    title: "Fauteuil Bergère d'Époque Sublimé",
-    category: "Sièges & Sculptures",
-    description: "Consolidation des assemblages en tenon-mortaise, sculpture manuelle restaurée, laque d'atelier noir mat profond et garnissage traditionnel soyeux.",
-    imageAvantUrl: "/gallery-2.png",
-    imageApresUrl: "/herochaise.png",
-    createdDate: "2026-03-01"
+    id: 5,
+    title: "Buffet Vaisselier Traditionnel Restauré – Bois Naturel & Finitions Vert Émeraude",
+    category: "Mobilier d'Art",
+    description: "Ce vaisselier en bois massif à deux corps a été entièrement remis en valeur avec un décapage soigné révélant les veines chaleureuses du bois brut.",
+    imageAvantUrl: "/images/relooking/vaisselier-avant.jpg",
+    imageApresUrl: "/images/relooking/vaisselier-apres.jpg",
+    createdDate: "2026-09-27"
   }
 ]
 
@@ -70,8 +70,8 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
     }
   }, [isDragging])
 
-  const apresSrc = formatImageUrl(item.imageApresUrl, '/relooking_service.jpg')
-  const avantSrc = formatImageUrl(item.imageAvantUrl, '/gallery-1.png')
+  const apresSrc = formatImageUrl(item.imageApresUrl, '/images/relooking/banc-apres.jpg')
+  const avantSrc = formatImageUrl(item.imageAvantUrl, '/images/relooking/banc-avant.jpg')
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-center bg-[#3B271C]/90 rounded-3xl p-5 sm:p-7 md:p-8 border border-[#E6A635]/35 hover:border-[#E6A635]/75 backdrop-blur-xl shadow-[0_15px_35px_rgba(0,0,0,0.65)] transition-all duration-300">
@@ -100,7 +100,7 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
               const target = e.currentTarget
               if (!target.dataset.fallback) {
                 target.dataset.fallback = '1'
-                target.src = '/relooking_service.jpg'
+                target.src = '/images/relooking/banc-apres.jpg'
               }
             }}
           />
@@ -125,7 +125,7 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
               const target = e.currentTarget
               if (!target.dataset.fallback) {
                 target.dataset.fallback = '1'
-                target.src = '/gallery-1.png'
+                target.src = '/images/relooking/banc-avant.jpg'
               }
             }}
           />
