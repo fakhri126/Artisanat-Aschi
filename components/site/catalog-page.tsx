@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Check, ChevronUp, LayoutGrid, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass, Lamp, Folder, Gem, Palette } from 'lucide-react'
 import { cn, formatImageUrl } from '@/lib/utils'
@@ -723,9 +723,8 @@ export function CatalogPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 12
 
-  const [showGoldCard, setShowGoldCard] = useState(false)
   const [dbProducts, setDbProducts] = useState<Product[]>([])
-  const [products, setProducts] = useState<Product[]>([])
+  const [dbCategories, setDbCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
@@ -733,255 +732,12 @@ export function CatalogPage() {
   const [colorFilterOpen, setColorFilterOpen] = useState(true)
   const [hoveredId, setHoveredId] = useState<number | null>(null)
 
-  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE) || 1
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const paginatedProducts = products.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-  
-  const [categories, setCategories] = useState<{ id: string; label: string; icon: any; count: number }[]>([])
-  const carouselRef = useRef<HTMLDivElement>(null)
-  const thumbCarouselRef = useRef<HTMLDivElement>(null)
-  const gridTopRef = useRef<HTMLDivElement>(null)
-
-  const scrollToGridTop = () => {
-    if (gridTopRef.current) {
-      gridTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    } else {
-      const el = document.getElementById('catalog-grid-start')
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage)
-    scrollToGridTop()
-  }
-
-  const scrollThumbnails = (direction: 'left' | 'right') => {
-    if (thumbCarouselRef.current) {
-      const amount = direction === 'left' ? -180 : 180
-      thumbCarouselRef.current.scrollBy({ left: amount, behavior: 'smooth' })
-    }
-  }
-  
-  const [favorites, setFavorites] = useState<number[]>([])
-  const [mounted, setMounted] = useState(false)
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
-  const [quickViewImageIndex, setQuickViewImageIndex] = useState(0)
-
-  // Quick View Touch Swipe
-  const [qvTouchStart, setQvTouchStart] = useState<number | null>(null)
-  const [qvTouchEnd, setQvTouchEnd] = useState<number | null>(null)
-
-  const handleQvTouchStart = (e: React.TouchEvent) => {
-    setQvTouchStart(e.targetTouches[0].clientX)
-  }
-  const handleQvTouchMove = (e: React.TouchEvent) => {
-    setQvTouchEnd(e.targetTouches[0].clientX)
-  }
-  const handleQvTouchEnd = () => {
-    if (qvTouchStart === null || qvTouchEnd === null || !quickViewProduct) return
-    const diff = qvTouchStart - qvTouchEnd
-    const total = quickViewProduct.images?.length || 0
-    if (Math.abs(diff) > 35 && total > 1) {
-      if (diff > 0) {
-        setQuickViewImageIndex(i => (i === total - 1 ? 0 : i + 1))
-      } else {
-        setQuickViewImageIndex(i => (i === 0 ? total - 1 : i - 1))
-      }
-    }
-    setQvTouchStart(null)
-    setQvTouchEnd(null)
-  }
-
-  // Smooth Category Navigation
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(true)
-
-  const checkCategoryScroll = () => {
-    if (carouselRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current
-      setCanScrollLeft(scrollLeft > 8)
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 8)
-    }
-  }
-
-  useEffect(() => {
-    checkCategoryScroll()
-    const el = carouselRef.current
-    if (el) {
-      el.addEventListener('scroll', checkCategoryScroll, { passive: true })
-      window.addEventListener('resize', checkCategoryScroll)
-      return () => {
-        el.removeEventListener('scroll', checkCategoryScroll)
-        window.removeEventListener('resize', checkCategoryScroll)
-      }
-    }
-  }, [categories])
-
-  const scrollCategories = (direction: 'left' | 'right') => {
-    if (carouselRef.current) {
-      const offset = direction === 'left' ? -280 : 280
-      carouselRef.current.scrollBy({ left: offset, behavior: 'smooth' })
-      setTimeout(checkCategoryScroll, 350)
-    }
-  }
-
-  const handleCategorySelect = (catId: string, e?: React.MouseEvent<HTMLButtonElement>) => {
-    setCategory(catId)
-    if (e && carouselRef.current) {
-      const btn = e.currentTarget
-      const container = carouselRef.current
-      const scrollLeft = btn.offsetLeft - (container.offsetWidth / 2) + (btn.offsetWidth / 2)
-      container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' })
-    }
-  }
-
-  // Scroll To Top Floating Trigger
-  const [showScrollTop, setShowScrollTop] = useState(false)
-  useEffect(() => {
-    const onScroll = () => {
-      setShowScrollTop(window.scrollY > 400)
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [category, color, dimension, aiQuery, sortBy])
-
-  useEffect(() => {
-    setMounted(true)
-    const saved = localStorage.getItem('aschi_favorites')
-    if (saved) {
-      try { setFavorites(JSON.parse(saved)) } catch(e){}
-    }
-  }, [])
-
-  useEffect(() => {
-    if (mounted) localStorage.setItem('aschi_favorites', JSON.stringify(favorites))
-  }, [favorites, mounted])
-
-  const toggleFavorite = (e: React.MouseEvent, id: number) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id])
-  }
-
-  const [dbCategories, setDbCategories] = useState<Category[]>([])
-
-  const isHandleProduct = (p: Product) => {
-    const catName = p.category?.name?.toLowerCase() || ''
-    const name = p.name?.toLowerCase() || ''
-    if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux") || name.includes("porte bijou") || name.includes("porte-bijou") || name.includes("porte bijoux")) {
-      return false
-    }
-    return (
-      catName.includes("bijoux de porte") || 
-      catName.includes("ronds") || 
-      catName.includes("ovales") || 
-      catName.includes("poignée") ||
-      catName.includes("poignee") ||
-      name.includes("bouton majolique") || 
-      name.includes("petite poignée") ||
-      name.includes("grand rond") ||
-      name.includes("bouton ovale")
-    )
-  }
-
-  async function loadData(retryCount = 0) {
-    setLoading(true)
-    setLoadError(false)
-    try {
-      console.log(`[Catalog] Chargement des créations (tentative ${retryCount + 1})...`)
-      
-      // Fetch products, categories, colors in parallel but with individual fallbacks
-      const [prodData, catData, colorData] = await Promise.all([
-        publicApi.getProducts({ type: 'CATALOGUE' })
-          .catch(async (err) => {
-            console.warn('[Catalog] Filtre CATALOGUE a échoué, essai avec fallback global:', err)
-            return publicApi.getProducts().catch(() => [])
-          }),
-        publicApi.getCategories().catch(err => {
-          console.warn('[Catalog] getCategories a échoué:', err)
-          return [] as Category[]
-        }),
-        colorsApi.getColors().catch(() => [])
-      ])
-
-      const validProds = Array.isArray(prodData) ? prodData : []
-      
-      // If empty on first attempt and retryCount < 2, auto-retry in 2s (in case backend is waking up on Render)
-      if (validProds.length === 0 && retryCount < 2) {
-        console.log(`[Catalog] Réponse vide, nouvelle tentative dans 2.5s (${retryCount + 1}/3)...`)
-        setTimeout(() => loadData(retryCount + 1), 2500)
-        return
-      }
-
-      if (validProds.length === 0) {
-        setLoadError(true)
-      } else {
-        const catalogItems = validProds.filter(p => !isHandleProduct(p))
-        setDbProducts(catalogItems.length > 0 ? catalogItems : validProds)
-        setLoadError(false)
-      }
-
-      if (Array.isArray(colorData) && colorData.length > 0) {
-        setAvailableColors([
-          { label: 'Tout', hex: null, border: 'border-border' },
-          ...colorData.map((c: ColorSwatch) => ({
-            label: c.name || c.label,
-            hex: c.hex,
-            border: (c.name || c.label).toLowerCase().includes('blanc') ? 'border-stone-300' : 'border-border'
-          }))
-        ])
-      }
-
-      const validCats = Array.isArray(catData) ? catData : []
-      const isHandleCat = (c: Category) => {
-        const catName = c.name?.toLowerCase() || ''
-        if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux")) {
-          return false
-        }
-        return (
-          catName.includes("bijoux de porte") || 
-          catName.includes("ronds") || 
-          catName.includes("ovales") || 
-          catName.includes("poignée") ||
-          catName.includes("poignee")
-        )
-      }
-      const rawCats = validCats.filter(c => !isHandleCat(c))
-      if (!rawCats.some(c => c.name.toLowerCase().includes('lustre'))) {
-        rawCats.push({ id: 999, name: 'Lustres', description: 'Lustres et suspensions artisanales' } as any)
-      }
-      if (!rawCats.some(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux'))) {
-        rawCats.push({ id: 998, name: 'Porte Bijoux', description: 'Porte-bijoux et présentoirs artisanaux' } as any)
-      }
-      setDbCategories(rawCats)
-    } catch (err) {
-      console.error("[Catalog] Erreur lors du chargement des créations:", err)
-      if (retryCount < 2) {
-        setTimeout(() => loadData(retryCount + 1), 2500)
-        return
-      }
-      setLoadError(true)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  // Derive dynamic categories purely from actual products & DB categories
-  useEffect(() => {
-    const allProducts = dbProducts
+  // Derive dynamic categories synchronously from actual products & DB categories
+  const categories = useMemo(() => {
     const counts: Record<string, number> = {}
 
     // Count products per actual category
-    allProducts.forEach(p => {
+    dbProducts.forEach(p => {
       const catName = p.category?.name?.trim()
       if (catName) {
         counts[catName] = (counts[catName] || 0) + 1
@@ -989,7 +745,6 @@ export function CatalogPage() {
     })
 
     // Only display categories that actually contain creations in the catalogue
-    // This ensures renamed or deleted categories (e.g., 'Lampes Coffres') never ghost
     const activeCatNames = Object.keys(counts).filter(catName => counts[catName] > 0)
 
     const dynamicCategories = activeCatNames.map(catName => ({
@@ -999,15 +754,15 @@ export function CatalogPage() {
       count: counts[catName]
     }))
 
-    setCategories([
-      { id: 'Tout', label: 'Tout', icon: Grid2X2, count: allProducts.length },
+    return [
+      { id: 'Tout', label: 'Tout', icon: Grid2X2, count: dbProducts.length },
       ...dynamicCategories
-    ])
-  }, [dbProducts, dbCategories])
+    ]
+  }, [dbProducts])
 
-  useEffect(() => {
-    const source = dbProducts
-    let filtered = source
+  // Derive filtered and sorted products synchronously via useMemo
+  const { products, showGoldCard } = useMemo(() => {
+    let filtered = dbProducts
     let needsGoldCard = false
     let isAiSearchActive = false
 
@@ -1170,9 +925,248 @@ export function CatalogPage() {
       })
     }
 
-    setShowGoldCard(needsGoldCard)
-    setProducts(sorted)
-  }, [category, color, dimension, aiQuery, sortBy, dbProducts, loading])
+    return { products: sorted, showGoldCard: needsGoldCard }
+  }, [dbProducts, category, color, dimension, aiQuery, sortBy])
+
+  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE) || 1
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const paginatedProducts = products.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  const carouselRef = useRef<HTMLDivElement>(null)
+  const thumbCarouselRef = useRef<HTMLDivElement>(null)
+  const gridTopRef = useRef<HTMLDivElement>(null)
+
+  const scrollToGridTop = () => {
+    if (gridTopRef.current) {
+      gridTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } else {
+      const el = document.getElementById('catalog-grid-start')
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+    scrollToGridTop()
+  }
+
+  const scrollThumbnails = (direction: 'left' | 'right') => {
+    if (thumbCarouselRef.current) {
+      const amount = direction === 'left' ? -180 : 180
+      thumbCarouselRef.current.scrollBy({ left: amount, behavior: 'smooth' })
+    }
+  }
+  
+  const [favorites, setFavorites] = useState<number[]>([])
+  const [mounted, setMounted] = useState(false)
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null)
+  const [quickViewImageIndex, setQuickViewImageIndex] = useState(0)
+
+  // Quick View Touch Swipe
+  const [qvTouchStart, setQvTouchStart] = useState<number | null>(null)
+  const [qvTouchEnd, setQvTouchEnd] = useState<number | null>(null)
+
+  const handleQvTouchStart = (e: React.TouchEvent) => {
+    setQvTouchStart(e.targetTouches[0].clientX)
+  }
+  const handleQvTouchMove = (e: React.TouchEvent) => {
+    setQvTouchEnd(e.targetTouches[0].clientX)
+  }
+  const handleQvTouchEnd = () => {
+    if (qvTouchStart === null || qvTouchEnd === null || !quickViewProduct) return
+    const diff = qvTouchStart - qvTouchEnd
+    const total = quickViewProduct.images?.length || 0
+    if (Math.abs(diff) > 35 && total > 1) {
+      if (diff > 0) {
+        setQuickViewImageIndex(i => (i === total - 1 ? 0 : i + 1))
+      } else {
+        setQuickViewImageIndex(i => (i === 0 ? total - 1 : i - 1))
+      }
+    }
+    setQvTouchStart(null)
+    setQvTouchEnd(null)
+  }
+
+  // Smooth Category Navigation
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
+
+  const checkCategoryScroll = () => {
+    if (carouselRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current
+      setCanScrollLeft(scrollLeft > 8)
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 8)
+    }
+  }
+
+  useEffect(() => {
+    checkCategoryScroll()
+    const el = carouselRef.current
+    if (el) {
+      el.addEventListener('scroll', checkCategoryScroll, { passive: true })
+      window.addEventListener('resize', checkCategoryScroll)
+      return () => {
+        el.removeEventListener('scroll', checkCategoryScroll)
+        window.removeEventListener('resize', checkCategoryScroll)
+      }
+    }
+  }, [categories])
+
+  const scrollCategories = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const offset = direction === 'left' ? -280 : 280
+      carouselRef.current.scrollBy({ left: offset, behavior: 'smooth' })
+      setTimeout(checkCategoryScroll, 350)
+    }
+  }
+
+  const handleCategorySelect = (catId: string, e?: React.MouseEvent<HTMLButtonElement>) => {
+    setCategory(catId)
+    if (e && carouselRef.current) {
+      const btn = e.currentTarget
+      const container = carouselRef.current
+      const scrollLeft = btn.offsetLeft - (container.offsetWidth / 2) + (btn.offsetWidth / 2)
+      container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' })
+    }
+  }
+
+  // Scroll To Top Floating Trigger
+  const [showScrollTop, setShowScrollTop] = useState(false)
+  useEffect(() => {
+    const onScroll = () => {
+      setShowScrollTop(window.scrollY > 400)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [category, color, dimension, aiQuery, sortBy])
+
+  useEffect(() => {
+    setMounted(true)
+    const saved = localStorage.getItem('aschi_favorites')
+    if (saved) {
+      try { setFavorites(JSON.parse(saved)) } catch(e){}
+    }
+  }, [])
+
+  useEffect(() => {
+    if (mounted) localStorage.setItem('aschi_favorites', JSON.stringify(favorites))
+  }, [favorites, mounted])
+
+  const toggleFavorite = (e: React.MouseEvent, id: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id])
+  }
+
+  const isHandleProduct = (p: Product) => {
+    const catName = p.category?.name?.toLowerCase() || ''
+    const name = p.name?.toLowerCase() || ''
+    if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux") || name.includes("porte bijou") || name.includes("porte-bijou") || name.includes("porte bijoux")) {
+      return false
+    }
+    return (
+      catName.includes("bijoux de porte") || 
+      catName.includes("ronds") || 
+      catName.includes("ovales") || 
+      catName.includes("poignée") ||
+      catName.includes("poignee") ||
+      name.includes("bouton majolique") || 
+      name.includes("petite poignée") ||
+      name.includes("grand rond") ||
+      name.includes("bouton ovale")
+    )
+  }
+
+  async function loadData() {
+    setLoading(true)
+    setLoadError(false)
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        console.log(`[Catalog] Chargement des créations (tentative ${attempt}/3)...`)
+        
+        // Fetch products, categories, colors in parallel but with individual fallbacks
+        const [prodData, catData, colorData] = await Promise.all([
+          publicApi.getProducts({ type: 'CATALOGUE' })
+            .catch(async (err) => {
+              console.warn('[Catalog] Filtre CATALOGUE a échoué, essai avec fallback global:', err)
+              return publicApi.getProducts().catch(() => [])
+            }),
+          publicApi.getCategories().catch(err => {
+            console.warn('[Catalog] getCategories a échoué:', err)
+            return [] as Category[]
+          }),
+          colorsApi.getColors().catch(() => [])
+        ])
+
+        const validProds = Array.isArray(prodData) ? prodData : []
+
+        if (validProds.length > 0) {
+          const catalogItems = validProds.filter(p => !isHandleProduct(p))
+          setDbProducts(catalogItems.length > 0 ? catalogItems : validProds)
+          setLoadError(false)
+
+          if (Array.isArray(colorData) && colorData.length > 0) {
+            setAvailableColors([
+              { label: 'Tout', hex: null, border: 'border-border' },
+              ...colorData.map((c: ColorSwatch) => ({
+                label: c.name || c.label,
+                hex: c.hex,
+                border: (c.name || c.label).toLowerCase().includes('blanc') ? 'border-stone-300' : 'border-border'
+              }))
+            ])
+          }
+
+          const validCats = Array.isArray(catData) ? catData : []
+          const isHandleCat = (c: Category) => {
+            const catName = c.name?.toLowerCase() || ''
+            if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux")) {
+              return false
+            }
+            return (
+              catName.includes("bijoux de porte") || 
+              catName.includes("ronds") || 
+              catName.includes("ovales") || 
+              catName.includes("poignée") ||
+              catName.includes("poignee")
+            )
+          }
+          const rawCats = validCats.filter(c => !isHandleCat(c))
+          if (!rawCats.some(c => c.name.toLowerCase().includes('lustre'))) {
+            rawCats.push({ id: 999, name: 'Lustres', description: 'Lustres et suspensions artisanales' } as any)
+          }
+          if (!rawCats.some(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux'))) {
+            rawCats.push({ id: 998, name: 'Porte Bijoux', description: 'Porte-bijoux et présentoirs artisanaux' } as any)
+          }
+          setDbCategories(rawCats)
+
+          setLoading(false)
+          return
+        }
+
+        // If validProds is empty and attempts remain, wait 2s before retrying (Render spin-up)
+        if (attempt < 3) {
+          console.log(`[Catalog] Réponse vide, nouvelle tentative dans 2s (${attempt}/3)...`)
+          await new Promise(res => setTimeout(res, 2000))
+        }
+      } catch (err) {
+        console.error(`[Catalog] Erreur lors du chargement des créations (tentative ${attempt}/3):`, err)
+        if (attempt < 3) {
+          await new Promise(res => setTimeout(res, 2000))
+        }
+      }
+    }
+
+    setLoadError(true)
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [])
 
   const activeFilterCount = [
     category !== 'Tout',
@@ -2096,7 +2090,7 @@ export function CatalogPage() {
                 <p className="text-xs text-[#EAE4D9]/80 max-w-md">Le serveur se réveille après une période d&apos;inactivité. Cliquez ci-dessous pour charger immédiatement le catalogue.</p>
                 <button
                   type="button"
-                  onClick={() => loadData(0)}
+                  onClick={() => loadData()}
                   className="btn-sheen mt-5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer hover:brightness-105 active:scale-95 transition-all"
                 >
                   Charger le catalogue
