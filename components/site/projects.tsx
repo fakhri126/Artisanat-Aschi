@@ -26,6 +26,7 @@ import Image from 'next/image'
 import { Reveal } from './reveal'
 import { publicApi } from '@/lib/api'
 import { formatImageUrl } from '@/lib/utils'
+import { ProjectLightbox } from './project-lightbox'
 
 export interface ProjectItem {
   id: number
@@ -61,20 +62,26 @@ const PROCESS_STEPS = [
   {
     step: '01',
     icon: Ruler,
-    title: 'Étude & Plans Sur-Mesure',
-    desc: 'Modélisation personnalisée sous 48h selon vos plans architecturaux.',
+    title: 'Étude & Plans',
+    fullTitle: 'Étude & Plans Sur-Mesure',
+    shortDesc: 'Sous 48h',
+    desc: 'Modélisation sous 48h selon vos plans architecturaux.',
   },
   {
     step: '02',
     icon: Hammer,
-    title: 'Façonnage en Atelier',
-    desc: 'Noyer massif, dorure à la feuille & ferronnerie d\'art traditionnelle.',
+    title: 'Façonnage',
+    fullTitle: 'Façonnage en Atelier',
+    shortDesc: 'Atelier d\'art',
+    desc: 'Noyer massif & ferronnerie d\'art traditionnelle.',
   },
   {
     step: '03',
     icon: Truck,
-    title: 'Pose Clé en Main',
-    desc: 'Équipe de maîtres artisans sur votre chantier, partout en Tunisie.',
+    title: 'Pose Finale',
+    fullTitle: 'Pose Clé en Main',
+    shortDesc: 'Sur chantier',
+    desc: 'Installation sur votre chantier partout en Tunisie.',
   },
 ]
 
@@ -160,18 +167,109 @@ const DEFAULT_PROJECTS: ProjectItem[] = [
 ]
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/*  COMPACT PROJECT CARD (Moderne, Côte à Côte, Sans Description)             */
+/*  GRAND PROJET VEDETTE (Affiché en grand à gauche)                         */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+function FeaturedLargeProjectCard({
+  project,
+  index = 0,
+  onOpen,
+}: {
+  project: ProjectItem
+  index?: number
+  onOpen: (p: ProjectItem) => void
+}) {
+  let rawDisplay = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
+  if (rawDisplay.match(/\.(mp4|webm|ogg|mov)$/i)) {
+    const fallbackPhoto = project.gallery?.find((g) => !g.match(/\.(mp4|webm|ogg|mov)$/i))
+    rawDisplay = (fallbackPhoto ? fallbackPhoto.split(',')[0].trim() : '') || '/project-hotel.png'
+  }
+  const displayImage = formatImageUrl(rawDisplay, '/project-hotel.png')
+  const hasVideo = Boolean(project.videoUrl || project.video)
+
+  return (
+    <Reveal delay={index * 60} className="group relative overflow-hidden rounded-xl sm:rounded-2xl cursor-pointer h-full">
+      <div
+        onClick={() => onOpen(project)}
+        className="w-full h-full min-h-[380px] sm:min-h-[460px] lg:min-h-[500px] relative rounded-xl sm:rounded-2xl overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.65)] border border-[#E6A635]/40 hover:border-[#E6A635]/90 transition-all duration-500 hover:shadow-[0_16px_40px_rgba(230,166,53,0.3)] bg-gradient-to-b from-[#2A1C14] to-[#120B08] flex flex-col justify-end p-5 sm:p-7 md:p-8 hover:-translate-y-1"
+      >
+        {/* Photo de fond immersive haute définition */}
+        <Image
+          src={displayImage}
+          alt={project.title}
+          fill
+          priority
+          sizes="(max-width: 1024px) 100vw, 60vw"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        />
+
+        {/* Dégradés d'ombrage artistiques pour une lisibilité parfaite */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#120B08] via-[#120B08]/70 to-black/30 opacity-90 group-hover:opacity-85 transition-opacity duration-300" />
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#E6A635] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
+
+        {/* Badges Flottants Supérieurs */}
+        <div className="absolute top-3.5 sm:top-5 left-3.5 sm:left-5 right-3.5 sm:right-5 flex items-center justify-between z-10 pointer-events-none">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/50 text-[#F2BD52] text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.16em] backdrop-blur-md shadow-lg">
+            <Sparkles className="size-3 text-[#E6A635] animate-pulse" />
+            <span>Réalisation Majeure</span>
+          </span>
+
+          {hasVideo && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A110B]/90 border border-[#E6A635]/50 text-[#F2BD52] text-[10px] font-semibold backdrop-blur-md shadow-lg">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <Film className="size-3 text-[#E6A635]" />
+              <span className="hidden sm:inline text-[9px] uppercase tracking-wider">Vidéo 4K</span>
+            </span>
+          )}
+        </div>
+
+        {/* Contenu Inférieur Noble */}
+        <div className="relative z-10">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-[#F2BD52] font-medium tracking-wide mb-2">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#E6A635]/20 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-bold uppercase tracking-wider">
+              {project.category}
+            </span>
+            {project.location && (
+              <span className="inline-flex items-center gap-1 text-white/80 text-[11px]">
+                <MapPin className="size-3 text-[#E6A635]" />
+                {project.location}
+              </span>
+            )}
+          </div>
+
+          <h3 className="font-heading text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white font-medium group-hover:text-[#F2BD52] transition-colors tracking-tight leading-tight mb-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+            {project.title}
+          </h3>
+
+          {project.description && (
+            <p className="text-white/85 text-xs sm:text-sm font-light leading-relaxed line-clamp-2 sm:line-clamp-3 mb-4 max-w-xl drop-shadow-sm">
+              {project.description}
+            </p>
+          )}
+
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1A110B] bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-[0_4px_16px_rgba(230,166,53,0.35)] group-hover:scale-102 transition-transform">
+            <span>Explorer la Réalisation</span>
+            <ArrowUpRight className="size-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </div>
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  COMPACT PROJECT CARD (Affiché à droite)                                  */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 function BentoProjectCard({
   project,
   index,
   onOpen,
+  isWide = false,
 }: {
   project: ProjectItem
   index: number
   onOpen: (p: ProjectItem) => void
+  isWide?: boolean
 }) {
-  // Image fixe optimisée
   let rawDisplay = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
   if (rawDisplay.match(/\.(mp4|webm|ogg|mov)$/i)) {
     const fallbackPhoto = project.gallery?.find((g) => !g.match(/\.(mp4|webm|ogg|mov)$/i))
@@ -182,7 +280,7 @@ function BentoProjectCard({
 
   return (
     <Reveal
-      delay={index * 70}
+      delay={index * 60}
       className="group relative overflow-hidden rounded-xl sm:rounded-2xl cursor-pointer h-full"
     >
       <div
@@ -192,8 +290,8 @@ function BentoProjectCard({
         {/* Liseré doré supérieur au survol */}
         <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-[#E6A635] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
 
-        {/* ── Cadre Photo de Prestige (Mise en avant de la réalisation) ── */}
-        <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full overflow-hidden bg-[#120B08] shrink-0 border-b border-[#E6A635]/20">
+        {/* ── Cadre Photo de Prestige ── */}
+        <div className={`relative ${isWide ? 'aspect-[16/8] sm:aspect-[16/7]' : 'aspect-[4/3] sm:aspect-[16/11]'} w-full overflow-hidden bg-[#120B08] shrink-0 border-b border-[#E6A635]/20`}>
           <Image
             src={displayImage}
             alt={project.title}
@@ -214,11 +312,16 @@ function BentoProjectCard({
           )}
         </div>
 
-        {/* ── Contenu épuré : UNIQUEMENT LE NOM DU PROJET ── */}
-        <div className="p-2.5 sm:p-4 flex items-center justify-center text-center flex-1">
-          <h3 className="font-heading font-medium text-white group-hover:text-[#F2BD52] transition-colors line-clamp-2 text-xs sm:text-base leading-snug tracking-wide">
+        {/* ── Contenu épuré : Titre du projet & Lieu ── */}
+        <div className="p-2.5 sm:p-3.5 flex flex-col items-center justify-center text-center flex-1">
+          <h3 className="font-heading font-medium text-white group-hover:text-[#F2BD52] transition-colors line-clamp-2 text-xs sm:text-sm leading-snug tracking-wide">
             {project.title}
           </h3>
+          {project.location && (
+            <span className="text-[10px] text-white/50 mt-1 flex items-center gap-1">
+              <MapPin className="size-2.5 text-[#E6A635]" /> {project.location}
+            </span>
+          )}
         </div>
       </div>
     </Reveal>
@@ -309,7 +412,7 @@ export function Projects() {
     loadDynamicProjects()
   }, [])
 
-  // Sélectionner exactement 4 projets prestigieux pour l'accueil : 1 de chaque type distinct
+  // Sélectionner exactement 4 projets prestigieux pour l'accueil : 1 grand vedette + 3 à droite
   const displayProjects = useMemo(() => {
     const TARGET_TYPES = ['hotel', 'guesthouse', 'villa', 'immobilier']
     const selected: ProjectItem[] = []
@@ -401,65 +504,92 @@ export function Projects() {
         </div>
 
         {/* ================================================================= */}
-        {/* GRILLE PROJETS CLÉS EN MAIN (Côte à côte 2 colonnes sur mobile, 2 à 4 sur écran large) */}
+        {/* GRILLE PROJETS : MOBILE INCHANGÉ (2 COLONNES) / DESKTOP (1 GRAND GAUCHE) */}
         {/* ================================================================= */}
         {displayProjects.length > 0 && (
-          <div className="mt-6 sm:mt-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4">
-            {displayProjects.map((p, idx) => (
-              <BentoProjectCard
-                key={p.id || idx}
-                project={p}
-                index={idx}
-                onOpen={(proj) => setSelectedProject(proj)}
-              />
-            ))}
-          </div>
+          <>
+            {/* ── SUR MOBILE / TABLETTE : Grille 2 colonnes originale intacte ── */}
+            <div className="lg:hidden mt-6 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3.5">
+              {displayProjects.map((p, idx) => (
+                <BentoProjectCard
+                  key={p.id || idx}
+                  project={p}
+                  index={idx}
+                  onOpen={(proj) => setSelectedProject(proj)}
+                />
+              ))}
+            </div>
+
+            {/* ── SUR GRAND ÉCRAN (DESKTOP) : 1 Grand à gauche + Les autres à droite ── */}
+            <div className="hidden lg:grid mt-10 grid-cols-12 gap-4 md:gap-5 items-stretch">
+              {/* 1 Grand Projet à gauche (Col 7/12) */}
+              <div className="col-span-7 h-full">
+                <FeaturedLargeProjectCard
+                  project={displayProjects[0]}
+                  index={0}
+                  onOpen={(proj) => setSelectedProject(proj)}
+                />
+              </div>
+
+              {/* Les autres projets à droite (Col 5/12 en 2 colonnes) */}
+              {displayProjects.length > 1 && (
+                <div className="col-span-5 grid grid-cols-2 gap-3.5 h-full content-between">
+                  {displayProjects.slice(1).map((p, idx) => {
+                    const remainingCount = displayProjects.length - 1
+                    const isWide = remainingCount % 2 !== 0 && idx === 0
+                    return (
+                      <div
+                        key={p.id || idx + 1}
+                        className={isWide ? "col-span-2" : "col-span-1"}
+                      >
+                        <BentoProjectCard
+                          project={p}
+                          index={idx + 1}
+                          onOpen={(proj) => setSelectedProject(proj)}
+                          isWide={isWide}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </>
         )}
 
         {/* ================================================================= */}
-        {/* 3-STEP PROCESS: ÉTUDE → FAÇONNAGE → POSE (3 Cartes Flottantes)    */}
+        {/* 3-STEP PROCESS: ÉTUDE → FAÇONNAGE → POSE (Minimaliste & 1 Ligne Mobile) */}
         {/* ================================================================= */}
-        <Reveal delay={100} className="mt-10 sm:mt-14">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-5">
+        <Reveal delay={100} className="mt-5 sm:mt-8 max-w-4xl mx-auto w-full">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3.5">
             {PROCESS_STEPS.map((s) => {
               const Icon = s.icon
               return (
                 <div
                   key={s.step}
-                  className="group relative rounded-2xl p-5 sm:p-6 bg-gradient-to-b from-[#281810]/75 to-[#160E09]/85 backdrop-blur-md border border-[#E6A635]/25 hover:border-[#E6A635]/60 hover:bg-[#321E14]/90 transition-all duration-300 shadow-xl hover:shadow-[0_12px_32px_rgba(230,166,53,0.18)] flex flex-col justify-between overflow-hidden"
+                  className="group relative rounded-xl sm:rounded-2xl p-2 sm:p-3.5 bg-gradient-to-b from-[#281810]/75 to-[#160E09]/85 backdrop-blur-md border border-[#E6A635]/25 hover:border-[#E6A635]/60 hover:bg-[#321E14]/90 transition-all duration-300 shadow-sm hover:shadow-[0_4px_16px_rgba(230,166,53,0.15)] flex flex-col justify-between overflow-hidden"
                 >
-                  {/* Filigrane discret du grand chiffre en arrière-plan */}
-                  <span className="absolute -bottom-3 -right-1 font-heading text-6xl sm:text-7xl font-light text-[#E6A635]/[0.06] pointer-events-none select-none group-hover:text-[#E6A635]/[0.12] transition-colors">
-                    {s.step}
-                  </span>
-
-                  <div>
-                    {/* En-tête : Badge Étape + Icône Fine */}
-                    <div className="flex items-center justify-between mb-3.5">
-                      <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-[#E6A635]/15 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-bold tracking-wider font-heading">
-                        ÉTAPE {s.step}
-                      </span>
-                      <div className="size-8 rounded-xl bg-[#20140E] border border-[#E6A635]/30 flex items-center justify-center text-[#F2BD52] group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-colors shadow-sm">
-                        <Icon className="size-4" />
-                      </div>
+                  {/* En-tête : Badge Numéro + Micro-Icône */}
+                  <div className="flex items-center justify-between gap-1 mb-1 sm:mb-2">
+                    <span className="inline-flex items-center justify-center px-1.5 py-0.2 rounded-full bg-[#E6A635]/15 border border-[#E6A635]/35 text-[#F2BD52] text-[8.5px] sm:text-[10px] font-bold font-serif tracking-wider">
+                      {s.step}
+                    </span>
+                    <div className="size-5 sm:size-7 rounded-lg bg-[#20140E] border border-[#E6A635]/25 flex items-center justify-center text-[#F2BD52] group-hover:bg-[#E6A635] group-hover:text-[#1A110B] transition-colors shadow-sm shrink-0">
+                      <Icon className="size-2.5 sm:size-3.5" />
                     </div>
-
-                    {/* Titre Noble */}
-                    <h4 className="font-heading text-base sm:text-lg font-medium text-white tracking-wide group-hover:text-[#F2BD52] transition-colors mb-2">
-                      {s.title}
-                    </h4>
-
-                    {/* Description */}
-                    <p className="text-xs sm:text-[12.5px] text-white/70 font-light leading-relaxed">
-                      {s.desc}
-                    </p>
                   </div>
 
-                  {/* Liseré fin inférieur de prestige */}
-                  <div className="mt-5 pt-3 border-t border-[#E6A635]/15 flex items-center justify-between text-[10px] text-[#E6A635]/70 font-medium">
-                    <span>Maison Aschi</span>
-                    <span className="size-1 rounded-full bg-[#E6A635]/60" />
-                  </div>
+                  {/* Titre Minimaliste */}
+                  <h4 className="font-heading text-[10px] sm:text-xs md:text-sm font-medium text-white tracking-tight leading-tight group-hover:text-[#F2BD52] transition-colors line-clamp-1 sm:line-clamp-none">
+                    <span className="sm:hidden">{s.title}</span>
+                    <span className="hidden sm:inline">{s.fullTitle}</span>
+                  </h4>
+
+                  {/* Description / Sous-titre discret */}
+                  <p className="text-[8px] sm:text-[11px] text-white/60 font-light leading-tight sm:leading-relaxed mt-0.5 sm:mt-1 line-clamp-1 sm:line-clamp-2">
+                    <span className="sm:hidden">{s.shortDesc}</span>
+                    <span className="hidden sm:inline">{s.desc}</span>
+                  </p>
                 </div>
               )
             })}
@@ -942,144 +1072,25 @@ export function Projects() {
       </AnimatePresence>
 
       {/* ── FULLSCREEN IMAGE LIGHTBOX / ZOOM ── */}
-      <AnimatePresence>
-        {lightboxProject && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-3 sm:p-6"
-            onClick={() => setLightboxProject(null)}
-          >
-            {/* Top Bar */}
-            <div className="absolute top-4 inset-x-4 sm:inset-x-8 flex items-center justify-between z-20">
-              <div className="flex items-center gap-2.5">
-                <span className="px-3 py-1 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 text-[#F2BD52] text-xs font-semibold shadow-md">
-                  {lightboxProject.title}
-                </span>
-                {lightboxProject.images.length > 1 && (
-                  <span className="text-white/70 text-xs font-mono bg-black/40 px-2.5 py-0.5 rounded-full border border-white/10">
-                    {lightboxProject.currentIndex + 1} / {lightboxProject.images.length}
-                  </span>
-                )}
-              </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setLightboxProject(null)
-                }}
-                className="size-10 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 text-white hover:text-[#F2BD52] hover:bg-[#3B271C] transition-all flex items-center justify-center cursor-pointer shadow-lg"
-                aria-label="Fermer le plein écran"
-              >
-                <X className="size-5" />
-              </button>
-            </div>
-
-            {/* Enlarged Image container */}
-            <motion.div
-              key={lightboxProject.currentIndex}
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.92, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 250 }}
-              className="relative w-full max-w-5xl h-[70vh] sm:h-[78vh] flex items-center justify-center my-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Image
-                src={formatImageUrl(lightboxProject.images[lightboxProject.currentIndex]?.split(',')[0]?.trim(), '/project-hotel.png')}
-                alt={lightboxProject.title}
-                fill
-                unoptimized
-                className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.9)]"
-                sizes="100vw"
-                priority
-                onError={(e) => {
-                  const cur = lightboxProject.images[lightboxProject.currentIndex]?.split(',')[0]?.trim()
-                  const filename = cur?.split('/').pop()?.split('#')[0]
-                  if (filename && cur?.startsWith('http')) {
-                    e.currentTarget.src = `/uploads/${filename}`
-                  } else {
-                    e.currentTarget.src = '/project-hotel.png'
-                  }
-                }}
-              />
-            </motion.div>
-
-            {/* Navigation Arrows */}
-            {lightboxProject.images.length > 1 && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setLightboxProject(prev => prev ? {
-                      ...prev,
-                      currentIndex: prev.currentIndex === 0 ? prev.images.length - 1 : prev.currentIndex - 1
-                    } : null)
-                  }}
-                  className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 size-10 sm:size-12 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] hover:scale-110 transition-all cursor-pointer shadow-xl"
-                  aria-label="Image précédente"
-                >
-                  <ChevronLeft className="size-5 sm:size-6" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setLightboxProject(prev => prev ? {
-                      ...prev,
-                      currentIndex: prev.currentIndex === prev.images.length - 1 ? 0 : prev.currentIndex + 1
-                    } : null)
-                  }}
-                  className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 size-10 sm:size-12 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] hover:scale-110 transition-all cursor-pointer shadow-xl"
-                  aria-label="Image suivante"
-                >
-                  <ChevronRight className="size-5 sm:size-6" />
-                </button>
-              </>
-            )}
-
-            {/* Bottom Thumbnails */}
-            {lightboxProject.images.length > 1 && (
-              <div 
-                className="absolute bottom-3 sm:bottom-4 inset-x-4 flex justify-center gap-2 overflow-x-auto py-2 z-20 scrollbar-thin"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {lightboxProject.images.map((img, idx) => {
-                  const cleanImg = img.split(',')[0].trim()
-                  const thumbUrl = formatImageUrl(cleanImg, '/project-hotel.png')
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => setLightboxProject(prev => prev ? { ...prev, currentIndex: idx } : null)}
-                      className={`relative w-12 sm:w-16 aspect-[16/10] rounded-lg overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
-                        lightboxProject.currentIndex === idx
-                          ? 'border-[#E6A635] scale-105 shadow-[0_0_12px_rgba(230,166,53,0.5)]'
-                          : 'border-white/20 opacity-50 hover:opacity-100'
-                      }`}
-                    >
-                      <Image
-                        src={thumbUrl}
-                        alt="Miniature"
-                        fill
-                        unoptimized
-                        className="object-cover"
-                        onError={(e) => {
-                          const filename = cleanImg.split('/').pop()?.split('#')[0]
-                          if (filename && cleanImg.startsWith('http')) {
-                            e.currentTarget.src = `/uploads/${filename}`
-                          } else {
-                            e.currentTarget.src = '/project-hotel.png'
-                          }
-                        }}
-                      />
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ProjectLightbox
+        lightbox={lightboxProject}
+        onClose={() => setLightboxProject(null)}
+        onPrev={() => {
+          setLightboxProject(prev => prev ? {
+            ...prev,
+            currentIndex: prev.currentIndex === 0 ? prev.images.length - 1 : prev.currentIndex - 1
+          } : null)
+        }}
+        onNext={() => {
+          setLightboxProject(prev => prev ? {
+            ...prev,
+            currentIndex: prev.currentIndex === prev.images.length - 1 ? 0 : prev.currentIndex + 1
+          } : null)
+        }}
+        onSelectIndex={(idx) => {
+          setLightboxProject(prev => prev ? { ...prev, currentIndex: idx } : null)
+        }}
+      />
     </section>
   )
 }

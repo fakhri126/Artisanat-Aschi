@@ -24,7 +24,7 @@ const LINKS = [
   { label: "L'Atelier", href: '/atelier' },
   { label: 'Pièces Disponibles', href: '/creations' },
   { label: 'Bijoux de Porte', href: '/bijoux-de-porte' },
-  { label: 'Nos Savoir-Faire', isDropdown: true },
+  { label: 'Nos Services', isDropdown: true },
 ]
 
 const SERVICES = [
@@ -211,7 +211,7 @@ export function Navbar() {
             href="/contact"
             className="hidden rounded-full border border-[#E6A635]/40 bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.16em] text-[#1A110B] transition-all duration-300 hover:shadow-[0_0_20px_rgba(230,166,53,0.4)] btn-sheen lg:inline-block shadow-md"
           >
-            Contact
+            Contactez-nous
           </Link>
 
           <button
@@ -356,7 +356,7 @@ export function Navbar() {
                 <ChevronRight className="size-5 text-[#F2BD52]/80 shrink-0 group-hover:translate-x-0.5 transition-transform" strokeWidth={1.8} />
               </Link>
 
-              {/* 4. Nos Savoir-Faire (Accordion) */}
+              {/* 4. Nos Services (Accordion) */}
               <div>
                 <button
                   type="button"
@@ -368,7 +368,7 @@ export function Navbar() {
                       <SquarePen className="size-5.5 text-[#F2BD52]" strokeWidth={1.8} />
                     </div>
                     <span className="font-heading text-lg sm:text-[19px] text-[#F7F4EE] font-normal tracking-wide group-hover:text-[#F2BD52] transition-colors">
-                      Nos Savoir-Faire
+                      Nos Services
                     </span>
                   </div>
                   <ChevronDown

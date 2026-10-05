@@ -70,6 +70,10 @@ const nextConfig = {
         source: '/api/uploads/:path*',
         destination: `${process.env.INTERNAL_BACKEND_URL || 'http://localhost:8081/api'}/uploads/:path*`,
       },
+      {
+        source: '/storage/v1/:path*',
+        destination: 'https://uerbqswgxsinayfyntsm.supabase.co/storage/v1/:path*',
+      },
     ]
   },
 }

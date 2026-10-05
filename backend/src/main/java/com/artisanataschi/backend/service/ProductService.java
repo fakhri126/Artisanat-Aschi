@@ -48,6 +48,7 @@ public class ProductService {
         return productRepository.findAll(spec);
     }
 
+    @Cacheable(value = "products", key = "{#category, #color, #dimensions, #type, #pageable.pageNumber, #pageable.pageSize}")
     public Page<Product> getProductsFiltered(String category, String color, String dimensions, String type, Pageable pageable) {
         Specification<Product> spec = Specification.where(ProductSpecification.hasCategory(category))
                 .and(ProductSpecification.hasColor(color))
@@ -83,7 +84,7 @@ public class ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = {"featuredProducts", "latestProducts"}, allEntries = true)
+    @CacheEvict(value = {"featuredProducts", "latestProducts", "products"}, allEntries = true)
     public Product createProduct(ProductRequest request) {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
@@ -107,7 +108,7 @@ public class ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = {"featuredProducts", "latestProducts"}, allEntries = true)
+    @CacheEvict(value = {"featuredProducts", "latestProducts", "products"}, allEntries = true)
     public Product updateProduct(Long id, ProductRequest request) {
         Product product = getProductById(id);
         Category category = categoryRepository.findById(request.getCategoryId())
@@ -161,7 +162,7 @@ public class ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = {"featuredProducts", "latestProducts"}, allEntries = true)
+    @CacheEvict(value = {"featuredProducts", "latestProducts", "products"}, allEntries = true)
     public void deleteProduct(Long id) {
         Product product = getProductById(id);
         productRepository.delete(product);

@@ -118,8 +118,13 @@ public class WebSecurityConfig {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        configuration.setAllowedOrigins(origins);
+        for (String origin : origins) {
+            configuration.addAllowedOriginPattern(origin);
+        }
+        // Allow dynamic cloud deployments (Render, Vercel, localhost)
         configuration.addAllowedOriginPattern("https://*.onrender.com");
+        configuration.addAllowedOriginPattern("https://*.vercel.app");
+        configuration.addAllowedOriginPattern("http://localhost:*");
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
         configuration.setExposedHeaders(List.of("Authorization"));

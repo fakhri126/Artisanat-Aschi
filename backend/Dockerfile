@@ -1,32 +1,35 @@
 # ==========================================
-# 1. Étape de Build (Maven + OpenJDK 21)
+# 1. Build Stage (Maven + OpenJDK 21)
 # ==========================================
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
 WORKDIR /app
 
-# Mettre en cache les dépendances Maven
+# Cache Maven dependencies layer
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
+RUN mvn dependency:go-offline -B || true
 
-# Copier le code source et compiler le JAR
+# Copy source code and build executable jar
 COPY src ./src
-RUN mvn clean package -DskipTests -Dmaven.test.skip=true
+RUN mvn clean package -DskipTests -B
 
 # ==========================================
-# 2. Étape d'Exécution (JRE 21 Alpine légère)
+# 2. Runtime Stage (Lightweight JRE 21 Alpine)
 # ==========================================
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Répertoire pour les uploads locaux de secours
+# Local uploads directory
 RUN mkdir -p /app/uploads
 
-# Copie de l'artefact compilé
+# Add curl for health check probing
+RUN apk add --no-cache curl
+
+# Copy built artifact from build stage
 COPY --from=builder /app/target/*.jar app.jar
 
-# Port dynamique (compatible Render, Railway ou local 8081)
+# Render assigns dynamic port via $PORT (default fallback to 8081)
 ENV PORT=8081
-EXPOSE ${PORT}
+EXPOSE 8081 10000
 
-# Optimisation JVM pour conteneurs avec mémoire limitée (ex: 512 Mo gratuit sur Render)
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-Xms128m", "-XX:+UseSerialGC", "-jar", "app.jar"]
+# JVM memory limits tuned for Render Free Tier (512 MB max RAM)
+ENTRYPOINT ["sh", "-c", "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Xms128m -XX:+UseSerialGC -jar app.jar"]

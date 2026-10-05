@@ -339,12 +339,20 @@ export const publicApi = {
       });
   },
   
-  getCategories: () => {
-    return fetchApi<Category[]>('/public/categories');
+  getCategories: async () => {
+    try {
+      return await fetchApi<Category[]>('/public/categories');
+    } catch {
+      return [];
+    }
   },
   
-  getProjects: (category?: string) => {
-    return fetchApi<Project[]>(`/public/projects${category ? '?category=' + encodeURIComponent(category) : ''}`);
+  getProjects: async (category?: string) => {
+    try {
+      return await fetchApi<Project[]>(`/public/projects${category ? '?category=' + encodeURIComponent(category) : ''}`);
+    } catch {
+      return [];
+    }
   },
   
   getNews: async () => {
@@ -437,7 +445,9 @@ export const adminApi = {
       if (res.ok) {
         const json = await res.json();
         if (json.url) {
-          const cleanUrl = json.url.replace(/^https?:\/\/[^/]+(?:\/api)?/, '');
+          // If pointing to localhost / local backend, normalize to relative path;
+          // keep full Supabase CDN or external URLs intact
+          const cleanUrl = json.url.replace(/^https?:\/\/(localhost|127\.0\.0\.1):[0-9]+(?:\/api)?/, '');
           return { url: cleanUrl };
         }
       }
@@ -452,7 +462,9 @@ export const adminApi = {
       method: 'POST',
       body: formData,
     });
-    const cleanUrl = backendRes.url ? backendRes.url.replace(/^https?:\/\/[^/]+(?:\/api)?/, '') : backendRes.url;
+    const cleanUrl = backendRes.url
+      ? backendRes.url.replace(/^https?:\/\/(localhost|127\.0\.0\.1):[0-9]+(?:\/api)?/, '')
+      : backendRes.url;
     return { url: cleanUrl };
   },
 

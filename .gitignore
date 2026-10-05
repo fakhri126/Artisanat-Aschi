@@ -33,3 +33,10 @@ public/uploads/
 
 # Scratch directory
 scratch/
+
+# Playwright Test artifacts
+test-results/
+playwright-report/
+
+# Local binaries
+bin/

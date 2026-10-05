@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, memo } from 'react'
 import { motion } from 'framer-motion'
 import { adminApi, Delivery } from '@/lib/api'
+import { formatImageUrl } from '@/lib/utils'
 import { 
   Plus, 
   Edit2, 
@@ -196,7 +197,7 @@ const DeliveryRow = memo(function DeliveryRow({
       <td className="p-4 pl-6">
         <div className="relative size-16 rounded-xl overflow-hidden bg-[#241812] border border-[#E8DFD4] shadow-2xs shrink-0 group-hover:border-[#C8794D] transition-colors">
           <img 
-            src={coverImage} 
+            src={formatImageUrl(coverImage, '/images/bg-weekly-delivery-2.jpg')} 
             alt={delivery.title} 
             className="size-full object-cover" 
             onError={(e) => { (e.target as HTMLImageElement).src = '/images/bg-weekly-delivery-2.jpg' }}
@@ -418,7 +419,7 @@ function DeliveryModal({
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
                   {form.images.map((img, idx) => (
                     <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-[#241812] border border-[#3A2E24] group shadow-xs">
-                      <img src={img} alt="" className="size-full object-cover" />
+                      <img src={formatImageUrl(img)} alt="" className="size-full object-cover" />
                       {idx === 0 ? (
                         <div className="absolute top-1.5 left-1.5 bg-[#C8794D] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1 shadow-md">
                           <Star className="size-2.5 fill-current" /> Couverture

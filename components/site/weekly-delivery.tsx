@@ -56,6 +56,7 @@ export function WeeklyDelivery() {
     .filter(Boolean)
 
   const displayImage = currentImages[activePhotoIdx] || currentImages[0] || '/images/bg-references.png'
+  const isVideo = displayImage.match(/\.(mp4|webm|ogg|mov)$/i)
 
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev === 0 ? deliveries.length - 1 : prev - 1))
@@ -114,25 +115,34 @@ export function WeeklyDelivery() {
               {/* Left Column (5 Cols): Arched Showcase Photo */}
               <div className="lg:col-span-5 relative w-full flex flex-col items-center justify-center">
                 <div className="relative w-full max-w-[320px] sm:max-w-[360px] h-[220px] sm:h-[280px] md:h-[320px] rounded-2xl sm:rounded-t-full sm:rounded-b-3xl overflow-hidden border-2 sm:border-[4px] border-[#E6A635]/60 shadow-[0_15px_40px_rgba(0,0,0,0.9)] bg-[#241812] group">
-                  {isInView ? (
+                  {isVideo ? (
+                    <video
+                      src={formatImageUrl(displayImage)}
+                      muted
+                      autoPlay
+                      loop
+                      playsInline
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
                     <Image
                       src={formatImageUrl(displayImage, '/images/bg-references.png')}
-                      alt={currentDelivery.title}
+                      alt={currentDelivery.title || "Livraison Artisanat Aschi"}
                       fill
                       sizes="(max-width: 1024px) 100vw, 40vw"
                       priority={currentIndex === 0}
                       className="object-cover transition-transform duration-[10s] group-hover:scale-105"
                     />
-                  ) : (
-                    <div className="size-full bg-[#1A110B]" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/95 via-transparent to-black/30 pointer-events-none" />
                   
                   {/* Floating Date Badge */}
-                  <div className="absolute bottom-2.5 left-2.5 z-20 bg-[#3B271C]/95 backdrop-blur-md px-2.5 py-1 rounded-full border border-[#E6A635]/40 flex items-center gap-1 text-[11px] text-[#F2BD52] font-semibold shadow-lg">
-                    <Calendar className="size-3 text-[#E6A635]" />
-                    <span>{new Date(currentDelivery.deliveryDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                  </div>
+                  {currentDelivery.deliveryDate && (
+                    <div className="absolute bottom-2.5 left-2.5 z-20 bg-[#3B271C]/95 backdrop-blur-md px-2.5 py-1 rounded-full border border-[#E6A635]/40 flex items-center gap-1 text-[11px] text-[#F2BD52] font-semibold shadow-lg">
+                      <Calendar className="size-3 text-[#E6A635]" />
+                      <span>{new Date(currentDelivery.deliveryDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Thumbnails row if multiple images */}
@@ -148,7 +158,7 @@ export function WeeklyDelivery() {
                         }`}
                         title={`Angle / Photo ${pIdx + 1}`}
                       >
-                        <img src={img} alt="" className="size-full object-cover" />
+                        <img src={formatImageUrl(img)} alt="" className="size-full object-cover" />
                       </button>
                     ))}
                   </div>

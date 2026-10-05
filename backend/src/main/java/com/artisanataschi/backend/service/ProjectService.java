@@ -1,6 +1,7 @@
 package com.artisanataschi.backend.service;
 
 import com.artisanataschi.backend.domain.Project;
+import com.artisanataschi.backend.dto.ProjectRequestDto;
 import com.artisanataschi.backend.repository.ProjectRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -38,7 +39,7 @@ public class ProjectService {
 
     @Transactional
     @CacheEvict(value = "projects", allEntries = true)
-    public Project createProject(com.artisanataschi.backend.dto.ProjectRequestDto dto) {
+    public Project createProject(ProjectRequestDto dto) {
         Project project = new Project();
         project.setTitle(dto.getTitle());
         project.setDescription(dto.getDescription());
@@ -58,7 +59,7 @@ public class ProjectService {
 
     @Transactional
     @CacheEvict(value = "projects", allEntries = true)
-    public Project updateProject(Long id, com.artisanataschi.backend.dto.ProjectRequestDto dto) {
+    public Project updateProject(Long id, ProjectRequestDto dto) {
         Project project = getProjectById(id);
         project.setTitle(dto.getTitle());
         project.setDescription(dto.getDescription());

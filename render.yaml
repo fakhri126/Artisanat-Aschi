@@ -25,7 +25,7 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: CORS_ALLOWED_ORIGINS
-        value: https://artisanat-aschi-frontend.onrender.com
+        value: https://artisanat-aschi-frontend.onrender.com,http://localhost:3000,https://artisanat-aschi.com
 
   # ==========================================
   # 2. Frontend Next.js 16

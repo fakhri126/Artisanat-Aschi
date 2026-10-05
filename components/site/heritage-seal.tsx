@@ -1,7 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
-
 interface HeritageSealProps {
   size?: number
   className?: string
@@ -17,11 +15,7 @@ export function HeritageSeal({ size = 110, className = '' }: HeritageSealProps) 
       <div className="absolute inset-0 rounded-full bg-[#E6A635]/20 blur-xl group-hover:bg-[#E6A635]/40 transition-all duration-500" />
 
       {/* Rotating Circular Text SVG */}
-      <motion.div
-        className="absolute inset-0 w-full h-full"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 28, ease: 'linear', repeat: Infinity }}
-      >
+      <div className="absolute inset-0 w-full h-full animate-[spin_28s_linear_infinite] will-change-transform">
         <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
           <path
             id="sealCirclePath"
@@ -34,7 +28,7 @@ export function HeritageSeal({ size = 110, className = '' }: HeritageSealProps) 
             </textPath>
           </text>
         </svg>
-      </motion.div>
+      </div>
 
       {/* Center Authentic Carved Rosette & 1960 Medallion */}
       <div className="relative size-[56%] rounded-full overflow-hidden border-2 border-[#E6A635]/80 shadow-[0_4px_15px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center text-center backdrop-blur-md group-hover:border-[#F2BD52] group-hover:scale-105 transition-all duration-300">

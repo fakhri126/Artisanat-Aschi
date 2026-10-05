@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { X, RefreshCw, Video, Film } from 'lucide-react'
 import { adminApi, Project } from '@/lib/api'
-import { MultiImageUploader } from '@/components/site/image-uploader'
+import { MultiImageUploader } from '@/app/admin/components/image-uploader'
 
 interface ProjectModalProps {
   project: Project | null

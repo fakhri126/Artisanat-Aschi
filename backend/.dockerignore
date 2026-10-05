@@ -1,7 +1,11 @@
 target/
+*.class
 .git
+.gitignore
 .idea
 *.iml
+*.bat
 uploads/
+!uploads/.gitkeep
 .env
 .env.example

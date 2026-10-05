@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Truck, Eye, MapPin } from 'lucide-react'
 import Image from 'next/image'
 import { publicApi, Delivery } from '@/lib/api'
+import { formatImageUrl } from '@/lib/utils'
 
 export function HeroDelivery() {
   const [latestDelivery, setLatestDelivery] = useState<Delivery | null>(null)
@@ -100,7 +101,7 @@ export function HeroDelivery() {
           >
             {isVideo ? (
               <video
-                src={image}
+                src={formatImageUrl(image)}
                 muted
                 autoPlay
                 loop
@@ -109,7 +110,7 @@ export function HeroDelivery() {
               />
             ) : (
               <Image
-                src={image}
+                src={formatImageUrl(image, '/images/bg-weekly-delivery-2.jpg')}
                 alt={latestDelivery.title || "Livraison Artisanat Aschi"}
                 fill
                 priority

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { X, Newspaper, RefreshCw } from 'lucide-react'
 import { adminApi, News } from '@/lib/api'
-import { ImageUploader } from '@/components/site/image-uploader'
+import { ImageUploader } from '@/app/admin/components/image-uploader'
 
 interface NewsModalProps {
   isOpen: boolean
