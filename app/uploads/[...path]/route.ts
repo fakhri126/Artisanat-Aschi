@@ -133,17 +133,11 @@ export async function GET(
     }
   } catch {}
 
-  // 7. If image not found, return placeholder image with 200 OK
-  const placeholderPath = path.join(process.cwd(), 'public', 'placeholder.jpg')
-  if (fs.existsSync(placeholderPath)) {
-    const placeholderBuffer = fs.readFileSync(placeholderPath)
-    return new NextResponse(placeholderBuffer, {
-      headers: {
-        'Content-Type': 'image/jpeg',
-        'Cache-Control': 'public, max-age=3600',
-      },
-    })
-  }
-
-  return new NextResponse('Not found', { status: 404 })
+  // 7. If image not found, return 404 so browser onError handler falls back cleanly
+  return new NextResponse('Image not found', { 
+    status: 404,
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+    },
+  })
 }

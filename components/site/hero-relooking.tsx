@@ -110,7 +110,13 @@ export function HeroRelooking() {
                 src={afterImg} 
                 alt="Après Restauration d'Art" 
                 className="size-full object-cover pointer-events-none" 
-                onError={(e) => { (e.target as HTMLImageElement).src = '/relooking_service.jpg' }}
+                onError={(e) => {
+                  const target = e.currentTarget
+                  if (!target.dataset.fallback) {
+                    target.dataset.fallback = '1'
+                    target.src = '/relooking_service.jpg'
+                  }
+                }}
               />
               <div className="absolute top-3.5 right-3.5 bg-[#3B271C]/95 backdrop-blur-md px-3.5 py-1 rounded-full border border-[#E6A635]/40 text-[9.5px] uppercase tracking-[0.2em] font-bold text-[#F2BD52] shadow-md z-10">
                 Après Restauration
@@ -126,7 +132,13 @@ export function HeroRelooking() {
                 src={beforeImg} 
                 alt="Avant Restauration" 
                 className="size-full object-cover" 
-                onError={(e) => { (e.target as HTMLImageElement).src = '/gallery-1.png' }}
+                onError={(e) => {
+                  const target = e.currentTarget
+                  if (!target.dataset.fallback) {
+                    target.dataset.fallback = '1'
+                    target.src = '/gallery-1.png'
+                  }
+                }}
               />
               <div className="absolute top-3.5 left-3.5 bg-[#1A110B]/90 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/25 text-[9.5px] uppercase tracking-[0.2em] font-bold text-white shadow-md z-10">
                 État Initial
