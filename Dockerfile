@@ -33,6 +33,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV NEXT_PUBLIC_API_URL=https://artisanat-aschi-backend.onrender.com/api
+ENV INTERNAL_BACKEND_URL=https://artisanat-aschi-backend.onrender.com/api
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs

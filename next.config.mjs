@@ -61,14 +61,15 @@ const nextConfig = {
     ]
   },
   async rewrites() {
+    const backendTarget = (process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://artisanat-aschi-backend.onrender.com/api').replace(/\/+$/, '')
     return [
       {
         source: '/backend-api/:path*',
-        destination: `${process.env.INTERNAL_BACKEND_URL || 'http://localhost:8081/api'}/:path*`,
+        destination: `${backendTarget}/:path*`,
       },
       {
         source: '/api/uploads/:path*',
-        destination: `${process.env.INTERNAL_BACKEND_URL || 'http://localhost:8081/api'}/uploads/:path*`,
+        destination: `${backendTarget}/uploads/:path*`,
       },
       {
         source: '/storage/v1/:path*',

@@ -16,34 +16,41 @@ export function Creations() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Tout')
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [prodData, catData] = await Promise.all([
-          publicApi.getProducts(),
-          publicApi.getCategories()
-        ])
+  async function fetchData(retry = 0) {
+    try {
+      const [prodData, catData] = await Promise.all([
+        publicApi.getProducts().catch(() => []),
+        publicApi.getCategories().catch(() => [])
+      ])
 
-        // Only keep available products (not inspiration ones) and exclude Bijoux de Porte
-        const availableProds = prodData.filter((p) => {
-          return p.type !== 'CATALOGUE' && !isBijouxOrHandleProduct(p)
-        })
-        setAllProducts(availableProds)
-
-        const catNames = new Set<string>()
-        catData.forEach(c => catNames.add(c.name))
-        availableProds.forEach(p => {
-          if (p.category?.name) catNames.add(p.category.name)
-        })
-
-        setCategories(['Tout', 'Pièces uniques', ...Array.from(catNames)])
-      } catch (err) {
-        console.error('Error fetching creations data:', err)
-        setCategories(['Tout', 'Pièces uniques', 'Buffets', 'Meubles TV', 'Miroirs', 'Portes', 'Coffres', 'Décoration', 'Tables'])
-      } finally {
-        setLoading(false)
+      const validProds = Array.isArray(prodData) ? prodData : []
+      if (validProds.length === 0 && retry < 2) {
+        setTimeout(() => fetchData(retry + 1), 2500)
+        return
       }
+
+      // Only keep available products (not inspiration ones) and exclude Bijoux de Porte
+      const availableProds = validProds.filter((p) => {
+        return p.type !== 'CATALOGUE' && !isBijouxOrHandleProduct(p)
+      })
+      setAllProducts(availableProds)
+
+      const catNames = new Set<string>()
+      if (Array.isArray(catData)) catData.forEach(c => catNames.add(c.name))
+      availableProds.forEach(p => {
+        if (p.category?.name) catNames.add(p.category.name)
+      })
+
+      setCategories(['Tout', 'Pièces uniques', ...Array.from(catNames)])
+    } catch (err) {
+      console.error('Error fetching creations data:', err)
+      setCategories(['Tout', 'Pièces uniques', 'Buffets', 'Meubles TV', 'Miroirs', 'Portes', 'Coffres', 'Décoration', 'Tables'])
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     fetchData()
   }, [])
 
