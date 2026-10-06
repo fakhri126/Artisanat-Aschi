@@ -73,7 +73,7 @@ export function ProjectLightbox({
           onClick={(e) => e.stopPropagation()}
         >
           <Image
-            src={formatImageUrl(lightbox.images[lightbox.currentIndex]?.split(',')[0]?.trim(), '/project-hotel.png')}
+            src={formatImageUrl(lightbox.images[lightbox.currentIndex]?.split(',')[0]?.trim(), '/placeholder.jpg')}
             alt={lightbox.title}
             fill
             unoptimized
@@ -86,7 +86,7 @@ export function ProjectLightbox({
               if (filename && cur?.startsWith('http')) {
                 e.currentTarget.src = `/uploads/${filename}`
               } else {
-                e.currentTarget.src = '/project-hotel.png'
+                e.currentTarget.src = '/placeholder.jpg'
               }
             }}
           />
@@ -126,7 +126,7 @@ export function ProjectLightbox({
           >
             {lightbox.images.map((img, idx) => {
               const cleanImg = img.split(',')[0].trim()
-              const thumbUrl = formatImageUrl(cleanImg, '/project-hotel.png')
+              const thumbUrl = formatImageUrl(cleanImg, '/placeholder.jpg')
               return (
                 <button
                   key={idx}
@@ -148,7 +148,7 @@ export function ProjectLightbox({
                       if (filename && cleanImg.startsWith('http')) {
                         e.currentTarget.src = `/uploads/${filename}`
                       } else {
-                        e.currentTarget.src = '/project-hotel.png'
+                        e.currentTarget.src = '/placeholder.jpg'
                       }
                     }}
                   />

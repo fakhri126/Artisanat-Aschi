@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Eye, MessageCircle, Sparkles, Bot, X, SlidersHorizontal, CheckCircle2, Check, ChevronUp, LayoutGrid, Heart, ChevronLeft, ChevronRight, Grid2X2, GripHorizontal, Tv, Frame, DoorClosed, Archive, LayoutDashboard, List, Pipette, ArrowUpDown, ZoomIn, Maximize2, Ruler, ArrowUp, RotateCcw, Columns2, Columns3, Compass, Lamp, Folder, Gem, Palette } from 'lucide-react'
 import { cn, formatImageUrl } from '@/lib/utils'
@@ -723,15 +723,176 @@ export function CatalogPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 12
 
-  const [showGoldCard, setShowGoldCard] = useState(false)
   const [dbProducts, setDbProducts] = useState<Product[]>([])
-  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [catFilterOpen, setCatFilterOpen] = useState(true)
   const [colorFilterOpen, setColorFilterOpen] = useState(true)
   const [hoveredId, setHoveredId] = useState<number | null>(null)
+
+  // Synchronous derivation of filtered and sorted products via useMemo (prevents empty lag frames)
+  const { products, showGoldCard } = useMemo(() => {
+    const source = dbProducts
+    let filtered = source
+    let needsGoldCard = false
+    let isAiSearchActive = false
+
+    if (aiQuery.trim() !== '') {
+      isAiSearchActive = true
+      const q = aiQuery.trim().toLowerCase()
+      const stopWords = ['je', 'cherche', 'voudrais', 'veux', 'veut', 'un', 'une', 'des', 'le', 'la', 'les', 'de', 'en', 'avec', 'pour', 'et', 'ou', 'est', 'que', 'qui', 'dans', 'sur']
+      const keywords = q.split(/\s+/).filter(word => word.length > 2 && !stopWords.includes(word))
+      const searchTerms = keywords.length > 0 ? keywords : [q]
+
+      let perfectMatches = filtered.filter(p => {
+        return searchTerms.every(term => {
+          const matchesName = isFuzzyMatch(term, p.name)
+          const matchesDesc = isFuzzyMatch(term, p.description)
+          const matchesCat = isFuzzyMatch(term, p.category?.name)
+          const matchesColor = isFuzzyMatch(term, p.color)
+          const matchesVariant = p.images?.some(img => isFuzzyMatch(term, img.colorLabel))
+          return matchesName || matchesDesc || matchesCat || matchesColor || matchesVariant
+        })
+      })
+
+      if (perfectMatches.length > 0) {
+        filtered = perfectMatches
+        needsGoldCard = false
+      } else {
+        needsGoldCard = true
+        const colorWords = ['blanc', 'blanche', 'or', 'doré', 'dore', 'bleu', 'bleue', 'noyer', 'naturel', 'vert', 'verte', 'bordeaux', 'rose', 'gris', 'grise', 'noir', 'noire', 'rouge']
+        const typedColor = searchTerms.find(term => colorWords.includes(term))
+
+        let partialMatches = filtered.filter(p => {
+          if (typedColor) {
+            const matchesColor = isFuzzyMatch(typedColor, p.color) || p.images?.some(img => isFuzzyMatch(typedColor, img.colorLabel))
+            if (!matchesColor) return false
+          }
+          return searchTerms.some(term => {
+            const matchesName = isFuzzyMatch(term, p.name)
+            const matchesDesc = isFuzzyMatch(term, p.description)
+            const matchesCat = isFuzzyMatch(term, p.category?.name)
+            const matchesColor = isFuzzyMatch(term, p.color)
+            const matchesVariant = p.images?.some(img => isFuzzyMatch(term, img.colorLabel))
+            return matchesName || matchesDesc || matchesCat || matchesColor || matchesVariant
+          })
+        })
+
+        if (partialMatches.length > 0) {
+          filtered = partialMatches
+        } else {
+          filtered = []
+        }
+      }
+    }
+
+    if (category !== 'Tout') {
+      filtered = filtered.filter(p => (p.category?.name?.trim().toLowerCase() || '') === category.trim().toLowerCase())
+    }
+    if (color !== 'Tout') {
+      const targetColor = color.trim().toLowerCase()
+      filtered = filtered.filter(p => {
+        const matchesMain = matchColorFlexible(targetColor, p.color)
+        const matchesVariant = p.images?.some(img => matchColorFlexible(targetColor, img.colorLabel))
+        return matchesMain || matchesVariant
+      })
+    }
+    if (dimension !== 'Tout') {
+      filtered = filtered.filter(p => {
+        const dimStr = (p.dimensions || '').toLowerCase()
+        const targetDim = dimension.toLowerCase()
+        if (targetDim.includes('petit') && dimStr.includes('petit')) return true
+        if (targetDim.includes('moyen') && dimStr.includes('moyen')) return true
+        if (targetDim.includes('grand') && dimStr.includes('grand')) return true
+
+        const hasVariantDim = p.images?.some(img => {
+          const label = (img.colorLabel || '').toLowerCase()
+          return (targetDim.includes('petit') && label.includes('petit')) ||
+                 (targetDim.includes('moyen') && label.includes('moyen')) ||
+                 (targetDim.includes('grand') && label.includes('grand'))
+        })
+        if (hasVariantDim) return true
+
+        const numbers = dimStr.match(/\d+/g)
+        if (numbers && numbers.length > 0) {
+          const mainVal = parseInt(numbers[0])
+          if (targetDim.includes('petit')) return mainVal > 0 && mainVal < 80
+          if (targetDim.includes('moyen')) return mainVal >= 80 && mainVal <= 150
+          if (targetDim.includes('grand')) return mainVal > 150
+        }
+        return false
+      })
+    }
+
+    if (filtered.length === 0 && (color !== 'Tout' || dimension !== 'Tout') && !isAiSearchActive) {
+       needsGoldCard = true
+    }
+
+    let sorted = [...filtered]
+
+    const getColorRank = (p: Product) => {
+      const c = (p.color || '').toLowerCase()
+      const n = (p.name || '').toLowerCase()
+      if (c.includes('blanc') || c.includes('cérusé') || n.includes('blanc')) return 1
+      if (c.includes('or') || c.includes('doré') || c.includes('dore') || c.includes('jaune') || n.includes(' or ') || n.includes('doré') || n.startsWith('buffet or')) return 2
+      if (c.includes('noyer') || c.includes('naturel') || c.includes('bois') || n.includes('noyer')) return 3
+      if (c.includes('bleu') || n.includes('bleu')) return 4
+      return 5
+    }
+
+    const getSizeRank = (p: Product) => {
+      const d = (p.dimensions || '').toLowerCase()
+      const n = (p.name || '').toLowerCase()
+      if (d.includes('petit') || n.includes('petit')) return 1
+      if (d.includes('moyen') || n.includes('moyen')) return 2
+      if (d.includes('grand') || n.includes('grand')) return 3
+      return 4
+    }
+
+    const getModelNum = (p: Product) => {
+      const match = (p.name || '').match(/(?:Modèle|Modele|N°|#|\s)(\d+)/i)
+      return match ? parseInt(match[1], 10) : 999999
+    }
+
+    if (sortBy === 'featured') {
+      sorted.sort((a, b) => {
+        const catA = (a.category?.name || '').toLowerCase()
+        const catB = (b.category?.name || '').toLowerCase()
+        if (category === 'Tout' && catA !== catB) {
+          return catA.localeCompare(catB)
+        }
+
+        const numA = getModelNum(a)
+        const numB = getModelNum(b)
+        if (numA !== numB) return numA - numB
+
+        const sizeDiff = getSizeRank(a) - getSizeRank(b)
+        if (sizeDiff !== 0) return sizeDiff
+
+        return (Number(a.id) || 0) - (Number(b.id) || 0)
+      })
+    } else if (sortBy === 'newest') {
+      sorted.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0))
+    } else if (sortBy === 'price-asc') {
+      sorted.sort((a, b) => (a.price || 0) - (b.price || 0))
+    } else if (sortBy === 'price-desc') {
+      sorted.sort((a, b) => (b.price || 0) - (a.price || 0))
+    } else if (sortBy === 'name') {
+      sorted.sort((a, b) => {
+        const numA = getModelNum(a)
+        const numB = getModelNum(b)
+        const baseA = (a.name || '').replace(/(?:Modèle|Modele|N°|#)\s*\d+/i, '').trim().toLowerCase()
+        const baseB = (b.name || '').replace(/(?:Modèle|Modele|N°|#)\s*\d+/i, '').trim().toLowerCase()
+        if (baseA === baseB && numA !== numB) {
+          return numA - numB
+        }
+        return (a.name || '').localeCompare(b.name || '', 'fr', { numeric: true })
+      })
+    }
+
+    return { products: sorted, showGoldCard: needsGoldCard }
+  }, [category, color, dimension, aiQuery, sortBy, dbProducts])
 
   const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE) || 1
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
@@ -959,6 +1120,7 @@ export function CatalogPage() {
         rawCats.push({ id: 998, name: 'Porte Bijoux', description: 'Porte-bijoux et présentoirs artisanaux' } as any)
       }
       setDbCategories(rawCats)
+      setLoading(false)
     } catch (err) {
       console.error("[Catalog] Erreur lors du chargement des créations:", err)
       if (retryCount < 2) {
@@ -966,7 +1128,6 @@ export function CatalogPage() {
         return
       }
       setLoadError(true)
-    } finally {
       setLoading(false)
     }
   }
@@ -1005,174 +1166,7 @@ export function CatalogPage() {
     ])
   }, [dbProducts, dbCategories])
 
-  useEffect(() => {
-    const source = dbProducts
-    let filtered = source
-    let needsGoldCard = false
-    let isAiSearchActive = false
 
-    if (aiQuery.trim() !== '') {
-      isAiSearchActive = true
-      const q = aiQuery.trim().toLowerCase()
-      const stopWords = ['je', 'cherche', 'voudrais', 'veux', 'veut', 'un', 'une', 'des', 'le', 'la', 'les', 'de', 'en', 'avec', 'pour', 'et', 'ou', 'est', 'que', 'qui', 'dans', 'sur']
-      const keywords = q.split(/\s+/).filter(word => word.length > 2 && !stopWords.includes(word))
-      const searchTerms = keywords.length > 0 ? keywords : [q]
-
-      let perfectMatches = filtered.filter(p => {
-        return searchTerms.every(term => {
-          const matchesName = isFuzzyMatch(term, p.name)
-          const matchesDesc = isFuzzyMatch(term, p.description)
-          const matchesCat = isFuzzyMatch(term, p.category?.name)
-          const matchesColor = isFuzzyMatch(term, p.color)
-          const matchesVariant = p.images?.some(img => isFuzzyMatch(term, img.colorLabel))
-          return matchesName || matchesDesc || matchesCat || matchesColor || matchesVariant
-        })
-      })
-
-      if (perfectMatches.length > 0) {
-        filtered = perfectMatches
-        needsGoldCard = false
-      } else {
-        // No perfect match -> Show Gold Card, but fallback to partial matches if color matches
-        needsGoldCard = true
-        
-        // If a specific color keyword is in the query (e.g. "blanc"), enforce that returned products MUST match that color!
-        const colorWords = ['blanc', 'blanche', 'or', 'doré', 'dore', 'bleu', 'bleue', 'noyer', 'naturel', 'vert', 'verte', 'bordeaux', 'rose', 'gris', 'grise', 'noir', 'noire', 'rouge']
-        const typedColor = searchTerms.find(term => colorWords.includes(term))
-
-        let partialMatches = filtered.filter(p => {
-          if (typedColor) {
-            const matchesColor = isFuzzyMatch(typedColor, p.color) || p.images?.some(img => isFuzzyMatch(typedColor, img.colorLabel))
-            if (!matchesColor) return false
-          }
-          return searchTerms.some(term => {
-            const matchesName = isFuzzyMatch(term, p.name)
-            const matchesDesc = isFuzzyMatch(term, p.description)
-            const matchesCat = isFuzzyMatch(term, p.category?.name)
-            const matchesColor = isFuzzyMatch(term, p.color)
-            const matchesVariant = p.images?.some(img => isFuzzyMatch(term, img.colorLabel))
-            return matchesName || matchesDesc || matchesCat || matchesColor || matchesVariant
-          })
-        })
-
-        if (partialMatches.length > 0) {
-          filtered = partialMatches
-        } else {
-          filtered = []
-        }
-      }
-    }
-
-    if (category !== 'Tout') {
-      filtered = filtered.filter(p => p.category?.name?.toLowerCase() === category.toLowerCase())
-    }
-    if (color !== 'Tout') {
-      const targetColor = color.trim().toLowerCase()
-      filtered = filtered.filter(p => {
-        const matchesMain = matchColorFlexible(targetColor, p.color)
-        const matchesVariant = p.images?.some(img => matchColorFlexible(targetColor, img.colorLabel))
-        return matchesMain || matchesVariant
-      })
-    }
-    if (dimension !== 'Tout') {
-      filtered = filtered.filter(p => {
-        const dimStr = (p.dimensions || '').toLowerCase()
-        const targetDim = dimension.toLowerCase()
-        if (targetDim.includes('petit') && dimStr.includes('petit')) return true
-        if (targetDim.includes('moyen') && dimStr.includes('moyen')) return true
-        if (targetDim.includes('grand') && dimStr.includes('grand')) return true
-
-        const hasVariantDim = p.images?.some(img => {
-          const label = (img.colorLabel || '').toLowerCase()
-          return (targetDim.includes('petit') && label.includes('petit')) ||
-                 (targetDim.includes('moyen') && label.includes('moyen')) ||
-                 (targetDim.includes('grand') && label.includes('grand'))
-        })
-        if (hasVariantDim) return true
-
-        const numbers = dimStr.match(/\d+/g)
-        if (numbers && numbers.length > 0) {
-          const mainVal = parseInt(numbers[0])
-          if (targetDim.includes('petit')) return mainVal > 0 && mainVal < 80
-          if (targetDim.includes('moyen')) return mainVal >= 80 && mainVal <= 150
-          if (targetDim.includes('grand')) return mainVal > 150
-        }
-        return false
-      })
-    }
-
-    // Trigger gold custom creation card if color or dimension filter is active but no matching items exist
-    if (filtered.length === 0 && (color !== 'Tout' || dimension !== 'Tout') && !isAiSearchActive) {
-       needsGoldCard = true
-    }
-
-    let sorted = [...filtered]
-
-    const getColorRank = (p: Product) => {
-      const c = (p.color || '').toLowerCase()
-      const n = (p.name || '').toLowerCase()
-      if (c.includes('blanc') || c.includes('cérusé') || n.includes('blanc')) return 1
-      if (c.includes('or') || c.includes('doré') || c.includes('dore') || c.includes('jaune') || n.includes(' or ') || n.includes('doré') || n.startsWith('buffet or')) return 2
-      if (c.includes('noyer') || c.includes('naturel') || c.includes('bois') || n.includes('noyer')) return 3
-      if (c.includes('bleu') || n.includes('bleu')) return 4
-      return 5
-    }
-
-    const getSizeRank = (p: Product) => {
-      const d = (p.dimensions || '').toLowerCase()
-      const n = (p.name || '').toLowerCase()
-      if (d.includes('petit') || n.includes('petit')) return 1
-      if (d.includes('moyen') || n.includes('moyen')) return 2
-      if (d.includes('grand') || n.includes('grand')) return 3
-      return 4
-    }
-
-    const getModelNum = (p: Product) => {
-      const match = (p.name || '').match(/(?:Modèle|Modele|N°|#|\s)(\d+)/i)
-      return match ? parseInt(match[1], 10) : 999999
-    }
-
-    if (sortBy === 'featured') {
-      sorted.sort((a, b) => {
-        // Group by category if viewing all
-        const catA = (a.category?.name || '').toLowerCase()
-        const catB = (b.category?.name || '').toLowerCase()
-        if (category === 'Tout' && catA !== catB) {
-          return catA.localeCompare(catB)
-        }
-
-        // Within the same category: order strictly by Model number (Modèle 01, 02, 03... N)
-        const numA = getModelNum(a)
-        const numB = getModelNum(b)
-        if (numA !== numB) return numA - numB
-
-        const sizeDiff = getSizeRank(a) - getSizeRank(b)
-        if (sizeDiff !== 0) return sizeDiff
-
-        return (Number(a.id) || 0) - (Number(b.id) || 0)
-      })
-    } else if (sortBy === 'newest') {
-      sorted.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0))
-    } else if (sortBy === 'price-asc') {
-      sorted.sort((a, b) => (a.price || 0) - (b.price || 0))
-    } else if (sortBy === 'price-desc') {
-      sorted.sort((a, b) => (b.price || 0) - (a.price || 0))
-    } else if (sortBy === 'name') {
-      sorted.sort((a, b) => {
-        const numA = getModelNum(a)
-        const numB = getModelNum(b)
-        const baseA = (a.name || '').replace(/(?:Modèle|Modele|N°|#)\s*\d+/i, '').trim().toLowerCase()
-        const baseB = (b.name || '').replace(/(?:Modèle|Modele|N°|#)\s*\d+/i, '').trim().toLowerCase()
-        if (baseA === baseB && numA !== numB) {
-          return numA - numB
-        }
-        return (a.name || '').localeCompare(b.name || '', 'fr', { numeric: true })
-      })
-    }
-
-    setShowGoldCard(needsGoldCard)
-    setProducts(sorted)
-  }, [category, color, dimension, aiQuery, sortBy, dbProducts, loading])
 
   const activeFilterCount = [
     category !== 'Tout',
@@ -2076,14 +2070,20 @@ export function CatalogPage() {
         {/* Grid / Empty State */}
         <AnimatePresence mode="wait">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
+            <motion.div
+              key="catalog-loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center justify-center py-24 gap-3 text-center"
+            >
               <div className="size-10 animate-spin rounded-full border-4 border-[#E6A635]/20 border-t-[#E6A635]" />
               <p className="text-xs text-[#EAE4D9]/80 font-light tracking-wide">Chargement de nos créations d&apos;art...</p>
-            </div>
+            </motion.div>
           ) : products.length === 0 ? (
             loadError ? (
               <motion.div
-                key="load-error"
+                key="catalog-load-error"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -2104,7 +2104,7 @@ export function CatalogPage() {
               </motion.div>
             ) : (
               <motion.div
-                key="empty"
+                key="catalog-empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -2121,7 +2121,13 @@ export function CatalogPage() {
               </motion.div>
             )
           ) : (
-            <>
+            <motion.div
+              key="catalog-grid-wrapper"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
               {/* Anchor for smooth scroll back to top */}
               <div ref={gridTopRef} id="catalog-grid-start" className="scroll-mt-36 -mb-2" />
 
@@ -2259,24 +2265,24 @@ export function CatalogPage() {
                   </p>
                 </div>
               )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              {/* FLOATING SCROLL TO TOP BUTTON */}
-              <AnimatePresence>
-                {showScrollTop && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    type="button"
-                    onClick={scrollToGridTop}
-                    aria-label="Retour au début du catalogue"
-                    className="fixed bottom-6 right-6 z-40 size-11 rounded-full bg-[#241812]/95 hover:bg-[#3B271C] text-[#F2BD52] hover:text-white border border-[#E6A635]/50 shadow-[0_4px_25px_rgba(0,0,0,0.8)] backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
-                  >
-                    <ArrowUp className="size-5" />
-                  </motion.button>
-                )}
-              </AnimatePresence>
-            </>
+        {/* FLOATING SCROLL TO TOP BUTTON */}
+        <AnimatePresence>
+          {showScrollTop && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              type="button"
+              onClick={scrollToGridTop}
+              aria-label="Retour au début du catalogue"
+              className="fixed bottom-6 right-6 z-40 size-11 rounded-full bg-[#241812]/95 hover:bg-[#3B271C] text-[#F2BD52] hover:text-white border border-[#E6A635]/50 shadow-[0_4px_25px_rgba(0,0,0,0.8)] backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+            >
+              <ArrowUp className="size-5" />
+            </motion.button>
           )}
         </AnimatePresence>
       </div>
