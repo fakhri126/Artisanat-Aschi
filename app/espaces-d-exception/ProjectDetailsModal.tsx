@@ -139,7 +139,7 @@ export default function ProjectDetailsModal({
                     })()
                     const posterUrl = (project.gallery && project.gallery[0]?.split(',')[0]?.trim()) ||
                       (project.image ? project.image.split(',')[0]?.trim() : '') ||
-                      '/project-hotel.png'
+                      '/placeholder.jpg'
 
                     return (
                       <video
@@ -194,7 +194,7 @@ export default function ProjectDetailsModal({
                   {(() => {
                     const modalImgSrc = (project.gallery && project.gallery[typeof modalActiveView === 'number' ? modalActiveView : 0]?.split(',')[0]?.trim()) ||
                       (project.image ? project.image.split(',')[0].trim() : '') ||
-                      '/project-hotel.png'
+                      '/placeholder.jpg'
                     return (
                       <Image
                         src={modalImgSrc}
@@ -212,7 +212,7 @@ export default function ProjectDetailsModal({
                           if (filename && modalImgSrc.startsWith('http')) {
                             e.currentTarget.src = `/uploads/${filename}`
                           } else {
-                            e.currentTarget.src = '/project-hotel.png'
+                            e.currentTarget.src = '/placeholder.jpg'
                           }
                         }}
                       />
@@ -269,7 +269,7 @@ export default function ProjectDetailsModal({
                 {hasVid && (() => {
                   const thumbPoster = (project.gallery && project.gallery[0]?.split(',')[0]?.trim()) ||
                     (project.image ? project.image.split(',')[0]?.trim() : '') ||
-                    '/project-hotel.png'
+                    '/placeholder.jpg'
                   return (
                     <button
                       type="button"
@@ -324,7 +324,7 @@ export default function ProjectDetailsModal({
                           if (filename && thumbUrl.startsWith('http')) {
                             e.currentTarget.src = `/uploads/${filename}`
                           } else {
-                            e.currentTarget.src = '/project-hotel.png'
+                            e.currentTarget.src = '/placeholder.jpg'
                           }
                         }}
                       />

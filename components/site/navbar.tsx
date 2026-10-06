@@ -38,7 +38,7 @@ const SERVICES = [
   {
     title: 'Projets Clés en Main (Espaces d\'Exception)',
     description: 'Aménagement monumental complet pour Hôtels 5★, Palaces, Riads et Demeures de prestige.',
-    image: '/project-hotel.png',
+    image: '/images/bg-espace-exception.jpg',
     href: '/espaces-d-exception',
     cta: 'Découvrir nos réalisations'
   },

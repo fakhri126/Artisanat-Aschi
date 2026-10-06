@@ -189,7 +189,7 @@ export default function ProjectsTab() {
           {filteredProjects.map((project) => {
             const displayCat = CATEGORY_LABELS[project.category] || project.category
             const projectPhotos = getProjectPhotos(project)
-            const coverPhoto = projectPhotos[0] || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
+            const coverPhoto = projectPhotos[0] || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/placeholder.jpg'
             const video = project.videoUrl || (project as any).video
 
             return (

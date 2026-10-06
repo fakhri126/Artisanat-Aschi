@@ -86,87 +86,6 @@ const PROCESS_STEPS = [
 ]
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/*  DEFAULT PRESTIGE PROJECTS FALLBACK                                        */
-/* ═══════════════════════════════════════════════════════════════════════════ */
-const DEFAULT_PROJECTS: ProjectItem[] = [
-  {
-    id: 1,
-    title: 'Hôtel Dar El Jeld',
-    category: 'Hôtels & Palaces',
-    filterType: 'hotel',
-    imageUrl: '/project-hotel.png',
-    gallery: ['/project-hotel.png', '/gallery-1.png', '/gallery-2.png', '/porte.png'],
-    description: 'Aménagement monumental complet de l\'établissement de luxe. Portes cochères sculptées en noyer massif, habillages muraux géométriques d\'inspiration andalouse, et mobilier de salon d\'exception.',
-    location: 'Médina de Tunis',
-    details: 'Portes monumentales, Boiseries d\'art, Salons de réception, Luminaires',
-    detailsList: ['Portes monumentales', 'Boiseries d\'art', 'Salons de réception', 'Luminaires'],
-    materials: 'Noyer noble, bois séché & finitions d\'art',
-    videoUrl: '/Video.mp4',
-    video: '/Video.mp4',
-  },
-  {
-    id: 2,
-    title: 'Maison d\'Hôtes Dar Said',
-    category: 'Maisons d\'Hôtes',
-    filterType: 'guesthouse',
-    imageUrl: '/project-guesthouse.png',
-    gallery: ['/project-guesthouse.png', '/gallery-3.png', '/gallery-4.png', '/miroir.png'],
-    description: 'Conception sur-mesure d\'éléments de mobilier pour les suites de prestige. Lits à baldaquin sculptés, commodes incrustées de laiton poli et cadres de miroirs dorés à la feuille d\'or.',
-    location: 'Sidi Bou Saïd',
-    details: 'Mobilier de chambre, Miroirs sculptés, Incrustations laiton, Consoles',
-    detailsList: ['Mobilier de chambre', 'Miroirs sculptés', 'Incrustations laiton', 'Consoles'],
-    materials: 'Noyer noble, bois séché & finitions d\'art',
-    videoUrl: '/test-video.mp4',
-    video: '/test-video.mp4',
-  },
-  {
-    id: 3,
-    title: 'Villa de Maître Carthage',
-    category: 'Villas & Résidences Privées',
-    filterType: 'villa',
-    imageUrl: '/project-villa.png',
-    gallery: ['/project-villa.png', '/gallery-1.png', '/creation-unique.png'],
-    description: 'Création intégrale de menuiserie d\'art pour une résidence privée de prestige. Portes monumentales extérieures cloutées, plafonds à caissons en noyer et habillages muraux sculptés.',
-    location: 'Carthage',
-    details: 'Portes monumentales, Plafonds à caissons, Moucharabiehs, Mobilier de salon',
-    detailsList: ['Portes monumentales', 'Plafonds à caissons', 'Moucharabiehs', 'Mobilier de salon'],
-    materials: 'Noyer noble, bois séché & finitions d\'art',
-    videoUrl: '/Video.mp4',
-    video: '/Video.mp4',
-  },
-  {
-    id: 4,
-    title: 'Résidence Panorama Marina',
-    category: 'Projets Immobiliers',
-    filterType: 'immobilier',
-    imageUrl: '/creation-model.png',
-    gallery: ['/creation-model.png', '/project-hotel.png', '/gallery-2.png'],
-    description: 'Conception et fabrication en série sur-mesure pour un programme immobilier de grand standing. Portes palières sculptées, agencements de halls d\'entrée et claustras décoratifs.',
-    location: 'Gammarth',
-    details: 'Portes de standing, Habillage hall d\'accueil, Claustras et moucharabiehs',
-    detailsList: ['Portes de standing', 'Habillage hall d\'accueil', 'Claustras et moucharabiehs'],
-    materials: 'Noyer noble, bois séché & finitions d\'art',
-    videoUrl: '/test-video.mp4',
-    video: '/test-video.mp4',
-  },
-  {
-    id: 5,
-    title: 'Bureaux Corporate & Restaurant L\'Ébène',
-    category: 'Espaces Professionnels & Commerciaux',
-    filterType: 'pro_commercial',
-    imageUrl: '/project-restaurant.png',
-    gallery: ['/project-restaurant.png', '/gallery-5.png', '/gallery-6.png', '/buffet.png'],
-    description: 'Aménagement prestigieux de la salle du conseil d\'administration et de l\'espace restaurant lounge. Table de réunion de 6 mètres en chêne massif et habillage acoustique sculpté.',
-    location: 'Les Berges du Lac, Tunis',
-    details: 'Table de conférence, Comptoir de bar d\'art, Habillages acoustiques',
-    detailsList: ['Table de conférence', 'Comptoir de bar d\'art', 'Habillages acoustiques'],
-    materials: 'Noyer noble, bois séché & finitions d\'art',
-    videoUrl: '/test-video.mp4',
-    video: '/test-video.mp4',
-  }
-]
-
-/* ═══════════════════════════════════════════════════════════════════════════ */
 /*  GRAND PROJET VEDETTE (Affiché en grand à gauche)                         */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 function FeaturedLargeProjectCard({
@@ -178,12 +97,12 @@ function FeaturedLargeProjectCard({
   index?: number
   onOpen: (p: ProjectItem) => void
 }) {
-  let rawDisplay = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
+  let rawDisplay = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/placeholder.jpg'
   if (rawDisplay.match(/\.(mp4|webm|ogg|mov)$/i)) {
     const fallbackPhoto = project.gallery?.find((g) => !g.match(/\.(mp4|webm|ogg|mov)$/i))
-    rawDisplay = (fallbackPhoto ? fallbackPhoto.split(',')[0].trim() : '') || '/project-hotel.png'
+    rawDisplay = (fallbackPhoto ? fallbackPhoto.split(',')[0].trim() : '') || '/placeholder.jpg'
   }
-  const displayImage = formatImageUrl(rawDisplay, '/project-hotel.png')
+  const displayImage = formatImageUrl(rawDisplay, '/placeholder.jpg')
   const hasVideo = Boolean(project.videoUrl || project.video)
 
   return (
@@ -270,12 +189,12 @@ function BentoProjectCard({
   onOpen: (p: ProjectItem) => void
   isWide?: boolean
 }) {
-  let rawDisplay = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
+  let rawDisplay = (project.gallery && project.gallery[0]) || (project.imageUrl ? project.imageUrl.split(',')[0].trim() : '') || '/placeholder.jpg'
   if (rawDisplay.match(/\.(mp4|webm|ogg|mov)$/i)) {
     const fallbackPhoto = project.gallery?.find((g) => !g.match(/\.(mp4|webm|ogg|mov)$/i))
-    rawDisplay = (fallbackPhoto ? fallbackPhoto.split(',')[0].trim() : '') || '/project-hotel.png'
+    rawDisplay = (fallbackPhoto ? fallbackPhoto.split(',')[0].trim() : '') || '/placeholder.jpg'
   }
-  const displayImage = formatImageUrl(rawDisplay, '/project-hotel.png')
+  const displayImage = formatImageUrl(rawDisplay, '/placeholder.jpg')
   const hasVideo = Boolean(project.videoUrl || project.video)
 
   return (
@@ -329,7 +248,7 @@ function BentoProjectCard({
 }
 
 export function Projects() {
-  const [projects, setProjects] = useState<ProjectItem[]>(DEFAULT_PROJECTS)
+  const [projects, setProjects] = useState<ProjectItem[]>([])
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [lightboxProject, setLightboxProject] = useState<{ images: string[]; currentIndex: number; title: string } | null>(null)
@@ -382,7 +301,7 @@ export function Projects() {
               }
             } catch (_) {}
 
-            const primaryImg = galleryImgs[0] || (p.imageUrl ? p.imageUrl.split(',')[0].trim() : '') || '/project-hotel.png'
+            const primaryImg = galleryImgs[0] || (p.imageUrl ? p.imageUrl.split(',')[0].trim() : '') || '/placeholder.jpg'
             if (galleryImgs.length === 0) {
               galleryImgs = [primaryImg]
             }
@@ -750,7 +669,7 @@ export function Projects() {
                         })()
                         const posterUrl = (selectedProject.gallery && selectedProject.gallery[0]?.split(',')[0]?.trim()) ||
                           (selectedProject.imageUrl ? selectedProject.imageUrl.split(',')[0]?.trim() : '') ||
-                          '/project-hotel.png'
+                          '/placeholder.jpg'
 
                         return (
                           <video
@@ -806,8 +725,8 @@ export function Projects() {
                       {(() => {
                         const rawImg = (selectedProject.gallery && selectedProject.gallery[typeof modalActiveView === 'number' ? modalActiveView : 0]?.split(',')[0]?.trim()) ||
                           (selectedProject.imageUrl ? selectedProject.imageUrl.split(',')[0].trim() : '') ||
-                          '/project-hotel.png'
-                        const modalImg = formatImageUrl(rawImg, '/project-hotel.png')
+                          '/placeholder.jpg'
+                        const modalImg = formatImageUrl(rawImg, '/placeholder.jpg')
                         return (
                           <Image
                             src={modalImg}
@@ -825,7 +744,7 @@ export function Projects() {
                               if (filename && modalImg.startsWith('http')) {
                                 e.currentTarget.src = `/uploads/${filename}`
                               } else {
-                                e.currentTarget.src = '/project-hotel.png'
+                                e.currentTarget.src = '/placeholder.jpg'
                               }
                             }}
                           />
@@ -882,7 +801,7 @@ export function Projects() {
                     {(selectedProject.video || selectedProject.videoUrl) && (() => {
                       const thumbPoster = (selectedProject.gallery && selectedProject.gallery[0]?.split(',')[0]?.trim()) ||
                         (selectedProject.imageUrl ? selectedProject.imageUrl.split(',')[0]?.trim() : '') ||
-                        '/project-hotel.png'
+                        '/placeholder.jpg'
                       return (
                         <button
                           type="button"
@@ -915,7 +834,7 @@ export function Projects() {
                     {/* Miniatures des Photos */}
                     {selectedProject.gallery && selectedProject.gallery.map((img: string, idx: number) => {
                       const cleanUrl = img.split(',')[0].trim()
-                      const thumbUrl = formatImageUrl(cleanUrl, '/project-hotel.png')
+                      const thumbUrl = formatImageUrl(cleanUrl, '/placeholder.jpg')
                       return (
                         <button
                           key={idx}
@@ -938,7 +857,7 @@ export function Projects() {
                               if (filename && cleanUrl.startsWith('http')) {
                                 e.currentTarget.src = `/uploads/${filename}`
                               } else {
-                                e.currentTarget.src = '/project-hotel.png'
+                                e.currentTarget.src = '/placeholder.jpg'
                               }
                             }}
                           />

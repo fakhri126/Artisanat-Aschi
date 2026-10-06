@@ -12,27 +12,6 @@ import { Reveal } from '@/components/site/reveal'
 
 import { formatImageUrl } from '@/lib/utils'
 
-const DEMO_RELOOKINGS: Relooking[] = [
-  {
-    id: 6,
-    title: "Banc Traditionnel Restauré en Blanc Patiné & Incrustations de Jelliz",
-    category: "Mobilier d'Art",
-    description: "Redonnez une seconde vie à votre intérieur avec ce banc artisanal en bois massif entièrement rénové. Sublimé par une finition blanc vieilli à effet patiné, il intègre des détails sculptés raffinés et des carreaux de zellige traditionnels.",
-    imageAvantUrl: "/images/relooking/banc-avant.jpg",
-    imageApresUrl: "/images/relooking/banc-apres.jpg",
-    createdDate: "2026-09-27"
-  },
-  {
-    id: 5,
-    title: "Buffet Vaisselier Traditionnel Restauré – Bois Naturel & Finitions Vert Émeraude",
-    category: "Mobilier d'Art",
-    description: "Ce vaisselier en bois massif à deux corps a été entièrement remis en valeur avec un décapage soigné révélant les veines chaleureuses du bois brut.",
-    imageAvantUrl: "/images/relooking/vaisselier-avant.jpg",
-    imageApresUrl: "/images/relooking/vaisselier-apres.jpg",
-    createdDate: "2026-09-27"
-  }
-]
-
 function BeforeAfterItem({ item }: { item: Relooking }) {
   const [sliderPosition, setSliderPosition] = useState(50) // 0 to 100
   const [isDragging, setIsDragging] = useState(false)
@@ -70,8 +49,8 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
     }
   }, [isDragging])
 
-  const apresSrc = formatImageUrl(item.imageApresUrl, '/images/relooking/banc-apres.jpg')
-  const avantSrc = formatImageUrl(item.imageAvantUrl, '/images/relooking/banc-avant.jpg')
+  const apresSrc = formatImageUrl(item.imageApresUrl, '/placeholder.jpg')
+  const avantSrc = formatImageUrl(item.imageAvantUrl, '/placeholder.jpg')
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-center bg-[#3B271C]/90 rounded-3xl p-5 sm:p-7 md:p-8 border border-[#E6A635]/35 hover:border-[#E6A635]/75 backdrop-blur-xl shadow-[0_15px_35px_rgba(0,0,0,0.65)] transition-all duration-300">
@@ -100,7 +79,7 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
               const target = e.currentTarget
               if (!target.dataset.fallback) {
                 target.dataset.fallback = '1'
-                target.src = '/images/relooking/banc-apres.jpg'
+                target.src = '/placeholder.jpg'
               }
             }}
           />
@@ -125,7 +104,7 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
               const target = e.currentTarget
               if (!target.dataset.fallback) {
                 target.dataset.fallback = '1'
-                target.src = '/images/relooking/banc-avant.jpg'
+                target.src = '/placeholder.jpg'
               }
             }}
           />
@@ -202,7 +181,6 @@ export default function RelookingPage() {
   }, [])
 
   const validDbItems = items.filter(i => (i.imageAvantUrl && i.imageAvantUrl.trim() !== '') || (i.imageApresUrl && i.imageApresUrl.trim() !== ''))
-  const displayItems = validDbItems.length > 0 ? validDbItems : DEMO_RELOOKINGS
 
   return (
     <main className="relative w-full min-h-screen flex flex-col text-[#F7F4EE] overflow-x-hidden bg-[#241812]">
@@ -240,8 +218,23 @@ export default function RelookingPage() {
                 <div className="text-center py-16 text-[#F2BD52] animate-pulse">
                   Chargement de nos restaurations...
                 </div>
+              ) : validDbItems.length === 0 ? (
+                <div className="text-center py-14 px-6 bg-[#3B271C]/75 rounded-3xl border border-[#E6A635]/30 max-w-xl mx-auto backdrop-blur-md">
+                  <Hammer className="size-8 text-[#E6A635] mx-auto mb-3" />
+                  <h3 className="font-heading text-lg text-white mb-2 font-medium">Vous avez un meuble ancien à restaurer ?</h3>
+                  <p className="text-xs text-[#EAE4D9]/80 mb-5 leading-relaxed">
+                    Nos maîtres ébénistes redonnent éclat et noblesse à vos commodes, vaisseliers, consoles et tables de famille.
+                  </p>
+                  <Link
+                    href="/contact"
+                    className="btn-sheen inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow-md"
+                  >
+                    <span>Demander une restauration</span>
+                    <ArrowRight className="size-3.5" />
+                  </Link>
+                </div>
               ) : (
-                displayItems.map(item => (
+                validDbItems.map(item => (
                   <Reveal key={item.id}>
                     <BeforeAfterItem item={item} />
                   </Reveal>

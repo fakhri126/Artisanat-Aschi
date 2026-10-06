@@ -27,7 +27,7 @@ export default function ProjectModal({
     category: project?.category || 'hotel',
     location: project?.location || '',
     details: project?.details || 'Portes monumentales, Boiseries d\'art',
-    imageUrl: initialPhotos[0] || project?.imageUrl || '/project-hotel.png',
+    imageUrl: initialPhotos[0] || project?.imageUrl || '',
     videoUrl: project?.videoUrl || (project as any)?.video || '',
     gallery: initialPhotos
   })
@@ -63,7 +63,7 @@ export default function ProjectModal({
       return
     }
 
-    const primaryImg = galleryUrls[0] || formData.imageUrl || '/project-hotel.png'
+    const primaryImg = galleryUrls[0] || formData.imageUrl || ''
     const cleanPayload = {
       title: formData.title.trim(),
       description: formData.description?.trim() || '',
@@ -171,14 +171,14 @@ export default function ProjectModal({
               imageUrls={galleryUrls}
               onAdd={(url) => {
                 setGalleryUrls(prev => [...prev, url])
-                if (!formData.imageUrl || formData.imageUrl === '/project-hotel.png') {
+                if (!formData.imageUrl) {
                   setFormData(prev => ({ ...prev, imageUrl: url }))
                 }
               }}
               onRemove={(idx) => {
                 setGalleryUrls(prev => {
                   const next = prev.filter((_, i) => i !== idx)
-                  setFormData(f => ({ ...f, imageUrl: next[0] || '/project-hotel.png' }))
+                  setFormData(f => ({ ...f, imageUrl: next[0] || '' }))
                   return next
                 })
               }}

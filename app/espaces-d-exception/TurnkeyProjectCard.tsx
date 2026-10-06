@@ -37,10 +37,10 @@ export default function TurnkeyProjectCard({
     const cleaned = list.flatMap((s: string) => s.split(',').map((x: string) => x.trim())).filter(Boolean)
     // Ne garder STRICTEMENT que les images (exclure les fichiers vidéos)
     const photosOnly = cleaned.filter((s: string) => !/\.(mp4|webm|ogg|mov)$/i.test(s.split('?')[0].split('#')[0]))
-    return photosOnly.length > 0 ? photosOnly : ['/project-hotel.png']
+    return photosOnly.length > 0 ? photosOnly : ['/placeholder.jpg']
   }, [project])
 
-  const coverPhotoSrc = allPhotos[0] || '/project-hotel.png'
+  const coverPhotoSrc = allPhotos[0] || '/placeholder.jpg'
   const [imgSrc, setImgSrc] = useState(coverPhotoSrc)
 
   useEffect(() => {
@@ -68,8 +68,8 @@ export default function TurnkeyProjectCard({
             if (filename && imgSrc.startsWith('http')) {
               // Repli transparent sur la copie locale ultra-rapide si le réseau Supabase traîne
               setImgSrc(`/uploads/${filename}`)
-            } else if (imgSrc !== '/project-hotel.png') {
-              setImgSrc('/project-hotel.png')
+            } else if (imgSrc !== '/placeholder.jpg') {
+              setImgSrc('/placeholder.jpg')
             }
           }}
         />

@@ -576,7 +576,7 @@ export const adminApi = {
       category: category || 'hotel',
       location: location || '',
       details: details || '',
-      imageUrl: imageUrl || '/project-hotel.png',
+      imageUrl: imageUrl || '',
       videoUrl: videoUrl || video || ''
     };
     return fetchApi<Project>('/admin/projects', {
@@ -592,7 +592,7 @@ export const adminApi = {
       category: category || 'hotel',
       location: location || '',
       details: details || '',
-      imageUrl: imageUrl || '/project-hotel.png',
+      imageUrl: imageUrl || '',
       videoUrl: videoUrl || video || ''
     };
     return fetchApi<Project>(`/admin/projects/${id}`, {
