@@ -15,7 +15,7 @@ import {
   MessageCircle,
   ArrowRight
 } from 'lucide-react'
-import { motion, useInView } from 'framer-motion'
+import { useInView } from 'framer-motion'
 import { Reveal } from './reveal'
 
 export function MediaSection() {
@@ -119,7 +119,16 @@ export function MediaSection() {
         setIsPlaying(true)
       }).catch((err) => {
         console.warn('Playback prevented:', err)
-        setIsPlaying(false)
+        // Tentative de lecture en mode silencieux si le navigateur bloque le son
+        if (videoRef.current) {
+          videoRef.current.muted = true
+          setIsMuted(true)
+          videoRef.current.play().then(() => {
+            setIsPlaying(true)
+          }).catch(() => {
+            setIsPlaying(false)
+          })
+        }
       })
     }
   }
@@ -265,7 +274,7 @@ export function MediaSection() {
                   src={mediaData.videoUrl || "/video-media-aschi.mp4"}
                   muted={isMuted}
                   playsInline
-                  preload="auto"
+                  preload="metadata"
                   onTimeUpdate={handleTimeUpdate}
                   onLoadedMetadata={handleLoadedMetadata}
                   onEnded={handleVideoEnded}
@@ -274,7 +283,7 @@ export function MediaSection() {
 
                 {/* Bouton de lecture central élégant (affiché uniquement quand la vidéo est en pause) */}
                 {!isPlaying && (
-                  <div className="absolute inset-0 m-auto size-16 sm:size-20 rounded-full bg-gradient-to-tr from-[#C78318] via-[#E6A635] to-[#F3C45E] text-[#1A110B] flex items-center justify-center shadow-[0_0_35px_rgba(230,166,53,0.7)] transform transition-transform duration-300 hover:scale-110 z-20 cursor-pointer pointer-events-auto">
+                  <div className="absolute inset-0 m-auto size-16 sm:size-20 rounded-full bg-gradient-to-tr from-[#C78318] via-[#E6A635] to-[#F3C45E] text-[#1A110B] flex items-center justify-center shadow-[0_0_35px_rgba(230,166,53,0.7)] transform transition-transform duration-300 hover:scale-110 z-20 pointer-events-none">
                     <Play className="size-7 sm:size-9 fill-current ml-1" />
                   </div>
                 )}

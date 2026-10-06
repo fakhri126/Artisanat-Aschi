@@ -17,7 +17,7 @@ export function VideoReel() {
   const [hasLoaded, setHasLoaded] = useState(false)
 
   const [reelData, setReelData] = useState({
-    videoUrl: '/uploads/1787567246786-WhatsAppVideo2026-08-11at15.33.26.mp4',
+    videoUrl: '/uploads/1791058503119-WhatsApp_Video_2026-10-03_at_06.20.12.mp4',
     badge: "Témoignage & Gestes d'Atelier",
     title: "L'Expérience Aschi en Vidéo",
     description: "Découvrez en vidéo la passion de nos maîtres ébénistes, la noblesse du travail du noyer massif et la satisfaction de nos clients d'exception."
@@ -145,7 +145,7 @@ export function VideoReel() {
               >
                 <video
                   ref={videoRef}
-                  src={hasLoaded ? (reelData.videoUrl || "/uploads/1787567246786-WhatsAppVideo2026-08-11at15.33.26.mp4") : undefined}
+                  src={hasLoaded ? (reelData.videoUrl || "/uploads/1791058503119-WhatsApp_Video_2026-10-03_at_06.20.12.mp4") : undefined}
                   poster="/images/raw-sculptures.jpg"
                   muted={isMuted}
                   preload="none"

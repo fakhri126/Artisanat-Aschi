@@ -10,7 +10,7 @@ const reelFilePath = path.join(process.cwd(), 'public', 'reel-data.json')
 
 const DEFAULT_VIDEOS = {
   temoignage: {
-    videoUrl: '/uploads/1787567246786-WhatsAppVideo2026-08-11at15.33.26.mp4',
+    videoUrl: '/uploads/1791058503119-WhatsApp_Video_2026-10-03_at_06.20.12.mp4',
     badge: "Témoignage & Gestes d'Atelier",
     title: "L'Expérience Aschi en Vidéo",
     subtitle: "Atelier Familial & Réalisations d'Exception",
