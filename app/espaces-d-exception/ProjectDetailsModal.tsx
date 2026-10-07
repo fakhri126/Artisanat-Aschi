@@ -181,7 +181,6 @@ export default function ProjectDetailsModal({
               </div>
             </div>
 
-            {/* ── LE GRAND ÉCRAN CINÉMATIQUE ── */}
             <div className="relative w-full aspect-video min-h-[220px] sm:min-h-[320px] lg:min-h-[440px] xl:min-h-[500px] lg:flex-1 rounded-xl sm:rounded-2xl overflow-hidden border border-[#E6A635]/45 bg-[#0D0805] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group/media shrink-0">
               {modalActiveView === 'video' && hasVid ? (
                 <>
@@ -248,7 +247,7 @@ export default function ProjectDetailsModal({
                       if (filename && activePhotoSrc.startsWith('http')) {
                         e.currentTarget.src = `/uploads/${filename}`
                       } else {
-                        e.currentTarget.src = '/project-hotel.png'
+                        e.currentTarget.src = '/placeholder.jpg'
                       }
                     }}
                   />
@@ -327,7 +326,7 @@ export default function ProjectDetailsModal({
 
                 {/* Miniatures des Photos */}
                 {galleryPhotos.map((img: string, idx: number) => {
-                  const thumbUrl = formatImageUrl(img, '/project-hotel.png')
+                  const thumbUrl = formatImageUrl(img, '/placeholder.jpg')
                   const isActive = modalActiveView === idx
                   return (
                     <button
@@ -351,7 +350,7 @@ export default function ProjectDetailsModal({
                           if (filename && thumbUrl.startsWith('http')) {
                             e.currentTarget.src = `/uploads/${filename}`
                           } else {
-                            e.currentTarget.src = '/project-hotel.png'
+                            e.currentTarget.src = '/placeholder.jpg'
                           }
                         }}
                       />

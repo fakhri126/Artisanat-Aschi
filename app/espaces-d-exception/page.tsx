@@ -8,7 +8,8 @@ import { Footer } from '@/components/site/footer'
 import { Reveal } from '@/components/site/reveal'
 import { MobileFloatingVIP } from '@/components/site/mobile-floating-vip'
 import { publicApi } from '@/lib/api'
-import { FILTER_TYPES, normalizeCategory, PROJECTS } from './constants'
+import { formatImageUrl } from '@/lib/utils'
+import { FILTER_TYPES, normalizeCategory } from './constants'
 import ProjectRequestForm from './ProjectRequestForm'
 import TurnkeyProjectCard from './TurnkeyProjectCard'
 import ProjectLightbox, { LightboxData } from './ProjectLightbox'
@@ -17,13 +18,15 @@ import ProjectDetailsModal from './ProjectDetailsModal'
 export default function TurnkeyProjectsPage() {
   const [filter, setFilter] = useState('all')
   const [formEspace, setFormEspace] = useState('')
-  const [liveProjects, setLiveProjects] = useState<any[]>(PROJECTS)
+  const [liveProjects, setLiveProjects] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [selectedProject, setSelectedProject] = useState<any | null>(null)
   const [lightboxProject, setLightboxProject] = useState<LightboxData | null>(null)
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
+        setLoading(true)
         const data = await publicApi.getProjects()
         if (Array.isArray(data)) {
           const mapped = data.map((p) => {
@@ -48,17 +51,13 @@ export default function TurnkeyProjectsPage() {
               }
             } catch (_) {}
 
-            if (galleryImgs.length === 0) {
-              galleryImgs = ['/project-hotel.png']
-            }
-
             return {
               id: p.id,
               title: p.title,
               location: p.location || 'Tunisie',
               type: normType,
               category: p.category || 'Projet Clé en Main',
-              image: galleryImgs[0] || p.imageUrl || '/project-hotel.png',
+              image: galleryImgs[0] || p.imageUrl || '/placeholder.jpg',
               description: p.description || '',
               details: p.details ? p.details.split(',').map(d => d.trim()).filter(Boolean) : ["Aménagement d'artisanat d'art"],
               gallery: galleryImgs,
@@ -71,6 +70,9 @@ export default function TurnkeyProjectsPage() {
         }
       } catch (err) {
         console.error('Error fetching dynamic projects:', err)
+        setLiveProjects([])
+      } finally {
+        setLoading(false)
       }
     }
     fetchProjects()
@@ -218,7 +220,12 @@ export default function TurnkeyProjectsPage() {
           {/* Grille des Réalisations */}
           <div className="w-full mb-20 sm:mb-28">
             <AnimatePresence mode="wait">
-              {filteredProjects.length === 0 ? (
+              {loading ? (
+                <div key="loading" className="text-center py-20 text-[#F2BD52] animate-pulse">
+                  <Sparkles className="size-6 text-[#E6A635] mx-auto mb-3 animate-spin" />
+                  <p className="text-sm font-medium tracking-wide">Chargement de nos réalisations d&apos;exception...</p>
+                </div>
+              ) : filteredProjects.length === 0 ? (
                 <motion.div
                   key="empty"
                   initial={{ opacity: 0 }}

@@ -724,7 +724,6 @@ export function CatalogPage() {
   const ITEMS_PER_PAGE = 12
 
   const [dbProducts, setDbProducts] = useState<Product[]>([])
-  const [dbCategories, setDbCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
@@ -732,37 +731,10 @@ export function CatalogPage() {
   const [colorFilterOpen, setColorFilterOpen] = useState(true)
   const [hoveredId, setHoveredId] = useState<number | null>(null)
 
-  // Derive dynamic categories synchronously from actual products & DB categories
-  const categories = useMemo(() => {
-    const counts: Record<string, number> = {}
-
-    // Count products per actual category
-    dbProducts.forEach(p => {
-      const catName = p.category?.name?.trim()
-      if (catName) {
-        counts[catName] = (counts[catName] || 0) + 1
-      }
-    })
-
-    // Only display categories that actually contain creations in the catalogue
-    const activeCatNames = Object.keys(counts).filter(catName => counts[catName] > 0)
-
-    const dynamicCategories = activeCatNames.map(catName => ({
-      id: catName,
-      label: catName,
-      icon: getCategoryIcon(catName),
-      count: counts[catName]
-    }))
-
-    return [
-      { id: 'Tout', label: 'Tout', icon: Grid2X2, count: dbProducts.length },
-      ...dynamicCategories
-    ]
-  }, [dbProducts])
-
-  // Derive filtered and sorted products synchronously via useMemo
+  // Synchronous derivation of filtered and sorted products via useMemo (prevents empty lag frames)
   const { products, showGoldCard } = useMemo(() => {
-    let filtered = dbProducts
+    const source = dbProducts
+    let filtered = source
     let needsGoldCard = false
     let isAiSearchActive = false
 
@@ -788,10 +760,7 @@ export function CatalogPage() {
         filtered = perfectMatches
         needsGoldCard = false
       } else {
-        // No perfect match -> Show Gold Card, but fallback to partial matches if color matches
         needsGoldCard = true
-        
-        // If a specific color keyword is in the query (e.g. "blanc"), enforce that returned products MUST match that color!
         const colorWords = ['blanc', 'blanche', 'or', 'doré', 'dore', 'bleu', 'bleue', 'noyer', 'naturel', 'vert', 'verte', 'bordeaux', 'rose', 'gris', 'grise', 'noir', 'noire', 'rouge']
         const typedColor = searchTerms.find(term => colorWords.includes(term))
 
@@ -819,7 +788,7 @@ export function CatalogPage() {
     }
 
     if (category !== 'Tout') {
-      filtered = filtered.filter(p => p.category?.name?.toLowerCase() === category.toLowerCase())
+      filtered = filtered.filter(p => (p.category?.name?.trim().toLowerCase() || '') === category.trim().toLowerCase())
     }
     if (color !== 'Tout') {
       const targetColor = color.trim().toLowerCase()
@@ -856,7 +825,6 @@ export function CatalogPage() {
       })
     }
 
-    // Trigger gold custom creation card if color or dimension filter is active but no matching items exist
     if (filtered.length === 0 && (color !== 'Tout' || dimension !== 'Tout') && !isAiSearchActive) {
        needsGoldCard = true
     }
@@ -889,14 +857,12 @@ export function CatalogPage() {
 
     if (sortBy === 'featured') {
       sorted.sort((a, b) => {
-        // Group by category if viewing all
         const catA = (a.category?.name || '').toLowerCase()
         const catB = (b.category?.name || '').toLowerCase()
         if (category === 'Tout' && catA !== catB) {
           return catA.localeCompare(catB)
         }
 
-        // Within the same category: order strictly by Model number (Modèle 01, 02, 03... N)
         const numA = getModelNum(a)
         const numB = getModelNum(b)
         if (numA !== numB) return numA - numB
@@ -926,11 +892,13 @@ export function CatalogPage() {
     }
 
     return { products: sorted, showGoldCard: needsGoldCard }
-  }, [dbProducts, category, color, dimension, aiQuery, sortBy])
+  }, [category, color, dimension, aiQuery, sortBy, dbProducts])
 
   const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE) || 1
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const paginatedProducts = products.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  
+  const [categories, setCategories] = useState<{ id: string; label: string; icon: any; count: number }[]>([])
   const carouselRef = useRef<HTMLDivElement>(null)
   const thumbCarouselRef = useRef<HTMLDivElement>(null)
   const gridTopRef = useRef<HTMLDivElement>(null)
@@ -1061,6 +1029,8 @@ export function CatalogPage() {
     setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id])
   }
 
+  const [dbCategories, setDbCategories] = useState<Category[]>([])
+
   const isHandleProduct = (p: Product) => {
     const catName = p.category?.name?.toLowerCase() || ''
     const name = p.name?.toLowerCase() || ''
@@ -1080,93 +1050,123 @@ export function CatalogPage() {
     )
   }
 
-  async function loadData() {
+  async function loadData(retryCount = 0) {
     setLoading(true)
     setLoadError(false)
-
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        console.log(`[Catalog] Chargement des créations (tentative ${attempt}/3)...`)
-        
-        // Fetch products, categories, colors in parallel but with individual fallbacks
-        const [prodData, catData, colorData] = await Promise.all([
-          publicApi.getProducts({ type: 'CATALOGUE' })
-            .catch(async (err) => {
-              console.warn('[Catalog] Filtre CATALOGUE a échoué, essai avec fallback global:', err)
-              return publicApi.getProducts().catch(() => [])
-            }),
-          publicApi.getCategories().catch(err => {
-            console.warn('[Catalog] getCategories a échoué:', err)
-            return [] as Category[]
+    try {
+      console.log(`[Catalog] Chargement des créations (tentative ${retryCount + 1})...`)
+      
+      // Fetch products, categories, colors in parallel but with individual fallbacks
+      const [prodData, catData, colorData] = await Promise.all([
+        publicApi.getProducts({ type: 'CATALOGUE' })
+          .catch(async (err) => {
+            console.warn('[Catalog] Filtre CATALOGUE a échoué, essai avec fallback global:', err)
+            return publicApi.getProducts().catch(() => [])
           }),
-          colorsApi.getColors().catch(() => [])
-        ])
+        publicApi.getCategories().catch(err => {
+          console.warn('[Catalog] getCategories a échoué:', err)
+          return [] as Category[]
+        }),
+        colorsApi.getColors().catch(() => [])
+      ])
 
-        const validProds = Array.isArray(prodData) ? prodData : []
-
-        if (validProds.length > 0) {
-          const catalogItems = validProds.filter(p => !isHandleProduct(p))
-          setDbProducts(catalogItems.length > 0 ? catalogItems : validProds)
-          setLoadError(false)
-
-          if (Array.isArray(colorData) && colorData.length > 0) {
-            setAvailableColors([
-              { label: 'Tout', hex: null, border: 'border-border' },
-              ...colorData.map((c: ColorSwatch) => ({
-                label: c.name || c.label,
-                hex: c.hex,
-                border: (c.name || c.label).toLowerCase().includes('blanc') ? 'border-stone-300' : 'border-border'
-              }))
-            ])
-          }
-
-          const validCats = Array.isArray(catData) ? catData : []
-          const isHandleCat = (c: Category) => {
-            const catName = c.name?.toLowerCase() || ''
-            if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux")) {
-              return false
-            }
-            return (
-              catName.includes("bijoux de porte") || 
-              catName.includes("ronds") || 
-              catName.includes("ovales") || 
-              catName.includes("poignée") ||
-              catName.includes("poignee")
-            )
-          }
-          const rawCats = validCats.filter(c => !isHandleCat(c))
-          if (!rawCats.some(c => c.name.toLowerCase().includes('lustre'))) {
-            rawCats.push({ id: 999, name: 'Lustres', description: 'Lustres et suspensions artisanales' } as any)
-          }
-          if (!rawCats.some(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux'))) {
-            rawCats.push({ id: 998, name: 'Porte Bijoux', description: 'Porte-bijoux et présentoirs artisanaux' } as any)
-          }
-          setDbCategories(rawCats)
-
-          setLoading(false)
-          return
-        }
-
-        // If validProds is empty and attempts remain, wait 2s before retrying (Render spin-up)
-        if (attempt < 3) {
-          console.log(`[Catalog] Réponse vide, nouvelle tentative dans 2s (${attempt}/3)...`)
-          await new Promise(res => setTimeout(res, 2000))
-        }
-      } catch (err) {
-        console.error(`[Catalog] Erreur lors du chargement des créations (tentative ${attempt}/3):`, err)
-        if (attempt < 3) {
-          await new Promise(res => setTimeout(res, 2000))
-        }
+      const validProds = Array.isArray(prodData) ? prodData : []
+      
+      // If empty on first attempt and retryCount < 2, auto-retry in 2s (in case backend is waking up on Render)
+      if (validProds.length === 0 && retryCount < 2) {
+        console.log(`[Catalog] Réponse vide, nouvelle tentative dans 2.5s (${retryCount + 1}/3)...`)
+        setTimeout(() => loadData(retryCount + 1), 2500)
+        return
       }
-    }
 
-    setLoadError(true)
-    setLoading(false)
+      if (validProds.length === 0) {
+        setLoadError(true)
+      } else {
+        const catalogItems = validProds.filter(p => !isHandleProduct(p))
+        setDbProducts(catalogItems.length > 0 ? catalogItems : validProds)
+        setLoadError(false)
+      }
+
+      if (Array.isArray(colorData) && colorData.length > 0) {
+        setAvailableColors([
+          { label: 'Tout', hex: null, border: 'border-border' },
+          ...colorData.map((c: ColorSwatch) => ({
+            label: c.name || c.label,
+            hex: c.hex,
+            border: (c.name || c.label).toLowerCase().includes('blanc') ? 'border-stone-300' : 'border-border'
+          }))
+        ])
+      }
+
+      const validCats = Array.isArray(catData) ? catData : []
+      const isHandleCat = (c: Category) => {
+        const catName = c.name?.toLowerCase() || ''
+        if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux")) {
+          return false
+        }
+        return (
+          catName.includes("bijoux de porte") || 
+          catName.includes("ronds") || 
+          catName.includes("ovales") || 
+          catName.includes("poignée") ||
+          catName.includes("poignee")
+        )
+      }
+      const rawCats = validCats.filter(c => !isHandleCat(c))
+      if (!rawCats.some(c => c.name.toLowerCase().includes('lustre'))) {
+        rawCats.push({ id: 999, name: 'Lustres', description: 'Lustres et suspensions artisanales' } as any)
+      }
+      if (!rawCats.some(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux'))) {
+        rawCats.push({ id: 998, name: 'Porte Bijoux', description: 'Porte-bijoux et présentoirs artisanaux' } as any)
+      }
+      setDbCategories(rawCats)
+      setLoading(false)
+    } catch (err) {
+      console.error("[Catalog] Erreur lors du chargement des créations:", err)
+      if (retryCount < 2) {
+        setTimeout(() => loadData(retryCount + 1), 2500)
+        return
+      }
+      setLoadError(true)
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
     loadData()
   }, [])
+
+  // Derive dynamic categories purely from actual products & DB categories
+  useEffect(() => {
+    const allProducts = dbProducts
+    const counts: Record<string, number> = {}
+
+    // Count products per actual category
+    allProducts.forEach(p => {
+      const catName = p.category?.name?.trim()
+      if (catName) {
+        counts[catName] = (counts[catName] || 0) + 1
+      }
+    })
+
+    // Only display categories that actually contain creations in the catalogue
+    // This ensures renamed or deleted categories (e.g., 'Lampes Coffres') never ghost
+    const activeCatNames = Object.keys(counts).filter(catName => counts[catName] > 0)
+
+    const dynamicCategories = activeCatNames.map(catName => ({
+      id: catName,
+      label: catName,
+      icon: getCategoryIcon(catName),
+      count: counts[catName]
+    }))
+
+    setCategories([
+      { id: 'Tout', label: 'Tout', icon: Grid2X2, count: allProducts.length },
+      ...dynamicCategories
+    ])
+  }, [dbProducts, dbCategories])
+
+
 
   const activeFilterCount = [
     category !== 'Tout',
@@ -2070,14 +2070,20 @@ export function CatalogPage() {
         {/* Grid / Empty State */}
         <AnimatePresence mode="wait">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
+            <motion.div
+              key="catalog-loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center justify-center py-24 gap-3 text-center"
+            >
               <div className="size-10 animate-spin rounded-full border-4 border-[#E6A635]/20 border-t-[#E6A635]" />
               <p className="text-xs text-[#EAE4D9]/80 font-light tracking-wide">Chargement de nos créations d&apos;art...</p>
-            </div>
+            </motion.div>
           ) : products.length === 0 ? (
             loadError ? (
               <motion.div
-                key="load-error"
+                key="catalog-load-error"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -2090,7 +2096,7 @@ export function CatalogPage() {
                 <p className="text-xs text-[#EAE4D9]/80 max-w-md">Le serveur se réveille après une période d&apos;inactivité. Cliquez ci-dessous pour charger immédiatement le catalogue.</p>
                 <button
                   type="button"
-                  onClick={() => loadData()}
+                  onClick={() => loadData(0)}
                   className="btn-sheen mt-5 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer hover:brightness-105 active:scale-95 transition-all"
                 >
                   Charger le catalogue
@@ -2098,7 +2104,7 @@ export function CatalogPage() {
               </motion.div>
             ) : (
               <motion.div
-                key="empty"
+                key="catalog-empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -2115,7 +2121,13 @@ export function CatalogPage() {
               </motion.div>
             )
           ) : (
-            <>
+            <motion.div
+              key="catalog-grid-wrapper"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
               {/* Anchor for smooth scroll back to top */}
               <div ref={gridTopRef} id="catalog-grid-start" className="scroll-mt-36 -mb-2" />
 
@@ -2253,24 +2265,24 @@ export function CatalogPage() {
                   </p>
                 </div>
               )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              {/* FLOATING SCROLL TO TOP BUTTON */}
-              <AnimatePresence>
-                {showScrollTop && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    type="button"
-                    onClick={scrollToGridTop}
-                    aria-label="Retour au début du catalogue"
-                    className="fixed bottom-6 right-6 z-40 size-11 rounded-full bg-[#241812]/95 hover:bg-[#3B271C] text-[#F2BD52] hover:text-white border border-[#E6A635]/50 shadow-[0_4px_25px_rgba(0,0,0,0.8)] backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
-                  >
-                    <ArrowUp className="size-5" />
-                  </motion.button>
-                )}
-              </AnimatePresence>
-            </>
+        {/* FLOATING SCROLL TO TOP BUTTON */}
+        <AnimatePresence>
+          {showScrollTop && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              type="button"
+              onClick={scrollToGridTop}
+              aria-label="Retour au début du catalogue"
+              className="fixed bottom-6 right-6 z-40 size-11 rounded-full bg-[#241812]/95 hover:bg-[#3B271C] text-[#F2BD52] hover:text-white border border-[#E6A635]/50 shadow-[0_4px_25px_rgba(0,0,0,0.8)] backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer"
+            >
+              <ArrowUp className="size-5" />
+            </motion.button>
           )}
         </AnimatePresence>
       </div>

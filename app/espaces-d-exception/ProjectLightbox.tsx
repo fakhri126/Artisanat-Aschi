@@ -99,7 +99,7 @@ export default function ProjectLightbox({
                 if (filename && cur?.startsWith('http')) {
                   e.currentTarget.src = `/uploads/${filename}`
                 } else {
-                  e.currentTarget.src = '/project-hotel.png'
+                  e.currentTarget.src = '/placeholder.jpg'
                 }
               }}
             />
@@ -162,7 +162,7 @@ export default function ProjectLightbox({
                         if (filename && cleanImg.startsWith('http')) {
                           e.currentTarget.src = `/uploads/${filename}`
                         } else {
-                          e.currentTarget.src = '/project-hotel.png'
+                          e.currentTarget.src = '/placeholder.jpg'
                         }
                       }}
                     />

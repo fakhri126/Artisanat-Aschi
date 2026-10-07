@@ -9,12 +9,20 @@ export function getApiBaseUrl(): string {
       return 'https://artisanat-aschi-backend.onrender.com/api';
     }
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      return (process.env.NEXT_PUBLIC_API_URL || 'https://artisanat-aschi-backend.onrender.com/api').replace(/\/+$/, '');
+      const publicUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (publicUrl && !publicUrl.includes('localhost')) {
+        return publicUrl.replace(/\/+$/, '');
+      }
+      return 'https://artisanat-aschi-backend.onrender.com/api';
     }
   }
   // 3. Fallback production côté serveur (SSR Node.js)
   if (process.env.NODE_ENV === 'production') {
-    return (process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://artisanat-aschi-backend.onrender.com/api').replace(/\/+$/, '');
+    const internalUrl = process.env.INTERNAL_BACKEND_URL;
+    if (internalUrl && !internalUrl.includes('localhost')) return internalUrl.replace(/\/+$/, '');
+    const publicUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (publicUrl && !publicUrl.includes('localhost')) return publicUrl.replace(/\/+$/, '');
+    return 'https://artisanat-aschi-backend.onrender.com/api';
   }
   // 4. Fallback développement local
   return (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api').replace(/\/+$/, '');
@@ -585,7 +593,7 @@ export const adminApi = {
       category: category || 'hotel',
       location: location || '',
       details: details || '',
-      imageUrl: imageUrl || '/project-hotel.png',
+      imageUrl: imageUrl || '',
       videoUrl: videoUrl || video || ''
     };
     return fetchApi<Project>('/admin/projects', {
@@ -601,7 +609,7 @@ export const adminApi = {
       category: category || 'hotel',
       location: location || '',
       details: details || '',
-      imageUrl: imageUrl || '/project-hotel.png',
+      imageUrl: imageUrl || '',
       videoUrl: videoUrl || video || ''
     };
     return fetchApi<Project>(`/admin/projects/${id}`, {

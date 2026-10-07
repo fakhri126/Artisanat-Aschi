@@ -23,7 +23,7 @@ export default function QuickGalleryModal({
 
   const syncGallery = async (updatedList: string[]) => {
     setPhotos(updatedList)
-    const primaryImg = updatedList[0] || '/project-hotel.png'
+    const primaryImg = updatedList[0] || ''
     const payload = {
       title: project.title,
       description: project.description || '',
@@ -158,7 +158,7 @@ export default function QuickGalleryModal({
                       src={url}
                       alt={`Photo ${idx + 1}`}
                       className="size-full object-cover"
-                      onError={(e) => { (e.target as HTMLImageElement).src = '/project-hotel.png' }}
+                      onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.jpg' }}
                     />
 
                     <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-10">
