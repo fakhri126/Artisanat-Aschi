@@ -412,6 +412,27 @@ export function Projects() {
     loadDynamicProjects()
   }, [])
 
+  // Verrouiller le scroll d'arrière-plan sur mobile lors de l'ouverture du modal
+  useEffect(() => {
+    if (selectedProject || lightboxProject) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [selectedProject, lightboxProject])
+
+  // Synchroniser la vue par défaut (vidéo si disponible, sinon première photo)
+  useEffect(() => {
+    if (selectedProject) {
+      const hasVid = Boolean(selectedProject.video || selectedProject.videoUrl)
+      setModalActiveView(hasVid ? 'video' : 0)
+      setIsVideoBuffering(false)
+    }
+  }, [selectedProject])
+
   // Sélectionner exactement 4 projets prestigieux pour l'accueil : 1 grand vedette + 3 à droite
   const displayProjects = useMemo(() => {
     const TARGET_TYPES = ['hotel', 'guesthouse', 'villa', 'immobilier']
@@ -634,7 +655,7 @@ export function Projects() {
       {/* ================================================================= */}
       <AnimatePresence>
         {selectedProject && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 md:p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -648,61 +669,36 @@ export function Projects() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.25 }}
-              className="relative w-full max-w-5xl bg-gradient-to-br from-[#3B271C] to-[#241812] border-2 border-[#E6A635]/45 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] z-10 flex flex-col md:flex-row max-h-[92vh] overflow-y-auto md:overflow-hidden"
+              className="relative w-full max-w-5xl bg-gradient-to-br from-[#352217] via-[#2A1A11] to-[#1C110B] border-2 border-[#E6A635]/50 rounded-2xl sm:rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.95)] z-10 flex flex-col lg:flex-row max-h-[94vh] lg:h-[90vh] overflow-y-auto lg:overflow-hidden scrollbar-thin"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={() => setSelectedProject(null)}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-50 size-8 sm:size-9 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] hover:bg-[#4E3425] transition-colors cursor-pointer shadow-lg"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-50 size-8 sm:size-9 rounded-full bg-[#1A110B]/95 border border-[#E6A635]/50 flex items-center justify-center text-white hover:text-[#F2BD52] hover:bg-[#4E3425] transition-colors cursor-pointer shadow-xl backdrop-blur-md"
                 aria-label="Fermer"
               >
                 <X className="size-4 sm:size-5" />
               </button>
 
-              {/* 📱 EN-TÊTE DU PROJET SUR MOBILE (EN HAUT : Titre & Description avant le média) */}
-              <div className="block md:hidden p-4 sm:p-5 pb-2.5 space-y-2 text-left bg-[#1A110B]/90 border-b border-[#E6A635]/25 pr-14">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9.5px] uppercase tracking-[0.15em] px-3 py-0.5 rounded-full font-bold shadow-sm">
-                    <Sparkles className="size-2.5" />
-                    {selectedProject.category}
-                  </span>
-                  {selectedProject.location && (
-                    <div className="flex items-center gap-1 text-[11px] text-[#F2BD52] font-medium">
-                      <MapPin className="size-3 text-[#E6A635]" />
-                      <span>{selectedProject.location}</span>
-                    </div>
-                  )}
-                </div>
-
-                <h3 className="font-heading text-xl sm:text-2xl text-gold-gradient font-light leading-snug">
-                  {selectedProject.title}
-                </h3>
-
-                {selectedProject.description ? (
-                  <p className="text-xs text-white/80 font-light leading-relaxed">
-                    {selectedProject.description}
-                  </p>
-                ) : (
-                  <p className="text-xs text-white/70 font-light leading-relaxed">
-                    Conception intégrale et aménagements artisanaux d&apos;exception réalisés par l&apos;Atelier Aschi.
-                  </p>
-                )}
-              </div>
-
-              {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif (Au milieu sur mobile) */}
-              <div className="w-full md:w-[58%] flex flex-col border-b md:border-b-0 md:border-r border-[#E6A635]/25 p-4 sm:p-6 justify-between gap-3 bg-[#1A110B]/60">
+              {/* LEFT COLUMN: Grand Écran Média (16:9) + Ruban de Miniatures Interactif */}
+              <div className="w-full lg:w-[62%] xl:w-[65%] flex flex-col shrink-0 lg:shrink border-b lg:border-b-0 lg:border-r border-[#E6A635]/25 p-3.5 sm:p-5 lg:p-6 gap-3 sm:gap-4 bg-[#140C07]/85 min-h-0">
                 
                 {/* Barre supérieure d'état du média */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between pr-10 sm:pr-12 lg:pr-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                      <Sparkles className="size-2.5" />
+                      <span>{selectedProject.category}</span>
+                    </span>
+
                     {modalActiveView === 'video' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#241812] border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-                        <Film className="size-3.5 text-[#E6A635]" />
-                        <span>Vidéo du Projet &amp; Réalisation</span>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#241812] border border-[#E6A635]/40 text-[#F2BD52] text-[9.5px] sm:text-xs font-bold uppercase tracking-wider">
+                        <Film className="size-3 text-[#E6A635]" />
+                        <span>Vidéo du Projet</span>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#241812] border border-[#E6A635]/40 text-[#F2BD52] text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-                        <ImageIcon className="size-3.5 text-[#E6A635]" />
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#241812] border border-[#E6A635]/40 text-[#F2BD52] text-[9.5px] sm:text-xs font-bold uppercase tracking-wider">
+                        <ImageIcon className="size-3 text-[#E6A635]" />
                         <span>Photo {(typeof modalActiveView === 'number' ? modalActiveView : 0) + 1} / {selectedProject.gallery?.length || 1}</span>
                       </span>
                     )}
@@ -712,7 +708,7 @@ export function Projects() {
                     <button
                       type="button"
                       onClick={toggleModalMute}
-                      className="size-7 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 text-[#F2BD52] flex items-center justify-center hover:bg-[#E6A635] hover:text-[#1A110B] transition-colors shadow-sm cursor-pointer"
+                      className="size-7 sm:size-8 rounded-full bg-[#241812]/95 border border-[#E6A635]/40 text-[#F2BD52] flex items-center justify-center hover:bg-[#E6A635] hover:text-[#1A110B] transition-colors shadow-sm cursor-pointer"
                       title={isModalMuted ? "Activer le son" : "Couper le son"}
                     >
                       {isModalMuted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
@@ -725,23 +721,22 @@ export function Projects() {
                         currentIndex: typeof modalActiveView === 'number' ? modalActiveView : 0,
                         title: selectedProject.title
                       })}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#241812]/90 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-semibold hover:bg-[#E6A635] hover:text-[#1A110B] transition-colors cursor-pointer shadow-sm"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#241812]/95 border border-[#E6A635]/40 text-[#F2BD52] text-[10px] font-semibold hover:bg-[#E6A635] hover:text-[#1A110B] transition-colors cursor-pointer shadow-sm"
                     >
                       <ZoomIn className="size-3" />
-                      <span>Agrandir</span>
+                      <span className="hidden sm:inline">Agrandir</span>
                     </button>
                   )}
                 </div>
 
-                {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE AGRANDI ── */}
-                <div className="relative w-full flex-1 aspect-[16/9] min-h-[340px] sm:min-h-[460px] lg:min-h-[520px] xl:min-h-[580px] rounded-2xl overflow-hidden border-2 border-[#E6A635]/45 bg-[#0D0805] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group/media">
+                {/* ── LE GRAND ÉCRAN MAÎTRE CINÉMATIQUE ── */}
+                <div className="relative w-full aspect-video min-h-[220px] sm:min-h-[320px] lg:min-h-[440px] xl:min-h-[500px] lg:flex-1 rounded-xl sm:rounded-2xl overflow-hidden border border-[#E6A635]/45 bg-[#0D0805] shadow-[0_15px_40px_rgba(0,0,0,0.85)] group/media shrink-0">
                   {modalActiveView === 'video' && (selectedProject.video || selectedProject.videoUrl) ? (
                     <>
                       {(() => {
                         const rawVideoUrl = (() => {
                           const v = (selectedProject.video || selectedProject.videoUrl || '').trim()
                           if (!v) return ''
-                          // Mapper les URLs distantes Supabase vers le fichier local équivalent pour un streaming 0ms
                           const match = v.match(/\/media\/([^/?#]+\.mp4)/i)
                           if (match && match[1]) {
                             return `/uploads/${match[1]}`
@@ -763,7 +758,7 @@ export function Projects() {
                             loop
                             playsInline
                             preload="metadata"
-                            className="w-full h-full object-contain sm:object-cover bg-black"
+                            className="w-full h-full object-contain bg-black"
                             onWaiting={() => setIsVideoBuffering(true)}
                             onPlaying={() => setIsVideoBuffering(false)}
                             onPlay={() => setIsVideoBuffering(false)}
@@ -774,7 +769,6 @@ export function Projects() {
                         )
                       })()}
 
-                      {/* Spinner discret uniquement en cas de chargement réel, sans texte bloquant */}
                       {isVideoBuffering && (
                         <div className="absolute inset-0 z-15 flex items-center justify-center pointer-events-none transition-opacity duration-300">
                           <div className="size-10 rounded-full border-2 border-[#E6A635]/30 border-t-[#E6A635] animate-spin shadow-[0_0_15px_rgba(230,166,53,0.4)]" />
@@ -789,7 +783,7 @@ export function Projects() {
                         <span>Vidéo HD</span>
                       </div>
 
-                      {/* Contrôle du Son en bas à droite (Bouton Start 100% MASQUÉ) */}
+                      {/* Contrôle du Son en bas à droite */}
                       <div className="absolute bottom-3 right-3 z-20">
                         <button
                           type="button"
@@ -814,7 +808,7 @@ export function Projects() {
                             alt={selectedProject.title}
                             fill
                             unoptimized
-                            className="object-cover transition-transform duration-700 ease-out group-hover/media:scale-105 cursor-zoom-in"
+                            className="object-contain sm:object-cover transition-transform duration-700 ease-out group-hover/media:scale-105 cursor-zoom-in"
                             onClick={() => setLightboxProject({
                               images: selectedProject.gallery,
                               currentIndex: typeof modalActiveView === 'number' ? modalActiveView : 0,
@@ -844,7 +838,7 @@ export function Projects() {
                               const next = cur === 0 ? selectedProject.gallery.length - 1 : cur - 1
                               setModalActiveView(next)
                             }}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] transition-colors cursor-pointer shadow-md"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full bg-[#241812]/85 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] transition-colors cursor-pointer shadow-md"
                             aria-label="Image précédente"
                           >
                             <ChevronLeft className="size-4" />
@@ -857,7 +851,7 @@ export function Projects() {
                               const next = cur === selectedProject.gallery.length - 1 ? 0 : cur + 1
                               setModalActiveView(next)
                             }}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full bg-[#241812]/80 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] transition-colors cursor-pointer shadow-md"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 size-8 rounded-full bg-[#241812]/85 backdrop-blur-md border border-[#E6A635]/40 flex items-center justify-center text-white hover:text-[#F2BD52] transition-colors cursor-pointer shadow-md"
                             aria-label="Image suivante"
                           >
                             <ChevronRight className="size-4" />
@@ -869,20 +863,24 @@ export function Projects() {
                 </div>
 
                 {/* ── RUBAN DE MINIATURES INTERACTIF (VIDÉO + TOUTES LES PHOTOS) ── */}
-                <div className="pt-1">
-                  <p className="text-[9.5px] uppercase tracking-wider text-[#F2BD52]/70 font-semibold mb-2 flex items-center justify-between">
-                    <span>Sélectionnez un aperçu :</span>
-                    <span className="text-white/40 font-normal">
+                <div className="w-full shrink-0 pt-1 pb-0.5">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#F2BD52] font-semibold flex items-center gap-1.5">
+                      <Sparkles className="size-2.5 text-[#E6A635]" />
+                      <span>Sélectionnez un aperçu :</span>
+                    </span>
+                    <span className="text-white/50 text-[10px] sm:text-xs font-normal">
                       {(Boolean(selectedProject.video || selectedProject.videoUrl) ? 1 : 0) + (selectedProject.gallery?.length || 0)} médias disponibles
                     </span>
-                  </p>
+                  </div>
 
-                  <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-thin items-center">
+                  <div className="flex gap-2.5 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin items-center">
                     {/* Miniature Vidéo si disponible */}
                     {(selectedProject.video || selectedProject.videoUrl) && (() => {
                       const thumbPoster = (selectedProject.gallery && selectedProject.gallery[0]?.split(',')[0]?.trim()) ||
                         (selectedProject.imageUrl ? selectedProject.imageUrl.split(',')[0]?.trim() : '') ||
                         '/project-hotel.png'
+                      const isActive = modalActiveView === 'video'
                       return (
                         <button
                           type="button"
@@ -891,8 +889,8 @@ export function Projects() {
                             setIsVideoBuffering(false)
                           }}
                           className={`relative w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer flex flex-col items-center justify-center bg-black group/vidthumb ${
-                            modalActiveView === 'video'
-                              ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.5)] scale-[0.98]'
+                            isActive
+                              ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.55)] scale-[0.98] ring-1 ring-[#E6A635]'
                               : 'border-[#E6A635]/25 opacity-70 hover:opacity-100 hover:border-[#E6A635]/60'
                           }`}
                         >
@@ -916,15 +914,16 @@ export function Projects() {
                     {selectedProject.gallery && selectedProject.gallery.map((img: string, idx: number) => {
                       const cleanUrl = img.split(',')[0].trim()
                       const thumbUrl = formatImageUrl(cleanUrl, '/project-hotel.png')
+                      const isActive = modalActiveView === idx
                       return (
                         <button
                           key={idx}
                           type="button"
                           onClick={() => setModalActiveView(idx)}
                           className={`relative w-20 sm:w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
-                            modalActiveView === idx
-                              ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.5)] scale-[0.98]'
-                              : 'border-[#E6A635]/25 opacity-60 hover:opacity-100 hover:border-[#E6A635]/60'
+                            isActive
+                              ? 'border-[#E6A635] shadow-[0_0_14px_rgba(230,166,53,0.55)] scale-[0.98] ring-1 ring-[#E6A635]'
+                              : 'border-[#E6A635]/25 opacity-70 hover:opacity-100 hover:border-[#E6A635]/60'
                           }`}
                         >
                           <Image
@@ -942,7 +941,7 @@ export function Projects() {
                               }
                             }}
                           />
-                          <span className="absolute bottom-1 right-1 px-1.5 py-0.2 rounded bg-black/75 text-[8.5px] text-white/90 font-medium">
+                          <span className="absolute bottom-1 right-1 px-1.5 py-0.2 rounded bg-black/80 text-[8.5px] text-white/95 font-semibold">
                             {idx + 1}
                           </span>
                         </button>
@@ -954,29 +953,29 @@ export function Projects() {
               </div>
 
               {/* RIGHT COLUMN: Détails de Prestige, Spécifications Nobles & CTA */}
-              <div className="w-full lg:w-[32%] xl:w-[30%] flex flex-col justify-between overflow-y-auto p-4 sm:p-6 md:p-7 space-y-4 text-left scrollbar-thin">
+              <div className="w-full lg:w-[38%] xl:w-[35%] flex flex-col justify-between p-4 sm:p-6 lg:p-7 space-y-4 sm:space-y-5 text-left lg:overflow-y-auto scrollbar-thin bg-gradient-to-b from-[#241812]/50 to-[#1A110B]/85">
                 
-                {/* En-tête du projet (Desktop uniquement, affiché en haut sur mobile) */}
-                <div className="hidden md:block space-y-2.5">
-                  <div className="flex items-center justify-between gap-2">
+                {/* En-tête du projet */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
                     <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#F3C45E] to-[#C78318] text-[#1A110B] text-[9.5px] sm:text-[10px] uppercase tracking-[0.15em] px-3 py-1 rounded-full font-bold shadow-sm">
                       <Sparkles className="size-2.5" />
                       {selectedProject.category}
                     </span>
                     {selectedProject.location && (
-                      <div className="flex items-center gap-1 text-[11px] text-[#F2BD52] font-medium">
+                      <div className="flex items-center gap-1 text-[11px] sm:text-xs text-[#F2BD52] font-medium">
                         <MapPin className="size-3 text-[#E6A635]" />
                         <span>{selectedProject.location}</span>
                       </div>
                     )}
                   </div>
 
-                  <h3 className="font-heading text-2xl sm:text-3xl text-gold-gradient font-light leading-snug">
+                  <h3 className="font-heading text-2xl sm:text-3xl lg:text-3xl text-gold-gradient font-light leading-snug drop-shadow-sm pt-1">
                     {selectedProject.title}
                   </h3>
 
                   {selectedProject.description ? (
-                    <p className="text-xs sm:text-sm text-white/80 font-light leading-relaxed">
+                    <p className="text-xs sm:text-sm text-white/85 font-light leading-relaxed">
                       {selectedProject.description}
                     </p>
                   ) : (
@@ -986,9 +985,9 @@ export function Projects() {
                   )}
                 </div>
 
-                {/* ── NOUVELLE GRILLE DE SPÉCIFICATIONS HAUTE COUTURE (COMBLE LE VIDE) ── */}
-                <div className="grid grid-cols-2 gap-2.5 py-1">
-                  <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                {/* Grille de Spécifications Haute Couture (2x2) */}
+                <div className="grid grid-cols-2 gap-2 sm:gap-2.5 py-0.5">
+                  <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25 hover:border-[#E6A635]/50 transition-colors shadow-sm">
                     <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
                       <Hammer className="size-3 text-[#E6A635]" /> Aménagement
                     </span>
@@ -997,7 +996,7 @@ export function Projects() {
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                  <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25 hover:border-[#E6A635]/50 transition-colors shadow-sm">
                     <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
                       <Sparkles className="size-3 text-[#E6A635]" /> Essences Nobles
                     </span>
@@ -1006,7 +1005,7 @@ export function Projects() {
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                  <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25 hover:border-[#E6A635]/50 transition-colors shadow-sm">
                     <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
                       <Ruler className="size-3 text-[#E6A635]" /> Bureau d&apos;Étude
                     </span>
@@ -1015,7 +1014,7 @@ export function Projects() {
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25">
+                  <div className="p-3 rounded-xl bg-[#241812]/90 border border-[#E6A635]/25 hover:border-[#E6A635]/50 transition-colors shadow-sm">
                     <span className="text-[9.5px] uppercase tracking-wider text-[#F2BD52] font-semibold block flex items-center gap-1.5">
                       <Truck className="size-3 text-[#E6A635]" /> Exécution
                     </span>
@@ -1026,7 +1025,7 @@ export function Projects() {
                 </div>
 
                 {/* Sceau d'authenticité Atelier Aschi */}
-                <div className="p-3 rounded-xl bg-gradient-to-r from-[#241812] via-[#2F1E14] to-[#241812] border border-[#E6A635]/30 flex items-center gap-3 shadow-inner">
+                <div className="p-3 rounded-xl bg-gradient-to-r from-[#241812] via-[#2F1E14] to-[#241812] border border-[#E6A635]/35 flex items-center gap-3 shadow-inner">
                   <div className="size-8 rounded-lg bg-[#E6A635]/15 border border-[#E6A635]/40 flex items-center justify-center shrink-0">
                     <Sparkles className="size-4 text-[#F2BD52]" />
                   </div>
@@ -1036,14 +1035,14 @@ export function Projects() {
                 </div>
 
                 {/* Action buttons */}
-                <div className="pt-2 border-t border-[#E6A635]/20 space-y-2.5">
+                <div className="pt-3 border-t border-[#E6A635]/25 space-y-2.5">
                   <a
                     href={`https://wa.me/21655743760?text=${encodeURIComponent(
                       `Bonjour Maison Aschi, j'ai vu votre réalisation "${selectedProject.title}" (${selectedProject.category}) et je souhaite une étude d'aménagement similaire pour mon établissement.`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-sheen w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                    className="btn-sheen w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#25D366] via-[#20BA5A] to-[#128C7E] text-white px-5 py-3 text-xs font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
                   >
                     <MessageCircle className="size-4 fill-white/20" />
                     <span>Demander une Étude sur WhatsApp</span>
@@ -1051,7 +1050,7 @@ export function Projects() {
 
                   <Link
                     href="/espaces-d-exception#demande-projet"
-                    className="btn-sheen w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02]"
+                    className="btn-sheen w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] px-5 py-3 text-xs font-bold uppercase tracking-wider shadow-lg transition-all hover:scale-[1.02]"
                   >
                     <FileText className="size-3.5 text-[#1A110B]" />
                     <span>Remplir le Formulaire d&apos;Étude</span>
@@ -1059,9 +1058,9 @@ export function Projects() {
 
                   <button
                     onClick={() => setSelectedProject(null)}
-                    className="w-full inline-flex items-center justify-center rounded-full border border-[#E6A635]/40 bg-[#241812]/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white hover:bg-[#3B271C] hover:text-[#F2BD52] transition-colors cursor-pointer"
+                    className="w-full inline-flex items-center justify-center rounded-full border border-[#E6A635]/40 bg-[#241812]/80 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/90 hover:bg-[#3B271C] hover:text-[#F2BD52] transition-colors cursor-pointer"
                   >
-                    Fermer
+                    Fermer la vue détaillée
                   </button>
                 </div>
 

@@ -63,7 +63,8 @@ export default function TurnkeyProjectsPage() {
               details: p.details ? p.details.split(',').map(d => d.trim()).filter(Boolean) : ["Aménagement d'artisanat d'art"],
               gallery: galleryImgs,
               video: p.videoUrl || p.video || '',
-              review: null
+              materials: p.materials || (PROJECTS.find(def => def.id === p.id) as any)?.materials || "Noyer Massif & Bois d'Art",
+              review: p.review || (PROJECTS.find(def => def.id === p.id)?.review || null)
             }
           })
           setLiveProjects(mapped)

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 6,
+    "title": "Banc Traditionnel Restauré en Blanc Patiné & Incrustations de Jelliz",
+    "description": "Redonnez une seconde vie à votre intérieur avec ce banc artisanal en bois massif entièrement rénové. Sublimé par une finition blanc vieilli à effet patiné, il intègre des détails sculptés raffinés et des carreaux de zellige traditionnels.",
+    "category": "Mobilier d'Art",
+    "imageAvantUrl": "https://artisanat-aschi-backend.onrender.com/api/uploads/81143238-3556-4124-b3ff-2538a5975b6b.webp",
+    "imageApresUrl": "https://artisanat-aschi-backend.onrender.com/api/uploads/937dd829-3d3c-42bd-b59b-2312ae2bfc49.webp",
+    "createdDate": "2026-09-27T16:10:55.371848"
+  },
+  {
+    "id": 5,
+    "title": "Buffet Vaisselier Traditionnel Restauré – Bois Naturel & Finitions Vert Émeraude",
+    "description": "Ce vaisselier en bois massif à deux corps a été entièrement remis en valeur avec un décapage soigné révélant les veines chaleureuses du bois brut.",
+    "category": "Mobilier d'Art",
+    "imageAvantUrl": "https://artisanat-aschi-backend.onrender.com/api/uploads/26b7ebea-86ae-4480-adca-d98285ff32e8.webp",
+    "imageApresUrl": "https://artisanat-aschi-backend.onrender.com/api/uploads/807773d1-77e4-491a-8ad9-3abcd1d59ff3.webp",
+    "createdDate": "2026-09-27T15:27:07.500496"
+  }
+]

@@ -11,6 +11,19 @@ import {
   ArrowLeftRight
 } from 'lucide-react'
 import { Relooking } from '@/lib/api'
+import { formatImageUrl } from '@/lib/utils'
+
+function isDeadPhoto(url: string | null | undefined): boolean {
+  if (!url || typeof url !== 'string' || !url.trim()) return true
+  const lower = url.toLowerCase().trim()
+  return (
+    lower.includes('gallery-1') ||
+    lower.includes('gallery-2') ||
+    lower.includes('relooking_service') ||
+    lower.includes('herochaise') ||
+    lower.includes('placeholder')
+  )
+}
 
 interface RelookingsTabProps {
   relookings: Relooking[]
@@ -107,7 +120,7 @@ export default function RelookingsTab({
                     <td className="p-4 pl-6">
                       <div className="size-16 rounded-xl overflow-hidden bg-stone-100 relative border border-[#E8DFD4] shadow-2xs">
                         {r.imageAvantUrl ? (
-                          <img src={r.imageAvantUrl} alt="Avant" className="size-full object-cover" />
+                          <img src={formatImageUrl(r.imageAvantUrl)} alt="Avant" className="size-full object-cover" />
                         ) : (
                           <ImageIcon className="absolute inset-0 m-auto text-[#94A3B8] size-5" />
                         )}
@@ -121,7 +134,7 @@ export default function RelookingsTab({
                     <td className="p-4">
                       <div className="size-16 rounded-xl overflow-hidden bg-stone-100 relative border border-[#E8DFD4] shadow-2xs">
                         {r.imageApresUrl ? (
-                          <img src={r.imageApresUrl} alt="Après" className="size-full object-cover" />
+                          <img src={formatImageUrl(r.imageApresUrl)} alt="Après" className="size-full object-cover" />
                         ) : (
                           <ImageIcon className="absolute inset-0 m-auto text-[#94A3B8] size-5" />
                         )}
@@ -133,9 +146,16 @@ export default function RelookingsTab({
 
                     {/* Titre & Description */}
                     <td className="p-4">
-                      <p className="font-heading font-bold text-[#0F172A] text-sm group-hover:text-[#C17D59] transition-colors">
-                        {r.title}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-heading font-bold text-[#0F172A] text-sm group-hover:text-[#C17D59] transition-colors">
+                          {r.title}
+                        </p>
+                        {(isDeadPhoto(r.imageAvantUrl) || isDeadPhoto(r.imageApresUrl)) && (
+                          <span className="px-2 py-0.5 bg-amber-100 border border-amber-300 text-amber-800 text-[9.5px] font-bold rounded-full">
+                            ⚠️ Gabarit de test
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-[#64748B] mt-0.5 line-clamp-2 leading-relaxed">
                         {r.description}
                       </p>

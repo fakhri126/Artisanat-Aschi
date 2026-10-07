@@ -68,15 +68,21 @@ export function HeroSlider() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Auto-play
+  // Auto-play : Désactivé totalement sur la diapositive 'relooking' pour que la comparaison Avant/Après ne passe JAMAIS automatiquement !
   useEffect(() => {
-    // Pause auto-play if hovered (so Modals or interactive slides stay visible)
     if (isHovered) return
+
+    const currentSlideId = SLIDES[current]?.id
+    
+    // 🛑 La comparaison Avant/Après est interactive : ne JAMAIS faire défiler automatiquement !
+    if (currentSlideId === 'relooking') {
+      return
+    }
 
     const timer = setInterval(() => {
       setDirection(1)
       setCurrent((prev) => (prev + 1) % SLIDES.length)
-    }, 6000)
+    }, 9000)
     return () => clearInterval(timer)
   }, [current, isHovered])
 
@@ -127,24 +133,31 @@ export function HeroSlider() {
   }
 
   // Safe bounds check to prevent crash during hot reload
-  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  const [touchStartY, setTouchStartY] = useState<number | null>(null)
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.touches[0].clientX)
+    setTouchStartX(e.touches[0].clientX)
+    setTouchStartY(e.touches[0].clientY)
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStart === null) return
-    const touchEnd = e.changedTouches[0].clientX
-    const diff = touchStart - touchEnd
-    if (Math.abs(diff) > 45) {
-      if (diff > 0) {
+    if (touchStartX === null || touchStartY === null) return
+    const touchEndX = e.changedTouches[0].clientX
+    const touchEndY = e.changedTouches[0].clientY
+    const diffX = touchStartX - touchEndX
+    const diffY = touchStartY - touchEndY
+
+    // Glissement horizontal net uniquement (ne pas zapper lors du scroll vertical)
+    if (Math.abs(diffX) > 65 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+      if (diffX > 0) {
         paginate(1) // swipe left -> next
       } else {
         paginate(-1) // swipe right -> prev
       }
     }
-    setTouchStart(null)
+    setTouchStartX(null)
+    setTouchStartY(null)
   }
 
   const slide = SLIDES[current] || SLIDES[0]

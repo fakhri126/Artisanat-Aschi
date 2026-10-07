@@ -67,11 +67,12 @@ export async function GET(
     } catch {}
   }
 
-  // 4. Try fetching from Spring Boot backend
+  // 4. Try fetching from Spring Boot backend (with fast timeout so it does not block on production)
   try {
     const backendRes = await fetch(`http://localhost:8081/api/uploads/${relativePath}`, {
       headers: { Accept: '*/*' },
       cache: 'no-store',
+      signal: AbortSignal.timeout(800),
     })
     if (backendRes.ok) {
       const arrayBuffer = await backendRes.arrayBuffer()

@@ -67,6 +67,8 @@ export interface Project {
   images?: string[];
   videoUrl?: string | null;
   video?: string | null;
+  materials?: string | null;
+  review?: any;
 }
 
 export interface News {
@@ -400,7 +402,14 @@ export const publicApi = {
 
   getRelookings: async () => {
     try {
-      return await fetchApi<Relooking[]>('/public/relookings');
+      const res = await fetch(`/api/relookings?_t=${Date.now()}`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) return data;
+      }
+    } catch (_) {}
+    try {
+      return await fetchApi<Relooking[]>(`/public/relookings?_t=${Date.now()}`, { cache: 'no-store' });
     } catch {
       return [];
     }
@@ -619,18 +628,71 @@ export const adminApi = {
   }),
 
   // --- Relookings ---
-  getRelookings: () => fetchApi<Relooking[]>('/public/relookings'),
-  createRelooking: (data: Omit<Relooking, 'id' | 'createdDate'>) => fetchApi<Relooking>('/admin/relookings', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-  updateRelooking: (id: number, data: Omit<Relooking, 'id' | 'createdDate'>) => fetchApi<Relooking>(`/admin/relookings/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
-  deleteRelooking: (id: number) => fetchApi<void>(`/admin/relookings/${id}`, {
-    method: 'DELETE',
-  }),
+  getRelookings: async () => {
+    try {
+      const res = await fetch(`/api/relookings?_t=${Date.now()}`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) return data;
+      }
+    } catch (_) {}
+    return fetchApi<Relooking[]>(`/public/relookings?_t=${Date.now()}`, { cache: 'no-store' });
+  },
+  createRelooking: async (data: Omit<Relooking, 'id' | 'createdDate'>) => {
+    try {
+      const res = await fetch('/api/relookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) {
+          // Also asynchronously forward to Spring Boot backend if available
+          fetchApi<Relooking>('/admin/relookings', {
+            method: 'POST',
+            body: JSON.stringify(data),
+          }).catch(() => {});
+          return json.data;
+        }
+      }
+    } catch (_) {}
+    return fetchApi<Relooking>('/admin/relookings', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  updateRelooking: async (id: number, data: Omit<Relooking, 'id' | 'createdDate'>) => {
+    try {
+      const res = await fetch('/api/relookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, id }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) {
+          fetchApi<Relooking>(`/admin/relookings/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+          }).catch(() => {});
+          return json.data;
+        }
+      }
+    } catch (_) {}
+    return fetchApi<Relooking>(`/admin/relookings/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  deleteRelooking: async (id: number) => {
+    try {
+      await fetch(`/api/relookings?id=${id}`, { method: 'DELETE' });
+    } catch (_) {}
+    return fetchApi<void>(`/admin/relookings/${id}`, {
+      method: 'DELETE',
+    });
+  },
 
   // References CRUD
   getReferences: () => fetchApi<Reference[]>('/public/references'),

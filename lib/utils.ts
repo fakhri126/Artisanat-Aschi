@@ -77,9 +77,16 @@ export function formatImageUrl(url: string | null | undefined, fallback: string 
   cleaned = cleaned.replace(/^https?:\/\/(localhost|127\.0\.0\.1):8081\/api\//, '/')
   cleaned = cleaned.replace(/^https?:\/\/(localhost|127\.0\.0\.1):8081\//, '/')
 
-  // Convert relative or absolute Supabase Storage URLs to local /uploads/ proxy so they resolve correctly
-  // either from local public/uploads/ or via the /uploads proxy fallback (which fetches from Supabase & caches)
-  cleaned = cleaned.replace(/^(?:https?:\/\/[a-z0-9.-]+\.supabase\.co)?\/?storage\/v1\/object\/public\/(?:media|artisanat-aschi-media)\//i, '/uploads/')
+  // Direct Supabase Storage URLs: serve directly from Supabase Cloudflare CDN
+  // This avoids choking Render free tier container and loads images instantly in parallel
+  if (/^https?:\/\/[a-z0-9.-]+\.supabase\.co\//i.test(cleaned)) {
+    return cleaned
+  }
+
+  // If relative Supabase storage URL, resolve directly to Supabase CDN
+  if (/^\/?storage\/v1\/object\/public\//i.test(cleaned)) {
+    return `https://uerbqswgxsinayfyntsm.supabase.co/${cleaned.replace(/^\//, '')}`
+  }
 
   // Keep valid external absolute URLs (e.g. https://...)
   if (/^https?:\/\//i.test(cleaned)) {
