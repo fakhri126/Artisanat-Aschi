@@ -3,28 +3,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { Navbar } from '@/components/site/navbar'
 import { Footer } from '@/components/site/footer'
+import Image from 'next/image'
 import Link from 'next/link'
-import { AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { publicApi, Relooking } from '@/lib/api'
-import { Sparkles, ArrowRightLeft, Hammer, ArrowRight, Eye, Wand2, Paintbrush } from 'lucide-react'
+import { Sparkles, ArrowRightLeft, Mail, Phone, Hammer, MessageCircle, ArrowRight } from 'lucide-react'
 import { Reveal } from '@/components/site/reveal'
+
 import { formatImageUrl } from '@/lib/utils'
 
-<<<<<<< HEAD
-function isDeadPhoto(url: string | null | undefined): boolean {
-  if (!url || typeof url !== 'string' || !url.trim()) return true
-  const lower = url.toLowerCase().trim()
-  return (
-    lower.includes('gallery-1') ||
-    lower.includes('gallery-2') ||
-    lower.includes('relooking_service') ||
-    lower.includes('herochaise') ||
-    lower.includes('placeholder')
-  )
-}
-
-=======
->>>>>>> b68d759bce5bcf4ed9a9525e23ca230f34e68e0d
 function BeforeAfterItem({ item }: { item: Relooking }) {
   const [sliderPosition, setSliderPosition] = useState(50) // 0 to 100
   const [isDragging, setIsDragging] = useState(false)
@@ -46,7 +33,6 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    e.stopPropagation()
     if (!isDragging) return
     if (e.touches.length > 0) {
       handleMove(e.touches[0].clientX)
@@ -63,16 +49,6 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
     }
   }, [isDragging])
 
-<<<<<<< HEAD
-  const apresSrc = formatImageUrl(item.imageApresUrl)
-  const avantSrc = formatImageUrl(item.imageAvantUrl)
-
-  return (
-    <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-center bg-[#3B271C]/90 rounded-3xl p-5 sm:p-7 md:p-8 border border-[#E6A635]/35 hover:border-[#E6A635]/75 backdrop-blur-xl shadow-[0_15px_35px_rgba(0,0,0,0.65)] transition-all duration-300">
-      
-      {/* Draggable Slider Area + Quick Buttons */}
-      <div className="w-full lg:w-[50%] flex flex-col items-center shrink-0">
-=======
   const apresSrc = formatImageUrl(item.imageApresUrl, '/placeholder.jpg')
   const avantSrc = formatImageUrl(item.imageAvantUrl, '/placeholder.jpg')
 
@@ -113,46 +89,13 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
         </div>
 
         {/* Clipped Top Layer: Avant Image */}
->>>>>>> b68d759bce5bcf4ed9a9525e23ca230f34e68e0d
         <div
-          ref={containerRef}
-          onMouseMove={handleMouseMove}
-          onTouchMove={handleTouchMove}
-          onMouseDown={(e) => {
-            setIsDragging(true)
-            handleMove(e.clientX)
+          className="absolute inset-0 pointer-events-none overflow-hidden"
+          style={{
+            clipPath: `inset(0 ${100 - sliderPosition}% 0 0)`,
+            WebkitClipPath: `inset(0 ${100 - sliderPosition}% 0 0)`
           }}
-          onTouchStart={(e) => {
-            e.stopPropagation()
-            setIsDragging(true)
-            if (e.touches.length > 0) handleMove(e.touches[0].clientX)
-          }}
-          onTouchEnd={(e) => {
-            e.stopPropagation()
-            setIsDragging(false)
-          }}
-          className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden shadow-xl select-none cursor-ew-resize border border-[#E6A635]/40 bg-[#1A110B]"
         >
-<<<<<<< HEAD
-          {/* Base Layer: Après Image */}
-          <div className="absolute inset-0">
-            <img
-              src={apresSrc}
-              alt={`Après : ${item.title}`}
-              className="absolute inset-0 w-full h-full object-cover block pointer-events-none"
-            />
-            <div className="absolute top-3.5 right-3.5 bg-[#241812]/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#F2BD52] border border-[#E6A635]/40 pointer-events-none shadow-md z-10">
-              ✨ Après
-            </div>
-          </div>
-
-          {/* Clipped Top Layer: Avant Image */}
-          <div
-            className="absolute inset-0 pointer-events-none overflow-hidden"
-            style={{
-              clipPath: `inset(0 ${100 - sliderPosition}% 0 0)`,
-              WebkitClipPath: `inset(0 ${100 - sliderPosition}% 0 0)`
-=======
           <img
             src={avantSrc}
             alt={`Avant : ${item.title}`}
@@ -163,69 +106,21 @@ function BeforeAfterItem({ item }: { item: Relooking }) {
                 target.dataset.fallback = '1'
                 target.src = '/placeholder.jpg'
               }
->>>>>>> b68d759bce5bcf4ed9a9525e23ca230f34e68e0d
             }}
-          >
-            <img
-              src={avantSrc}
-              alt={`Avant : ${item.title}`}
-              className="absolute inset-0 w-full h-full object-cover block pointer-events-none"
-            />
-            <div className="absolute top-3.5 left-3.5 bg-[#1A110B]/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#EAE4D9] border border-white/20 pointer-events-none shadow-md z-10">
-              État Initial (Avant)
-            </div>
-          </div>
-
-          {/* Vertical Divider Line & Handle */}
-          <div
-            className="absolute top-0 bottom-0 w-0.5 bg-[#E6A635] shadow-[0_0_10px_#E6A635] pointer-events-none z-20"
-            style={{ left: `${sliderPosition}%` }}
-          >
-            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-9 rounded-full bg-[#E6A635] text-[#1A110B] flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.8)] border-2 border-white pointer-events-auto cursor-ew-resize hover:scale-110 active:scale-95 transition-transform">
-              <ArrowRightLeft className="size-4" />
-            </div>
+          />
+          <div className="absolute top-3.5 left-3.5 bg-[#1A110B]/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-[#EAE4D9] border border-white/20 pointer-events-none shadow-md z-10">
+            Avant
           </div>
         </div>
 
-        {/* Boutons d'accès direct sur Mobile (permet de zapper immédiatement sans glisser) */}
-        <div 
-          className="flex items-center justify-center gap-2 mt-3 z-20"
-          onTouchStart={(e) => e.stopPropagation()}
-          onTouchEnd={(e) => e.stopPropagation()}
+        {/* Vertical Divider Line & Handle */}
+        <div
+          className="absolute top-0 bottom-0 w-0.5 bg-[#E6A635] shadow-[0_0_10px_#E6A635] pointer-events-none z-20"
+          style={{ left: `${sliderPosition}%` }}
         >
-          <button
-            type="button"
-            onClick={() => setSliderPosition(100)}
-            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer border ${
-              sliderPosition > 85
-                ? 'bg-white text-[#1A110B] border-white shadow-md'
-                : 'bg-[#241812]/80 text-white/80 border-white/20 hover:bg-[#241812]'
-            }`}
-          >
-            <Eye className="inline size-3 mr-1" /> Avant
-          </button>
-          <button
-            type="button"
-            onClick={() => setSliderPosition(50)}
-            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer border ${
-              sliderPosition >= 40 && sliderPosition <= 60
-                ? 'bg-[#E6A635] text-[#1A110B] border-[#E6A635] shadow-md'
-                : 'bg-[#241812]/80 text-white/80 border-[#E6A635]/30 hover:bg-[#241812]'
-            }`}
-          >
-            <ArrowRightLeft className="inline size-3 mr-1" /> 50 / 50
-          </button>
-          <button
-            type="button"
-            onClick={() => setSliderPosition(0)}
-            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer border ${
-              sliderPosition < 15
-                ? 'bg-[#F2BD52] text-[#1A110B] border-[#F2BD52] shadow-md'
-                : 'bg-[#241812]/80 text-white/80 border-white/20 hover:bg-[#241812]'
-            }`}
-          >
-            <Wand2 className="inline size-3 mr-1" /> Après
-          </button>
+          <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-9 rounded-full bg-[#E6A635] text-[#1A110B] flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.8)] border-2 border-white pointer-events-auto cursor-ew-resize hover:scale-110 active:scale-95 transition-transform">
+            <ArrowRightLeft className="size-4" />
+          </div>
         </div>
       </div>
 
@@ -274,13 +169,7 @@ export default function RelookingPage() {
   useEffect(() => {
     publicApi.getRelookings()
       .then(data => {
-        if (Array.isArray(data)) {
-          // Filtrer strictement pour ne conserver AUCUNE photo morte
-          const valid = data.filter(i => !isDeadPhoto(i.imageAvantUrl) && !isDeadPhoto(i.imageApresUrl))
-          setItems(valid)
-        } else {
-          setItems([])
-        }
+        setItems(Array.isArray(data) ? data : [])
       })
       .catch(err => {
         console.error("Erreur de chargement des relookings", err)
@@ -291,11 +180,8 @@ export default function RelookingPage() {
       })
   }, [])
 
-<<<<<<< HEAD
-=======
   const validDbItems = items.filter(i => (i.imageAvantUrl && i.imageAvantUrl.trim() !== '') || (i.imageApresUrl && i.imageApresUrl.trim() !== ''))
 
->>>>>>> b68d759bce5bcf4ed9a9525e23ca230f34e68e0d
   return (
     <main className="relative w-full min-h-screen flex flex-col text-[#F7F4EE] overflow-x-hidden bg-[#241812]">
       {/* 🌟 FOND MAÎTRE SCROLLABLE UNIFORME */}
@@ -332,10 +218,6 @@ export default function RelookingPage() {
                 <div className="text-center py-16 text-[#F2BD52] animate-pulse">
                   Chargement de nos restaurations...
                 </div>
-<<<<<<< HEAD
-              ) : items.length > 0 ? (
-                items.map(item => (
-=======
               ) : validDbItems.length === 0 ? (
                 <div className="text-center py-14 px-6 bg-[#3B271C]/75 rounded-3xl border border-[#E6A635]/30 max-w-xl mx-auto backdrop-blur-md">
                   <Hammer className="size-8 text-[#E6A635] mx-auto mb-3" />
@@ -353,29 +235,10 @@ export default function RelookingPage() {
                 </div>
               ) : (
                 validDbItems.map(item => (
->>>>>>> b68d759bce5bcf4ed9a9525e23ca230f34e68e0d
                   <Reveal key={item.id}>
                     <BeforeAfterItem item={item} />
                   </Reveal>
                 ))
-              ) : (
-                /* Aucune photo morte : Message propre invitant à publier ou commander */
-                <div className="text-center py-16 px-6 bg-[#3B271C]/80 rounded-3xl border border-[#E6A635]/30 max-w-2xl mx-auto flex flex-col items-center shadow-xl">
-                  <Paintbrush className="size-12 text-[#F2BD52] mb-3 animate-pulse" />
-                  <h3 className="font-heading text-xl text-white font-medium mb-2">
-                    Nouvelles Créations &amp; Restaurations en Cours
-                  </h3>
-                  <p className="text-white/80 text-xs sm:text-sm leading-relaxed mb-6 font-light">
-                    Notre atelier finalise actuellement la documentation photographique de ses récentes restaurations d&apos;art. Vous avez une pièce de valeur à sublimer ?
-                  </p>
-                  <Link
-                    href="/contact"
-                    className="btn-sheen inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#F3C45E] via-[#E6A635] to-[#C78318] text-[#1A110B] text-xs font-bold uppercase tracking-wider shadow-md hover:scale-[1.02] transition-all"
-                  >
-                    <span>Demander un devis de restauration</span>
-                    <ArrowRight className="size-3.5" />
-                  </Link>
-                </div>
               )}
             </AnimatePresence>
           </div>
