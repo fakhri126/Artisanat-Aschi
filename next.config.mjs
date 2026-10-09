@@ -9,9 +9,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 86400,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: 'https',
@@ -21,6 +22,11 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '*.supabase.co',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'artisanat-aschi-backend.onrender.com',
         pathname: '/**',
       },
       {
@@ -56,6 +62,26 @@ const nextConfig = {
       {
         source: '/custom-creation',
         destination: '/contact',
+        permanent: false,
+      },
+      {
+        source: '/projets',
+        destination: '/espaces-d-exception',
+        permanent: false,
+      },
+      {
+        source: '/projets-cles-en-main',
+        destination: '/espaces-d-exception',
+        permanent: false,
+      },
+      {
+        source: '/cles-en-main',
+        destination: '/espaces-d-exception',
+        permanent: false,
+      },
+      {
+        source: '/projets-d-exception',
+        destination: '/espaces-d-exception',
         permanent: false,
       },
     ]

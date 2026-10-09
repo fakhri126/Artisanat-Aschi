@@ -28,6 +28,8 @@ export function getApiBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api').replace(/\/+$/, '');
 }
 
+import { AUTHENTIC_PROJECTS } from '@/app/espaces-d-exception/constants';
+
 export const API_BASE_URL = getApiBaseUrl();
 
 // --- Type Definitions ---
@@ -394,9 +396,13 @@ export const publicApi = {
   
   getProjects: async (category?: string) => {
     try {
-      return await fetchApi<Project[]>(`/public/projects${category ? '?category=' + encodeURIComponent(category) : ''}`);
+      const res = await fetchApi<Project[]>(`/public/projects${category ? '?category=' + encodeURIComponent(category) : ''}`);
+      if (Array.isArray(res) && res.length > 0) {
+        return res;
+      }
+      return AUTHENTIC_PROJECTS as unknown as Project[];
     } catch {
-      return [];
+      return AUTHENTIC_PROJECTS as unknown as Project[];
     }
   },
   
