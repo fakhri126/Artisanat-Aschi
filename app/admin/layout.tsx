@@ -63,7 +63,7 @@ export default function AdminLayout({
 
   const handleLogout = () => {
     removeAuthToken()
-    router.push('/admin/login')
+    window.location.href = '/admin/login'
   }
 
   if (isLoginPage) {

@@ -45,11 +45,11 @@ function mapProject(p: any) {
     category: p.category || 'Projet Clé en Main',
     image: galleryImgs[0] || p.imageUrl || '/placeholder.jpg',
     description: p.description || '',
-    details: p.details ? (typeof p.details === 'string' ? p.details.split(',').map(d => d.trim()).filter(Boolean) : p.details) : ["Aménagement d'artisanat d'art"],
+    details: p.details ? (typeof p.details === 'string' ? p.details.split(',').map((d: string) => d.trim()).filter(Boolean) : p.details) : ["Aménagement d'artisanat d'art"],
     gallery: galleryImgs,
     video: p.videoUrl || p.video || '',
     materials: p.materials || (AUTHENTIC_PROJECTS.find(def => def.id === p.id) as any)?.materials || "Noyer Massif & Bois d'Art",
-    review: p.review || (AUTHENTIC_PROJECTS.find(def => def.id === p.id)?.review || null)
+    review: p.review || ((AUTHENTIC_PROJECTS.find(def => def.id === p.id) as any)?.review || null)
   }
 }
 

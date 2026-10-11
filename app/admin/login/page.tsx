@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('adminpassword')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isWakingServer, setIsWakingServer] = useState(false)
 
   useEffect(() => {
     if (isLoggedIn()) {
@@ -22,6 +23,12 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
     setLoading(true)
+    setIsWakingServer(false)
+
+    // Si la requête prend plus de 3.5 secondes, c'est que Render se réveille (Cold Start)
+    const wakeTimer = setTimeout(() => {
+      setIsWakingServer(true)
+    }, 3500)
 
     try {
       await adminApi.login({ username, password })
@@ -29,7 +36,9 @@ export default function LoginPage() {
     } catch (err: any) {
       setError(err.message || 'Identifiants invalides ou serveur Spring Boot injoignable. Veuillez réessayer.')
     } finally {
+      clearTimeout(wakeTimer)
       setLoading(false)
+      setIsWakingServer(false)
     }
   }
 
@@ -70,6 +79,13 @@ export default function LoginPage() {
           <div className="mt-4 p-4 rounded-lg bg-red-950/40 border border-red-500/30 flex gap-3 text-sm text-red-300">
             <AlertCircle className="size-5 shrink-0" />
             <p>{error}</p>
+          </div>
+        )}
+
+        {isWakingServer && (
+          <div className="mt-4 p-3 rounded-lg bg-amber-950/40 border border-amber-500/30 flex items-center gap-2.5 text-xs text-amber-200">
+            <div className="size-3 border-2 border-amber-300 border-t-transparent rounded-full animate-spin shrink-0" />
+            <p>Démarrage du serveur sécurisé Render en cours... Veuillez patienter quelques secondes.</p>
           </div>
         )}
 
