@@ -274,7 +274,7 @@ export function MediaSection() {
                   src={mediaData.videoUrl || "/video-media-aschi.mp4"}
                   muted={isMuted}
                   playsInline
-                  preload="metadata"
+                  preload="none"
                   onTimeUpdate={handleTimeUpdate}
                   onLoadedMetadata={handleLoadedMetadata}
                   onEnded={handleVideoEnded}

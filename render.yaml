@@ -25,6 +25,6 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: CORS_ALLOWED_ORIGINS
-        value: https://artisanat-aschi.vercel.app,https://artisanat-aschi-frontend.onrender.com,http://localhost:3000,https://artisanat-aschi.com
+        value: https://artisanat-aschi.vercel.app,https://artisanat-aschi-frontend.onrender.com,http://localhost:3000,https://artisanat-aschi.com,https://www.artisanat-aschi.com,https://artisanataschi.com,https://www.artisanataschi.com
 
 
