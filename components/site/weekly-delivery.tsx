@@ -8,6 +8,23 @@ import { formatImageUrl } from '@/lib/utils'
 import { Truck, MapPin, Calendar, ChevronLeft, ChevronRight, ShieldCheck, Star } from 'lucide-react'
 import Image from 'next/image'
 
+const FALLBACK_DELIVERIES: Delivery[] = [
+  {
+    id: 999,
+    title: "Livraison d'une table basse sculptée à La Marsa",
+    description: "Installation chez un particulier d'une pièce façonnée sur-mesure en noyer massif sélectionné.",
+    imageUrl: "https://uerbqswgxsinayfyntsm.supabase.co/storage/v1/object/public/media/1791095826710-IMG_20230930_092350.webp",
+    deliveryDate: "2026-10-04",
+  },
+  {
+    id: 998,
+    title: "Buffet d'Apparat & Majoliques d'Art",
+    description: "Aménagement d'une demeure de prestige avec ferrures ciselées et finition satinée.",
+    imageUrl: "https://uerbqswgxsinayfyntsm.supabase.co/storage/v1/object/public/media/1791190855330-file_0000000090d4821087a427259211ad97.webp",
+    deliveryDate: "2026-10-05",
+  },
+]
+
 export function WeeklyDelivery() {
   const containerRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(containerRef, { margin: '150px 0px', once: false })
@@ -22,34 +39,36 @@ export function WeeklyDelivery() {
     setIsMounted(true)
     publicApi.getDeliveries()
       .then(data => {
-        if (data && Array.isArray(data)) {
+        if (data && Array.isArray(data) && data.length > 0) {
           const sorted = data.sort((a, b) => b.id - a.id)
           setDeliveries(sorted)
         } else {
-          setDeliveries([])
+          setDeliveries(FALLBACK_DELIVERIES)
         }
       })
       .catch((error) => {
-        console.error("Failed to fetch deliveries:", error)
-        setDeliveries([])
+        console.warn("Using fallback deliveries:", error)
+        setDeliveries(FALLBACK_DELIVERIES)
       })
   }, [])
 
+  const activeDeliveries = deliveries.length > 0 ? deliveries : FALLBACK_DELIVERIES
+
   useEffect(() => {
-    if (deliveries.length <= 1 || isPaused) return
+    if (activeDeliveries.length <= 1 || isPaused) return
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % deliveries.length)
+      setCurrentIndex((prev) => (prev + 1) % activeDeliveries.length)
     }, 6500)
     return () => clearInterval(timer)
-  }, [deliveries.length, isPaused])
+  }, [activeDeliveries.length, isPaused])
 
   useEffect(() => {
     setActivePhotoIdx(0)
   }, [currentIndex])
 
-  if (!isMounted || deliveries.length === 0) return null
+  if (!isMounted) return null
 
-  const currentDelivery = deliveries[currentIndex]
+  const currentDelivery = activeDeliveries[currentIndex] || activeDeliveries[0]
   const currentImages = (currentDelivery?.imageUrl || '')
     .split(',')
     .map(s => s.trim())
@@ -122,6 +141,7 @@ export function WeeklyDelivery() {
                       autoPlay
                       loop
                       playsInline
+                      preload="metadata"
                       className="object-cover w-full h-full"
                     />
                   ) : (

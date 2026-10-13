@@ -99,28 +99,33 @@ export async function POST(request: Request) {
       fs.copyFileSync(finalFilepath, backendFilepath)
     } catch (_) {}
 
-    // Upload to Supabase Storage if configured
-    let finalUrl = `/uploads/${finalFilename}`
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    // Upload to permanent Supabase Storage
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://uerbqswgxsinayfyntsm.supabase.co'
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+                        process.env.SUPABASE_KEY || 
+                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlcmJxc3dneHNpbmF5ZnludHNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMDcyMTcsImV4cCI6MjEwMzg4MzIxN30.xoxyBPIb5ZOxM5ggsIsgPxyMF2K8BjO9_JwE8mtKygI'
 
-    if (supabaseUrl && supabaseKey) {
-      try {
-        const { createClient } = await import('@supabase/supabase-js')
-        const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
-        const videoBuffer = fs.readFileSync(finalFilepath)
-        const { error: uploadError } = await supabase.storage
-          .from('media')
-          .upload(finalFilename, videoBuffer, {
-            contentType: 'video/mp4',
-            upsert: true,
-          })
-        if (!uploadError) {
-          console.log(`Supabase backup upload succeeded for ${finalFilename}`)
+    let finalUrl = `https://uerbqswgxsinayfyntsm.supabase.co/storage/v1/object/public/media/${finalFilename}`
+
+    try {
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
+      const videoBuffer = fs.existsSync(finalFilepath) ? fs.readFileSync(finalFilepath) : buffer
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(finalFilename, videoBuffer, {
+          contentType: 'video/mp4',
+          upsert: true,
+        })
+      if (!uploadError) {
+        const { data: pubData } = supabase.storage.from('media').getPublicUrl(finalFilename)
+        if (pubData?.publicUrl) {
+          finalUrl = pubData.publicUrl
         }
-      } catch (sbErr) {
-        console.warn('Supabase video upload fallback to local:', sbErr)
       }
+    } catch (sbErr) {
+      console.warn('Supabase video upload fallback:', sbErr)
     }
 
     return NextResponse.json({ url: finalUrl })

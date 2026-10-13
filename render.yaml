@@ -21,7 +21,7 @@ services:
       - key: SUPABASE_SERVICE_KEY
         sync: false
       - key: SUPABASE_STORAGE_BUCKET
-        value: artisanat-aschi-media
+        value: media
       - key: JWT_SECRET
         sync: false
       - key: CORS_ALLOWED_ORIGINS

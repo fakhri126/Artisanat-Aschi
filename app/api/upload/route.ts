@@ -63,44 +63,52 @@ export async function POST(request: Request) {
       }
     }
 
-    const filepath = path.join(uploadsDir, finalFilename)
-    const backendFilepath = path.join(backendUploadsDir, finalFilename)
-
-    // Write processed file to both directories (local cache/backup)
-    fs.writeFileSync(filepath, processedBuffer)
+    // Try local backup cache only if filesystem is writable (non-blocking for Vercel Serverless)
     try {
-      fs.writeFileSync(backendFilepath, processedBuffer)
-    } catch (_) {}
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
+      const backendUploadsDir = path.join(process.cwd(), 'backend', 'uploads')
+      if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
+      if (!fs.existsSync(backendUploadsDir)) fs.mkdirSync(backendUploadsDir, { recursive: true })
+      fs.writeFileSync(path.join(uploadsDir, finalFilename), processedBuffer)
+      fs.writeFileSync(path.join(backendUploadsDir, finalFilename), processedBuffer)
+    } catch (_) {
+      // Ignored on read-only environments like Vercel
+    }
 
-    // Upload to Supabase Storage if configured
-    let finalUrl = `/uploads/${finalFilename}`
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    // Upload directly to permanent Supabase Storage
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://uerbqswgxsinayfyntsm.supabase.co'
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+                        process.env.SUPABASE_KEY || 
+                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlcmJxc3dneHNpbmF5ZnludHNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMDcyMTcsImV4cCI6MjEwMzg4MzIxN30.xoxyBPIb5ZOxM5ggsIsgPxyMF2K8BjO9_JwE8mtKygI'
 
-    if (supabaseUrl && supabaseKey) {
-      try {
-        const { createClient } = await import('@supabase/supabase-js')
-        const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
-        const { error: uploadError } = await supabase.storage
-          .from('media')
-          .upload(finalFilename, processedBuffer, {
-            contentType: isImage && !isSvg && !isGif ? 'image/webp' : (file.type || 'application/octet-stream'),
-            upsert: true,
-          })
-        if (!uploadError) {
-          const { data: pubData } = supabase.storage.from('media').getPublicUrl(finalFilename)
-          if (pubData?.publicUrl) {
-            finalUrl = pubData.publicUrl
-          }
+    let finalUrl = `https://uerbqswgxsinayfyntsm.supabase.co/storage/v1/object/public/media/${finalFilename}`
+
+    try {
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(finalFilename, processedBuffer, {
+          contentType: isImage && !isSvg && !isGif ? 'image/webp' : (file.type || 'application/octet-stream'),
+          upsert: true,
+        })
+
+      if (!uploadError) {
+        const { data: pubData } = supabase.storage.from('media').getPublicUrl(finalFilename)
+        if (pubData?.publicUrl) {
+          finalUrl = pubData.publicUrl
         }
-      } catch (sbErr) {
-        console.warn('Supabase image upload fallback to local:', sbErr)
+      } else {
+        console.warn('Supabase storage upload error:', uploadError.message)
       }
+    } catch (sbErr) {
+      console.warn('Supabase upload exception:', sbErr)
     }
 
     return NextResponse.json({ url: finalUrl })
   } catch (error: any) {
-    console.error('Error uploading image to public/uploads:', error)
-    return NextResponse.json({ error: error.message || "Erreur lors de l'enregistrement de l'image." }, { status: 500 })
+    console.error('Error uploading image:', error)
+    return NextResponse.json({ error: error.message || "Erreur lors du traitement de l'image." }, { status: 500 })
   }
 }

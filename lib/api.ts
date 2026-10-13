@@ -531,10 +531,10 @@ export const adminApi = {
       console.warn('Next.js direct upload fallback:', e);
     }
 
-    // 2. Fallback to Spring Boot backend /admin/upload
+    // 2. Fallback to Spring Boot backend /admin/uploads/image
     const formData = new FormData();
     formData.append('file', file);
-    const backendRes = await fetchApi<{ url: string }>('/admin/upload', {
+    const backendRes = await fetchApi<{ url: string }>('/admin/uploads/image', {
       method: 'POST',
       body: formData,
     });
@@ -562,8 +562,17 @@ export const adminApi = {
       console.warn('Next.js upload-video failed, falling back to direct upload:', e);
     }
 
-    // Fallback: direct backend upload
-    return await adminApi.uploadImage(file);
+    // Fallback: direct backend upload to Spring Boot /admin/uploads/video
+    const formData = new FormData();
+    formData.append('file', file);
+    const backendRes = await fetchApi<{ url: string }>('/admin/uploads/video', {
+      method: 'POST',
+      body: formData,
+    });
+    const cleanUrl = backendRes.url
+      ? backendRes.url.replace(/^https?:\/\/(localhost|127\.0\.0\.1):[0-9]+(?:\/api)?/, '')
+      : backendRes.url;
+    return { url: cleanUrl };
   },
 
   uploadProductImage: (file: File) => {

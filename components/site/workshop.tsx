@@ -156,18 +156,16 @@ export function Workshop() {
             {/* Vidéo ajoutée exclusivement depuis le dashboard */}
             {savoirFaireData.videoUrl ? (
               <>
-                {/* 1. Fond d'ambiance flou dynamique (pour remplir les côtés harmonieusement sans bandes noires brutes) */}
+                {/* 1. Fond d'ambiance flou dynamique sans dupliquer le flux vidéo lourd */}
                 {isVertical && (
                   <div className="absolute inset-0 overflow-hidden pointer-events-none -z-0">
-                    <video
-                      src={hasLoaded ? savoirFaireData.videoUrl : undefined}
-                      muted
-                      loop
-                      playsInline
+                    <img
+                      src={savoirFaireData.posterUrl || "/images/raw-sculptures.jpg"}
+                      alt=""
                       aria-hidden="true"
-                      className="size-full object-cover blur-3xl opacity-35 scale-125 transform-gpu"
+                      className="size-full object-cover blur-3xl opacity-30 scale-125 transform-gpu"
                     />
-                    <div className="absolute inset-0 bg-[#1A110B]/60 backdrop-blur-sm" />
+                    <div className="absolute inset-0 bg-[#1A110B]/70 backdrop-blur-sm" />
                   </div>
                 )}
 

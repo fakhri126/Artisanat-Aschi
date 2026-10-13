@@ -32,7 +32,7 @@ export default function LoginPage() {
 
     try {
       await adminApi.login({ username, password })
-      router.push('/admin/dashboard')
+      window.location.href = '/admin/dashboard'
     } catch (err: any) {
       setError(err.message || 'Identifiants invalides ou serveur Spring Boot injoignable. Veuillez réessayer.')
     } finally {
@@ -60,13 +60,13 @@ export default function LoginPage() {
         {/* Credentials Helper Badge */}
         <div className="mt-6 p-3 rounded-xl bg-[#E8DCCB]/10 border border-[#E8DCCB]/20 text-xs text-[#FAF7F2]/90 flex items-center justify-between">
           <div className="space-y-0.5">
-            <p className="text-[10px] uppercase tracking-wider text-[#C17D59] font-bold">Identifiants pré-remplis</p>
+            <p className="text-[10px] uppercase tracking-wider text-[#C17D59] font-bold">Identifiants configurés</p>
             <p className="font-mono text-xs">admin <span className="text-[#FAF7F2]/40">/</span> adminpassword</p>
           </div>
           <button
             type="button"
             onClick={() => {
-              setUsername('ismail')
+              setUsername('admin')
               setPassword('adminpassword')
             }}
             className="text-[10px] bg-[#E8DCCB]/20 hover:bg-[#E8DCCB]/30 text-[#FAF7F2] px-2.5 py-1 rounded-md transition-colors font-medium cursor-pointer"
