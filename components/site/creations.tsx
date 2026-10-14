@@ -16,7 +16,7 @@ export function Creations() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Tout')
   const [loading, setLoading] = useState(true)
 
-  async function fetchData(retry = 0) {
+  async function fetchData() {
     try {
       const [prodData, catData] = await Promise.all([
         publicApi.getProducts().catch(() => []),
@@ -24,10 +24,6 @@ export function Creations() {
       ])
 
       const validProds = Array.isArray(prodData) ? prodData : []
-      if (validProds.length === 0 && retry < 2) {
-        setTimeout(() => fetchData(retry + 1), 2500)
-        return
-      }
 
       // Only keep available products (not inspiration ones) and exclude Bijoux de Porte
       const availableProds = validProds.filter((p) => {

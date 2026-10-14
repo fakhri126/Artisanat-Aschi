@@ -46,6 +46,7 @@ spring:
       - products
       - projects
       - news
+      - deliveries
       - colors
       - reels
   servlet:
@@ -80,7 +81,7 @@ app:
 # Supabase Storage Configuration
 supabase:
   url: ${SUPABASE_URL:https://uerbqswgxsinayfyntsm.supabase.co}
-  service-key: ${SUPABASE_SERVICE_KEY:}
+  service-key: ${SUPABASE_SERVICE_KEY:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlcmJxc3dneHNpbmF5ZnludHNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMDcyMTcsImV4cCI6MjEwMzg4MzIxN30.xoxyBPIb5ZOxM5ggsIsgPxyMF2K8BjO9_JwE8mtKygI}
   storage:
     bucket: ${SUPABASE_STORAGE_BUCKET:media}
 

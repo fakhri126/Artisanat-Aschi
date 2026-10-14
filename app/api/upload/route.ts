@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
-import sharp from 'sharp'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -18,16 +17,11 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Ensure uploads directory exists in public/uploads and backend/uploads
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-    const backendUploadsDir = path.join(process.cwd(), 'backend', 'uploads')
-    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
-    if (!fs.existsSync(backendUploadsDir)) fs.mkdirSync(backendUploadsDir, { recursive: true })
-
     // Sanitize filename
     const sanitizedOriginal = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
     let finalFilename = `${Date.now()}-${sanitizedOriginal}`
     let processedBuffer = buffer
+    let finalContentType = file.type || 'application/octet-stream'
 
     // Check if file is a compressible image
     const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|avif|heic)$/i.test(file.name)
@@ -36,43 +30,44 @@ export async function POST(request: Request) {
 
     if (isImage && !isSvg && !isGif) {
       try {
-        const sharpInstance = sharp(buffer)
-        const metadata = await sharpInstance.metadata()
+        const sharpModule = await import('sharp').then(m => m.default || m).catch(() => null)
+        if (sharpModule) {
+          const sharpInstance = sharpModule(buffer)
+          const metadata = await sharpInstance.metadata()
 
-        let pipeline = sharpInstance.rotate() // auto-orient based on EXIF
+          let pipeline = sharpInstance.rotate() // auto-orient based on EXIF
 
-        if ((metadata.width && metadata.width > 1920) || (metadata.height && metadata.height > 1920)) {
-          pipeline = pipeline.resize({
-            width: 1920,
-            height: 1920,
-            fit: 'inside',
-            withoutEnlargement: true,
-          })
+          if ((metadata.width && metadata.width > 1920) || (metadata.height && metadata.height > 1920)) {
+            pipeline = pipeline.resize({
+              width: 1920,
+              height: 1920,
+              fit: 'inside',
+              withoutEnlargement: true,
+            })
+          }
+
+          // Convert to high-quality compressed WebP
+          processedBuffer = await pipeline
+            .webp({ quality: 82, effort: 4 })
+            .toBuffer()
+
+          const baseName = sanitizedOriginal.replace(/\.[^/.]+$/, '')
+          finalFilename = `${Date.now()}-${baseName}.webp`
+          finalContentType = 'image/webp'
         }
-
-        // Convert to high-quality compressed WebP
-        processedBuffer = await pipeline
-          .webp({ quality: 82, effort: 4 })
-          .toBuffer()
-
-        const baseName = sanitizedOriginal.replace(/\.[^/.]+$/, '')
-        finalFilename = `${Date.now()}-${baseName}.webp`
       } catch (sharpErr) {
-        console.warn('Sharp compression failed, fallback to original buffer:', sharpErr)
+        console.warn('Sharp compression non disponible ou échouée, conservation du format original:', sharpErr)
         processedBuffer = buffer
       }
     }
 
-    // Try local backup cache only if filesystem is writable (non-blocking for Vercel Serverless)
+    // Sauvegarde locale optionnelle uniquement si l'environnement le permet (développement local)
     try {
       const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-      const backendUploadsDir = path.join(process.cwd(), 'backend', 'uploads')
       if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
-      if (!fs.existsSync(backendUploadsDir)) fs.mkdirSync(backendUploadsDir, { recursive: true })
       fs.writeFileSync(path.join(uploadsDir, finalFilename), processedBuffer)
-      fs.writeFileSync(path.join(backendUploadsDir, finalFilename), processedBuffer)
     } catch (_) {
-      // Ignored on read-only environments like Vercel
+      // Ignoré sans bloquer sur les environnements read-only comme Vercel
     }
 
     // Upload directly to permanent Supabase Storage

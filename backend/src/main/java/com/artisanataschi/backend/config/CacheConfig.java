@@ -74,6 +74,7 @@ public class CacheConfig {
         cacheConfigs.put("products", defaultConfig.entryTtl(Duration.ofMinutes(15)));
         cacheConfigs.put("projects", defaultConfig.entryTtl(Duration.ofHours(2)));
         cacheConfigs.put("news", defaultConfig.entryTtl(Duration.ofHours(1)));
+        cacheConfigs.put("deliveries", defaultConfig.entryTtl(Duration.ofHours(2)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
@@ -128,6 +129,11 @@ public class CacheConfig {
         cacheManager.registerCustomCache("news", Caffeine.newBuilder()
                 .maximumSize(200)
                 .expireAfterWrite(1, TimeUnit.HOURS)
+                .recordStats()
+                .build());
+        cacheManager.registerCustomCache("deliveries", Caffeine.newBuilder()
+                .maximumSize(200)
+                .expireAfterWrite(2, TimeUnit.HOURS)
                 .recordStats()
                 .build());
 

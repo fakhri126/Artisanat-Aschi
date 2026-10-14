@@ -88,6 +88,11 @@ export function formatImageUrl(url: string | null | undefined, fallback: string 
     return `https://uerbqswgxsinayfyntsm.supabase.co/${cleaned.replace(/^\//, '')}`
   }
 
+  // Normalize Render backend uploads and local api/uploads to relative /uploads/
+  // This allows Next.js route handler to check Supabase CDN and local assets gracefully
+  cleaned = cleaned.replace(/^https?:\/\/[^/]*onrender\.com(?:\/api)?\/uploads\//i, '/uploads/')
+  cleaned = cleaned.replace(/^https?:\/\/[^/]*artisanat-?aschi\.com\/api\/uploads\//i, '/uploads/')
+
   // Keep valid external absolute URLs (e.g. https://...)
   if (/^https?:\/\//i.test(cleaned)) {
     return cleaned
