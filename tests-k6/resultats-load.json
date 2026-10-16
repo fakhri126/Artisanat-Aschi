@@ -1,0 +1,206 @@
+{
+    "metrics": {
+        "vus": {
+            "value": 2,
+            "min": 1,
+            "max": 25
+        },
+        "group_duration": {
+            "p(90)": 1691.35525,
+            "p(95)": 1815.2429,
+            "avg": 1349.75222600671,
+            "min": 681.7172,
+            "med": 1383.479,
+            "max": 6375.4686
+        },
+        "http_req_receiving": {
+            "avg": 45.55526852349001,
+            "min": 0,
+            "med": 6.42495,
+            "max": 524.8201,
+            "p(90)": 132.88107000000014,
+            "p(95)": 167.89751999999996
+        },
+        "http_req_sending": {
+            "avg": 0.4247330201342284,
+            "min": 0,
+            "med": 0.1252,
+            "max": 11.2558,
+            "p(90)": 1.0067900000000012,
+            "p(95)": 1.46864
+        },
+        "http_req_duration": {
+            "p(90)": 591.6086800000003,
+            "p(95)": 764.9207549999999,
+            "avg": 328.51758127516774,
+            "min": 89.5974,
+            "med": 261.07635000000005,
+            "max": 2140.8016,
+            "thresholds": {
+                "p(95)<2500": false
+            }
+        },
+        "http_req_failed": {
+            "passes": 443,
+            "fails": 1047,
+            "thresholds": {
+                "rate<0.02": true
+            },
+            "value": 0.2973154362416107
+        },
+        "vus_max": {
+            "max": 25,
+            "value": 25,
+            "min": 25
+        },
+        "data_received": {
+            "count": 89501503,
+            "rate": 583164.979580251
+        },
+        "http_req_blocked": {
+            "avg": 10.256647651006714,
+            "min": 0,
+            "med": 0,
+            "max": 3180.8769,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "http_req_connecting": {
+            "p(95)": 0,
+            "avg": 4.434431677852349,
+            "min": 0,
+            "med": 0,
+            "max": 1615.5137,
+            "p(90)": 0
+        },
+        "iterations": {
+            "rate": 1.941678721472586,
+            "count": 298
+        },
+        "iteration_duration": {
+            "p(90)": 6260.83018,
+            "p(95)": 6423.032139999999,
+            "avg": 5704.406472818793,
+            "min": 4925.6919,
+            "med": 5555.46695,
+            "max": 11289.5399
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(95)": 826.7205,
+            "avg": 351.6031576886343,
+            "min": 89.5974,
+            "med": 270.8142,
+            "max": 2140.8016,
+            "p(90)": 690.45588
+        },
+        "http_req_waiting": {
+            "p(95)": 755.4463449999996,
+            "avg": 282.53757973154325,
+            "min": 56.9605,
+            "med": 241.85785,
+            "max": 2032.6902,
+            "p(90)": 551.9129500000006
+        },
+        "http_req_tls_handshaking": {
+            "med": 0,
+            "max": 1564.5768,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 5.525889731543625,
+            "min": 0
+        },
+        "http_reqs": {
+            "count": 1490,
+            "rate": 9.70839360736293
+        },
+        "checks": {
+            "passes": 1791,
+            "fails": 593,
+            "value": 0.7512583892617449
+        },
+        "data_sent": {
+            "count": 322724,
+            "rate": 2102.7728983507345
+        }
+    },
+    "root_group": {
+        "groups": {
+            "1. Frontend Navigation": {
+                "checks": {
+                    "Frontend Home: statut 200": {
+                        "fails": 0,
+                        "name": "Frontend Home: statut 200",
+                        "path": "::1. Frontend Navigation::Frontend Home: statut 200",
+                        "id": "1f3b15d413210c7f38f3ab7925f3ed3b",
+                        "passes": 298
+                    },
+                    "Frontend Catalogue: statut 200": {
+                        "name": "Frontend Catalogue: statut 200",
+                        "path": "::1. Frontend Navigation::Frontend Catalogue: statut 200",
+                        "id": "88dd1c274dbdf7809c1c77f235d22ea2",
+                        "passes": 298,
+                        "fails": 0
+                    }
+                },
+                "name": "1. Frontend Navigation",
+                "path": "::1. Frontend Navigation",
+                "id": "f2fcabbf4c6c7d5817c3516d6b67f9d6",
+                "groups": {}
+            },
+            "2. Backend REST API": {
+                "checks": {
+                    "API Categories: statut 200": {
+                        "path": "::2. Backend REST API::API Categories: statut 200",
+                        "id": "f9ab247611d62637a7f6721bf5fe8405",
+                        "passes": 150,
+                        "fails": 148,
+                        "name": "API Categories: statut 200"
+                    },
+                    "API Categories: réponse < 2s": {
+                        "name": "API Categories: réponse < 2s",
+                        "path": "::2. Backend REST API::API Categories: réponse < 2s",
+                        "id": "daa863bb99df3cdd3d4462ff11ba3377",
+                        "passes": 298,
+                        "fails": 0
+                    },
+                    "API Products: statut 200": {
+                        "name": "API Products: statut 200",
+                        "path": "::2. Backend REST API::API Products: statut 200",
+                        "id": "66d068066d46e894639577e0db7cc9f7",
+                        "passes": 151,
+                        "fails": 147
+                    },
+                    "API Products: contenu JSON": {
+                        "path": "::2. Backend REST API::API Products: contenu JSON",
+                        "id": "cb730f958327346c65e9e153cbe4664d",
+                        "passes": 298,
+                        "fails": 0,
+                        "name": "API Products: contenu JSON"
+                    },
+                    "API Deliveries: statut 200": {
+                        "path": "::2. Backend REST API::API Deliveries: statut 200",
+                        "id": "ae10d9beb151cb354cb1fbe22d8d3fab",
+                        "passes": 150,
+                        "fails": 148,
+                        "name": "API Deliveries: statut 200"
+                    },
+                    "API: pas bloqué par le rate limit (429)": {
+                        "name": "API: pas bloqué par le rate limit (429)",
+                        "path": "::2. Backend REST API::API: pas bloqué par le rate limit (429)",
+                        "id": "b7f64e041afe2a49bd4aae93123ac4be",
+                        "passes": 148,
+                        "fails": 150
+                    }
+                },
+                "name": "2. Backend REST API",
+                "path": "::2. Backend REST API",
+                "id": "ef453a1a3fc72d1abcec4ccb3e1def33",
+                "groups": {}
+            }
+        },
+        "checks": {},
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+}

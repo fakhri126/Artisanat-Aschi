@@ -27,6 +27,7 @@ import { Reveal } from './reveal'
 import { publicApi } from '@/lib/api'
 import { formatImageUrl } from '@/lib/utils'
 import { ProjectLightbox } from './project-lightbox'
+import { AUTHENTIC_PROJECTS } from '@/app/espaces-d-exception/constants'
 
 export interface ProjectItem {
   id: number
@@ -247,8 +248,59 @@ function BentoProjectCard({
   )
 }
 
+function mapProjectItem(p: any): ProjectItem {
+  const normCat = normalizeCategory(p.category)
+  const detailsList = p.details
+    ? (typeof p.details === 'string' ? p.details.split(',').map((d: string) => d.trim()).filter(Boolean) : p.details)
+    : []
+
+  let galleryImgs: string[] = []
+  if (Array.isArray(p.gallery) && p.gallery.length > 0) {
+    galleryImgs = p.gallery
+  } else if (typeof p.gallery === 'string' && (p.gallery as string).trim()) {
+    galleryImgs = (p.gallery as string).split(',').map(s => s.trim()).filter(Boolean)
+  } else if (Array.isArray(p.images) && p.images.length > 0) {
+    galleryImgs = p.images.map((im: any) => typeof im === 'string' ? im : (im.imageUrl || '')).filter(Boolean)
+  } else if (p.imageUrl) {
+    galleryImgs = p.imageUrl.split(',').map((s: string) => s.trim()).filter(Boolean)
+  }
+
+  try {
+    if (typeof window !== 'undefined') {
+      const local = localStorage.getItem(`project_gallery_${p.id}`)
+      if (local) {
+        const parsed = JSON.parse(local)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          galleryImgs = Array.from(new Set([...galleryImgs, ...parsed]))
+        }
+      }
+    }
+  } catch (_) {}
+
+  const primaryImg = galleryImgs[0] || (p.imageUrl ? p.imageUrl.split(',')[0].trim() : '') || '/placeholder.jpg'
+  if (galleryImgs.length === 0) {
+    galleryImgs = [primaryImg]
+  }
+
+  return {
+    id: p.id,
+    title: p.title,
+    category: p.category || 'Projet Clé en Main',
+    filterType: normCat,
+    imageUrl: primaryImg,
+    gallery: galleryImgs,
+    description: p.description || '',
+    location: p.location || 'Tunisie',
+    details: typeof p.details === 'string' ? p.details : '',
+    detailsList,
+    materials: 'Noyer noble, bois séché & finitions d\'art',
+    videoUrl: p.videoUrl || p.video || undefined,
+    video: p.videoUrl || p.video || undefined,
+  }
+}
+
 export function Projects() {
-  const [projects, setProjects] = useState<ProjectItem[]>([])
+  const [projects, setProjects] = useState<ProjectItem[]>(() => AUTHENTIC_PROJECTS.map(mapProjectItem))
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [lightboxProject, setLightboxProject] = useState<{ images: string[]; currentIndex: number; title: string } | null>(null)
@@ -271,61 +323,12 @@ export function Projects() {
     async function loadDynamicProjects() {
       try {
         const data = await publicApi.getProjects()
-        if (data && Array.isArray(data)) {
-          const mapped: ProjectItem[] = data.map((p) => {
-            const normCat = normalizeCategory(p.category)
-            const detailsList = p.details
-              ? p.details.split(',').map((d) => d.trim()).filter(Boolean)
-              : []
-
-            let galleryImgs: string[] = []
-            if (Array.isArray(p.gallery) && p.gallery.length > 0) {
-              galleryImgs = p.gallery
-            } else if (typeof p.gallery === 'string' && (p.gallery as string).trim()) {
-              galleryImgs = (p.gallery as string).split(',').map(s => s.trim()).filter(Boolean)
-            } else if (Array.isArray(p.images) && p.images.length > 0) {
-              galleryImgs = p.images.map((im: any) => typeof im === 'string' ? im : (im.imageUrl || '')).filter(Boolean)
-            } else if (p.imageUrl) {
-              galleryImgs = p.imageUrl.split(',').map(s => s.trim()).filter(Boolean)
-            }
-
-            try {
-              if (typeof window !== 'undefined') {
-                const local = localStorage.getItem(`project_gallery_${p.id}`)
-                if (local) {
-                  const parsed = JSON.parse(local)
-                  if (Array.isArray(parsed) && parsed.length > 0) {
-                    galleryImgs = Array.from(new Set([...galleryImgs, ...parsed]))
-                  }
-                }
-              }
-            } catch (_) {}
-
-            const primaryImg = galleryImgs[0] || (p.imageUrl ? p.imageUrl.split(',')[0].trim() : '') || '/placeholder.jpg'
-            if (galleryImgs.length === 0) {
-              galleryImgs = [primaryImg]
-            }
-
-            return {
-              id: p.id,
-              title: p.title,
-              category: p.category || 'Projets Immobiliers',
-              filterType: normCat,
-              imageUrl: primaryImg,
-              gallery: galleryImgs,
-              description: p.description || '',
-              location: p.location || 'Tunisie',
-              details: p.details || '',
-              detailsList,
-              materials: 'Noyer noble, bois séché & finitions d\'art',
-              videoUrl: p.videoUrl || p.video || undefined,
-              video: p.videoUrl || p.video || undefined,
-            }
-          })
+        if (data && Array.isArray(data) && data.length > 0) {
+          const mapped: ProjectItem[] = data.map(mapProjectItem)
           setProjects(mapped)
         }
       } catch (err) {
-        console.warn('Backend unavailable, using default projects:', err)
+        console.warn('Backend unavailable, using authentic projects fallback:', err)
       }
     }
     loadDynamicProjects()
@@ -354,7 +357,7 @@ export function Projects() {
 
   // Sélectionner exactement 4 projets prestigieux pour l'accueil : 1 grand vedette + 3 à droite
   const displayProjects = useMemo(() => {
-    const TARGET_TYPES = ['hotel', 'guesthouse', 'villa', 'immobilier']
+    const TARGET_TYPES = ['hotel', 'guesthouse', 'villa', 'pro_commercial', 'immobilier']
     const selected: ProjectItem[] = []
     const usedIds = new Set<number>()
 

@@ -55,7 +55,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const [servicesOpen, setServicesOpen] = useState(false)
-  const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(true)
   const pathname = usePathname()
   const { cartCount, setIsCartOpen, isMounted } = useCart()
   const { scrollY } = useScroll()

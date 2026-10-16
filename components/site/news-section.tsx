@@ -19,6 +19,28 @@ const isRecent = (dateStr: string) => {
   return diff < 7 * 24 * 60 * 60 * 1000
 }
 
+function NewsCardImage({ src, alt, sizes, className }: { src: string; alt: string; sizes?: string; className?: string }) {
+  const [currentSrc, setCurrentSrc] = useState(src)
+  useEffect(() => {
+    setCurrentSrc(src)
+  }, [src])
+
+  return (
+    <Image
+      src={currentSrc}
+      alt={alt}
+      fill
+      sizes={sizes || '100vw'}
+      className={className}
+      onError={() => {
+        if (currentSrc !== '/images/about-atelier-stand.jpg') {
+          setCurrentSrc('/images/about-atelier-stand.jpg')
+        }
+      }}
+    />
+  )
+}
+
 export function NewsSection() {
   const [news, setNews] = useState<News[]>([])
   const [loading, setLoading] = useState(true)
@@ -167,10 +189,9 @@ export function NewsSection() {
                 onClick={() => setSelectedArticle(currentMobileItem)}
                 className="relative z-10 w-full aspect-[16/10] overflow-hidden rounded-2xl shrink-0 border border-[#E6A635]/40 shadow-md cursor-pointer bg-[#241812]"
               >
-                <Image
+                <NewsCardImage
                   src={formatImageUrl(currentMobileItem.imageUrl, '/placeholder.jpg')}
                   alt={currentMobileItem.title}
-                  fill
                   sizes="(max-width: 768px) 100vw, 320px"
                   className="object-cover"
                 />
@@ -305,10 +326,9 @@ export function NewsSection() {
                     onClick={() => setExpandedDesktopId(isExpanded ? null : item.id)}
                     className="relative z-10 w-72 lg:w-80 aspect-[16/10] overflow-hidden rounded-2xl shrink-0 border-2 border-[#E6A635]/40 shadow-xl group/img cursor-pointer bg-[#241812]"
                   >
-                    <Image
+                    <NewsCardImage
                       src={formatImageUrl(item.imageUrl, '/placeholder.jpg')}
                       alt={item.title}
-                      fill
                       sizes="320px"
                       className="object-cover transition-transform duration-[1.2s] group-hover:scale-105"
                     />
@@ -428,10 +448,9 @@ export function NewsSection() {
               </button>
 
               <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden mb-4 border border-[#E6A635]/40 bg-black">
-                <Image
+                <NewsCardImage
                   src={formatImageUrl(selectedArticle.imageUrl, '/placeholder.jpg')}
                   alt={selectedArticle.title}
-                  fill
                   className="object-cover"
                 />
               </div>

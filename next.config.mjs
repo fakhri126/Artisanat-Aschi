@@ -9,9 +9,16 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+<<<<<<< HEAD
     unoptimized: false,
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400,
+=======
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 86400,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+>>>>>>> b077ad2764879cc092b5f588b375dc7df69f69db
     remotePatterns: [
       {
         protocol: 'https',
@@ -21,6 +28,11 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '*.supabase.co',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'artisanat-aschi-backend.onrender.com',
         pathname: '/**',
       },
       {
@@ -51,11 +63,53 @@ const nextConfig = {
       bodySizeLimit: '300mb',
     },
   },
+  async headers() {
+    return [
+      {
+        source: '/uploads/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ]
+  },
   async redirects() {
     return [
       {
         source: '/custom-creation',
         destination: '/contact',
+        permanent: false,
+      },
+      {
+        source: '/projets',
+        destination: '/espaces-d-exception',
+        permanent: false,
+      },
+      {
+        source: '/projets-cles-en-main',
+        destination: '/espaces-d-exception',
+        permanent: false,
+      },
+      {
+        source: '/cles-en-main',
+        destination: '/espaces-d-exception',
+        permanent: false,
+      },
+      {
+        source: '/projets-d-exception',
+        destination: '/espaces-d-exception',
         permanent: false,
       },
     ]

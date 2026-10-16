@@ -1,7 +1,12 @@
+function ensureApiSuffix(url: string): string {
+  const clean = url.replace(/\/+$/, '');
+  return clean.endsWith('/api') ? clean : `${clean}/api`;
+}
+
 export function getApiBaseUrl(): string {
   // 1. Variable explicitement définie et non-localhost
   if (process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes('localhost')) {
-    return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
+    return ensureApiSuffix(process.env.NEXT_PUBLIC_API_URL);
   }
   // 2. Détection dynamique dans le navigateur en production (Render ou autre domaine)
   if (typeof window !== 'undefined') {
@@ -11,7 +16,7 @@ export function getApiBaseUrl(): string {
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       const publicUrl = process.env.NEXT_PUBLIC_API_URL;
       if (publicUrl && !publicUrl.includes('localhost')) {
-        return publicUrl.replace(/\/+$/, '');
+        return ensureApiSuffix(publicUrl);
       }
       return 'https://artisanat-aschi-backend.onrender.com/api';
     }
@@ -19,14 +24,16 @@ export function getApiBaseUrl(): string {
   // 3. Fallback production côté serveur (SSR Node.js)
   if (process.env.NODE_ENV === 'production') {
     const internalUrl = process.env.INTERNAL_BACKEND_URL;
-    if (internalUrl && !internalUrl.includes('localhost')) return internalUrl.replace(/\/+$/, '');
+    if (internalUrl && !internalUrl.includes('localhost')) return ensureApiSuffix(internalUrl);
     const publicUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (publicUrl && !publicUrl.includes('localhost')) return publicUrl.replace(/\/+$/, '');
+    if (publicUrl && !publicUrl.includes('localhost')) return ensureApiSuffix(publicUrl);
     return 'https://artisanat-aschi-backend.onrender.com/api';
   }
   // 4. Fallback développement local
-  return (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api').replace(/\/+$/, '');
+  return ensureApiSuffix(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api');
 }
+
+import { AUTHENTIC_PROJECTS } from '@/app/espaces-d-exception/constants';
 
 export const API_BASE_URL = getApiBaseUrl();
 
@@ -206,12 +213,15 @@ export function getAuthToken(): string | null {
 export function setAuthToken(token: string): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem('token', token);
+    const isSecure = window.location.protocol === 'https:';
+    document.cookie = `admin_token=${token}; path=/; max-age=604800; SameSite=Lax${isSecure ? '; Secure' : ''}`;
   }
 }
 
 export function removeAuthToken(): void {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('token');
+    document.cookie = 'admin_token=; path=/; max-age=0; SameSite=Lax';
   }
 }
 
@@ -310,6 +320,16 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
   if (!response.ok) {
     const errorText = await response.text();
+    // Nettoyer les réponses HTML brutes (Tomcat 404, passerelle 502/503 Render)
+    if (errorText.trim().startsWith('<')) {
+      if (response.status === 404) {
+        throw new Error("Ressource ou point d'accès introuvable sur le serveur (Erreur 404).");
+      }
+      if (response.status === 502 || response.status === 503 || response.status === 504) {
+        throw new Error("Le serveur sécurisé démarre ou est temporairement indisponible. Veuillez patienter.");
+      }
+      throw new Error(`Le serveur a renvoyé une erreur (${response.status}).`);
+    }
     throw new Error(errorText || `Erreur HTTP: ${response.status}`);
   }
 
@@ -422,9 +442,13 @@ export const publicApi = {
   
   getProjects: async (category?: string) => {
     try {
-      return await fetchApi<Project[]>(`/public/projects${category ? '?category=' + encodeURIComponent(category) : ''}`);
+      const res = await fetchApi<Project[]>(`/public/projects${category ? '?category=' + encodeURIComponent(category) : ''}`);
+      if (Array.isArray(res) && res.length > 0) {
+        return res;
+      }
+      return AUTHENTIC_PROJECTS as unknown as Project[];
     } catch {
-      return [];
+      return AUTHENTIC_PROJECTS as unknown as Project[];
     }
   },
   
@@ -528,10 +552,10 @@ export const adminApi = {
       console.warn('Next.js direct upload fallback:', e);
     }
 
-    // 2. Fallback to Spring Boot backend /admin/upload
+    // 2. Fallback to Spring Boot backend /admin/uploads/image
     const formData = new FormData();
     formData.append('file', file);
-    const backendRes = await fetchApi<{ url: string }>('/admin/upload', {
+    const backendRes = await fetchApi<{ url: string }>('/admin/uploads/image', {
       method: 'POST',
       body: formData,
     });
@@ -559,8 +583,17 @@ export const adminApi = {
       console.warn('Next.js upload-video failed, falling back to direct upload:', e);
     }
 
-    // Fallback: direct backend upload
-    return await adminApi.uploadImage(file);
+    // Fallback: direct backend upload to Spring Boot /admin/uploads/video
+    const formData = new FormData();
+    formData.append('file', file);
+    const backendRes = await fetchApi<{ url: string }>('/admin/uploads/video', {
+      method: 'POST',
+      body: formData,
+    });
+    const cleanUrl = backendRes.url
+      ? backendRes.url.replace(/^https?:\/\/(localhost|127\.0\.0\.1):[0-9]+(?:\/api)?/, '')
+      : backendRes.url;
+    return { url: cleanUrl };
   },
 
   uploadProductImage: (file: File) => {

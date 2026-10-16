@@ -46,6 +46,7 @@ spring:
       - products
       - projects
       - news
+      - deliveries
       - colors
       - reels
   servlet:
@@ -75,14 +76,14 @@ app:
     secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
     expirationMs: ${JWT_EXPIRATION_MS:604800000} # 7 days
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://artisanat-aschi.com,https://www.artisanat-aschi.com}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://artisanat-aschi.com,https://www.artisanat-aschi.com,https://artisanataschi.com,https://www.artisanataschi.com}
 
 # Supabase Storage Configuration
 supabase:
   url: ${SUPABASE_URL:https://uerbqswgxsinayfyntsm.supabase.co}
-  service-key: ${SUPABASE_SERVICE_KEY:}
+  service-key: ${SUPABASE_SERVICE_KEY:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlcmJxc3dneHNpbmF5ZnludHNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMDcyMTcsImV4cCI6MjEwMzg4MzIxN30.xoxyBPIb5ZOxM5ggsIsgPxyMF2K8BjO9_JwE8mtKygI}
   storage:
-    bucket: ${SUPABASE_STORAGE_BUCKET:artisanat-aschi-media}
+    bucket: ${SUPABASE_STORAGE_BUCKET:media}
 
 logging:
   level:

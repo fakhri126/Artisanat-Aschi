@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Sparkles, MapPin, Phone, Mail, Clock, ArrowRight, MessageCircle, ExternalLink } from 'lucide-react'
-import { HeritageSeal } from './heritage-seal'
 
 function InstagramIcon({ className = 'size-4' }: { className?: string }) {
   return (
@@ -39,17 +39,24 @@ export function Footer() {
           {/* ========================================================================= */}
           <div className="lg:col-span-5 flex flex-col justify-between gap-6">
             <div className="space-y-4">
-              <div className="flex items-center gap-3.5">
-                <HeritageSeal size={70} />
+              <Link href="/" className="inline-flex items-center gap-3.5 group cursor-pointer">
+                <div className="relative h-14 w-16 shrink-0 drop-shadow-[0_4px_16px_rgba(234,168,18,0.3)] group-hover:drop-shadow-[0_8px_24px_rgba(234,168,18,0.5)] group-hover:scale-105 transition-all duration-300">
+                  <Image
+                    src="/logo-carved-nobg.svg"
+                    alt="Artisanat Aschi Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
                 <div>
-                  <h3 className="font-heading text-2xl sm:text-3xl font-light tracking-wide text-gold-gradient">
+                  <h3 className="font-heading text-2xl sm:text-3xl font-light tracking-wide text-gold-gradient group-hover:text-[#F2BD52] transition-colors">
                     Artisanat Aschi
                   </h3>
                   <p className="text-[9.5px] uppercase tracking-[0.24em] text-[#F2BD52] font-bold mt-0.5">
                     Maison Fondée en 1960 • Tunisie
                   </p>
                 </div>
-              </div>
+              </Link>
               
               <p className="text-xs sm:text-sm font-normal leading-relaxed text-white drop-shadow max-w-md">
                 Atelier familial de sculpture sur bois noble et haute ébénisterie. Nous façonnons des pièces uniques et des aménagements d&apos;exception pour les demeures de prestige à travers le monde.
@@ -138,7 +145,7 @@ export function Footer() {
               </Link>
               <Link href="/espaces-d-exception" className="transition-colors hover:text-[#F2BD52] flex items-center gap-2 group">
                 <span className="text-[#E6A635] text-[10px] group-hover:translate-x-0.5 transition-transform">❖</span>
-                <span>Espaces d&apos;Exception &amp; Hôtels</span>
+                <span>Projets Clés en Main (Espaces d&apos;Exception)</span>
               </Link>
               <Link href="/#media" className="transition-colors hover:text-[#F2BD52] flex items-center gap-2 group">
                 <span className="text-[#E6A635] text-[10px] group-hover:translate-x-0.5 transition-transform">❖</span>

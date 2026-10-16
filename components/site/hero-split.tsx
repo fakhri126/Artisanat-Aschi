@@ -7,7 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/lib/cart-context'
 import { publicApi, Product } from '@/lib/api'
-import { cn, isBijouxOrHandleProduct } from '@/lib/utils'
+import { cn, isBijouxOrHandleProduct, formatImageUrl } from '@/lib/utils'
 import { BohoRosace } from './boho-decor'
 
 const DEFAULT_PRODUCT: Product = {
@@ -28,6 +28,7 @@ const DEFAULT_PRODUCT: Product = {
 export function HeroSplit() {
   const [latestProduct, setLatestProduct] = useState<Product>(DEFAULT_PRODUCT)
   const [isUnveiled, setIsUnveiled] = useState(false)
+  const [imgError, setImgError] = useState(false)
   const { addToCart } = useCart()
 
   useEffect(() => {
@@ -88,11 +89,12 @@ export function HeroSplit() {
     loadLatestProduct()
   }, [])
 
-  let rawImage = latestProduct.images?.find(img => img.isPrimary)?.imageUrl || latestProduct.images?.[0]?.imageUrl || (latestProduct as any).imageUrl || '/placeholder.jpg'
+  let rawImage = latestProduct.images?.find(img => img.isPrimary)?.imageUrl || latestProduct.images?.[0]?.imageUrl || (latestProduct as any).imageUrl || '/images/bg-brass-cabinet-catalogue.jpg'
   if (rawImage.includes('#color=')) {
     rawImage = rawImage.split('#color=')[0]
   }
-  const image = rawImage || '/placeholder.jpg'
+  const fallbackPoster = '/images/bg-brass-cabinet-catalogue.jpg'
+  const image = imgError ? fallbackPoster : formatImageUrl(rawImage, fallbackPoster)
   const isVideo = Boolean(image.match(/\.(mp4|webm|ogg|mov)$/i))
 
   return (
@@ -183,6 +185,7 @@ export function HeroSplit() {
                   src={image}
                   alt={latestProduct.name}
                   fill
+                  onError={() => setImgError(true)}
                   className="absolute inset-0 object-cover transition-transform duration-[15s] group-hover:scale-105 z-0"
                 />
               )}

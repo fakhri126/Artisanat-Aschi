@@ -3,6 +3,8 @@ package com.artisanataschi.backend.service;
 import com.artisanataschi.backend.domain.Delivery;
 import com.artisanataschi.backend.dto.DeliveryRequestDto;
 import com.artisanataschi.backend.repository.DeliveryRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class DeliveryService {
         this.deliveryRepository = deliveryRepository;
     }
 
+    @Cacheable(value = "deliveries")
     public List<Delivery> getAllDeliveries() {
         return deliveryRepository.findAll();
     }
@@ -29,6 +32,7 @@ public class DeliveryService {
     }
 
     @Transactional
+    @CacheEvict(value = "deliveries", allEntries = true)
     public Delivery saveDelivery(DeliveryRequestDto dto) {
         Delivery delivery = new Delivery();
         delivery.setTitle(dto.getTitle());
@@ -39,11 +43,13 @@ public class DeliveryService {
     }
 
     @Transactional
+    @CacheEvict(value = "deliveries", allEntries = true)
     public Delivery saveDelivery(Delivery delivery) {
         return deliveryRepository.save(delivery);
     }
 
     @Transactional
+    @CacheEvict(value = "deliveries", allEntries = true)
     public Delivery updateDelivery(Long id, DeliveryRequestDto dto) {
         return deliveryRepository.findById(id).map(delivery -> {
             delivery.setTitle(dto.getTitle());
@@ -57,6 +63,7 @@ public class DeliveryService {
     }
 
     @Transactional
+    @CacheEvict(value = "deliveries", allEntries = true)
     public Delivery updateDelivery(Long id, Delivery deliveryDetails) {
         return deliveryRepository.findById(id).map(delivery -> {
             delivery.setTitle(deliveryDetails.getTitle());
@@ -68,6 +75,7 @@ public class DeliveryService {
     }
 
     @Transactional
+    @CacheEvict(value = "deliveries", allEntries = true)
     public void deleteDelivery(Long id) {
         deliveryRepository.deleteById(id);
     }
