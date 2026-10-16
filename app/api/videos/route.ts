@@ -102,15 +102,10 @@ function getStoredVideos() {
   return DEFAULT_VIDEOS
 }
 
-// GET: Récupère l'ensemble des vidéos du site et garantit le nettoyage de la BDD
+// GET: Récupère l'ensemble des vidéos du site
 export async function GET() {
-  const dbResult = await cleanDatabaseTestimonials()
-  await syncProjectVideosToFastLocal()
   const data = getStoredVideos()
-  return NextResponse.json({
-    ...data,
-    databaseStatus: dbResult
-  })
+  return NextResponse.json(data)
 }
 
 // POST: Met à jour une section de vidéo ou toutes les vidéos

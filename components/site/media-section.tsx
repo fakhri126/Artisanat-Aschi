@@ -271,10 +271,11 @@ export function MediaSection() {
                 */}
                 <video
                   ref={videoRef}
-                  src={mediaData.videoUrl || "/video-media-aschi.mp4"}
+                  src={isInView ? (mediaData.videoUrl || "/video-media-aschi.mp4") : undefined}
+                  poster="/images/about-atelier-stand.jpg"
                   muted={isMuted}
                   playsInline
-                  preload="metadata"
+                  preload="none"
                   onTimeUpdate={handleTimeUpdate}
                   onLoadedMetadata={handleLoadedMetadata}
                   onEnded={handleVideoEnded}

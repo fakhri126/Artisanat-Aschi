@@ -653,18 +653,12 @@ export function Projects() {
                   {modalActiveView === 'video' && (selectedProject.video || selectedProject.videoUrl) ? (
                     <>
                       {(() => {
-                        const rawVideoUrl = (() => {
-                          const v = (selectedProject.video || selectedProject.videoUrl || '').trim()
-                          if (!v) return ''
-                          const match = v.match(/\/media\/([^/?#]+\.mp4)/i)
-                          if (match && match[1]) {
-                            return `/uploads/${match[1]}`
-                          }
-                          return v
-                        })()
-                        const posterUrl = (selectedProject.gallery && selectedProject.gallery[0]?.split(',')[0]?.trim()) ||
-                          (selectedProject.imageUrl ? selectedProject.imageUrl.split(',')[0]?.trim() : '') ||
+                        const rawVideoUrl = formatImageUrl(selectedProject.video || selectedProject.videoUrl || '')
+                        const posterUrl = formatImageUrl(
+                          (selectedProject.gallery && selectedProject.gallery[0]?.split(',')[0]?.trim()) ||
+                          (selectedProject.imageUrl ? selectedProject.imageUrl.split(',')[0]?.trim() : ''),
                           '/placeholder.jpg'
+                        )
 
                         return (
                           <video
