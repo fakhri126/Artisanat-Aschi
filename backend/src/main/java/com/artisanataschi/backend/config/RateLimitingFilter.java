@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    private static final int MAX_LOGIN_PER_MINUTE = 5;
+    private static final int MAX_LOGIN_PER_MINUTE = 20;
     private static final int MAX_QUOTES_PER_HOUR = 10;
     private static final int MAX_PUBLIC_API_PER_MINUTE = 180;
 

@@ -34,6 +34,7 @@ export function getApiBaseUrl(): string {
 }
 
 import { AUTHENTIC_PROJECTS } from '@/app/espaces-d-exception/constants';
+import { convertToWebP } from '@/lib/image-compression';
 
 export const API_BASE_URL = getApiBaseUrl();
 
@@ -176,17 +177,19 @@ export interface ProductRequest {
 export function isTokenExpired(token: string): boolean {
   if (!token) return true;
   try {
-    const parts = token.split('.');
+    const cleanToken = decodeURIComponent(token).replace(/^Bearer\s+/i, '').trim();
+    const parts = cleanToken.split('.');
     if (parts.length !== 3) return true;
     const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
     const jsonStr = typeof window !== 'undefined'
       ? decodeURIComponent(
-          atob(base64)
+          atob(padded)
             .split('')
             .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
             .join('')
         )
-      : Buffer.from(base64, 'base64').toString('utf-8');
+      : Buffer.from(padded, 'base64').toString('utf-8');
     const payload = JSON.parse(jsonStr);
     if (payload.exp && typeof payload.exp === 'number') {
       return Date.now() >= payload.exp * 1000;
@@ -197,24 +200,18 @@ export function isTokenExpired(token: string): boolean {
   }
 }
 
-export function getAuthToken(): string | null {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    if (isTokenExpired(token)) {
-      localStorage.removeItem('token');
-      return null;
-    }
-    return token;
-  }
-  return null;
+function getCookieToken(): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)admin_token=([^;]*)/);
+  return match && match[1] ? decodeURIComponent(match[1]).trim() : null;
 }
 
 export function setAuthToken(token: string): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('token', token);
+  if (typeof window !== 'undefined' && token) {
+    const cleanToken = token.replace(/^Bearer\s+/i, '').trim();
+    localStorage.setItem('token', cleanToken);
     const isSecure = window.location.protocol === 'https:';
-    document.cookie = `admin_token=${token}; path=/; max-age=604800; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+    document.cookie = `admin_token=${cleanToken}; path=/; max-age=604800; SameSite=Lax${isSecure ? '; Secure' : ''}`;
   }
 }
 
@@ -225,11 +222,33 @@ export function removeAuthToken(): void {
   }
 }
 
+export function getAuthToken(): string | null {
+  if (typeof window !== 'undefined') {
+    const storageToken = localStorage.getItem('token');
+    const cookieToken = getCookieToken();
+    const token = storageToken || cookieToken;
+
+    if (!token) return null;
+    if (isTokenExpired(token)) {
+      removeAuthToken();
+      return null;
+    }
+    // Garantir la synchronisation permanente entre localStorage et le cookie lu par middleware.ts
+    if (!storageToken || !cookieToken || storageToken !== cookieToken) {
+      setAuthToken(token);
+    }
+    return token;
+  }
+  return null;
+}
+
 export function isLoggedIn(): boolean {
   return getAuthToken() !== null;
 }
 
 // --- API Helper Fetcher ---
+
+let localBackendUnreachable = false;
 
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
@@ -258,21 +277,30 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   const baseUrl = getApiBaseUrl();
+  const isLocalBase = baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1');
   let response: Response;
 
-  try {
-    response = await fetch(`${baseUrl}${endpoint}`, fetchOptions);
-  } catch (networkErr: any) {
-    // If browser direct call fails (e.g. CORS, cold start, privacy blocks), fallback to local Next.js rewrite /backend-api
-    if (typeof window !== 'undefined' && !baseUrl.startsWith('/backend-api') && !endpoint.startsWith('/api/')) {
-      try {
-        console.warn(`[API] Retrying via Next.js proxy (/backend-api${endpoint}):`, networkErr);
-        response = await fetch(`/backend-api${endpoint}`, fetchOptions);
-      } catch {
+  // Si le backend local (port 8081) est déjà détecté comme éteint, passer directement par le proxy Next.js /backend-api
+  if (typeof window !== 'undefined' && isLocalBase && localBackendUnreachable && !endpoint.startsWith('/api/')) {
+    response = await fetch(`/backend-api${endpoint}`, fetchOptions);
+  } else {
+    try {
+      response = await fetch(`${baseUrl}${endpoint}`, fetchOptions);
+    } catch (networkErr: any) {
+      if (isLocalBase) {
+        localBackendUnreachable = true;
+      }
+      // If browser direct call fails (e.g. local backend off, CORS, cold start), fallback to local Next.js rewrite /backend-api
+      if (typeof window !== 'undefined' && !baseUrl.startsWith('/backend-api') && !endpoint.startsWith('/api/')) {
+        try {
+          console.warn(`[API] Retrying via Next.js proxy (/backend-api${endpoint}):`, networkErr);
+          response = await fetch(`/backend-api${endpoint}`, fetchOptions);
+        } catch {
+          throw networkErr;
+        }
+      } else {
         throw networkErr;
       }
-    } else {
-      throw networkErr;
     }
   }
 
@@ -288,11 +316,19 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   if (response.status === 401 || response.status === 403) {
-    if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {
+    let errMsg = endpoint.startsWith('/auth/')
+      ? "Identifiants invalides (nom d'utilisateur ou mot de passe incorrect)."
+      : 'Non autorisé. Veuillez vous connecter.';
+    try {
+      const errJson = await response.clone().json();
+      if (errJson?.error) errMsg = errJson.error;
+    } catch {}
+
+    if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login') && !endpoint.startsWith('/auth/')) {
       removeAuthToken();
       window.location.href = '/admin/login';
     }
-    throw new Error('Non autorisé. Veuillez vous connecter.');
+    throw new Error(errMsg);
   }
 
   if (!response.ok) {
@@ -306,6 +342,14 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
         throw new Error("Le serveur sécurisé démarre ou est temporairement indisponible. Veuillez patienter.");
       }
       throw new Error(`Le serveur a renvoyé une erreur (${response.status}).`);
+    }
+    try {
+      const parsed = JSON.parse(errorText);
+      if (parsed?.error) throw new Error(parsed.error);
+    } catch (e: any) {
+      if (e instanceof Error && e.message && !e.message.includes('JSON')) {
+        throw e;
+      }
     }
     throw new Error(errorText || `Erreur HTTP: ${response.status}`);
   }
@@ -495,14 +539,45 @@ function formatProductVariants(data: ProductRequest): void {
 // --- Admin Endpoints ---
 
 export const adminApi = {
-  login: (credentials: { username: string; password: string }) => {
-    return fetchApi<LoginResponse>('/auth/login', {
+  login: async (credentials: { username: string; password: string }): Promise<LoginResponse> => {
+    const cleanCredentials = {
+      username: (credentials.username || '').trim(),
+      password: credentials.password || '',
+    };
+
+    // 1. Authentification directe et instantanée via la route Next.js (/api/auth/login -> Supabase PostgreSQL + JWT HS384 compatible Spring Boot)
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cleanCredentials),
+        cache: 'no-store',
+      });
+
+      if (res.ok) {
+        const data = (await res.json()) as LoginResponse;
+        if (data?.token) {
+          setAuthToken(data.token);
+          return data;
+        }
+      } else if (res.status === 401 || res.status === 400) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData?.error || "Identifiants invalides (nom d'utilisateur ou mot de passe incorrect).");
+      }
+    } catch (err: any) {
+      if (err?.message?.includes('Identifiants invalides') || err?.message?.includes('requis')) {
+        throw err;
+      }
+      console.warn('[Auth] Fallback vers backend /auth/login:', err);
+    }
+
+    // 2. Fallback vers le backend Spring Boot (/auth/login)
+    const res = await fetchApi<LoginResponse>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify(credentials),
-    }).then((res) => {
-      setAuthToken(res.token);
-      return res;
+      body: JSON.stringify(cleanCredentials),
     });
+    setAuthToken(res.token);
+    return res;
   },
 
   getStats: () => {
@@ -510,10 +585,18 @@ export const adminApi = {
   },
 
   uploadImage: async (file: File) => {
+    // 0. Automatically compress and convert any image to WebP before sending to server
+    let fileToUpload = file;
+    try {
+      fileToUpload = await convertToWebP(file);
+    } catch (e) {
+      console.warn('WebP conversion fallback to original file:', e);
+    }
+
     // 1. Direct reliable upload via Next.js API route
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', fileToUpload);
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -533,7 +616,7 @@ export const adminApi = {
 
     // 2. Fallback to Spring Boot backend /admin/uploads/image
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', fileToUpload);
     const backendRes = await fetchApi<{ url: string }>('/admin/uploads/image', {
       method: 'POST',
       body: formData,

@@ -15,9 +15,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isLoggedIn()) {
-      router.push('/admin/dashboard')
+      window.location.replace('/admin/dashboard')
     }
-  }, [router])
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,10 +31,10 @@ export default function LoginPage() {
     }, 3500)
 
     try {
-      await adminApi.login({ username, password })
-      window.location.href = '/admin/dashboard'
+      await adminApi.login({ username: username.trim(), password })
+      window.location.replace('/admin/dashboard')
     } catch (err: any) {
-      setError(err.message || 'Identifiants invalides ou serveur Spring Boot injoignable. Veuillez réessayer.')
+      setError(err.message || 'Identifiants invalides ou serveur injoignable. Veuillez réessayer.')
     } finally {
       clearTimeout(wakeTimer)
       setLoading(false)

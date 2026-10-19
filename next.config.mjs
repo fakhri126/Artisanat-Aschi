@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  serverExternalPackages: ['@ffmpeg-installer/ffmpeg'],
+  serverExternalPackages: ['@ffmpeg-installer/ffmpeg', 'sharp'],
   turbopack: {
     root: process.cwd(),
   },
@@ -109,7 +109,12 @@ const nextConfig = {
     ]
   },
   async rewrites() {
-    const backendTarget = (process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://artisanat-aschi-backend.onrender.com/api').replace(/\/+$/, '')
+    const rawTarget = process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || ''
+    const backendTarget = (
+      rawTarget && !rawTarget.includes('localhost') && !rawTarget.includes('127.0.0.1')
+        ? rawTarget
+        : 'https://artisanat-aschi-backend.onrender.com/api'
+    ).replace(/\/+$/, '')
     return [
       {
         source: '/backend-api/:path*',
