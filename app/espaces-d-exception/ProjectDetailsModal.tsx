@@ -60,15 +60,7 @@ export default function ProjectDetailsModal({
   const categoryLabel = filterTypes.find(t => t.id === project.type)?.label || project.category || project.type || 'Espace d\'Exception'
 
   // Résolution vidéo propre
-  const rawVideoUrl = (() => {
-    const v = (project.video || project.videoUrl || '').trim()
-    if (!v) return ''
-    const match = v.match(/\/media\/([^/?#]+\.mp4)/i)
-    if (match && match[1]) {
-      return `/uploads/${match[1]}`
-    }
-    return v
-  })()
+  const rawVideoUrl = formatImageUrl(project.video || project.videoUrl || '')
 
   // Extraire et dédoublonner les photos (exclure vidéos)
   const galleryPhotos: string[] = (() => {

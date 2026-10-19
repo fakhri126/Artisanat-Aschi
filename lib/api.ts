@@ -246,16 +246,39 @@ export function isLoggedIn(): boolean {
   return getAuthToken() !== null;
 }
 
+// --- Client-side in-memory cache for public GET requests (60s TTL) ---
+const publicApiCache = new Map<string, { timestamp: number; data: any }>();
+const PUBLIC_CACHE_TTL_MS = 60 * 1000;
+
+export function invalidatePublicApiCache() {
+  publicApiCache.clear();
+}
+
 // --- API Helper Fetcher ---
 
 let localBackendUnreachable = false;
 
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
+  const method = (options.method || 'GET').toUpperCase();
+
+  // If this is a mutation, clear client-side public cache
+  if (method !== 'GET') {
+    invalidatePublicApiCache();
+  }
+
+  // Check cache for public GET requests without token
+  const isPublicGet = method === 'GET' && !token && endpoint.startsWith('/public/') && options.cache !== 'no-store';
+  if (isPublicGet && typeof window !== 'undefined') {
+    const cached = publicApiCache.get(endpoint);
+    if (cached && Date.now() - cached.timestamp < PUBLIC_CACHE_TTL_MS) {
+      return cached.data as T;
+    }
+  }
+
   const headers = new Headers(options.headers || {});
   
   // Set Content-Type only when sending a body (POST, PUT, PATCH)
-  const method = (options.method || 'GET').toUpperCase();
   if (method === 'POST' || method === 'PUT' || method === 'PATCH' || (options.body && !(options.body instanceof FormData))) {
     if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
       headers.set('Content-Type', 'application/json');
@@ -359,7 +382,12 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     return {} as T;
   }
 
-  return response.json() as Promise<T>;
+  const result = await response.json() as T;
+  if (isPublicGet && typeof window !== 'undefined') {
+    publicApiCache.set(endpoint, { timestamp: Date.now(), data: result });
+  }
+
+  return result;
 }
 
 export function parseProduct(product: Product): Product {
@@ -478,14 +506,7 @@ export const publicApi = {
 
   getRelookings: async () => {
     try {
-      const res = await fetch(`/api/relookings?_t=${Date.now()}`, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) return data;
-      }
-    } catch (_) {}
-    try {
-      return await fetchApi<Relooking[]>(`/public/relookings?_t=${Date.now()}`, { cache: 'no-store' });
+      return await fetchApi<Relooking[]>('/public/relookings');
     } catch {
       return [];
     }
@@ -663,7 +684,7 @@ export const adminApi = {
   },
 
   // Categories CRUD
-  getCategories: () => fetchApi<Category[]>(`/public/categories?_t=${Date.now()}`, { cache: 'no-store' }),
+  getCategories: () => fetchApi<Category[]>('/public/categories', { cache: 'no-store' }),
   createCategory: (data: Omit<Category, 'id'>) => fetchApi<Category>('/admin/categories', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -677,7 +698,7 @@ export const adminApi = {
   }),
 
   // Products CRUD
-  getProducts: () => fetchApi<any>(`/public/products?_t=${Date.now()}`, { cache: 'no-store' }).then(res => {
+  getProducts: () => fetchApi<any>('/public/products', { cache: 'no-store' }).then(res => {
     const items: Product[] = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : []);
     return items.map(parseProduct);
   }),

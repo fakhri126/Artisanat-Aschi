@@ -136,7 +136,8 @@ export function WeeklyDelivery() {
                 <div className="relative w-full max-w-[320px] sm:max-w-[360px] h-[220px] sm:h-[280px] md:h-[320px] rounded-2xl sm:rounded-t-full sm:rounded-b-3xl overflow-hidden border-2 sm:border-[4px] border-[#E6A635]/60 shadow-[0_15px_40px_rgba(0,0,0,0.9)] bg-[#241812] group">
                   {isVideo ? (
                     <video
-                      src={formatImageUrl(displayImage)}
+                      src={isInView ? formatImageUrl(displayImage) : undefined}
+                      poster="/images/about-atelier-stand.jpg"
                       muted
                       autoPlay
                       loop
