@@ -105,7 +105,6 @@ export function HeroBijoux() {
                   alt="Exposition de poignées artisanales" 
                   width={1200}
                   height={960}
-                  priority
                   className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1A110B]/75 via-transparent to-transparent pointer-events-none" />

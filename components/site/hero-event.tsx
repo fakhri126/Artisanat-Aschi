@@ -1,29 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Sparkles, Calendar, ArrowRight } from 'lucide-react'
-import { publicApi, News } from '@/lib/api'
+import { Sparkles, ArrowRight } from 'lucide-react'
+import { News } from '@/lib/api'
 import { EventModal } from './event-modal'
+import { useHomeSnapshot } from './home-snapshot-provider'
+import { FALLBACK_NEWS } from '@/lib/home-snapshot'
 
 export function HeroEvent() {
-  const [latestEvent, setLatestEvent] = useState<News | null>(null)
-  const [isMounted, setIsMounted] = useState(false)
+  const { snapshot } = useHomeSnapshot()
+  const latestEvent: News = (snapshot.news && snapshot.news[0]) || FALLBACK_NEWS[0]
   const [isModalOpen, setIsModalOpen] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-    publicApi.getNews()
-      .then(news => {
-        if (news && news.length > 0) {
-          setLatestEvent(news[0])
-        }
-      })
-      .catch(console.error)
-  }, [])
-
-  if (!isMounted || !latestEvent) return null
 
   const image = latestEvent.imageUrl || '/news-exposition.jpg'
 
@@ -79,6 +68,7 @@ export function HeroEvent() {
                 src={image}
                 alt={latestEvent.title}
                 fill
+                sizes="(max-width: 1024px) 100vw, 420px"
                 className="object-cover transition-transform duration-[12s] group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#18130E]/80 via-transparent to-transparent pointer-events-none" />

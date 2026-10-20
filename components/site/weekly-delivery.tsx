@@ -3,56 +3,32 @@
 import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { Reveal } from './reveal'
-import { publicApi, Delivery } from '@/lib/api'
+import { Delivery } from '@/lib/api'
 import { formatImageUrl } from '@/lib/utils'
 import { Truck, MapPin, Calendar, ChevronLeft, ChevronRight, ShieldCheck, Star } from 'lucide-react'
 import Image from 'next/image'
-
-const FALLBACK_DELIVERIES: Delivery[] = [
-  {
-    id: 999,
-    title: "Livraison d'une table basse sculptée à La Marsa",
-    description: "Installation chez un particulier d'une pièce façonnée sur-mesure en noyer massif sélectionné.",
-    imageUrl: "https://uerbqswgxsinayfyntsm.supabase.co/storage/v1/object/public/media/1791095826710-IMG_20230930_092350.webp",
-    deliveryDate: "2026-10-04",
-  },
-  {
-    id: 998,
-    title: "Buffet d'Apparat & Majoliques d'Art",
-    description: "Aménagement d'une demeure de prestige avec ferrures ciselées et finition satinée.",
-    imageUrl: "https://uerbqswgxsinayfyntsm.supabase.co/storage/v1/object/public/media/1791190855330-file_0000000090d4821087a427259211ad97.webp",
-    deliveryDate: "2026-10-05",
-  },
-]
+import { useHomeSnapshot } from './home-snapshot-provider'
+import { FALLBACK_DELIVERIES } from '@/lib/home-snapshot'
 
 export function WeeklyDelivery() {
+  const { snapshot } = useHomeSnapshot()
+  const activeDeliveries: Delivery[] =
+    snapshot.deliveries && snapshot.deliveries.length > 0
+      ? snapshot.deliveries
+      : FALLBACK_DELIVERIES
+
   const containerRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(containerRef, { margin: '150px 0px', once: false })
 
-  const [deliveries, setDeliveries] = useState<Delivery[]>([])
-  const [isMounted, setIsMounted] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const [activePhotoIdx, setActivePhotoIdx] = useState(0)
 
   useEffect(() => {
-    setIsMounted(true)
-    publicApi.getDeliveries()
-      .then(data => {
-        if (data && Array.isArray(data) && data.length > 0) {
-          const sorted = data.sort((a, b) => b.id - a.id)
-          setDeliveries(sorted)
-        } else {
-          setDeliveries(FALLBACK_DELIVERIES)
-        }
-      })
-      .catch((error) => {
-        console.warn("Using fallback deliveries:", error)
-        setDeliveries(FALLBACK_DELIVERIES)
-      })
-  }, [])
-
-  const activeDeliveries = deliveries.length > 0 ? deliveries : FALLBACK_DELIVERIES
+    if (currentIndex >= activeDeliveries.length && activeDeliveries.length > 0) {
+      setCurrentIndex(0)
+    }
+  }, [activeDeliveries.length, currentIndex])
 
   useEffect(() => {
     if (activeDeliveries.length <= 1 || isPaused) return
@@ -66,8 +42,6 @@ export function WeeklyDelivery() {
     setActivePhotoIdx(0)
   }, [currentIndex])
 
-  if (!isMounted) return null
-
   const currentDelivery = activeDeliveries[currentIndex] || activeDeliveries[0]
   const currentImages = (currentDelivery?.imageUrl || '')
     .split(',')
@@ -78,11 +52,11 @@ export function WeeklyDelivery() {
   const isVideo = displayImage.match(/\.(mp4|webm|ogg|mov)$/i)
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? deliveries.length - 1 : prev - 1))
+    setCurrentIndex((prev) => (prev === 0 ? activeDeliveries.length - 1 : prev - 1))
   }
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % deliveries.length)
+    setCurrentIndex((prev) => (prev + 1) % activeDeliveries.length)
   }
 
   return (
@@ -151,7 +125,6 @@ export function WeeklyDelivery() {
                       alt={currentDelivery.title || "Livraison Artisanat Aschi"}
                       fill
                       sizes="(max-width: 1024px) 100vw, 40vw"
-                      priority={currentIndex === 0}
                       className="object-cover transition-transform duration-[10s] group-hover:scale-105"
                     />
                   )}
@@ -179,7 +152,7 @@ export function WeeklyDelivery() {
                         }`}
                         title={`Angle / Photo ${pIdx + 1}`}
                       >
-                        <img src={formatImageUrl(img)} alt="" className="size-full object-cover" />
+                        <img src={formatImageUrl(img)} alt="" loading="lazy" className="size-full object-cover" />
                       </button>
                     ))}
                   </div>
@@ -251,7 +224,7 @@ export function WeeklyDelivery() {
           
           {/* Carousel Controls: Prev / Next Buttons & Glowing Dots */}
           <div className="flex items-center justify-center gap-3 sm:gap-4 mt-5 sm:mt-6">
-            {deliveries.length > 1 && (
+            {activeDeliveries.length > 1 && (
               <button
                 onClick={prevSlide}
                 className="size-8 sm:size-9 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 flex items-center justify-center text-[#F2BD52] hover:bg-[#E6A635] hover:text-[#1A110B] transition-all cursor-pointer shadow-md"
@@ -262,7 +235,7 @@ export function WeeklyDelivery() {
             )}
 
             <div className="flex items-center gap-1.5">
-              {deliveries.slice(0, 6).map((_, i) => (
+              {activeDeliveries.slice(0, 6).map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
@@ -276,7 +249,7 @@ export function WeeklyDelivery() {
               ))}
             </div>
 
-            {deliveries.length > 1 && (
+            {activeDeliveries.length > 1 && (
               <button
                 onClick={nextSlide}
                 className="size-8 sm:size-9 rounded-full bg-[#3B271C]/90 border border-[#E6A635]/40 flex items-center justify-center text-[#F2BD52] hover:bg-[#E6A635] hover:text-[#1A110B] transition-all cursor-pointer shadow-md"

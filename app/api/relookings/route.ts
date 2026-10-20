@@ -66,17 +66,25 @@ async function purgeDeadPhotosInDb() {
 
 // GET: Récupère la liste des relookings (uniquement les vraies photos ajoutées par l'admin)
 export async function GET() {
-  await purgeDeadPhotosInDb()
+  // Exécuter le nettoyage des anciennes photos mortes en arrière-plan (non-bloquant)
+  void purgeDeadPhotosInDb()
 
   const localItems = readLocalData()
   let dbItems: any[] = []
 
   try {
     const supabase = getSupabaseClient()
-    const { data, error } = await supabase
+    const queryPromise = supabase
       .from('relookings')
       .select('*')
       .order('id', { ascending: false })
+
+    // Timeout court (2200ms) pour ne jamais bloquer le rendu en cas de connexion faible vers Supabase
+    const timeoutPromise = new Promise<{ data: null; error: Error }>((resolve) =>
+      setTimeout(() => resolve({ data: null, error: new Error('Supabase timeout') }), 2200)
+    )
+
+    const { data, error } = await Promise.race([queryPromise, timeoutPromise])
 
     if (!error && Array.isArray(data)) {
       dbItems = data
@@ -106,13 +114,13 @@ export async function GET() {
   const result = Array.from(map.values()).sort((a, b) => (b.id || 0) - (a.id || 0))
 
   // Mettre à jour le fichier local pour garantir un cache chaud ultra-rapide
-  if (result.length > 0) {
+  if (result.length > 0 && dbItems.length > 0) {
     writeLocalData(result)
   }
 
   return NextResponse.json(result, {
     headers: {
-      'Cache-Control': 'no-store, max-age=0, must-revalidate',
+      'Cache-Control': 'public, max-age=15, stale-while-revalidate=300',
     },
   })
 }

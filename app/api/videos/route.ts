@@ -105,7 +105,11 @@ function getStoredVideos() {
 // GET: Récupère l'ensemble des vidéos du site
 export async function GET() {
   const data = getStoredVideos()
-  return NextResponse.json(data)
+  return NextResponse.json(data, {
+    headers: {
+      'Cache-Control': 'public, max-age=30, stale-while-revalidate=600',
+    },
+  })
 }
 
 // POST: Met à jour une section de vidéo ou toutes les vidéos

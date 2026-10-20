@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Clock, Sparkles, Share2, Check, ArrowRight, ChevronLeft, ChevronRight, BookOpen, X } from 'lucide-react'
 import { Reveal } from './reveal'
-import { publicApi, News } from '@/lib/api'
-import { isBijouxOrHandleProduct, formatImageUrl } from '@/lib/utils'
+import { News } from '@/lib/api'
+import { formatImageUrl } from '@/lib/utils'
 import Image from 'next/image'
+import { useHomeSnapshot } from './home-snapshot-provider'
+import { FALLBACK_NEWS } from '@/lib/home-snapshot'
 
 const getReadTime = (text: string) => {
   const words = text.trim().split(/\s+/).length
@@ -42,60 +44,22 @@ function NewsCardImage({ src, alt, sizes, className }: { src: string; alt: strin
 }
 
 export function NewsSection() {
-  const [news, setNews] = useState<News[]>([])
-  const [loading, setLoading] = useState(true)
+  const { snapshot } = useHomeSnapshot()
+  const news: News[] =
+    snapshot.news && snapshot.news.length > 0 ? snapshot.news : FALLBACK_NEWS
+
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedArticle, setSelectedArticle] = useState<News | null>(null)
   const [expandedDesktopId, setExpandedDesktopId] = useState<number | null>(null)
   const [copied, setCopied] = useState(false)
   const [autoplay, setAutoplay] = useState(true)
 
+  // Keep currentIndex within bounds if background refresh changes list length
   useEffect(() => {
-    async function loadNews() {
-      try {
-        const [newsData, productsData] = await Promise.all([
-          publicApi.getNews().catch(() => null),
-          publicApi.getProducts().catch(() => null)
-        ])
-        
-        let finalNews: News[] = newsData && Array.isArray(newsData)
-          ? newsData.sort((a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime())
-          : []
-
-        if (productsData && productsData.length > 0) {
-          const availableProds = productsData.filter((p) => {
-            return p.type !== 'CATALOGUE' && !isBijouxOrHandleProduct(p)
-          })
-          if (availableProds.length > 0) {
-            const latestProduct = [...availableProds].sort((a, b) => {
-              const timeB = new Date(b.createdAt || (b as any).createdDate || 0).getTime()
-              const timeA = new Date(a.createdAt || (a as any).createdDate || 0).getTime()
-              if (timeB && timeA && timeB !== timeA) return timeB - timeA
-              return b.id - a.id
-            })[0]
-            
-            const productNews: News = {
-              id: -latestProduct.id,
-              title: `Nouvelle Création : ${latestProduct.name}`,
-              content: `${latestProduct.description}\n\n📍 Cette pièce d'art est actuellement visible dans notre atelier.\n📏 Dimensions : ${latestProduct.dimensions || 'Sur-mesure'}\n🔨 Matériaux : ${latestProduct.materials || 'Bois noble massif'}\n\nUne fusion parfaite entre l'héritage artisanal tunisien et le design contemporain.`,
-              imageUrl: latestProduct.images?.find((img) => img.isPrimary)?.imageUrl || latestProduct.images?.[0]?.imageUrl || '/placeholder.jpg',
-              createdDate: new Date().toISOString()
-            }
-            
-            finalNews = [productNews, ...finalNews]
-          }
-        }
-        
-        setNews(finalNews)
-      } catch (err) {
-        console.error('Error loading dynamic news:', err)
-        setNews([])
-      } finally {
-        setLoading(false)
-      }
+    if (currentIndex >= news.length && news.length > 0) {
+      setCurrentIndex(0)
     }
-    loadNews()
-  }, [])
+  }, [news.length, currentIndex])
 
   // Autoplay Mobile Diaporama (every 7 seconds)
   useEffect(() => {
@@ -122,14 +86,6 @@ export function NewsSection() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2500)
     }
-  }
-
-  if (loading) {
-    return (
-      <section id="actualites" className="bg-transparent py-12 text-center">
-        <div className="size-8 animate-spin rounded-full border-2 border-[#E6A635] border-t-transparent mx-auto" />
-      </section>
-    )
   }
 
   if (news.length === 0) {

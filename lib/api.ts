@@ -35,6 +35,11 @@ export function getApiBaseUrl(): string {
 
 import { AUTHENTIC_PROJECTS } from '@/app/espaces-d-exception/constants';
 import { convertToWebP } from '@/lib/image-compression';
+import {
+  getAdaptiveRequestTimeoutMs,
+  nowMs,
+  recordLaunchRequest,
+} from '@/lib/launch-metrics';
 
 export const API_BASE_URL = getApiBaseUrl();
 
@@ -246,36 +251,47 @@ export function isLoggedIn(): boolean {
   return getAuthToken() !== null;
 }
 
-// --- Client-side in-memory cache for public GET requests (60s TTL) ---
+// --- Client-side in-memory cache + in-flight deduplication for public GET requests ---
 const publicApiCache = new Map<string, { timestamp: number; data: any }>();
+const inFlightPublicGet = new Map<string, Promise<any>>();
 const PUBLIC_CACHE_TTL_MS = 60 * 1000;
 
 export function invalidatePublicApiCache() {
   publicApiCache.clear();
+  inFlightPublicGet.clear();
+}
+
+export function seedPublicApiCache(endpoint: string, data: any, timestamp: number = Date.now()) {
+  if (data !== undefined && data !== null) {
+    publicApiCache.set(endpoint, { timestamp, data });
+  }
+}
+
+async function fetchWithAdaptiveTimeout(input: RequestInfo | URL, init: RequestInit = {}, timeoutMs?: number): Promise<Response> {
+  if (init.signal) {
+    return fetch(input, init);
+  }
+  const ms = timeoutMs ?? getAdaptiveRequestTimeoutMs();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // --- API Helper Fetcher ---
 
 let localBackendUnreachable = false;
 
-async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = getAuthToken();
-  const method = (options.method || 'GET').toUpperCase();
-
-  // If this is a mutation, clear client-side public cache
-  if (method !== 'GET') {
-    invalidatePublicApiCache();
-  }
-
-  // Check cache for public GET requests without token
-  const isPublicGet = method === 'GET' && !token && endpoint.startsWith('/public/') && options.cache !== 'no-store';
-  if (isPublicGet && typeof window !== 'undefined') {
-    const cached = publicApiCache.get(endpoint);
-    if (cached && Date.now() - cached.timestamp < PUBLIC_CACHE_TTL_MS) {
-      return cached.data as T;
-    }
-  }
-
+async function executeFetchApiNetwork<T>(
+  endpoint: string,
+  options: RequestInit,
+  token: string | null,
+  method: string,
+  isPublicGet: boolean
+): Promise<T> {
   const headers = new Headers(options.headers || {});
   
   // Set Content-Type only when sending a body (POST, PUT, PATCH)
@@ -305,10 +321,12 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
   // Si le backend local (port 8081) est déjà détecté comme éteint, passer directement par le proxy Next.js /backend-api
   if (typeof window !== 'undefined' && isLocalBase && localBackendUnreachable && !endpoint.startsWith('/api/')) {
-    response = await fetch(`/backend-api${endpoint}`, fetchOptions);
+    response = await fetchWithAdaptiveTimeout(`/backend-api${endpoint}`, fetchOptions);
   } else {
     try {
-      response = await fetch(`${baseUrl}${endpoint}`, fetchOptions);
+      // Sur localhost, utiliser un timeout court (1200ms) pour basculer rapidement vers /backend-api si le port 8081 est fermé
+      const primaryTimeout = isLocalBase ? 1200 : getAdaptiveRequestTimeoutMs();
+      response = await fetchWithAdaptiveTimeout(`${baseUrl}${endpoint}`, fetchOptions, primaryTimeout);
     } catch (networkErr: any) {
       if (isLocalBase) {
         localBackendUnreachable = true;
@@ -317,7 +335,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
       if (typeof window !== 'undefined' && !baseUrl.startsWith('/backend-api') && !endpoint.startsWith('/api/')) {
         try {
           console.warn(`[API] Retrying via Next.js proxy (/backend-api${endpoint}):`, networkErr);
-          response = await fetch(`/backend-api${endpoint}`, fetchOptions);
+          response = await fetchWithAdaptiveTimeout(`/backend-api${endpoint}`, fetchOptions);
         } catch {
           throw networkErr;
         }
@@ -331,7 +349,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   if (!response.ok && response.status >= 500 && typeof window !== 'undefined' && !baseUrl.startsWith('/backend-api') && !endpoint.startsWith('/api/')) {
     try {
       console.warn(`[API] Server returned ${response.status}, retrying via Next.js proxy (/backend-api${endpoint})`);
-      const fallbackRes = await fetch(`/backend-api${endpoint}`, fetchOptions);
+      const fallbackRes = await fetchWithAdaptiveTimeout(`/backend-api${endpoint}`, fetchOptions);
       if (fallbackRes.ok) {
         response = fallbackRes;
       }
@@ -388,6 +406,112 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   return result;
+}
+
+async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const token = getAuthToken();
+  const method = (options.method || 'GET').toUpperCase();
+  const start = nowMs();
+
+  // If this is a mutation, clear client-side public cache
+  if (method !== 'GET') {
+    invalidatePublicApiCache();
+  }
+
+  // Check cache for public GET requests without token
+  const isPublicGet = method === 'GET' && !token && endpoint.startsWith('/public/') && options.cache !== 'no-store';
+  if (isPublicGet && typeof window !== 'undefined') {
+    const cached = publicApiCache.get(endpoint);
+    if (cached && Date.now() - cached.timestamp < PUBLIC_CACHE_TTL_MS) {
+      const end = nowMs();
+      recordLaunchRequest({
+        endpoint,
+        initiator: 'fetchApi:cache',
+        startTimeMs: start,
+        endTimeMs: end,
+        durationMs: end - start,
+        source: 'memory-cache',
+        status: 'ok',
+        parallelGroup: true,
+      });
+      return cached.data as T;
+    }
+
+    // In-flight deduplication: if the exact same GET endpoint is already in flight, share its Promise!
+    const existingPromise = inFlightPublicGet.get(endpoint);
+    if (existingPromise) {
+      return existingPromise.then((res) => {
+        const end = nowMs();
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'fetchApi:dedup',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'in-flight-dedup',
+          status: 'ok',
+          parallelGroup: true,
+        });
+        return res as T;
+      });
+    }
+  }
+
+  const requestPromise = executeFetchApiNetwork<T>(endpoint, options, token, method, isPublicGet)
+    .then((res) => {
+      const end = nowMs();
+      if (method === 'GET') {
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'fetchApi:network',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'network',
+          status: 'ok',
+          parallelGroup: true,
+        });
+      }
+      return res;
+    })
+    .catch((err) => {
+      const end = nowMs();
+      if (method === 'GET') {
+        const isTimeout =
+          err?.name === 'AbortError' ||
+          err?.name === 'TimeoutError' ||
+          String(err?.message || '').toLowerCase().includes('timeout');
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'fetchApi:network',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'fallback',
+          status: isTimeout ? 'timeout' : 'error',
+          parallelGroup: true,
+        });
+      }
+      // Stale-if-error fallback from publicApiCache if available on weak connections
+      if (isPublicGet && typeof window !== 'undefined') {
+        const stale = publicApiCache.get(endpoint);
+        if (stale && stale.data) {
+          return stale.data as T;
+        }
+      }
+      throw err;
+    })
+    .finally(() => {
+      if (isPublicGet) {
+        inFlightPublicGet.delete(endpoint);
+      }
+    });
+
+  if (isPublicGet && typeof window !== 'undefined') {
+    inFlightPublicGet.set(endpoint, requestPromise);
+  }
+
+  return requestPromise;
 }
 
 export function parseProduct(product: Product): Product {
@@ -548,6 +672,95 @@ export const publicApi = {
     } catch {
       return [];
     }
+  },
+
+  getVideos: async (): Promise<any> => {
+    const endpoint = '/api/videos';
+    const start = nowMs();
+
+    if (typeof window !== 'undefined') {
+      const cached = publicApiCache.get(endpoint);
+      if (cached && Date.now() - cached.timestamp < PUBLIC_CACHE_TTL_MS) {
+        const end = nowMs();
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'publicApi.getVideos:cache',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'memory-cache',
+          status: 'ok',
+          parallelGroup: true,
+        });
+        return cached.data;
+      }
+
+      const existing = inFlightPublicGet.get(endpoint);
+      if (existing) {
+        return existing.then((data) => {
+          const end = nowMs();
+          recordLaunchRequest({
+            endpoint,
+            initiator: 'publicApi.getVideos:dedup',
+            startTimeMs: start,
+            endTimeMs: end,
+            durationMs: end - start,
+            source: 'in-flight-dedup',
+            status: 'ok',
+            parallelGroup: true,
+          });
+          return data;
+        });
+      }
+    }
+
+    const p = fetchWithAdaptiveTimeout(endpoint)
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const end = nowMs();
+        if (typeof window !== 'undefined') {
+          publicApiCache.set(endpoint, { timestamp: Date.now(), data });
+        }
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'publicApi.getVideos:network',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'network',
+          status: 'ok',
+          parallelGroup: true,
+        });
+        return data;
+      })
+      .catch((err) => {
+        const end = nowMs();
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'publicApi.getVideos:network',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'fallback',
+          status: 'error',
+          parallelGroup: true,
+        });
+        if (typeof window !== 'undefined') {
+          const stale = publicApiCache.get(endpoint);
+          if (stale?.data) return stale.data;
+        }
+        return null;
+      })
+      .finally(() => {
+        inFlightPublicGet.delete(endpoint);
+      });
+
+    if (typeof window !== 'undefined') {
+      inFlightPublicGet.set(endpoint, p);
+    }
+
+    return p;
   },
 };
 
@@ -751,7 +964,7 @@ export const adminApi = {
     };
     return fetchApi<Project>(`/admin/projects/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(cleanData),
+      body: JSON.stringify(data),
     });
   },
   deleteProject: (id: number) => fetchApi<void>(`/admin/projects/${id}`, {
@@ -968,4 +1181,3 @@ export const colorsApi = {
     }
   },
 };
-

@@ -2,10 +2,15 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Play, Pause, Volume2, VolumeX, Sparkles } from 'lucide-react'
-import { motion, useInView } from 'framer-motion'
+import { useInView } from 'framer-motion'
 import { Reveal } from './reveal'
+import { useHomeSnapshot } from './home-snapshot-provider'
+import { DEFAULT_SITE_VIDEOS } from '@/lib/home-snapshot'
 
 export function VideoReel() {
+  const { snapshot } = useHomeSnapshot()
+  const reelData = snapshot.videos?.temoignage || DEFAULT_SITE_VIDEOS.temoignage
+
   const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const isInView = useInView(containerRef, { margin: '100px 0px', once: false })
@@ -15,31 +20,6 @@ export function VideoReel() {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [hasLoaded, setHasLoaded] = useState(false)
-
-  const [reelData, setReelData] = useState({
-    videoUrl: '/uploads/1791058503119-WhatsApp_Video_2026-10-03_at_06.20.12.mp4',
-    badge: "Témoignage & Gestes d'Atelier",
-    title: "L'Expérience Aschi en Vidéo",
-    description: "Découvrez en vidéo la passion de nos maîtres ébénistes, la noblesse du travail du noyer massif et la satisfaction de nos clients d'exception."
-  })
-
-  useEffect(() => {
-    fetch('/api/videos')
-      .then(res => res.json())
-      .then(data => {
-        if (data?.temoignage) {
-          setReelData(prev => ({
-            videoUrl: data.temoignage.videoUrl || prev.videoUrl,
-            badge: data.temoignage.badge || prev.badge,
-            title: data.temoignage.title || prev.title,
-            description: data.temoignage.description || prev.description
-          }))
-        } else if (data?.videoUrl) {
-          setReelData(prev => ({ ...prev, videoUrl: data.videoUrl }))
-        }
-      })
-      .catch(() => {})
-  }, [])
 
   // Smart lazy loading & auto-pause via IntersectionObserver
   useEffect(() => {

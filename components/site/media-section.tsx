@@ -17,8 +17,13 @@ import {
 } from 'lucide-react'
 import { useInView } from 'framer-motion'
 import { Reveal } from './reveal'
+import { useHomeSnapshot } from './home-snapshot-provider'
+import { DEFAULT_SITE_VIDEOS } from '@/lib/home-snapshot'
 
 export function MediaSection() {
+  const { snapshot } = useHomeSnapshot()
+  const mediaData = snapshot.videos?.media || DEFAULT_SITE_VIDEOS.media
+
   const containerRef = useRef<HTMLDivElement>(null)
   const videoWrapperRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -32,31 +37,6 @@ export function MediaSection() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showControls, setShowControls] = useState(true)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  const [mediaData, setMediaData] = useState({
-    videoUrl: '/video-media-aschi.mp4',
-    badge: 'Passage Média & Télévision',
-    title: "L'Artisanat Aschi à l'Écran",
-    subtitle: 'Reportage Télévisé Intégral • Format Source 100% Sans Recadrage',
-    description: 'Plongez dans les coulisses de notre atelier familial à travers ce reportage télévisé dédié à la haute sculpture sur noyer et la sauvegarde de nos arts traditionnels.'
-  })
-
-  useEffect(() => {
-    fetch('/api/videos')
-      .then(res => res.json())
-      .then(data => {
-        if (data?.media) {
-          setMediaData(prev => ({
-            videoUrl: data.media.videoUrl || prev.videoUrl,
-            badge: data.media.badge || prev.badge,
-            title: data.media.title || prev.title,
-            subtitle: data.media.subtitle || prev.subtitle,
-            description: data.media.description || prev.description,
-          }))
-        }
-      })
-      .catch(() => {})
-  }, [])
 
   // Pause video if scrolled out of view
   useEffect(() => {

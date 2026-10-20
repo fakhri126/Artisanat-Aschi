@@ -155,7 +155,6 @@ export function HeroCatalogue() {
                       src={activePiece.image}
                       alt={activePiece.title}
                       fill
-                      priority
                       className="object-contain drop-shadow-[0_12px_28px_rgba(0,0,0,0.7)] group-hover:scale-[1.02] transition-transform duration-700"
                     />
                   </div>

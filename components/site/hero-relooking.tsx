@@ -1,35 +1,22 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import Image from 'next/image'
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Paintbrush, Sparkles, ArrowRight, ArrowLeftRight } from 'lucide-react'
 import Link from 'next/link'
-import { publicApi, Relooking } from '@/lib/api'
+import { Relooking } from '@/lib/api'
 import { formatImageUrl } from '@/lib/utils'
+import { useHomeSnapshot } from './home-snapshot-provider'
 
 export function HeroRelooking() {
-  const [relooking, setRelooking] = useState<Relooking | null>(null)
+  const { snapshot } = useHomeSnapshot()
+  const relooking: Relooking | null =
+    snapshot.relookings && snapshot.relookings.length > 0
+      ? snapshot.relookings[0]
+      : null
   const [sliderPosition, setSliderPosition] = useState(50)
   const containerRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
-
-  useEffect(() => {
-    async function loadLatest() {
-      try {
-        const data = await publicApi.getRelookings()
-        if (data && data.length > 0) {
-          const first = data[0]
-          if (first && first.imageAvantUrl && first.imageApresUrl) {
-            setRelooking(first)
-          }
-        }
-      } catch (err) {
-        console.warn('Failed to fetch relookings, using defaults')
-      }
-    }
-    loadLatest()
-  }, [])
 
   const handleMove = (clientX: number) => {
     if (!containerRef.current) return
@@ -122,6 +109,7 @@ export function HeroRelooking() {
               <img 
                 src={afterImg} 
                 alt="Après Restauration d'Art" 
+                loading="lazy"
                 className="size-full object-cover pointer-events-none" 
                 onError={(e) => {
                   const target = e.currentTarget
@@ -144,6 +132,7 @@ export function HeroRelooking() {
               <img 
                 src={beforeImg} 
                 alt="Avant Restauration" 
+                loading="lazy"
                 className="size-full object-cover" 
                 onError={(e) => {
                   const target = e.currentTarget

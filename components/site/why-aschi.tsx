@@ -238,12 +238,11 @@ export function WhyAschi() {
                 transition={{ duration: 0.45, ease: 'easeOut' }}
                 className="relative h-[320px] sm:h-[400px] md:h-[450px] w-full flex flex-col justify-between p-4 sm:p-7 md:p-9"
               >
-                {/* Image de fond avec transition */}
+                {/* Image de fond avec transition (lazy-loaded en dessous de la ligne de flottaison) */}
                 <Image
                   src={currentItem.image}
                   alt={currentItem.title}
                   fill
-                  priority
                   sizes="(max-width: 768px) 100vw, 1200px"
                   className="object-cover object-center transition-transform duration-[1.5s] group-hover:scale-105"
                 />
