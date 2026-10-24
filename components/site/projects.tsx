@@ -15,7 +15,6 @@ import {
   Truck,
   Ruler,
   ZoomIn,
-  Video,
   Film,
   Volume2,
   VolumeX,
@@ -24,10 +23,10 @@ import {
 import Link from 'next/link'
 import Image from 'next/image'
 import { Reveal } from './reveal'
-import { publicApi } from '@/lib/api'
 import { formatImageUrl } from '@/lib/utils'
 import { ProjectLightbox } from './project-lightbox'
 import { AUTHENTIC_PROJECTS } from '@/app/espaces-d-exception/constants'
+import { useHomeSnapshot } from './home-snapshot-provider'
 
 export interface ProjectItem {
   id: number
@@ -112,12 +111,11 @@ function FeaturedLargeProjectCard({
         onClick={() => onOpen(project)}
         className="w-full h-full min-h-[380px] sm:min-h-[460px] lg:min-h-[500px] relative rounded-xl sm:rounded-2xl overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.65)] border border-[#E6A635]/40 hover:border-[#E6A635]/90 transition-all duration-500 hover:shadow-[0_16px_40px_rgba(230,166,53,0.3)] bg-gradient-to-b from-[#2A1C14] to-[#120B08] flex flex-col justify-end p-5 sm:p-7 md:p-8 hover:-translate-y-1"
       >
-        {/* Photo de fond immersive haute définition */}
+        {/* Photo de fond immersive haute définition (lazy-loaded en dessous de la ligne de flottaison) */}
         <Image
           src={displayImage}
           alt={project.title}
           fill
-          priority
           sizes="(max-width: 1024px) 100vw, 60vw"
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
@@ -300,9 +298,17 @@ function mapProjectItem(p: any): ProjectItem {
 }
 
 export function Projects() {
-  const [projects, setProjects] = useState<ProjectItem[]>(() => AUTHENTIC_PROJECTS.map(mapProjectItem))
+  const { snapshot } = useHomeSnapshot()
+  const projects = useMemo<ProjectItem[]>(() => {
+    const rawList =
+      snapshot.projects && snapshot.projects.length > 0
+        ? snapshot.projects
+        : AUTHENTIC_PROJECTS
+    return rawList.map(mapProjectItem)
+  }, [snapshot.projects])
+
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null)
-  const [galleryIndex, setGalleryIndex] = useState(0)
+  const [, setGalleryIndex] = useState(0)
   const [lightboxProject, setLightboxProject] = useState<{ images: string[]; currentIndex: number; title: string } | null>(null)
   const [isModalMuted, setIsModalMuted] = useState(true)
   const [modalActiveView, setModalActiveView] = useState<'video' | number>('video')
@@ -317,22 +323,6 @@ export function Projects() {
       setIsModalMuted(!isModalMuted)
     }
   }
-
-  // Chargement dynamique des projets depuis l'API publique (ceux ajoutés dans l'admin)
-  useEffect(() => {
-    async function loadDynamicProjects() {
-      try {
-        const data = await publicApi.getProjects()
-        if (data && Array.isArray(data) && data.length > 0) {
-          const mapped: ProjectItem[] = data.map(mapProjectItem)
-          setProjects(mapped)
-        }
-      } catch (err) {
-        console.warn('Backend unavailable, using authentic projects fallback:', err)
-      }
-    }
-    loadDynamicProjects()
-  }, [])
 
   // Verrouiller le scroll d'arrière-plan sur mobile lors de l'ouverture du modal
   useEffect(() => {

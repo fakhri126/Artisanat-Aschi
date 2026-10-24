@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  serverExternalPackages: ['@ffmpeg-installer/ffmpeg'],
+  serverExternalPackages: ['@ffmpeg-installer/ffmpeg', 'sharp'],
   turbopack: {
     root: process.cwd(),
   },
@@ -9,16 +9,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-<<<<<<< HEAD
     unoptimized: false,
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 86400,
-=======
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
->>>>>>> b077ad2764879cc092b5f588b375dc7df69f69db
     remotePatterns: [
       {
         protocol: 'https',
@@ -115,7 +110,12 @@ const nextConfig = {
     ]
   },
   async rewrites() {
-    const backendTarget = (process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://artisanat-aschi-backend.onrender.com/api').replace(/\/+$/, '')
+    const rawTarget = process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || ''
+    const backendTarget = (
+      rawTarget && !rawTarget.includes('localhost') && !rawTarget.includes('127.0.0.1')
+        ? rawTarget
+        : 'https://artisanat-aschi-backend.onrender.com/api'
+    ).replace(/\/+$/, '')
     return [
       {
         source: '/backend-api/:path*',

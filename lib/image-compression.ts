@@ -1,118 +1,102 @@
 /**
- * Client-side image compression utility using HTML5 Canvas.
- * Automatically resizes large images and encodes them to optimized WebP.
+ * Compresse et convertit automatiquement toute image (JPEG, PNG, HEIC, etc.) en WebP optimisé
+ * directement dans le navigateur du client avant son envoi.
+ * 
+ * Avantages :
+ * - Poids divisé par 5 à 10 (ex: 3 Mo -> 200 Ko)
+ * - Format moderne et ultra-rapide .webp
+ * - Envoi instantané vers le serveur
+ * - Qualité visuelle préservée (82% de qualité, résolution max 1920px)
  */
 
-export interface CompressionOptions {
-  maxWidth?: number
-  maxHeight?: number
-  quality?: number
-  mimeType?: string
-}
-
-const DEFAULT_OPTIONS: CompressionOptions = {
-  maxWidth: 1920,
-  maxHeight: 1920,
-  quality: 0.82,
-  mimeType: 'image/webp',
-}
-
-/**
- * Compresses an image File in the browser.
- * Returns a new compressed File (usually WebP), or the original file if compression isn't applicable.
- */
-export async function compressImage(
+export async function convertToWebP(
   file: File,
-  customOptions?: Partial<CompressionOptions>
+  maxDimension: number = 1920,
+  quality: number = 0.82
 ): Promise<File> {
-  // If not in a browser environment or not an image, return untouched
-  if (typeof window === 'undefined' || !file || !file.type.startsWith('image/')) {
-    return file
-  }
+  // Uniquement dans le navigateur
+  if (typeof window === 'undefined') return file;
 
-  // Preserve vector SVGs and animated GIFs
+  // Préserver les fichiers vectoriels SVG et les GIFs animés
   if (file.type === 'image/svg+xml' || file.type === 'image/gif') {
-    return file
+    return file;
   }
 
-  const options = { ...DEFAULT_OPTIONS, ...customOptions }
+  // Traiter uniquement les images
+  const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|avif|heic|bmp)$/i.test(file.name);
+  if (!isImage) {
+    return file;
+  }
+
+  // Si c'est déjà un WebP léger (< 500 Ko), pas besoin de le ré-encoder
+  if (file.type === 'image/webp' && file.size < 500 * 1024) {
+    return file;
+  }
 
   return new Promise((resolve) => {
-    const reader = new FileReader()
+    const img = document.createElement('img');
+    const objectUrl = URL.createObjectURL(file);
 
-    reader.onload = (e) => {
-      const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      let { width, height } = img;
 
-      img.onload = () => {
-        try {
-          let { width, height } = img
+      if (!width || !height) {
+        resolve(file);
+        return;
+      }
 
-          // Calculate aspect-ratio-preserving dimensions
-          const maxW = options.maxWidth!
-          const maxH = options.maxHeight!
-
-          if (width > maxW || height > maxH) {
-            if (width / height > maxW / maxH) {
-              height = Math.round((height * maxW) / width)
-              width = maxW
-            } else {
-              width = Math.round((width * maxH) / height)
-              height = maxH
-            }
-          }
-
-          // Create canvas
-          const canvas = document.createElement('canvas')
-          canvas.width = width
-          canvas.height = height
-
-          const ctx = canvas.getContext('2d')
-          if (!ctx) {
-            resolve(file)
-            return
-          }
-
-          // High-quality downsampling
-          ctx.imageSmoothingEnabled = true
-          ctx.imageSmoothingQuality = 'high'
-          ctx.drawImage(img, 0, 0, width, height)
-
-          const targetMime = options.mimeType || 'image/webp'
-
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                resolve(file)
-                return
-              }
-
-              // Only substitute if the compressed version is smaller or if format was changed
-              if (blob.size < file.size || file.type !== targetMime) {
-                const baseName = file.name.replace(/\.[^/.]+$/, '')
-                const ext = targetMime === 'image/webp' ? '.webp' : '.jpg'
-                const compressedFile = new File([blob], `${baseName}${ext}`, {
-                  type: targetMime,
-                  lastModified: Date.now(),
-                })
-                resolve(compressedFile)
-              } else {
-                resolve(file)
-              }
-            },
-            targetMime,
-            options.quality
-          )
-        } catch (err) {
-          console.warn('Image canvas compression failed, using original file:', err)
-          resolve(file)
+      // Redimensionnement proportionnel si l'image dépasse maxDimension (ex: 1920px)
+      if (width > maxDimension || height > maxDimension) {
+        if (width >= height) {
+          height = Math.round((height * maxDimension) / width);
+          width = maxDimension;
+        } else {
+          width = Math.round((width * maxDimension) / height);
+          height = maxDimension;
         }
       }
 
-      img.onerror = () => resolve(file)
-      img.src = e.target?.result as string
-    }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
 
-    reader.onerror = () => resolve(file)
-    reader.readAsDataURL(file)
-  })
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+
+      // Lissage haute qualité
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+          const baseName = file.name.replace(/\.[^/.]+$/, '');
+          const webpFile = new File([blob], `${baseName}.webp`, {
+            type: 'image/webp',
+            lastModified: Date.now(),
+          });
+          resolve(webpFile);
+        },
+        'image/webp',
+        quality
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(file);
+    };
+
+    img.src = objectUrl;
+  });
 }
+
+export const compressImage = convertToWebP;

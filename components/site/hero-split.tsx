@@ -6,88 +6,22 @@ import { ShoppingCart, Eye, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/lib/cart-context'
-import { publicApi, Product } from '@/lib/api'
-import { cn, isBijouxOrHandleProduct, formatImageUrl } from '@/lib/utils'
+import { Product } from '@/lib/api'
+import { cn, formatImageUrl } from '@/lib/utils'
 import { BohoRosace } from './boho-decor'
-
-const DEFAULT_PRODUCT: Product = {
-  id: 0,
-  name: "Buffet d'Apparat Andalou",
-  description: "Découvrez la toute dernière pièce unique façonnée à la main par nos maîtres ébénistes.",
-  dimensions: "180 x 90 x 45 cm",
-  materials: "Noyer massif & Laiton",
-  color: "Noyer & Bleu",
-  price: null,
-  availability: "DISPONIBLE",
-  type: "PIECE_UNIQUE",
-  isFeatured: true,
-  category: { id: 1, name: "Buffets", type: "CREATION" },
-  images: [{ id: 1, imageUrl: "/images/bg-brass-cabinet-catalogue.jpg", isPrimary: true, colorLabel: "Original" }]
-}
+import { useHomeSnapshot } from './home-snapshot-provider'
+import { DEFAULT_HERO_PRODUCT } from '@/lib/home-snapshot'
 
 export function HeroSplit() {
-  const [latestProduct, setLatestProduct] = useState<Product>(DEFAULT_PRODUCT)
+  const { snapshot } = useHomeSnapshot()
+  const latestProduct: Product = snapshot.latestProduct || DEFAULT_HERO_PRODUCT
   const [isUnveiled, setIsUnveiled] = useState(false)
   const [imgError, setImgError] = useState(false)
   const { addToCart } = useCart()
 
   useEffect(() => {
-    async function loadLatestProduct() {
-      // 1. Pré-chargement immédiat depuis le cache local si disponible
-      try {
-        if (typeof window !== 'undefined') {
-          const cached = localStorage.getItem('aschi_latest_available_product')
-          if (cached) {
-            const parsed = JSON.parse(cached)
-            if (parsed && parsed.id && parsed.name) {
-              setLatestProduct(parsed)
-            }
-          }
-        }
-      } catch (_) {}
-
-      // 2. Chargement en direct depuis l'API publique
-      try {
-        const prodData = await publicApi.getProducts()
-        if (prodData && prodData.length > 0) {
-          // Filtrer les pièces disponibles (exclure le catalogue d'inspiration et les bijoux de porte)
-          const availableProds = prodData.filter((p) => {
-            return p.type !== 'CATALOGUE' && !isBijouxOrHandleProduct(p)
-          })
-
-          if (availableProds.length > 0) {
-            const sorted = [...availableProds].sort((a, b) => {
-              const timeB = new Date(b.createdAt || (b as any).createdDate || 0).getTime()
-              const timeA = new Date(a.createdAt || (a as any).createdDate || 0).getTime()
-              if (timeB && timeA && timeB !== timeA) {
-                return timeB - timeA
-              }
-              return b.id - a.id
-            })
-
-            const newest = sorted[0]
-            setLatestProduct(newest)
-
-            try {
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('aschi_latest_available_product', JSON.stringify(newest))
-              }
-            } catch (_) {}
-          } else {
-            try {
-              if (typeof window !== 'undefined') {
-                localStorage.removeItem('aschi_latest_available_product')
-              }
-            } catch (_) {}
-            setLatestProduct(DEFAULT_PRODUCT)
-          }
-        }
-      } catch (err) {
-        console.warn('Failed to fetch latest product, using default:', err)
-      }
-    }
-    loadLatestProduct()
-  }, [])
+    setImgError(false)
+  }, [latestProduct.id])
 
   let rawImage = latestProduct.images?.find(img => img.isPrimary)?.imageUrl || latestProduct.images?.[0]?.imageUrl || (latestProduct as any).imageUrl || '/images/bg-brass-cabinet-catalogue.jpg'
   if (rawImage.includes('#color=')) {
@@ -185,6 +119,7 @@ export function HeroSplit() {
                   src={image}
                   alt={latestProduct.name}
                   fill
+                  sizes="(max-width: 1024px) 100vw, 480px"
                   onError={() => setImgError(true)}
                   className="absolute inset-0 object-cover transition-transform duration-[15s] group-hover:scale-105 z-0"
                 />

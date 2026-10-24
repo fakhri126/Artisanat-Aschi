@@ -34,6 +34,12 @@ export function getApiBaseUrl(): string {
 }
 
 import { AUTHENTIC_PROJECTS } from '@/app/espaces-d-exception/constants';
+import { convertToWebP } from '@/lib/image-compression';
+import {
+  getAdaptiveRequestTimeoutMs,
+  nowMs,
+  recordLaunchRequest,
+} from '@/lib/launch-metrics';
 
 export const API_BASE_URL = getApiBaseUrl();
 
@@ -176,17 +182,19 @@ export interface ProductRequest {
 export function isTokenExpired(token: string): boolean {
   if (!token) return true;
   try {
-    const parts = token.split('.');
+    const cleanToken = decodeURIComponent(token).replace(/^Bearer\s+/i, '').trim();
+    const parts = cleanToken.split('.');
     if (parts.length !== 3) return true;
     const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
     const jsonStr = typeof window !== 'undefined'
       ? decodeURIComponent(
-          atob(base64)
+          atob(padded)
             .split('')
             .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
             .join('')
         )
-      : Buffer.from(base64, 'base64').toString('utf-8');
+      : Buffer.from(padded, 'base64').toString('utf-8');
     const payload = JSON.parse(jsonStr);
     if (payload.exp && typeof payload.exp === 'number') {
       return Date.now() >= payload.exp * 1000;
@@ -197,24 +205,18 @@ export function isTokenExpired(token: string): boolean {
   }
 }
 
-export function getAuthToken(): string | null {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    if (isTokenExpired(token)) {
-      localStorage.removeItem('token');
-      return null;
-    }
-    return token;
-  }
-  return null;
+function getCookieToken(): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)admin_token=([^;]*)/);
+  return match && match[1] ? decodeURIComponent(match[1]).trim() : null;
 }
 
 export function setAuthToken(token: string): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('token', token);
+  if (typeof window !== 'undefined' && token) {
+    const cleanToken = token.replace(/^Bearer\s+/i, '').trim();
+    localStorage.setItem('token', cleanToken);
     const isSecure = window.location.protocol === 'https:';
-    document.cookie = `admin_token=${token}; path=/; max-age=604800; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+    document.cookie = `admin_token=${cleanToken}; path=/; max-age=604800; SameSite=Lax${isSecure ? '; Secure' : ''}`;
   }
 }
 
@@ -225,10 +227,31 @@ export function removeAuthToken(): void {
   }
 }
 
+export function getAuthToken(): string | null {
+  if (typeof window !== 'undefined') {
+    const storageToken = localStorage.getItem('token');
+    const cookieToken = getCookieToken();
+    const token = storageToken || cookieToken;
+
+    if (!token) return null;
+    if (isTokenExpired(token)) {
+      removeAuthToken();
+      return null;
+    }
+    // Garantir la synchronisation permanente entre localStorage et le cookie lu par middleware.ts
+    if (!storageToken || !cookieToken || storageToken !== cookieToken) {
+      setAuthToken(token);
+    }
+    return token;
+  }
+  return null;
+}
+
 export function isLoggedIn(): boolean {
   return getAuthToken() !== null;
 }
 
+<<<<<<< HEAD
 // --- Client-side in-memory cache for public GET requests (5 min TTL) ---
 const publicApiCache = new Map<string, { timestamp: number; data: any }>();
 const PUBLIC_CACHE_TTL_MS = 5 * 60 * 1000;
@@ -239,29 +262,49 @@ export function invalidatePublicApiCache() {
     try {
       localStorage.removeItem('aschi_catalog_products_v1');
     } catch {}
+=======
+// --- Client-side in-memory cache + in-flight deduplication for public GET requests ---
+const publicApiCache = new Map<string, { timestamp: number; data: any }>();
+const inFlightPublicGet = new Map<string, Promise<any>>();
+const PUBLIC_CACHE_TTL_MS = 60 * 1000;
+
+export function invalidatePublicApiCache() {
+  publicApiCache.clear();
+  inFlightPublicGet.clear();
+}
+
+export function seedPublicApiCache(endpoint: string, data: any, timestamp: number = Date.now()) {
+  if (data !== undefined && data !== null) {
+    publicApiCache.set(endpoint, { timestamp, data });
+  }
+}
+
+async function fetchWithAdaptiveTimeout(input: RequestInfo | URL, init: RequestInit = {}, timeoutMs?: number): Promise<Response> {
+  if (init.signal) {
+    return fetch(input, init);
+  }
+  const ms = timeoutMs ?? getAdaptiveRequestTimeoutMs();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+>>>>>>> 679fde97357e4e5b885ff8c83b7212d4d9fbea02
   }
 }
 
 // --- API Helper Fetcher ---
 
-async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = getAuthToken();
-  const method = (options.method || 'GET').toUpperCase();
+let localBackendUnreachable = false;
 
-  // If this is a mutation, clear client-side public cache
-  if (method !== 'GET') {
-    invalidatePublicApiCache();
-  }
-
-  // Check cache for public GET requests without token
-  const isPublicGet = method === 'GET' && !token && endpoint.startsWith('/public/') && options.cache !== 'no-store';
-  if (isPublicGet && typeof window !== 'undefined') {
-    const cached = publicApiCache.get(endpoint);
-    if (cached && Date.now() - cached.timestamp < PUBLIC_CACHE_TTL_MS) {
-      return cached.data as T;
-    }
-  }
-
+async function executeFetchApiNetwork<T>(
+  endpoint: string,
+  options: RequestInit,
+  token: string | null,
+  method: string,
+  isPublicGet: boolean
+): Promise<T> {
   const headers = new Headers(options.headers || {});
   
   // Set Content-Type only when sending a body (POST, PUT, PATCH)
@@ -286,6 +329,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   const baseUrl = getApiBaseUrl();
+<<<<<<< HEAD
   const fallbackBaseUrl = baseUrl.startsWith('/backend-api') ? DIRECT_BACKEND_API_URL : '/backend-api';
   let response: Response;
 
@@ -297,18 +341,47 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
         console.warn(`[API] Retrying via fallback (${fallbackBaseUrl}${endpoint}):`, networkErr);
         response = await fetch(`${fallbackBaseUrl}${endpoint}`, fetchOptions);
       } catch {
+=======
+  const isLocalBase = baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1');
+  let response: Response;
+
+  // Si le backend local (port 8081) est déjà détecté comme éteint, passer directement par le proxy Next.js /backend-api
+  if (typeof window !== 'undefined' && isLocalBase && localBackendUnreachable && !endpoint.startsWith('/api/')) {
+    response = await fetchWithAdaptiveTimeout(`/backend-api${endpoint}`, fetchOptions);
+  } else {
+    try {
+      // Sur localhost, utiliser un timeout court (1200ms) pour basculer rapidement vers /backend-api si le port 8081 est fermé
+      const primaryTimeout = isLocalBase ? 1200 : getAdaptiveRequestTimeoutMs();
+      response = await fetchWithAdaptiveTimeout(`${baseUrl}${endpoint}`, fetchOptions, primaryTimeout);
+    } catch (networkErr: any) {
+      if (isLocalBase) {
+        localBackendUnreachable = true;
+      }
+      // If browser direct call fails (e.g. local backend off, CORS, cold start), fallback to local Next.js rewrite /backend-api
+      if (typeof window !== 'undefined' && !baseUrl.startsWith('/backend-api') && !endpoint.startsWith('/api/')) {
+        try {
+          console.warn(`[API] Retrying via Next.js proxy (/backend-api${endpoint}):`, networkErr);
+          response = await fetchWithAdaptiveTimeout(`/backend-api${endpoint}`, fetchOptions);
+        } catch {
+          throw networkErr;
+        }
+      } else {
+>>>>>>> 679fde97357e4e5b885ff8c83b7212d4d9fbea02
         throw networkErr;
       }
-    } else {
-      throw networkErr;
     }
   }
 
   // Also fallback if status is 5xx (e.g. gateway error during spin-up)
   if (!response.ok && response.status >= 500 && typeof window !== 'undefined' && !endpoint.startsWith('/api/')) {
     try {
+<<<<<<< HEAD
       console.warn(`[API] Server returned ${response.status}, retrying via fallback (${fallbackBaseUrl}${endpoint})`);
       const fallbackRes = await fetch(`${fallbackBaseUrl}${endpoint}`, fetchOptions);
+=======
+      console.warn(`[API] Server returned ${response.status}, retrying via Next.js proxy (/backend-api${endpoint})`);
+      const fallbackRes = await fetchWithAdaptiveTimeout(`/backend-api${endpoint}`, fetchOptions);
+>>>>>>> 679fde97357e4e5b885ff8c83b7212d4d9fbea02
       if (fallbackRes.ok) {
         response = fallbackRes;
       }
@@ -316,11 +389,19 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   if (response.status === 401 || response.status === 403) {
-    if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login')) {
+    let errMsg = endpoint.startsWith('/auth/')
+      ? "Identifiants invalides (nom d'utilisateur ou mot de passe incorrect)."
+      : 'Non autorisé. Veuillez vous connecter.';
+    try {
+      const errJson = await response.clone().json();
+      if (errJson?.error) errMsg = errJson.error;
+    } catch {}
+
+    if (typeof window !== 'undefined' && !window.location.pathname.includes('/admin/login') && !endpoint.startsWith('/auth/')) {
       removeAuthToken();
       window.location.href = '/admin/login';
     }
-    throw new Error('Non autorisé. Veuillez vous connecter.');
+    throw new Error(errMsg);
   }
 
   if (!response.ok) {
@@ -334,6 +415,14 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
         throw new Error("Le serveur sécurisé démarre ou est temporairement indisponible. Veuillez patienter.");
       }
       throw new Error(`Le serveur a renvoyé une erreur (${response.status}).`);
+    }
+    try {
+      const parsed = JSON.parse(errorText);
+      if (parsed?.error) throw new Error(parsed.error);
+    } catch (e: any) {
+      if (e instanceof Error && e.message && !e.message.includes('JSON')) {
+        throw e;
+      }
     }
     throw new Error(errorText || `Erreur HTTP: ${response.status}`);
   }
@@ -349,6 +438,112 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   return result;
+}
+
+async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const token = getAuthToken();
+  const method = (options.method || 'GET').toUpperCase();
+  const start = nowMs();
+
+  // If this is a mutation, clear client-side public cache
+  if (method !== 'GET') {
+    invalidatePublicApiCache();
+  }
+
+  // Check cache for public GET requests without token
+  const isPublicGet = method === 'GET' && !token && endpoint.startsWith('/public/') && options.cache !== 'no-store';
+  if (isPublicGet && typeof window !== 'undefined') {
+    const cached = publicApiCache.get(endpoint);
+    if (cached && Date.now() - cached.timestamp < PUBLIC_CACHE_TTL_MS) {
+      const end = nowMs();
+      recordLaunchRequest({
+        endpoint,
+        initiator: 'fetchApi:cache',
+        startTimeMs: start,
+        endTimeMs: end,
+        durationMs: end - start,
+        source: 'memory-cache',
+        status: 'ok',
+        parallelGroup: true,
+      });
+      return cached.data as T;
+    }
+
+    // In-flight deduplication: if the exact same GET endpoint is already in flight, share its Promise!
+    const existingPromise = inFlightPublicGet.get(endpoint);
+    if (existingPromise) {
+      return existingPromise.then((res) => {
+        const end = nowMs();
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'fetchApi:dedup',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'in-flight-dedup',
+          status: 'ok',
+          parallelGroup: true,
+        });
+        return res as T;
+      });
+    }
+  }
+
+  const requestPromise = executeFetchApiNetwork<T>(endpoint, options, token, method, isPublicGet)
+    .then((res) => {
+      const end = nowMs();
+      if (method === 'GET') {
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'fetchApi:network',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'network',
+          status: 'ok',
+          parallelGroup: true,
+        });
+      }
+      return res;
+    })
+    .catch((err) => {
+      const end = nowMs();
+      if (method === 'GET') {
+        const isTimeout =
+          err?.name === 'AbortError' ||
+          err?.name === 'TimeoutError' ||
+          String(err?.message || '').toLowerCase().includes('timeout');
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'fetchApi:network',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'fallback',
+          status: isTimeout ? 'timeout' : 'error',
+          parallelGroup: true,
+        });
+      }
+      // Stale-if-error fallback from publicApiCache if available on weak connections
+      if (isPublicGet && typeof window !== 'undefined') {
+        const stale = publicApiCache.get(endpoint);
+        if (stale && stale.data) {
+          return stale.data as T;
+        }
+      }
+      throw err;
+    })
+    .finally(() => {
+      if (isPublicGet) {
+        inFlightPublicGet.delete(endpoint);
+      }
+    });
+
+  if (isPublicGet && typeof window !== 'undefined') {
+    inFlightPublicGet.set(endpoint, requestPromise);
+  }
+
+  return requestPromise;
 }
 
 export function parseProduct(product: Product): Product {
@@ -510,6 +705,95 @@ export const publicApi = {
       return [];
     }
   },
+
+  getVideos: async (): Promise<any> => {
+    const endpoint = '/api/videos';
+    const start = nowMs();
+
+    if (typeof window !== 'undefined') {
+      const cached = publicApiCache.get(endpoint);
+      if (cached && Date.now() - cached.timestamp < PUBLIC_CACHE_TTL_MS) {
+        const end = nowMs();
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'publicApi.getVideos:cache',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'memory-cache',
+          status: 'ok',
+          parallelGroup: true,
+        });
+        return cached.data;
+      }
+
+      const existing = inFlightPublicGet.get(endpoint);
+      if (existing) {
+        return existing.then((data) => {
+          const end = nowMs();
+          recordLaunchRequest({
+            endpoint,
+            initiator: 'publicApi.getVideos:dedup',
+            startTimeMs: start,
+            endTimeMs: end,
+            durationMs: end - start,
+            source: 'in-flight-dedup',
+            status: 'ok',
+            parallelGroup: true,
+          });
+          return data;
+        });
+      }
+    }
+
+    const p = fetchWithAdaptiveTimeout(endpoint)
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const end = nowMs();
+        if (typeof window !== 'undefined') {
+          publicApiCache.set(endpoint, { timestamp: Date.now(), data });
+        }
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'publicApi.getVideos:network',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'network',
+          status: 'ok',
+          parallelGroup: true,
+        });
+        return data;
+      })
+      .catch((err) => {
+        const end = nowMs();
+        recordLaunchRequest({
+          endpoint,
+          initiator: 'publicApi.getVideos:network',
+          startTimeMs: start,
+          endTimeMs: end,
+          durationMs: end - start,
+          source: 'fallback',
+          status: 'error',
+          parallelGroup: true,
+        });
+        if (typeof window !== 'undefined') {
+          const stale = publicApiCache.get(endpoint);
+          if (stale?.data) return stale.data;
+        }
+        return null;
+      })
+      .finally(() => {
+        inFlightPublicGet.delete(endpoint);
+      });
+
+    if (typeof window !== 'undefined') {
+      inFlightPublicGet.set(endpoint, p);
+    }
+
+    return p;
+  },
 };
 
 function formatProductVariants(data: ProductRequest): void {
@@ -521,14 +805,45 @@ function formatProductVariants(data: ProductRequest): void {
 // --- Admin Endpoints ---
 
 export const adminApi = {
-  login: (credentials: { username: string; password: string }) => {
-    return fetchApi<LoginResponse>('/auth/login', {
+  login: async (credentials: { username: string; password: string }): Promise<LoginResponse> => {
+    const cleanCredentials = {
+      username: (credentials.username || '').trim(),
+      password: credentials.password || '',
+    };
+
+    // 1. Authentification directe et instantanée via la route Next.js (/api/auth/login -> Supabase PostgreSQL + JWT HS384 compatible Spring Boot)
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cleanCredentials),
+        cache: 'no-store',
+      });
+
+      if (res.ok) {
+        const data = (await res.json()) as LoginResponse;
+        if (data?.token) {
+          setAuthToken(data.token);
+          return data;
+        }
+      } else if (res.status === 401 || res.status === 400) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData?.error || "Identifiants invalides (nom d'utilisateur ou mot de passe incorrect).");
+      }
+    } catch (err: any) {
+      if (err?.message?.includes('Identifiants invalides') || err?.message?.includes('requis')) {
+        throw err;
+      }
+      console.warn('[Auth] Fallback vers backend /auth/login:', err);
+    }
+
+    // 2. Fallback vers le backend Spring Boot (/auth/login)
+    const res = await fetchApi<LoginResponse>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify(credentials),
-    }).then((res) => {
-      setAuthToken(res.token);
-      return res;
+      body: JSON.stringify(cleanCredentials),
     });
+    setAuthToken(res.token);
+    return res;
   },
 
   getStats: () => {
@@ -536,10 +851,18 @@ export const adminApi = {
   },
 
   uploadImage: async (file: File) => {
+    // 0. Automatically compress and convert any image to WebP before sending to server
+    let fileToUpload = file;
+    try {
+      fileToUpload = await convertToWebP(file);
+    } catch (e) {
+      console.warn('WebP conversion fallback to original file:', e);
+    }
+
     // 1. Direct reliable upload via Next.js API route
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', fileToUpload);
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -559,7 +882,7 @@ export const adminApi = {
 
     // 2. Fallback to Spring Boot backend /admin/uploads/image
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', fileToUpload);
     const backendRes = await fetchApi<{ url: string }>('/admin/uploads/image', {
       method: 'POST',
       body: formData,
@@ -673,7 +996,7 @@ export const adminApi = {
     };
     return fetchApi<Project>(`/admin/projects/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(cleanData),
+      body: JSON.stringify(data),
     });
   },
   deleteProject: (id: number) => fetchApi<void>(`/admin/projects/${id}`, {
@@ -890,4 +1213,3 @@ export const colorsApi = {
     }
   },
 };
-

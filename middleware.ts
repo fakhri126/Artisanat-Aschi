@@ -7,10 +7,12 @@ import type { NextRequest } from 'next/server'
 function isTokenExpired(token: string): boolean {
   if (!token) return true
   try {
-    const parts = token.split('.')
+    const cleanToken = decodeURIComponent(token).replace(/^Bearer\s+/i, '').trim()
+    const parts = cleanToken.split('.')
     if (parts.length !== 3) return true
     const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/')
-    const decoded = atob(base64)
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=')
+    const decoded = atob(padded)
     const payload = JSON.parse(decoded)
     if (payload.exp && typeof payload.exp === 'number') {
       return Date.now() >= payload.exp * 1000

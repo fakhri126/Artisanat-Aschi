@@ -17,8 +17,13 @@ import {
 } from 'lucide-react'
 import { useInView } from 'framer-motion'
 import { Reveal } from './reveal'
+import { useHomeSnapshot } from './home-snapshot-provider'
+import { DEFAULT_SITE_VIDEOS } from '@/lib/home-snapshot'
 
 export function MediaSection() {
+  const { snapshot } = useHomeSnapshot()
+  const mediaData = snapshot.videos?.media || DEFAULT_SITE_VIDEOS.media
+
   const containerRef = useRef<HTMLDivElement>(null)
   const videoWrapperRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -34,6 +39,7 @@ export function MediaSection() {
   const [hasEnteredView, setHasEnteredView] = useState(false)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+<<<<<<< HEAD
   const [mediaData, setMediaData] = useState({
     videoUrl: '/video-media-aschi.mp4',
     badge: 'Passage Média & Télévision',
@@ -60,6 +66,9 @@ export function MediaSection() {
   }, [])
 
   // Pause video if scrolled out of view & track first viewport entry for fast preload
+=======
+  // Pause video if scrolled out of view
+>>>>>>> 679fde97357e4e5b885ff8c83b7212d4d9fbea02
   useEffect(() => {
     if (isInView && !hasEnteredView) {
       setHasEnteredView(true)

@@ -1,37 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Truck, Eye, MapPin } from 'lucide-react'
 import Image from 'next/image'
-import { publicApi, Delivery } from '@/lib/api'
+import { Delivery } from '@/lib/api'
 import { formatImageUrl } from '@/lib/utils'
+import { useHomeSnapshot } from './home-snapshot-provider'
+import { FALLBACK_DELIVERIES } from '@/lib/home-snapshot'
 
 export function HeroDelivery() {
-  const [latestDelivery, setLatestDelivery] = useState<Delivery | null>(null)
-  const [modalOpen, setModalOpen] = useState(false)
-
-  useEffect(() => {
-    async function loadLatest() {
-      try {
-        const deliveries = await publicApi.getDeliveries()
-        if (deliveries && deliveries.length > 0) {
-          setLatestDelivery(deliveries[0])
-        }
-      } catch (err) {
-        console.warn('Failed to fetch latest delivery')
-      }
-    }
-    loadLatest()
-  }, [])
-
-  if (!latestDelivery) {
-    return (
-      <div className="h-full min-h-[480px] w-full bg-transparent flex items-center justify-center">
-        <div className="size-10 rounded-full border-2 border-[#E6A635]/30 border-t-[#E6A635] animate-spin" />
-      </div>
-    )
-  }
+  const { snapshot } = useHomeSnapshot()
+  const latestDelivery: Delivery =
+    (snapshot.deliveries && snapshot.deliveries[0]) || FALLBACK_DELIVERIES[0]
+  const [, setModalOpen] = useState(false)
 
   const imageList = (latestDelivery.imageUrl || '').split(',').map(s => s.trim()).filter(Boolean)
   const image = imageList[0] || '/images/bg-weekly-delivery-2.jpg'
@@ -113,7 +95,7 @@ export function HeroDelivery() {
                 src={formatImageUrl(image, '/images/bg-weekly-delivery-2.jpg')}
                 alt={latestDelivery.title || "Livraison Artisanat Aschi"}
                 fill
-                priority
+                sizes="(max-width: 1024px) 100vw, 460px"
                 className="object-cover transition-transform duration-[12s] group-hover:scale-105"
               />
             )}
