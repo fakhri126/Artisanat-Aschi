@@ -1,7 +1,6 @@
 package com.artisanataschi.backend.config;
 
 import com.artisanataschi.backend.service.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,7 +41,7 @@ public class WebSecurityConfig {
         this.jwtUtils = jwtUtils;
     }
 
-    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:3001,https://artisanat-aschi.com,https://www.artisanat-aschi.com}")
+    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:3001,https://artisanat-aschi.com,https://www.artisanat-aschi.com,https://artisanataschi.com,https://www.artisanataschi.com}")
     private String allowedOrigins;
 
     @Bean

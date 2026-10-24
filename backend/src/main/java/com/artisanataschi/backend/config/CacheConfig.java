@@ -48,7 +48,6 @@ public class CacheConfig {
     public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
         log.info("🚀 Initialisation du Cache Distribué Redis pour Artisanat Aschi");
 
-        // Configuration Jackson adaptée avec support des dates Java 8 (LocalDateTime)
         ObjectMapper redisObjectMapper = new ObjectMapper();
         redisObjectMapper.registerModule(new JavaTimeModule());
         redisObjectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -61,20 +60,18 @@ public class CacheConfig {
         GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
 
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(15))
+                .entryTtl(Duration.ofHours(6))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jsonSerializer))
                 .disableCachingNullValues();
 
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
-        // TTL par entité adapté à la fréquence de mise à jour (aligné avec la stratégie de cache)
         cacheConfigs.put("categories", defaultConfig.entryTtl(Duration.ofHours(24)));
-        cacheConfigs.put("featuredProducts", defaultConfig.entryTtl(Duration.ofHours(1)));
-        cacheConfigs.put("latestProducts", defaultConfig.entryTtl(Duration.ofMinutes(15)));
-        cacheConfigs.put("products", defaultConfig.entryTtl(Duration.ofMinutes(15)));
-        cacheConfigs.put("projects", defaultConfig.entryTtl(Duration.ofHours(2)));
-        cacheConfigs.put("news", defaultConfig.entryTtl(Duration.ofHours(1)));
-        cacheConfigs.put("deliveries", defaultConfig.entryTtl(Duration.ofHours(2)));
+        cacheConfigs.put("featuredProducts", defaultConfig.entryTtl(Duration.ofHours(6)));
+        cacheConfigs.put("latestProducts", defaultConfig.entryTtl(Duration.ofHours(6)));
+        cacheConfigs.put("products", defaultConfig.entryTtl(Duration.ofHours(6)));
+        cacheConfigs.put("projects", defaultConfig.entryTtl(Duration.ofHours(6)));
+        cacheConfigs.put("news", defaultConfig.entryTtl(Duration.ofHours(6)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
@@ -85,8 +82,7 @@ public class CacheConfig {
 
     /**
      * Cache Manager Caffeine en mémoire locale.
-     * Utilisé par défaut en local ou en fallback de démarrage si spring.cache.type=caffeine.
-     * TTLs granulaires par entité identiques à Redis.
+     * Utilisé par défaut en local ou en production si spring.cache.type=caffeine.
      */
     @Bean
     @ConditionalOnProperty(name = "spring.cache.type", havingValue = "caffeine", matchIfMissing = true)
@@ -97,10 +93,9 @@ public class CacheConfig {
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .initialCapacity(50)
                 .maximumSize(500)
-                .expireAfterWrite(15, TimeUnit.MINUTES)
+                .expireAfterWrite(6, TimeUnit.HOURS)
                 .recordStats());
 
-        // Configuration granulaire des TTLs par cache (alignée sur Redis)
         cacheManager.registerCustomCache("categories", Caffeine.newBuilder()
                 .maximumSize(200)
                 .expireAfterWrite(24, TimeUnit.HOURS)
@@ -108,32 +103,27 @@ public class CacheConfig {
                 .build());
         cacheManager.registerCustomCache("featuredProducts", Caffeine.newBuilder()
                 .maximumSize(100)
-                .expireAfterWrite(1, TimeUnit.HOURS)
+                .expireAfterWrite(6, TimeUnit.HOURS)
                 .recordStats()
                 .build());
         cacheManager.registerCustomCache("latestProducts", Caffeine.newBuilder()
                 .maximumSize(100)
-                .expireAfterWrite(15, TimeUnit.MINUTES)
+                .expireAfterWrite(6, TimeUnit.HOURS)
                 .recordStats()
                 .build());
         cacheManager.registerCustomCache("products", Caffeine.newBuilder()
                 .maximumSize(1000)
-                .expireAfterWrite(15, TimeUnit.MINUTES)
+                .expireAfterWrite(6, TimeUnit.HOURS)
                 .recordStats()
                 .build());
         cacheManager.registerCustomCache("projects", Caffeine.newBuilder()
                 .maximumSize(200)
-                .expireAfterWrite(2, TimeUnit.HOURS)
+                .expireAfterWrite(6, TimeUnit.HOURS)
                 .recordStats()
                 .build());
         cacheManager.registerCustomCache("news", Caffeine.newBuilder()
                 .maximumSize(200)
-                .expireAfterWrite(1, TimeUnit.HOURS)
-                .recordStats()
-                .build());
-        cacheManager.registerCustomCache("deliveries", Caffeine.newBuilder()
-                .maximumSize(200)
-                .expireAfterWrite(2, TimeUnit.HOURS)
+                .expireAfterWrite(6, TimeUnit.HOURS)
                 .recordStats()
                 .build());
 

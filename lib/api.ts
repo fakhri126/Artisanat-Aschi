@@ -3,23 +3,23 @@ function ensureApiSuffix(url: string): string {
   return clean.endsWith('/api') ? clean : `${clean}/api`;
 }
 
+export const DIRECT_BACKEND_API_URL = 'https://artisanat-aschi-backend.onrender.com/api';
+
 export function getApiBaseUrl(): string {
-  // 1. Variable explicitement définie et non-localhost
-  if (process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes('localhost')) {
-    return ensureApiSuffix(process.env.NEXT_PUBLIC_API_URL);
-  }
-  // 2. Détection dynamique dans le navigateur en production (Render ou autre domaine)
+  // 1. Détection dynamique dans le navigateur en production (Vercel / domaine personnalisé artisanataschi.com)
+  // On privilégie le proxy same-origin /backend-api pour éliminer tout blocage/latence CORS,
+  // réutiliser la connexion HTTP/2 active et profiter du cache Edge CDN de Vercel.
   if (typeof window !== 'undefined') {
     if (window.location.hostname.includes('onrender.com')) {
-      return 'https://artisanat-aschi-backend.onrender.com/api';
+      return DIRECT_BACKEND_API_URL;
     }
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      const publicUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (publicUrl && !publicUrl.includes('localhost')) {
-        return ensureApiSuffix(publicUrl);
-      }
-      return 'https://artisanat-aschi-backend.onrender.com/api';
+      return '/backend-api';
     }
+  }
+  // 2. Variable explicitement définie et non-localhost (SSR ou build)
+  if (process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes('localhost')) {
+    return ensureApiSuffix(process.env.NEXT_PUBLIC_API_URL);
   }
   // 3. Fallback production côté serveur (SSR Node.js)
   if (process.env.NODE_ENV === 'production') {
@@ -27,7 +27,7 @@ export function getApiBaseUrl(): string {
     if (internalUrl && !internalUrl.includes('localhost')) return ensureApiSuffix(internalUrl);
     const publicUrl = process.env.NEXT_PUBLIC_API_URL;
     if (publicUrl && !publicUrl.includes('localhost')) return ensureApiSuffix(publicUrl);
-    return 'https://artisanat-aschi-backend.onrender.com/api';
+    return DIRECT_BACKEND_API_URL;
   }
   // 4. Fallback développement local
   return ensureApiSuffix(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api');
@@ -229,12 +229,17 @@ export function isLoggedIn(): boolean {
   return getAuthToken() !== null;
 }
 
-// --- Client-side in-memory cache for public GET requests (60s TTL) ---
+// --- Client-side in-memory cache for public GET requests (5 min TTL) ---
 const publicApiCache = new Map<string, { timestamp: number; data: any }>();
-const PUBLIC_CACHE_TTL_MS = 60 * 1000;
+const PUBLIC_CACHE_TTL_MS = 5 * 60 * 1000;
 
 export function invalidatePublicApiCache() {
   publicApiCache.clear();
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem('aschi_catalog_products_v1');
+    } catch {}
+  }
 }
 
 // --- API Helper Fetcher ---
@@ -281,16 +286,16 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   const baseUrl = getApiBaseUrl();
+  const fallbackBaseUrl = baseUrl.startsWith('/backend-api') ? DIRECT_BACKEND_API_URL : '/backend-api';
   let response: Response;
 
   try {
     response = await fetch(`${baseUrl}${endpoint}`, fetchOptions);
   } catch (networkErr: any) {
-    // If browser direct call fails (e.g. CORS, cold start, privacy blocks), fallback to local Next.js rewrite /backend-api
-    if (typeof window !== 'undefined' && !baseUrl.startsWith('/backend-api') && !endpoint.startsWith('/api/')) {
+    if (typeof window !== 'undefined' && !endpoint.startsWith('/api/')) {
       try {
-        console.warn(`[API] Retrying via Next.js proxy (/backend-api${endpoint}):`, networkErr);
-        response = await fetch(`/backend-api${endpoint}`, fetchOptions);
+        console.warn(`[API] Retrying via fallback (${fallbackBaseUrl}${endpoint}):`, networkErr);
+        response = await fetch(`${fallbackBaseUrl}${endpoint}`, fetchOptions);
       } catch {
         throw networkErr;
       }
@@ -300,10 +305,10 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   // Also fallback if status is 5xx (e.g. gateway error during spin-up)
-  if (!response.ok && response.status >= 500 && typeof window !== 'undefined' && !baseUrl.startsWith('/backend-api') && !endpoint.startsWith('/api/')) {
+  if (!response.ok && response.status >= 500 && typeof window !== 'undefined' && !endpoint.startsWith('/api/')) {
     try {
-      console.warn(`[API] Server returned ${response.status}, retrying via Next.js proxy (/backend-api${endpoint})`);
-      const fallbackRes = await fetch(`/backend-api${endpoint}`, fetchOptions);
+      console.warn(`[API] Server returned ${response.status}, retrying via fallback (${fallbackBaseUrl}${endpoint})`);
+      const fallbackRes = await fetch(`${fallbackBaseUrl}${endpoint}`, fetchOptions);
       if (fallbackRes.ok) {
         response = fallbackRes;
       }

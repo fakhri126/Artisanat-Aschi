@@ -31,6 +31,7 @@ export function MediaSection() {
   const [aspectRatio, setAspectRatio] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showControls, setShowControls] = useState(true)
+  const [hasEnteredView, setHasEnteredView] = useState(false)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const [mediaData, setMediaData] = useState({
@@ -58,15 +59,18 @@ export function MediaSection() {
       .catch(() => {})
   }, [])
 
-  // Pause video if scrolled out of view
+  // Pause video if scrolled out of view & track first viewport entry for fast preload
   useEffect(() => {
+    if (isInView && !hasEnteredView) {
+      setHasEnteredView(true)
+    }
     if (!videoRef.current) return
 
     if (!isInView && isPlaying) {
       videoRef.current.pause()
       setIsPlaying(false)
     }
-  }, [isInView, isPlaying])
+  }, [isInView, isPlaying, hasEnteredView])
 
   // Fullscreen change listener
   useEffect(() => {
@@ -271,11 +275,11 @@ export function MediaSection() {
                 */}
                 <video
                   ref={videoRef}
-                  src={isInView ? (mediaData.videoUrl || "/video-media-aschi.mp4") : undefined}
+                  src={hasEnteredView ? (mediaData.videoUrl || "/video-media-aschi.mp4") : undefined}
                   poster="/images/about-atelier-stand.jpg"
                   muted={isMuted}
                   playsInline
-                  preload="none"
+                  preload={hasEnteredView ? "metadata" : "none"}
                   onTimeUpdate={handleTimeUpdate}
                   onLoadedMetadata={handleLoadedMetadata}
                   onEnded={handleVideoEnded}

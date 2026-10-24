@@ -216,6 +216,21 @@ export default function AdminVideosPage() {
     }))
   }
 
+  const handleDeleteVideo = async (category: 'temoignage' | 'savoir_faire' | 'media') => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ? Elle ne sera plus affichée sur le site.')) {
+      return
+    }
+    const updated: SiteVideosData = {
+      ...videosData,
+      [category]: {
+        ...videosData[category],
+        videoUrl: ''
+      }
+    }
+    setVideosData(updated)
+    await handleSave(updated)
+  }
+
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -340,6 +355,7 @@ export default function AdminVideosPage() {
           description={videosData.temoignage.description}
           uploading={uploadingTab === 'temoignage'}
           onVideoUpload={(file) => handleVideoUpload(file, 'temoignage')}
+          onDeleteVideo={() => handleDeleteVideo('temoignage')}
           onChangeField={(field, val) => updateField('temoignage', field, val)}
           subtitleLabel="Sous-Titre :"
           descriptionLabel="Description :"
@@ -363,6 +379,7 @@ export default function AdminVideosPage() {
           uploadingPoster={uploadingTab === 'poster'}
           onVideoUpload={(file) => handleVideoUpload(file, 'savoir_faire')}
           onPosterUpload={handlePosterUpload}
+          onDeleteVideo={() => handleDeleteVideo('savoir_faire')}
           onChangeField={(field, val) => updateField('savoir_faire', field, val)}
           subtitleLabel="Sous-Titre / Métier :"
           descriptionLabel="Texte Descriptif :"
@@ -384,6 +401,7 @@ export default function AdminVideosPage() {
           description={videosData.media.description}
           uploading={uploadingTab === 'media'}
           onVideoUpload={(file) => handleVideoUpload(file, 'media')}
+          onDeleteVideo={() => handleDeleteVideo('media')}
           onChangeField={(field, val) => updateField('media', field, val)}
           subtitleLabel="Sous-Titre / Chaîne TV :"
           descriptionLabel="Description du Reportage :"

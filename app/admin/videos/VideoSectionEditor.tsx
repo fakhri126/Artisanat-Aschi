@@ -1,6 +1,6 @@
 'use client'
 
-import { Video, Film, Upload, RefreshCw } from 'lucide-react'
+import { Video, Film, Upload, RefreshCw, Trash2 } from 'lucide-react'
 
 interface VideoSectionEditorProps {
   title: string
@@ -17,6 +17,7 @@ interface VideoSectionEditorProps {
   uploadingPoster?: boolean
   onVideoUpload: (file: File) => void
   onPosterUpload?: (file: File) => void
+  onDeleteVideo?: () => void
   onChangeField: (field: 'videoUrl' | 'badge' | 'title' | 'subtitle' | 'description' | 'poster', value: string) => void
   subtitleLabel?: string
   descriptionLabel?: string
@@ -39,6 +40,7 @@ export default function VideoSectionEditor({
   uploadingPoster = false,
   onVideoUpload,
   onPosterUpload,
+  onDeleteVideo,
   onChangeField,
   subtitleLabel = 'Sous-Titre :',
   descriptionLabel = 'Description :',
@@ -97,6 +99,19 @@ export default function VideoSectionEditor({
                 }}
               />
             </label>
+
+            {videoUrl && onDeleteVideo && (
+              <button
+                type="button"
+                onClick={onDeleteVideo}
+                disabled={uploading}
+                className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+                title="Supprimer la vidéo de cette section"
+              >
+                <Trash2 className="size-4" />
+                <span>Supprimer la vidéo</span>
+              </button>
+            )}
 
             <div>
               <label className="text-[10.5px] uppercase font-bold text-[#64748B] block mb-1">

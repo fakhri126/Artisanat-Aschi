@@ -148,7 +148,7 @@ export function VideoReel() {
                   src={hasLoaded ? (reelData.videoUrl || "/uploads/1791058503119-WhatsApp_Video_2026-10-03_at_06.20.12.mp4") : undefined}
                   poster="/images/raw-sculptures.jpg"
                   muted={isMuted}
-                  preload="none"
+                  preload={hasLoaded ? "auto" : "none"}
                   className="w-full h-full object-cover"
                   loop
                   playsInline

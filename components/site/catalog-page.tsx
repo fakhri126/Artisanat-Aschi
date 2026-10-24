@@ -359,6 +359,7 @@ const MOCK_MODELS: Product[] = []
 
 const CatalogProductCard = ({
   model,
+  cardIndex = 0,
   colorFilter,
   aiQuery,
   hoveredId,
@@ -369,6 +370,8 @@ const CatalogProductCard = ({
   setQuickViewImageIndex,
 }: any) => {
   const isHovered = hoveredId === model.id
+  const isPriorityCard = cardIndex < 4
+  const [mainImgLoaded, setMainImgLoaded] = useState(false)
 
   const initialIndex = model.images?.findIndex((img: any) => img.isPrimary)
   const [activeImageIndex, setActiveImageIndex] = useState(initialIndex >= 0 ? initialIndex : 0)
@@ -477,11 +480,8 @@ const CatalogProductCard = ({
         className="relative aspect-[4/5] w-full overflow-hidden rounded-t-[1.1rem] sm:rounded-t-[1.8rem] rounded-b-xl bg-[#2C1E16]/5 border border-[#E8DCCB]/60 shadow-inner group/img flex items-center justify-center select-none"
       >
         
-        {/* Ambient Blurred Luxury Backdrop */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center blur-xl opacity-30 scale-125"
-          style={{ backgroundImage: `url(${image})` }}
-        />
+        {/* Ambient Luxury Backdrop (CSS-only to avoid downloading & GPU-blurring every photo twice) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#E6A635]/15 via-[#3B271C]/30 to-[#1A110B]/60 pointer-events-none" />
 
         {/* Main photo / AI Variant */}
         {isAIVariantDisplayed && variantImage ? (
@@ -489,10 +489,14 @@ const CatalogProductCard = ({
             <motion.img
               src={variantImageUrl}
               alt={model.name}
+              loading={isPriorityCard ? "eager" : "lazy"}
+              fetchPriority={isPriorityCard ? "high" : "auto"}
+              decoding="async"
+              onLoad={() => setMainImgLoaded(true)}
               className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-sm"
               animate={{ scale: isHovered ? 1.05 : 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
+              onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; setMainImgLoaded(true) }}
             />
             <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3 z-20 flex items-center gap-1.5 rounded-full bg-[#E6A635]/95 backdrop-blur-md px-2.5 sm:px-3 py-0.5 sm:py-1 shadow-md border border-[#F2BD52]">
               <Bot className="size-2.5 sm:size-3 text-[#1A110B]" />
@@ -501,19 +505,19 @@ const CatalogProductCard = ({
           </>
         ) : (
           <>
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={image}
-                src={image}
-                alt={model.name}
-                className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-sm"
-                initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: isHovered ? 1.05 : 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
-              />
-            </AnimatePresence>
+            <motion.img
+              key={image}
+              src={image}
+              alt={model.name}
+              loading={isPriorityCard ? "eager" : "lazy"}
+              fetchPriority={isPriorityCard ? "high" : "auto"}
+              decoding="async"
+              onLoad={() => setMainImgLoaded(true)}
+              className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain drop-shadow-sm"
+              animate={{ opacity: 1, scale: isHovered ? 1.05 : 1 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; setMainImgLoaded(true) }}
+            />
           </>
         )}
 
@@ -635,34 +639,44 @@ const CatalogProductCard = ({
         <Link href={`/produits/${model.id}`} className="absolute inset-0 z-10" />
       </div>
 
-      {/* MULTI-ANGLE THUMBNAILS SELECTOR - Desktop only */}
+      {/* MULTI-ANGLE THUMBNAILS SELECTOR - Desktop only (deferred until main photo loads to prioritize main photos) */}
       {hasMultipleImages && !isAIVariantDisplayed && (
         <div className="pt-2 pb-0.5 hidden sm:flex gap-1.5 overflow-x-auto z-20 relative pointer-events-auto px-0.5 scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {model.images.map((img: any, idx: number) => (
-            <button
-              key={img.id || idx}
-              type="button"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                setActiveImageIndex(idx)
-              }}
-              className={`relative size-7 sm:size-8 shrink-0 rounded-lg overflow-hidden border transition-all cursor-pointer ${
-                idx === activeImageIndex 
-                  ? 'border-[#F2BD52] opacity-100 scale-105 shadow-md ring-2 ring-[#F2BD52]/40' 
-                  : 'border-white/30 opacity-60 hover:opacity-100 shadow-xs'
-              }`}
-            >
-              <img
-                src={formatImageUrl(img.imageUrl, '/placeholder.png')}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="size-full object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
-              />
-            </button>
-          ))}
+          {model.images.map((img: any, idx: number) => {
+            const shouldLoadThumb = mainImgLoaded || isHovered || idx === activeImageIndex
+            return (
+              <button
+                key={img.id || idx}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setActiveImageIndex(idx)
+                }}
+                className={`relative size-7 sm:size-8 shrink-0 rounded-lg overflow-hidden border transition-all cursor-pointer bg-[#241812] ${
+                  idx === activeImageIndex 
+                    ? 'border-[#F2BD52] opacity-100 scale-105 shadow-md ring-2 ring-[#F2BD52]/40' 
+                    : 'border-white/30 opacity-60 hover:opacity-100 shadow-xs'
+                }`}
+              >
+                {shouldLoadThumb ? (
+                  <img
+                    src={formatImageUrl(img.imageUrl, '/placeholder.png')}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="size-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
+                  />
+                ) : (
+                  <span
+                    className="block size-full"
+                    style={{ background: getColorHex(img.colorLabel) }}
+                  />
+                )}
+              </button>
+            )
+          })}
         </div>
       )}
 
@@ -710,7 +724,32 @@ const CatalogProductCard = ({
   )
 }
 
-export function CatalogPage() {
+const isHandleProductItem = (p: Product) => {
+  const catName = p.category?.name?.toLowerCase() || ''
+  const name = p.name?.toLowerCase() || ''
+  if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux") || name.includes("porte bijou") || name.includes("porte-bijou") || name.includes("porte bijoux")) {
+    return false
+  }
+  return (
+    catName.includes("bijoux de porte") || 
+    catName.includes("ronds") || 
+    catName.includes("ovales") || 
+    catName.includes("poignée") ||
+    catName.includes("poignee") ||
+    name.includes("bouton majolique") || 
+    name.includes("petite poignée") ||
+    name.includes("grand rond") ||
+    name.includes("bouton ovale")
+  )
+}
+
+export function CatalogPage({
+  initialProducts = [],
+  initialCategories = [],
+}: {
+  initialProducts?: Product[]
+  initialCategories?: Category[]
+} = {}) {
   const router = useRouter()
   
   const [category, setCategory] = useState('Tout')
@@ -723,8 +762,16 @@ export function CatalogPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 12
 
-  const [dbProducts, setDbProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+  const [dbProducts, setDbProducts] = useState<Product[]>(() => {
+    if (Array.isArray(initialProducts) && initialProducts.length > 0) {
+      const catalogItems = initialProducts.filter(p => !isHandleProductItem(p))
+      return catalogItems.length > 0 ? catalogItems : initialProducts
+    }
+    return []
+  })
+  const [loading, setLoading] = useState<boolean>(() => {
+    return !(Array.isArray(initialProducts) && initialProducts.length > 0)
+  })
   const [loadError, setLoadError] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [catFilterOpen, setCatFilterOpen] = useState(true)
@@ -1029,64 +1076,18 @@ export function CatalogPage() {
     setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id])
   }
 
-  const [dbCategories, setDbCategories] = useState<Category[]>([])
+  const [dbCategories, setDbCategories] = useState<Category[]>(initialCategories)
 
-  const isHandleProduct = (p: Product) => {
-    const catName = p.category?.name?.toLowerCase() || ''
-    const name = p.name?.toLowerCase() || ''
-    if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux") || name.includes("porte bijou") || name.includes("porte-bijou") || name.includes("porte bijoux")) {
-      return false
+  const isHandleProduct = isHandleProductItem
+
+  async function loadData(retryCount = 0, silent = false) {
+    if (!silent && dbProducts.length === 0) {
+      setLoading(true)
     }
-    return (
-      catName.includes("bijoux de porte") || 
-      catName.includes("ronds") || 
-      catName.includes("ovales") || 
-      catName.includes("poignée") ||
-      catName.includes("poignee") ||
-      name.includes("bouton majolique") || 
-      name.includes("petite poignée") ||
-      name.includes("grand rond") ||
-      name.includes("bouton ovale")
-    )
-  }
-
-  async function loadData(retryCount = 0) {
-    setLoading(true)
     setLoadError(false)
-    try {
-      console.log(`[Catalog] Chargement des créations (tentative ${retryCount + 1})...`)
-      
-      // Fetch products, categories, colors in parallel but with individual fallbacks
-      const [prodData, catData, colorData] = await Promise.all([
-        publicApi.getProducts({ type: 'CATALOGUE' })
-          .catch(async (err) => {
-            console.warn('[Catalog] Filtre CATALOGUE a échoué, essai avec fallback global:', err)
-            return publicApi.getProducts().catch(() => [])
-          }),
-        publicApi.getCategories().catch(err => {
-          console.warn('[Catalog] getCategories a échoué:', err)
-          return [] as Category[]
-        }),
-        colorsApi.getColors().catch(() => [])
-      ])
 
-      const validProds = Array.isArray(prodData) ? prodData : []
-      
-      // If empty on first attempt and retryCount < 2, auto-retry in 2s (in case backend is waking up on Render)
-      if (validProds.length === 0 && retryCount < 2) {
-        console.log(`[Catalog] Réponse vide, nouvelle tentative dans 2.5s (${retryCount + 1}/3)...`)
-        setTimeout(() => loadData(retryCount + 1), 2500)
-        return
-      }
-
-      if (validProds.length === 0) {
-        setLoadError(true)
-      } else {
-        const catalogItems = validProds.filter(p => !isHandleProduct(p))
-        setDbProducts(catalogItems.length > 0 ? catalogItems : validProds)
-        setLoadError(false)
-      }
-
+    // Charger les couleurs et catégories en arrière-plan sans jamais bloquer l'affichage des produits
+    colorsApi.getColors().then(colorData => {
       if (Array.isArray(colorData) && colorData.length > 0) {
         setAvailableColors([
           { label: 'Tout', hex: null, border: 'border-border' },
@@ -1097,43 +1098,94 @@ export function CatalogPage() {
           }))
         ])
       }
+    }).catch(() => {})
 
+    publicApi.getCategories().then(catData => {
       const validCats = Array.isArray(catData) ? catData : []
-      const isHandleCat = (c: Category) => {
-        const catName = c.name?.toLowerCase() || ''
-        if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux")) {
-          return false
+      if (validCats.length > 0) {
+        const isHandleCat = (c: Category) => {
+          const catName = c.name?.toLowerCase() || ''
+          if (catName.includes("porte bijou") || catName.includes("porte-bijou") || catName.includes("porte bijoux")) {
+            return false
+          }
+          return (
+            catName.includes("bijoux de porte") || 
+            catName.includes("ronds") || 
+            catName.includes("ovales") || 
+            catName.includes("poignée") ||
+            catName.includes("poignee")
+          )
         }
-        return (
-          catName.includes("bijoux de porte") || 
-          catName.includes("ronds") || 
-          catName.includes("ovales") || 
-          catName.includes("poignée") ||
-          catName.includes("poignee")
-        )
+        const rawCats = validCats.filter(c => !isHandleCat(c))
+        if (!rawCats.some(c => c.name.toLowerCase().includes('lustre'))) {
+          rawCats.push({ id: 999, name: 'Lustres', description: 'Lustres et suspensions artisanales' } as any)
+        }
+        if (!rawCats.some(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux'))) {
+          rawCats.push({ id: 998, name: 'Porte Bijoux', description: 'Porte-bijoux et présentoirs artisanaux' } as any)
+        }
+        setDbCategories(rawCats)
       }
-      const rawCats = validCats.filter(c => !isHandleCat(c))
-      if (!rawCats.some(c => c.name.toLowerCase().includes('lustre'))) {
-        rawCats.push({ id: 999, name: 'Lustres', description: 'Lustres et suspensions artisanales' } as any)
+    }).catch(() => {})
+
+    try {
+      const prodData = await publicApi.getProducts({ type: 'CATALOGUE' })
+        .catch(async (err) => {
+          console.warn('[Catalog] Filtre CATALOGUE a échoué, essai avec fallback global:', err)
+          return publicApi.getProducts().catch(() => [])
+        })
+
+      const validProds = Array.isArray(prodData) ? prodData : []
+      
+      // If empty on first attempt and retryCount < 2, auto-retry in 1.5s
+      if (validProds.length === 0 && retryCount < 2) {
+        setTimeout(() => loadData(retryCount + 1, silent), 1500)
+        return
       }
-      if (!rawCats.some(c => c.name.toLowerCase().includes('porte bijou') || c.name.toLowerCase().includes('porte bijoux'))) {
-        rawCats.push({ id: 998, name: 'Porte Bijoux', description: 'Porte-bijoux et présentoirs artisanaux' } as any)
+
+      if (validProds.length === 0) {
+        if (dbProducts.length === 0) setLoadError(true)
+      } else {
+        const catalogItems = validProds.filter(p => !isHandleProduct(p))
+        const finalItems = catalogItems.length > 0 ? catalogItems : validProds
+        setDbProducts(finalItems)
+        setLoadError(false)
+        try {
+          localStorage.setItem('aschi_catalog_products_v1', JSON.stringify(finalItems))
+        } catch {}
       }
-      setDbCategories(rawCats)
       setLoading(false)
     } catch (err) {
       console.error("[Catalog] Erreur lors du chargement des créations:", err)
       if (retryCount < 2) {
-        setTimeout(() => loadData(retryCount + 1), 2500)
+        setTimeout(() => loadData(retryCount + 1, silent), 1500)
         return
       }
-      setLoadError(true)
+      if (dbProducts.length === 0) setLoadError(true)
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    loadData()
+    let hasCached = Array.isArray(initialProducts) && initialProducts.length > 0
+    if (hasCached) {
+      try {
+        const catalogItems = initialProducts.filter(p => !isHandleProduct(p))
+        localStorage.setItem('aschi_catalog_products_v1', JSON.stringify(catalogItems.length > 0 ? catalogItems : initialProducts))
+      } catch {}
+    } else {
+      try {
+        const cachedRaw = localStorage.getItem('aschi_catalog_products_v1')
+        if (cachedRaw) {
+          const parsed = JSON.parse(cachedRaw)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setDbProducts(parsed)
+            setLoading(false)
+            hasCached = true
+          }
+        }
+      } catch {}
+    }
+    loadData(0, hasCached)
   }, [])
 
   // Derive dynamic categories purely from actual products & DB categories
@@ -1538,6 +1590,8 @@ export function CatalogPage() {
                         <img
                           src={displayImg}
                           alt={cat.label}
+                          loading="lazy"
+                          decoding="async"
                           className="size-full object-cover transition-transform duration-500 group-hover:scale-110"
                           onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png' }}
                         />
@@ -2173,10 +2227,11 @@ export function CatalogPage() {
                   </motion.div>
                 )}
 
-                {paginatedProducts.map((model) => (
+                {paginatedProducts.map((model, index) => (
                   <CatalogProductCard 
                     key={model.id}
                     model={model}
+                    cardIndex={index}
                     colorFilter={color}
                     aiQuery={aiQuery}
                     hoveredId={hoveredId}
